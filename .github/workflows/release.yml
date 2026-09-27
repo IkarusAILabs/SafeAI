@@ -279,8 +279,10 @@ jobs:
     needs: [checklist, build]
     runs-on: ubuntu-latest
     permissions:
+      # Least privilege: this job writes SBOM/provenance JSON locally and
+      # uploads artifacts — it mints no OIDC tokens (Sigstore attestation
+      # lives in the sign job, which keeps id-token: write).
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -454,28 +456,29 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Promote the verified bits: publish consumes the signed artifact
+      # from the sign job (needs: [checklist, sign] above) instead of
+      # rebuilding, so PyPI ships exactly what Cosign verified. The tag
+      # binding holds because the build job pins needs.checklist.outputs.sha.
+      - name: Download signed artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          ref: ${{ needs.checklist.outputs.sha }}
+          name: signed
+          path: signed/
 
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.11"
-
-      - name: Install build tools
-        run: pip install --require-hashes -r requirements-build.txt
-
-      - name: Build package (pinned to release SHA)
+      # PyPI accepts only wheels/sdists: stage the distributions without
+      # the .sig/.pem/SHA256SUMS/SBOM/provenance sidecars that share the
+      # signed/ directory (Twine rejects those filenames).
+      - name: Stage PyPI distributions
         run: |
-          echo "Building from SHA: ${{ needs.checklist.outputs.sha }}"
-          git checkout ${{ needs.checklist.outputs.sha }}
-          python -m build
+          mkdir -p pypi
+          cp signed/*.whl signed/*.tar.gz pypi/
+          ls -la pypi/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
         with:
-          packages-dir: dist/
+          packages-dir: pypi/
 
   # ── Gate 6: Upload to GitHub Release ─────────────────────────────────
   release:
