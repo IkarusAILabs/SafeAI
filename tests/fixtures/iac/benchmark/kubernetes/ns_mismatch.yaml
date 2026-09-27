@@ -1,0 +1,30 @@
+# BENCH k8s-ns-mismatch: subject lives in another namespace.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa
+  namespace: prod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: r
+  namespace: dev
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: b
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: sa
+    namespace: dev
+roleRef:
+  kind: Role
+  name: r
+  apiGroup: rbac.authorization.k8s.io

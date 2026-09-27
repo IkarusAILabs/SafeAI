@@ -42,9 +42,9 @@ class TestProvenanceClass:
     def test_missing_evidence_is_unknown(self):
         finding = _finding(evidence="", message="", file=None)
         assert provenance_class_for(finding, "capability", False) == "unknown"
-
     def test_vocabulary_is_stable(self):
-        assert PROVENANCE_CLASSES == ("declared", "detected", "inferred", "unknown")
+        assert PROVENANCE_CLASSES == ("declared", "detected", "inferred",
+                                      "unknown", "repo-iac-observed")
 
 
 class TestGateability:
@@ -59,6 +59,9 @@ class TestGateability:
 
     def test_unknown_is_review_only(self):
         assert gateability_for(_finding(), "unknown") == "review-only"
+
+    def test_repo_iac_observed_is_review_only(self):
+        assert gateability_for(_finding(), "repo-iac-observed") == "review-only"
 
     def test_vocabulary_is_stable(self):
         assert GATEABILITY_VALUES == ("deterministic", "review-only")

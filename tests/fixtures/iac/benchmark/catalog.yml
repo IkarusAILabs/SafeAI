@@ -1,0 +1,257 @@
+# IaC benchmark corpus catalog (v2.5 redesign).
+#
+# Each case pins expected extraction/correlation output. The harness
+# (tests/test_iac_benchmark.py) asserts exact match and reports
+# per-category precision/recall — the precision boundary for any future
+# Lane-A graduation proposal (ADR-0008). Ground truth by construction:
+# every expectation below was hand-verified against the fixture.
+#
+# Verdict cases scan `dir`, build a synthetic declared surface from
+# `declared`, and compare verdicts {(domain): verdict}.
+
+cases:
+  # --- Terraform extraction -------------------------------------------
+  - id: tf-literal-role-policy
+    kind: terraform
+    files: [terraform/literal_role_policy.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: [s3:GetObject],
+         resources: ["arn:aws:s3:::b/*"], resolution: resolved}
+    bindings: 0
+    detached: []
+    modules: []
+
+  - id: tf-attachment-chain
+    kind: terraform
+    files: [terraform/attachment_chain.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: [s3:PutObject], resources: ["*"]}
+    bindings: 1
+    detached: []
+    modules: []
+
+  - id: tf-multi-role
+    kind: terraform
+    files: [terraform/multi_role.tf]
+    identities: [{kind: aws_iam_role, name: role-a},
+                 {kind: aws_iam_role, name: role-b}]
+    grants:
+      - {identity: role-a, actions: [s3:GetObject]}
+      - {identity: role-b, actions: [ec2:DescribeInstances]}
+    bindings: 2
+    detached: []
+    modules: []
+
+  - id: tf-wildcard-admin
+    kind: terraform
+    files: [terraform/wildcard_admin.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: ["*"], fidelity: [admin-wildcard]}
+    bindings: 0
+    detached: []
+    modules: []
+
+  - id: tf-interpolation
+    kind: terraform
+    files: [terraform/interpolation.tf]
+    identities: [{kind: aws_iam_role, name: app}]
+    grants:
+      - {identity: app, actions: [s3:ListBucket],
+         resolution: partially-resolved}
+    bindings: 0
+    detached: []
+    modules: []
+
+  - id: tf-dynamic-for-each
+    kind: terraform
+    files: [terraform/dynamic_for_each.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants: []
+    bindings: 0
+    detached: [dyn]
+    modules: []
+
+  - id: tf-module-ref
+    kind: terraform
+    files: [terraform/module_ref.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants: []
+    bindings: 0
+    detached: []
+    modules: [iam]
+
+  - id: tf-jsonencode-inline
+    kind: terraform
+    files: [terraform/jsonencode_inline.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: [ec2:DescribeInstances],
+         resolution: resolved}
+    bindings: 0
+    detached: []
+    modules: []
+
+  - id: tf-external-file
+    kind: terraform
+    files: [terraform/external_file.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: [], resolution: unresolved}
+    bindings: 0
+    detached: []
+    modules: []
+
+  - id: tf-data-document
+    kind: terraform
+    files: [terraform/data_document.tf]
+    identities: [{kind: aws_iam_role, name: app-role}]
+    grants:
+      - {identity: app-role, actions: [s3:GetObject],
+         fidelity: [via-data-document]}
+    bindings: 1
+    detached: []
+    modules: []
+
+  - id: tf-malformed
+    kind: terraform
+    files: [terraform/malformed.tf]
+    identities: []
+    grants: []
+    bindings: 0
+    detached: []
+    modules: []
+    unparsed: true
+
+  - id: tf-unrelated
+    kind: terraform
+    files: [terraform/unrelated.tf]
+    identities: []
+    grants: []
+    bindings: 0
+    detached: []
+    modules: []
+    unparsed: false
+
+  # --- Kubernetes extraction ------------------------------------------
+  - id: k8s-chain
+    kind: kubernetes
+    files: [kubernetes/chain.yaml]
+    identities: [{kind: kubernetes_service_account, name: agent-sa,
+                  namespace: prod}]
+    grants:
+      - {identity: agent-sa, actions: [get, list],
+         resources: [pods, configmaps]}
+    bindings: 1
+
+  - id: k8s-cluster
+    kind: kubernetes
+    files: [kubernetes/cluster.yaml]
+    identities: [{kind: kubernetes_service_account, name: agent-sa,
+                  namespace: prod}]
+    grants:
+      - {identity: agent-sa, actions: ["*"], scope: "*"}
+    bindings: 1
+
+  - id: k8s-ns-mismatch
+    kind: kubernetes
+    files: [kubernetes/ns_mismatch.yaml]
+    identities: [{kind: kubernetes_service_account, name: sa,
+                  namespace: prod}]
+    grants: []
+    bindings: 1
+
+  - id: k8s-multi-subject
+    kind: kubernetes
+    files: [kubernetes/multi_subject.yaml]
+    identities: [{kind: kubernetes_service_account, name: sa-a,
+                  namespace: prod},
+                 {kind: kubernetes_service_account, name: sa-b,
+                  namespace: prod}]
+    grants:
+      - {identity: sa-a, actions: [get]}
+      - {identity: sa-b, actions: [get]}
+    bindings: 2
+
+  - id: k8s-multi-doc
+    kind: kubernetes
+    files: [kubernetes/multi_doc.yaml]
+    identities: [{kind: kubernetes_service_account, name: sa,
+                  namespace: prod}]
+    grants: []
+    bindings: 0
+
+  - id: k8s-malformed
+    kind: kubernetes
+    files: [kubernetes/malformed.yaml]
+    identities: []
+    grants: []
+    bindings: 0
+    unparsed: true
+
+  # --- Identity linking -----------------------------------------------
+  - id: link-workload
+    kind: linking
+    dir: linking/workload_sa
+    links: 1
+    link_confidence: high
+
+  - id: link-arn
+    kind: linking
+    dir: linking/config_arn
+    links: 1
+    link_confidence: high
+
+  - id: link-none
+    kind: linking
+    dir: linking/no_link
+    links: 0
+
+  - id: link-partial
+    kind: linking
+    dir: linking/partial_name
+    links: 0
+
+  - id: link-ns
+    kind: linking
+    dir: linking/ns_confusion
+    links: 1
+    link_confidence: high
+
+  # --- Verdicts --------------------------------------------------------
+  - id: verdict-match
+    kind: verdict
+    dir: linking/match_full
+    declared: [{tool: tool:x, cap: s3, mode: read}]
+    verdicts: {"aws:s3": MATCH}
+    findings: []
+
+  - id: verdict-excess
+    kind: verdict
+    dir: linking/excess_full
+    declared: [{tool: tool:x, cap: s3, mode: read}]
+    verdicts: {"aws:s3": EXCESS_AUTHORITY}
+    findings: [IAC_EXCESS_AUTHORITY]
+
+  - id: verdict-mismatch
+    kind: verdict
+    dir: linking/mismatch_full
+    declared: [{tool: tool:x, cap: s3, mode: read}]
+    verdicts: {"aws:s3": AUTHORITY_MISMATCH}
+    findings: [IAC_AUTHORITY_MISMATCH]
+
+  - id: verdict-unverified
+    kind: verdict
+    dir: linking/unverified_full
+    declared: [{tool: tool:x, cap: s3, mode: read}]
+    verdicts: {"aws:s3": UNVERIFIED_LINK}
+    findings: [IAC_UNVERIFIED_LINK]
+
+  - id: verdict-unknown
+    kind: verdict
+    dir: linking/unknown_full
+    declared: [{tool: tool:x, cap: s3, mode: read}]
+    verdicts: {"aws:s3": UNKNOWN}
+    findings: []

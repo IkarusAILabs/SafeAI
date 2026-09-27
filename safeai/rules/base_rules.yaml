@@ -313,6 +313,19 @@
   severity: low
   owasp_llm: LLM06
 
+- id: IAC_EXCESS_AUTHORITY
+  description: Repository IaC grants authority no declared capability consumes (review-only)
+  severity: medium
+  owasp_llm: LLM06
+
+- id: IAC_AUTHORITY_MISMATCH
+  description: Declared capability has no matching IaC grant in this repository (review-only)
+  severity: low
+
+- id: IAC_UNVERIFIED_LINK
+  description: Declared capability and IaC grant coexist without a static link (review-only)
+  severity: low
+
 - id: TOOL_ORPHAN_DECLARED
   description: Tool declared in configuration but no implementation found
   severity: medium

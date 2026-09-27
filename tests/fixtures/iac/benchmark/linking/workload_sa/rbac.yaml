@@ -1,0 +1,6 @@
+# BENCH link-workload: the referenced ServiceAccount.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-sa
+  namespace: prod

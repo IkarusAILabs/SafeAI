@@ -1,0 +1,12 @@
+# BENCH link-ns: same name, two namespaces — only ns-a links.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa
+  namespace: ns-a
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa
+  namespace: ns-b

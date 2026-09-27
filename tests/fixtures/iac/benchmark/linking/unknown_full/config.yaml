@@ -1,0 +1,3 @@
+# BENCH verdict-unknown: explicit ARN link (grant still unresolved).
+agent:
+  role_arn: arn:aws:iam::123456789012:role/agent-role

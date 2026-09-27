@@ -30,10 +30,14 @@ COMPATIBLE_SCHEMA_VERSIONS = ("1.0", "1.1", "1.2")
 
 SEVERITIES = ("critical", "high", "medium", "low", "info")
 POLICY_OUTCOMES = ("pass", "warn", "review-required", "block", "accepted-exception")
-PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown")
+PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown",
+                      "repo-iac-observed")
 GATEABILITY_VALUES = ("deterministic", "review-only")
 CHANGE_CLASSES = ("NO_CHANGE", "LOW_CHANGE", "MATERIAL_CHANGE", "HIGH_RISK_CHANGE", "UNKNOWN")
 EXCEPTION_STATES = ("active", "expired", "stale", "scope-mismatch", "invalid")
+#: IaC authority correlation verdicts (v2.5, ADR-0007).
+CORRELATION_VERDICTS = ("MATCH", "EXCESS_AUTHORITY", "AUTHORITY_MISMATCH",
+                        "UNVERIFIED_LINK", "UNKNOWN")
 
 
 def contract_block():
@@ -210,6 +214,41 @@ def validate_manifest(document):
                     _err(errors, f"{base}.state",
                          f"must be one of {', '.join(EXCEPTION_STATES)}, "
                          f"got {evaluation.get('state')!r}")
+
+    # --- iac_correlations (optional; v2.5 IaC authority evidence) --------
+    iac = document.get("iac_correlations")
+    if iac is not None:
+        if not isinstance(iac, dict):
+            _err(errors, "$.iac_correlations", "must be an object")
+        else:
+            if iac.get("lane") not in (None, "B"):
+                _err(errors, "$.iac_correlations.lane",
+                     f"must be 'B' (IaC output is review-only), "
+                     f"got {iac.get('lane')!r}")
+            for i, verdict in enumerate(iac.get("verdicts") or []):
+                base = f"$.iac_correlations.verdicts[{i}]"
+                if not isinstance(verdict, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                if verdict.get("verdict") not in CORRELATION_VERDICTS:
+                    _err(errors, f"{base}.verdict",
+                         f"must be one of {', '.join(CORRELATION_VERDICTS)}, "
+                         f"got {verdict.get('verdict')!r}")
+                if verdict.get("verdict") not in (None, "UNKNOWN"):
+                    refs = (verdict.get("declared_evidence_refs") or []) + \
+                           (verdict.get("grant_evidence_refs") or [])
+                    if not refs:
+                        _err(errors, base,
+                             "non-UNKNOWN verdicts must cite declared or "
+                             "grant evidence refs")
+            for i, grant in enumerate(iac.get("grants") or []):
+                base = f"$.iac_correlations.grants[{i}]"
+                if not isinstance(grant, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                if not grant.get("source_file"):
+                    _err(errors, f"{base}.source_file",
+                         "must be a non-empty string")
 
     # --- assurance boundary / limitations ---------------------------------
     if "assurance_boundary" not in document:

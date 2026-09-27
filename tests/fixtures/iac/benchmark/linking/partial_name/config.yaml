@@ -1,0 +1,3 @@
+# BENCH link-partial: value is a prefix, not the identity name.
+agent:
+  service_account: agent-sa

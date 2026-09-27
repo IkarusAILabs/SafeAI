@@ -1,0 +1,3 @@
+# BENCH link-arn: explicit role ARN in structured config.
+agent:
+  role_arn: arn:aws:iam::123456789012:role/agent-role

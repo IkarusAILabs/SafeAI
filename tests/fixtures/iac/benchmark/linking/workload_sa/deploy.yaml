@@ -1,0 +1,11 @@
+# BENCH link-workload: Deployment references the collected SA.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent
+  namespace: prod
+spec:
+  template:
+    spec:
+      serviceAccountName: agent-sa
+      containers: []

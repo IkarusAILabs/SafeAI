@@ -199,6 +199,39 @@ def _mcp_assurance_notes(report):
     return notes
 
 
+def _iac_assurance_notes(report):
+    """State what IaC authority evidence was (and was not) inspected.
+
+    Repository IaC is declared-grant evidence, never proof of deployed
+    permission — the note says which files fed the correlation, what
+    was skipped, and that all IaC output is review-only.
+    """
+    iac = report.get("iac_correlations")
+    if not isinstance(iac, dict):
+        return []
+    files = iac.get("files") or {}
+    inspected = sorted(set(files.get("terraform") or [])
+                       | set(files.get("kubernetes_rbac") or []))
+    unparsed = sorted(set(files.get("unparsed") or []))
+    counts = iac.get("counts") or {}
+    if not inspected and not unparsed and not counts.get("grants"):
+        return []
+    notes = []
+    if inspected:
+        notes.append(
+            f"IaC authority evidence read from {len(inspected)} "
+            f"{_plural(len(inspected), 'file')} "
+            f"({counts.get('grants', 0)} grants); repository grants are "
+            "declared-grant evidence only, not proof of deployed permission, "
+            "and all IaC output is review-only")
+    if unparsed:
+        notes.append(
+            f"{len(unparsed)} {_plural(len(unparsed), 'file')} with IaC "
+            "content could not be parsed and were excluded from authority "
+            "correlation")
+    return notes
+
+
 def build_assurance_boundary(report):
     """Return the assurance boundary for ``report``.
 
@@ -214,6 +247,7 @@ def build_assurance_boundary(report):
     coverage_notes.extend(_inference_notes(report, inferred_count, inferred_tools))
     coverage_notes.extend(_attribution_notes(report))
     coverage_notes.extend(_mcp_assurance_notes(report))
+    coverage_notes.extend(_iac_assurance_notes(report))
     if not coverage_notes:
         coverage_notes.append(
             "no files were skipped, no configuration failed to parse, and no "

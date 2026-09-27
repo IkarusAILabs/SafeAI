@@ -1,9 +1,10 @@
 # SafeAI — Technical Architecture
 
 This document describes the technical architecture of the SafeAI Static AI
-Capability & Risk Analyzer. It reflects the v1.6 structure: the scan engine is
+Capability & Risk Analyzer. It reflects the v2.5 structure: the scan engine is
 split into an orchestrator and a post-scan KYA pipeline, the registry is a
-focused package, and the Security Scorecard is a first-class report.
+focused package, authority decisions run on Lane A (deterministic gates) vs
+Lane B (human review), and IaC authority evidence feeds the authority model.
 
 ---
 
@@ -23,7 +24,7 @@ Source Code
 prepare ──► load_sources ──► parse_frameworks ──► extract_components
     │                                                      │
     ▼                                                      ▼
-analyze (11 analyzers) ──────────────────────► assemble (score, tool surface,
+analyze (13 analyzers) ──────────────────────► assemble (score, tool surface,
     │                                                      assurance boundary)
     ▼
 ScanPostProcessor: normalize → suppress → baseline → policy → identity
@@ -187,12 +188,15 @@ analyzers:
 | `ToolDefAnalyzer` | Tool definition analysis |
 | `ModelConfigAnalyzer` | Model configuration safety checks |
 | `WorkflowAnalyzer` | Workflow template analysis |
+| `DataFlowAnalyzer` | Untrusted-input → sensitive-sink heuristics (gate-inert) |
+| `GovernanceAnalyzer` | Timeout/retry/approval/audit/rate-limit controls + failure classes |
 
 ### 6. Framework Adapters (`frameworks/*/parser.py`)
 
-15 adapters: LangGraph, CrewAI, LangChain, Semantic Kernel, OpenAI Agents,
+20 adapter packages: LangGraph, CrewAI, LangChain, Semantic Kernel, OpenAI Agents,
 Microsoft Agent, Azure AI Foundry, Bedrock Agent, Claude Code, Google ADK,
-Mastra, Haystack, LlamaIndex, Dify, n8n. Each implements `detect()` and
+Mastra, Haystack, LlamaIndex, Dify, n8n, AutoGen, Cursor Rules, Windsurf,
+OpenClaw, Copilot. Each implements `detect()` and
 `parse()` and returns a consistent artifact schema (agents, workflows, tools,
 prompts, memory, models, capabilities, relationships) with confidence and
 provenance. See "Plugin Architecture" below.
@@ -210,6 +214,13 @@ provenance. See "Plugin Architecture" below.
 - `dependency_correlation.py` — matches the CE 1.5 credential/config inventory
   against declared capabilities, producing `DEP_UNDECLARED_CAPABILITY` and
   `DEP_ORPHANED_TOOL`.
+- `iac_correlation.py` (v2.5) — matches IaC Grant triples (Terraform, K8s
+  RBAC) against the declared tool surface, producing `IAC_EXCESS_AUTHORITY`,
+  `IAC_AUTHORITY_MISMATCH`, `IAC_UNVERIFIED_LINK` (all review-only, Lane B).
+- `capability_diff.py` change classification (`NO/LOW/MATERIAL/HIGH_RISK/
+  UNKNOWN` × semantic `change_types`) feeds `--fail-on-authority-change`
+  and the policy lanes (`safeai/kya/policy.py`: Lane A deterministic
+  gates vs Lane B human-review questions).
 
 ### 8. KYA Registry (`kya/registry/`)
 
@@ -273,18 +284,19 @@ prepare: collect_files (.py/.json/.yaml/.yml + dependency manifests)
 load_sources: semantic documents (AST) + import graph
     │
     ▼
-parse_frameworks: all 15 parsers on all files (no mutual exclusion)
+parse_frameworks: all 20 parsers on all files (no mutual exclusion)
     │
     ▼
 extract_components: component extraction + parser aggregation + capabilities
     │
     ▼
-analyze: 11 analyzers (capability, prompt, prompt_file, data_leakage,
-         env_dependency, mcp, claude_code, skill, tool_def, model_config,
-         workflow)
+analyze: 13 analyzers (capability, prompt, prompt_file, data_leakage,
+         dataflow, env_dependency, governance, mcp, claude_code, skill,
+         tool_def, model_config, workflow)
     │
     ▼
-assemble: relativize paths + trust score + tool surface + assurance boundary
+assemble: relativize paths + trust score + tool surface + IaC authority
+         correlation + assurance boundary
     │
     ▼
 ScanPostProcessor: normalize → suppress → baseline → policy → identity
@@ -311,7 +323,13 @@ Tool identity (`safeai/analysis/tool_identity.py`), tool surface, and
 capability diff (schema v2) key this model on `(tool_identity,
 capability, access_mode)`; escalation rules (`ESC_*`) and policy
 outcomes (`pass | warn | review-required | block |
-accepted-exception`) decide on *changes* to it. Authority classes:
+accepted-exception`) decide on *changes* to it. Since v2.5 the model
+canonically extends to **Identity** (a name string — service account,
+role, principal) and **Grant** (`(principal, action-pattern,
+resource-pattern, source_ref)` triples from in-repo Terraform /
+Kubernetes YAML, `safeai/iac/`), joined by correlation verdicts
+(`MATCH | EXCESS_AUTHORITY | AUTHORITY_MISMATCH | UNVERIFIED_LINK |
+UNKNOWN`, default `UNVERIFIED_LINK`; ADR-0007). Authority classes:
 declared · detected · inferred (confidence-labelled) ·
 repository/IaC-observed · unknown · runtime-granted (out of scope for
 static analysis). Unknown is an evidence state, not evidence of safety.

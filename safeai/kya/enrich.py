@@ -32,6 +32,7 @@ _ANALYZER_BY_RULE_PREFIX = {
     "DATA_LEAKAGE": "data_leakage",
     "ENV_DEP_": "env_dependency",
     "DEP_": "env_dependency",
+    "IAC_": "iac",
     "MCP_": "mcp",
     "SKILL_": "skill",
     "TOOL_DEF_": "tool_def",
@@ -70,7 +71,8 @@ _DECLARED_ANALYZERS = frozenset({
 GATEABILITY_DETERMINISTIC = "deterministic"
 GATEABILITY_REVIEW_ONLY = "review-only"
 
-PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown")
+PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown",
+                      "repo-iac-observed")
 GATEABILITY_VALUES = (GATEABILITY_DETERMINISTIC, GATEABILITY_REVIEW_ONLY)
 
 
@@ -90,9 +92,11 @@ def gateability_for(finding, provenance_class):
     """Return the gateability for a normalized finding.
 
     Heuristic or unknown-provenance findings are review-only: no heuristic
-    may fail a Lane-A deterministic gate on its own.
+    may fail a Lane-A deterministic gate on its own. Repository-IaC
+    evidence is review-only by construction (ADR-0008): grants observed
+    in IaC can inform human review but never fail a gate.
     """
-    if provenance_class in ("inferred", "unknown"):
+    if provenance_class in ("inferred", "unknown", "repo-iac-observed"):
         return GATEABILITY_REVIEW_ONLY
     return GATEABILITY_DETERMINISTIC
 

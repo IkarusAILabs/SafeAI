@@ -1,0 +1,28 @@
+# BENCH k8s-cluster: ClusterRole + ClusterRoleBinding, cluster scope.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-sa
+  namespace: prod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agent-global
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agent-global-binding
+subjects:
+  - kind: ServiceAccount
+    name: agent-sa
+    namespace: prod
+roleRef:
+  kind: ClusterRole
+  name: agent-global
+  apiGroup: rbac.authorization.k8s.io
