@@ -1,15 +1,18 @@
 name: Release
-true:
+
+on:
   push:
-    tags:
-    - v*
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag (e.g. v2.0.1)
+        description: "Release tag (e.g. v2.0.1)"
         required: true
+
 permissions: read-all
+
 jobs:
+  # ── Gate 1: Pre-release checklist ────────────────────────────────────
   checklist:
     name: Pre-release checklist
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
@@ -20,160 +23,222 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       sha: ${{ steps.meta.outputs.sha }}
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-    - name: Extract metadata
-      id: meta
-      run: 'TAG="${{ github.ref_name || inputs.tag }}"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-        echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+      - name: Extract metadata
+        id: meta
+        run: |
+          TAG="${{ github.ref_name || inputs.tag }}"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-        echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
 
-        echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Install dependencies
+        run: |
+          pip install --require-hashes -r requirements.txt
+          pip install --no-deps -e .
+          pip install --require-hashes -r requirements-test.txt
 
-        '
-    - name: Set up Python
-      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: 'pip install --require-hashes -r requirements.txt
+      - name: "Check: canonical release checklist"
+        run: python scripts/check_release.py
 
-        pip install --no-deps -e .
+      - name: "Check: version string matches tag"
+        run: |
+          TAG_VERSION="${{ steps.meta.outputs.version }}"
+          CODE_VERSION=$(python -c "from safeai.version import SAFEAI_VERSION; print(SAFEAI_VERSION)")
+          if [ "$TAG_VERSION" = "2" ]; then
+            echo "Floating tag v2 — skipping version-match check"
+          elif [ "$TAG_VERSION" != "$CODE_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) != code version ($CODE_VERSION)"
+            exit 1
+          else
+            echo "Version match: $TAG_VERSION"
+          fi
 
-        pip install --require-hashes -r requirements-test.txt
+      - name: "Check: all rules have required fields"
+        run: |
+          python -c "
+          import yaml, sys
+          with open('safeai/rules/base_rules.yaml') as f:
+              rules = yaml.safe_load(f)
+          required = {'id', 'severity', 'description'}
+          bad = [r for r in rules if not required.issubset(r.keys())]
+          if bad:
+              for r in bad:
+                  print(f'Missing fields in rule: {r.get(\"id\", \"UNKNOWN\")}')
+              sys.exit(1)
+          print(f'All {len(rules)} rules have required fields')
+          "
 
-        '
-    - name: 'Check: canonical release checklist'
-      run: python scripts/check_release.py
-    - name: 'Check: version string matches tag'
-      run: "TAG_VERSION=\"${{ steps.meta.outputs.version }}\"\nCODE_VERSION=$(python\
-        \ -c \"from safeai.version import SAFEAI_VERSION; print(SAFEAI_VERSION)\"\
-        )\nif [ \"$TAG_VERSION\" = \"2\" ]; then\n  echo \"Floating tag v2 \u2014\
-        \ skipping version-match check\"\nelif [ \"$TAG_VERSION\" != \"$CODE_VERSION\"\
-        \ ]; then\n  echo \"::error::Tag version ($TAG_VERSION) != code version ($CODE_VERSION)\"\
-        \n  exit 1\nelse\n  echo \"Version match: $TAG_VERSION\"\nfi\n"
-    - name: 'Check: all rules have required fields'
-      run: "python -c \"\nimport yaml, sys\nwith open('safeai/rules/base_rules.yaml')\
-        \ as f:\n    rules = yaml.safe_load(f)\nrequired = {'id', 'severity', 'description'}\n\
-        bad = [r for r in rules if not required.issubset(r.keys())]\nif bad:\n   \
-        \ for r in bad:\n        print(f'Missing fields in rule: {r.get(\\\"id\\\"\
-        , \\\"UNKNOWN\\\")}')\n    sys.exit(1)\nprint(f'All {len(rules)} rules have\
-        \ required fields')\n\"\n"
-    - name: 'Check: compatibility tests pass'
-      run: python -m pytest tests/test_compatibility.py -q --tb=short
-    - name: 'Check: benchmarks pass (full corpus, release-blocking)'
-      run: python scripts/run_benchmarks.py --subset full
-    - name: 'Check: fixture coverage completeness'
-      run: "python -c \"\nimport os\nFIXTURES = 'tests/fixtures'\nfrom safeai.frameworks\
-        \ import discover_parsers\nparsers = discover_parsers()\nframeworks = set()\n\
-        for parser in parsers:\n    for test_file, test_content in [('test.py', ''),\
-        \ ('test.json', '{}'), ('test.yaml', '')]:\n        result = parser.parse(test_file,\
-        \ test_content)\n        if isinstance(result, dict) and 'framework' in result:\n\
-        \            frameworks.add(result['framework'])\n            break\n# Map\
-        \ framework names to fixture directory names\nFRAMEWORK_TO_FIXTURE = {'microsoft_agent_framework':\
-        \ 'microsoft_agent'}\nwith_fixtures = set()\nfor entry in os.scandir(FIXTURES):\n\
-        \    if entry.is_dir() and entry.name not in ('mcp', 'action', 'regression',\
-        \ 'claude_code'):\n        rep = os.path.join(entry.path, 'representative')\n\
-        \        if os.path.isdir(rep):\n            # Check if this directory name\
-        \ maps to a framework name\n            mapped = False\n            for fw_name,\
-        \ fw_dir in FRAMEWORK_TO_FIXTURE.items():\n                if entry.name ==\
-        \ fw_dir:\n                    with_fixtures.add(fw_name)\n              \
-        \      mapped = True\n                    break\n            if not mapped:\n\
-        \                with_fixtures.add(entry.name)\nif os.path.isdir(os.path.join(FIXTURES,\
-        \ 'claude_code', 'compatibility')):\n    with_fixtures.add('claude_code')\n\
-        missing = frameworks - with_fixtures\nif missing:\n    print(f'Frameworks\
-        \ missing golden fixtures: {sorted(missing)}')\n    exit(1)\nprint(f'All {len(frameworks)}\
-        \ frameworks have golden fixtures')\n\"\n"
-    - name: 'Check: support-matrix consistency'
-      run: "python -c \"\nimport re, yaml\n# Read SUPPORT_MATRIX.md\nwith open('docs/reference/SUPPORT_MATRIX.md')\
-        \ as f:\n    content = f.read()\n# Extract adapter names from the Framework\
-        \ Adapters table only\n# Find the table between \"## Framework Adapters\"\
-        \ and the next \"##\"\nframework_section = re.search(r'## Framework Adapters\\\
-        n(.*?)(?=\\n## |\\Z)', content, re.DOTALL)\nif framework_section:\n    adapter_pattern\
-        \ = r'\\| \\x60([a-z0-9_]+)\\x60 \\|'\n    matrix_adapters = set(re.findall(adapter_pattern,\
-        \ framework_section.group(1)))\nelse:\n    matrix_adapters = set()\n# Extract\
-        \ adapter names from registered parsers\nfrom safeai.frameworks import discover_parsers\n\
-        parsers = discover_parsers()\ncode_adapters = set()\nfor parser in parsers:\n\
-        \    result = parser.parse('test.py', '')\n    if isinstance(result, dict)\
-        \ and 'framework' in result:\n        code_adapters.add(result['framework'])\n\
-        \    elif hasattr(parser, 'name'):\n        code_adapters.add(parser.name)\n\
-        # Compare\nmissing_in_matrix = code_adapters - matrix_adapters\nmissing_in_code\
-        \ = matrix_adapters - code_adapters\nif missing_in_matrix:\n    print(f'Adapters\
-        \ in code but not in SUPPORT_MATRIX.md: {sorted(missing_in_matrix)}')\n  \
-        \  exit(1)\nif missing_in_code:\n    print(f'Adapters in SUPPORT_MATRIX.md\
-        \ but not in code: {sorted(missing_in_code)}')\n    exit(1)\nprint(f'SUPPORT_MATRIX.md\
-        \ is consistent with {len(code_adapters)} adapters')\n# Check Action inputs\n\
-        with open('action.yml') as f:\n    action = yaml.safe_load(f)\naction_inputs\
-        \ = set(action['inputs'].keys())\n# Extract input names from SUPPORT_MATRIX.md\n\
-        input_pattern = r'\\| \\x60([a-z-]+)\\x60 \\|'\nmatrix_inputs = set(re.findall(input_pattern,\
-        \ content))\nmissing_inputs = action_inputs - matrix_inputs\nif missing_inputs:\n\
-        \    print(f'Action inputs in code but not in SUPPORT_MATRIX.md: {sorted(missing_inputs)}')\n\
-        \    exit(1)\nprint(f'SUPPORT_MATRIX.md Action inputs are consistent')\n\"\
-        \n"
-    - name: 'Check: SARIF output is valid'
-      run: 'python -c "
+      - name: "Check: compatibility tests pass"
+        run: python -m pytest tests/test_compatibility.py -q --tb=short
 
-        from safeai.engine.scan import run_scan
+      - name: "Check: benchmarks pass (full corpus, release-blocking)"
+        run: python scripts/run_benchmarks.py --subset full
 
-        from safeai.report.sarif import write_sarif
+      - name: "Check: fixture coverage completeness"
+        run: |
+          python -c "
+          import os
+          FIXTURES = 'tests/fixtures'
+          from safeai.frameworks import discover_parsers
+          parsers = discover_parsers()
+          frameworks = set()
+          for parser in parsers:
+              for test_file, test_content in [('test.py', ''), ('test.json', '{}'), ('test.yaml', '')]:
+                  result = parser.parse(test_file, test_content)
+                  if isinstance(result, dict) and 'framework' in result:
+                      frameworks.add(result['framework'])
+                      break
+          # Map framework names to fixture directory names
+          FRAMEWORK_TO_FIXTURE = {'microsoft_agent_framework': 'microsoft_agent'}
+          with_fixtures = set()
+          for entry in os.scandir(FIXTURES):
+              if entry.is_dir() and entry.name not in ('mcp', 'action', 'regression', 'claude_code'):
+                  rep = os.path.join(entry.path, 'representative')
+                  if os.path.isdir(rep):
+                      # Check if this directory name maps to a framework name
+                      mapped = False
+                      for fw_name, fw_dir in FRAMEWORK_TO_FIXTURE.items():
+                          if entry.name == fw_dir:
+                              with_fixtures.add(fw_name)
+                              mapped = True
+                              break
+                      if not mapped:
+                          with_fixtures.add(entry.name)
+          if os.path.isdir(os.path.join(FIXTURES, 'claude_code', 'compatibility')):
+              with_fixtures.add('claude_code')
+          missing = frameworks - with_fixtures
+          if missing:
+              print(f'Frameworks missing golden fixtures: {sorted(missing)}')
+              exit(1)
+          print(f'All {len(frameworks)} frameworks have golden fixtures')
+          "
 
-        import json, tempfile, os
+      - name: "Check: support-matrix consistency"
+        run: |
+          python -c "
+          import re, yaml
+          # Read SUPPORT_MATRIX.md
+          with open('docs/reference/SUPPORT_MATRIX.md') as f:
+              content = f.read()
+          # Extract adapter names from the Framework Adapters table only
+          # Find the table between "## Framework Adapters" and the next "##"
+          framework_section = re.search(r'## Framework Adapters\n(.*?)(?=\n## |\Z)', content, re.DOTALL)
+          if framework_section:
+              adapter_pattern = r'\| \x60([a-z0-9_]+)\x60 \|'
+              matrix_adapters = set(re.findall(adapter_pattern, framework_section.group(1)))
+          else:
+              matrix_adapters = set()
+          # Extract adapter names from registered parsers
+          from safeai.frameworks import discover_parsers
+          parsers = discover_parsers()
+          code_adapters = set()
+          for parser in parsers:
+              result = parser.parse('test.py', '')
+              if isinstance(result, dict) and 'framework' in result:
+                  code_adapters.add(result['framework'])
+              elif hasattr(parser, 'name'):
+                  code_adapters.add(parser.name)
+          # Compare
+          missing_in_matrix = code_adapters - matrix_adapters
+          missing_in_code = matrix_adapters - code_adapters
+          if missing_in_matrix:
+              print(f'Adapters in code but not in SUPPORT_MATRIX.md: {sorted(missing_in_matrix)}')
+              exit(1)
+          if missing_in_code:
+              print(f'Adapters in SUPPORT_MATRIX.md but not in code: {sorted(missing_in_code)}')
+              exit(1)
+          print(f'SUPPORT_MATRIX.md is consistent with {len(code_adapters)} adapters')
+          # Check Action inputs
+          with open('action.yml') as f:
+              action = yaml.safe_load(f)
+          action_inputs = set(action['inputs'].keys())
+          # Extract input names from SUPPORT_MATRIX.md
+          input_pattern = r'\| \x60([a-z-]+)\x60 \|'
+          matrix_inputs = set(re.findall(input_pattern, content))
+          missing_inputs = action_inputs - matrix_inputs
+          if missing_inputs:
+              print(f'Action inputs in code but not in SUPPORT_MATRIX.md: {sorted(missing_inputs)}')
+              exit(1)
+          print(f'SUPPORT_MATRIX.md Action inputs are consistent')
+          "
 
-        report = run_scan(''tests/fixtures/crewai/representative'')
+      - name: "Check: SARIF output is valid"
+        run: |
+          python -c "
+          from safeai.engine.scan import run_scan
+          from safeai.report.sarif import write_sarif
+          import json, tempfile, os
+          report = run_scan('tests/fixtures/crewai/representative')
+          path = os.path.join(tempfile.mkdtemp(), 'test.sarif')
+          write_sarif(report, path)
+          data = json.loads(open(path).read())
+          assert data['version'] == '2.1.0', 'Invalid SARIF version'
+          assert len(data['runs']) >= 1, 'No SARIF runs'
+          print('SARIF output valid')
+          "
 
-        path = os.path.join(tempfile.mkdtemp(), ''test.sarif'')
+      - name: "Check: JSON report has required keys"
+        run: |
+          python -c "
+          from safeai.engine.scan import run_scan
+          report = run_scan('tests/fixtures/crewai/representative')
+          required = ['findings', 'counts', 'detected_frameworks', 'tool_surface', 'assurance_boundary']
+          missing = [k for k in required if k not in report]
+          if missing:
+              print(f'Missing keys: {missing}')
+              exit(1)
+          print(f'JSON report has all {len(required)} required keys')
+          "
 
-        write_sarif(report, path)
+      - name: "Check: Action I/O contract stable"
+        run: |
+          python -c "
+          import yaml
+          with open('action.yml') as f:
+              action = yaml.safe_load(f)
+          inputs = set(action['inputs'].keys())
+          outputs = set(action['outputs'].keys())
+          expected_inputs = {'path','version','fail-on','sarif','rules','baseline','fail-on-new','fail-on-escalation','no-registry','extra-args','scorecard','scorecard-json','scorecard-summary','scorecard-fail-under','pr-comment-post'}
+          expected_outputs = {'sarif-path','scorecard-path','safeai-version'}
+          missing_i = expected_inputs - inputs
+          missing_o = expected_outputs - outputs
+          if missing_i:
+              print(f'Missing Action inputs: {missing_i}')
+              exit(1)
+          if missing_o:
+              print(f'Missing Action outputs: {missing_o}')
+              exit(1)
+          print(f'Action I/O contract stable: {len(inputs)} inputs, {len(outputs)} outputs')
+          "
 
-        data = json.loads(open(path).read())
+      - name: "Check: failure_class_matrix present"
+        run: |
+          python -c "
+          from safeai.engine.scan import run_scan
+          from safeai.report.failure_matrix import build_failure_class_matrix
+          report = run_scan('tests/fixtures/crewai/representative')
+          matrix = build_failure_class_matrix(report.get('findings', []))
+          assert len(matrix) > 0, 'Empty failure class matrix'
+          print(f'Failure class matrix: {len(matrix)} classes')
+          "
 
-        assert data[''version''] == ''2.1.0'', ''Invalid SARIF version''
+      - name: "Check: CHANGELOG has entry for this version"
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          if ! grep -q "\[$VERSION\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no entry for v$VERSION"
+            exit 1
+          fi
+          echo "CHANGELOG entry found for v$VERSION"
 
-        assert len(data[''runs'']) >= 1, ''No SARIF runs''
-
-        print(''SARIF output valid'')
-
-        "
-
-        '
-    - name: 'Check: JSON report has required keys'
-      run: "python -c \"\nfrom safeai.engine.scan import run_scan\nreport = run_scan('tests/fixtures/crewai/representative')\n\
-        required = ['findings', 'counts', 'detected_frameworks', 'tool_surface', 'assurance_boundary']\n\
-        missing = [k for k in required if k not in report]\nif missing:\n    print(f'Missing\
-        \ keys: {missing}')\n    exit(1)\nprint(f'JSON report has all {len(required)}\
-        \ required keys')\n\"\n"
-    - name: 'Check: Action I/O contract stable'
-      run: "python -c \"\nimport yaml\nwith open('action.yml') as f:\n    action =\
-        \ yaml.safe_load(f)\ninputs = set(action['inputs'].keys())\noutputs = set(action['outputs'].keys())\n\
-        expected_inputs = {'path','version','fail-on','sarif','rules','baseline','fail-on-new','fail-on-escalation','no-registry','extra-args','scorecard','scorecard-json','scorecard-summary','scorecard-fail-under','pr-comment-post'}\n\
-        expected_outputs = {'sarif-path','scorecard-path','safeai-version'}\nmissing_i\
-        \ = expected_inputs - inputs\nmissing_o = expected_outputs - outputs\nif missing_i:\n\
-        \    print(f'Missing Action inputs: {missing_i}')\n    exit(1)\nif missing_o:\n\
-        \    print(f'Missing Action outputs: {missing_o}')\n    exit(1)\nprint(f'Action\
-        \ I/O contract stable: {len(inputs)} inputs, {len(outputs)} outputs')\n\"\n"
-    - name: 'Check: failure_class_matrix present'
-      run: 'python -c "
-
-        from safeai.engine.scan import run_scan
-
-        from safeai.report.failure_matrix import build_failure_class_matrix
-
-        report = run_scan(''tests/fixtures/crewai/representative'')
-
-        matrix = build_failure_class_matrix(report.get(''findings'', []))
-
-        assert len(matrix) > 0, ''Empty failure class matrix''
-
-        print(f''Failure class matrix: {len(matrix)} classes'')
-
-        "
-
-        '
-    - name: 'Check: CHANGELOG has entry for this version'
-      run: "VERSION=\"${{ steps.meta.outputs.version }}\"\nif ! grep -q \"\\[$VERSION\\\
-        ]\" CHANGELOG.md; then\n  echo \"::error::CHANGELOG.md has no entry for v$VERSION\"\
-        \n  exit 1\nfi\necho \"CHANGELOG entry found for v$VERSION\"\n"
+  # ── Gate 2: Build ────────────────────────────────────────────────────
   build:
     name: Build package
     needs: checklist
@@ -181,186 +246,209 @@ jobs:
     permissions:
       contents: read
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      with:
-        ref: ${{ needs.checklist.outputs.sha }}
-    - name: Set up Python
-      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-      with:
-        python-version: '3.11'
-    - name: Install build tools
-      run: pip install --require-hashes -r requirements-build.txt
-    - name: Build package
-      run: python -m build
-    - name: Verify package metadata
-      run: 'python -m twine check dist/*
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.checklist.outputs.sha }}
 
-        echo "Package metadata valid"
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
 
-        '
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-      with:
-        name: dist
-        path: dist/
-        retention-days: 5
+      - name: Install build tools
+        run: pip install --require-hashes -r requirements-build.txt
+
+      - name: Build package
+        run: python -m build
+
+      - name: Verify package metadata
+        run: |
+          python -m twine check dist/*
+          echo "Package metadata valid"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist
+          path: dist/
+          retention-days: 5
+
+  # ── Gate 3: Checksums + SBOM + Provenance ────────────────────────────
   attest:
     name: Generate artifacts
-    needs:
-    - checklist
-    - build
+    needs: [checklist, build]
     runs-on: ubuntu-latest
     permissions:
+      # Least privilege: this job writes SBOM/provenance JSON locally and
+      # uploads artifacts — it mints no OIDC tokens (Sigstore attestation
+      # lives in the sign job, which keeps id-token: write).
       contents: read
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      with:
-        ref: ${{ needs.checklist.outputs.sha }}
-    - name: Set up Python
-      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: 'pip install --require-hashes -r requirements.txt
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.checklist.outputs.sha }}
 
-        pip install --no-deps -e .
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
 
-        '
-    - name: Download build artifacts
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-      with:
-        name: dist
-        path: dist/
-    - name: Generate SBOM
-      run: python scripts/generate_release_artifacts.py ${{ needs.checklist.outputs.version
-        }}
-    - name: Generate SLSA provenance
-      run: "TAG=\"${{ needs.checklist.outputs.version }}\"\nSHA=\"${{ needs.checklist.outputs.sha\
-        \ }}\"\ncat > \"dist/safeai-${TAG}-slsa-provenance.json\" << PROV\n{\n  \"\
-        _type\": \"https://in-toto.io/Statement/v1\",\n  \"subject\": [{\"name\":\
-        \ \"safeai-${TAG}.tar.gz\", \"digest\": {\"sha1\": \"${SHA}\"}}],\n  \"predicateType\"\
-        : \"https://slsa.dev/provenance/v1\",\n  \"predicate\": {\n    \"buildType\"\
-        : \"https://github.com/ikaruscareer/SafeAI/.github/workflows/release.yml\"\
-        ,\n    \"externalParameters\": {\n      \"source\": {\"uri\": \"git+https://github.com/ikaruscareer/SafeAI@${SHA}\"\
-        , \"digest\": {\"sha1\": \"${SHA}\"}}\n    },\n    \"metadata\": {\n     \
-        \ \"buildInvocationId\": \"${{ github.run_id }}\",\n      \"completeness\"\
-        : {\"parameters\": true, \"environment\": false, \"materials\": false}\n \
-        \   }\n  }\n}\nPROV\n"
-    - name: Generate SHA-256 checksums
-      run: 'VER="${{ needs.checklist.outputs.version }}"
+      - name: Install dependencies
+        run: |
+          pip install --require-hashes -r requirements.txt
+          pip install --no-deps -e .
 
-        cd dist
+      - name: Download build artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/
 
-        sha256sum -- * > SHA256SUMS
+      - name: Generate SBOM
+        run: python scripts/generate_release_artifacts.py ${{ needs.checklist.outputs.version }}
 
-        # Link the SBOM into the same checksum file (basename only, so the
+      - name: Generate SLSA provenance
+        run: |
+          TAG="${{ needs.checklist.outputs.version }}"
+          SHA="${{ needs.checklist.outputs.sha }}"
+          cat > "dist/safeai-${TAG}-slsa-provenance.json" << PROV
+          {
+            "_type": "https://in-toto.io/Statement/v1",
+            "subject": [{"name": "safeai-${TAG}.tar.gz", "digest": {"sha1": "${SHA}"}}],
+            "predicateType": "https://slsa.dev/provenance/v1",
+            "predicate": {
+              "buildType": "https://github.com/ikaruscareer/SafeAI/.github/workflows/release.yml",
+              "externalParameters": {
+                "source": {"uri": "git+https://github.com/ikaruscareer/SafeAI@${SHA}", "digest": {"sha1": "${SHA}"}}
+              },
+              "metadata": {
+                "buildInvocationId": "${{ github.run_id }}",
+                "completeness": {"parameters": true, "environment": false, "materials": false}
+              }
+            }
+          }
+          PROV
 
-        # release invariant gate can match every staged file by name).
+      - name: Generate SHA-256 checksums
+        run: |
+          VER="${{ needs.checklist.outputs.version }}"
+          cd dist
+          sha256sum -- * > SHA256SUMS
+          # Link the SBOM into the same checksum file (basename only, so the
+          # release invariant gate can match every staged file by name).
+          sha256sum -- "../release-artifacts/safeai-${VER}-sbom.spdx.json" | sed "s|../release-artifacts/||" >> SHA256SUMS
+          echo "Checksums generated:"
+          cat SHA256SUMS
 
-        sha256sum -- "../release-artifacts/safeai-${VER}-sbom.spdx.json" | sed "s|../release-artifacts/||"
-        >> SHA256SUMS
+      - name: Upload attestations
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: attestations
+          path: |
+            release-artifacts/safeai-${{ needs.checklist.outputs.version }}-sbom.spdx.json
+            dist/SHA256SUMS
+            dist/safeai-${{ needs.checklist.outputs.version }}-slsa-provenance.json
+          retention-days: 5
 
-        echo "Checksums generated:"
-
-        cat SHA256SUMS
-
-        '
-    - name: Upload attestations
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-      with:
-        name: attestations
-        path: 'release-artifacts/safeai-${{ needs.checklist.outputs.version }}-sbom.spdx.json
-
-          dist/SHA256SUMS
-
-          dist/safeai-${{ needs.checklist.outputs.version }}-slsa-provenance.json
-
-          '
-        retention-days: 5
+  # ── Gate 4: Sign + Attest ────────────────────────────────────────────
   sign:
     name: Sigstore-sign artifacts
-    needs:
-    - checklist
-    - attest
+    needs: [checklist, attest]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
       attestations: write
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      with:
-        ref: ${{ needs.checklist.outputs.sha }}
-    - name: Download build artifacts
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-      with:
-        name: dist
-        path: dist/
-    - name: Download attestations
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-      with:
-        name: attestations
-        path: attestations/
-    - name: Set up Python
-      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-      with:
-        python-version: '3.12'
-    - name: Attest build provenance (Sigstore)
-      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
-      with:
-        subject-path: 'dist/*.whl
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.checklist.outputs.sha }}
 
-          dist/*.tar.gz
+      - name: Download build artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/
 
-          '
-    - name: Install Cosign
-      uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
-      with:
-        cosign-release: v2.6.1
-    - name: Sign artifacts with Cosign (keyless)
-      run: "for f in dist/*.whl dist/*.tar.gz; do\n  cosign sign-blob --yes --output-signature\
-        \ \"${f}.sig\" --output-certificate \"${f}.pem\" \"$f\"\ndone\necho \"Cosign\
-        \ signatures:\"\nls -la dist/*.sig dist/*.pem\n"
-    - name: Verify signatures with Cosign (fail closed)
-      run: "for f in dist/*.whl dist/*.tar.gz; do\n  cosign verify-blob --signature\
-        \ \"${f}.sig\" --certificate \"${f}.pem\" \\\n    --certificate-identity-regexp\
-        \ \"https://github.com/${{ github.repository }}/.*\" \\\n    --certificate-oidc-issuer\
-        \ \"https://token.actions.githubusercontent.com\" \\\n    \"$f\"\n  echo \"\
-        Verified: $f\"\ndone\n"
-    - name: Prepare release assets
-      run: 'VER="${{ needs.checklist.outputs.version }}"
+      - name: Download attestations
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: attestations
+          path: attestations/
 
-        mkdir -p signed
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
 
-        cp dist/*.whl dist/*.tar.gz signed/
+      - name: Attest build provenance (Sigstore)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
 
-        cp dist/*.sig dist/*.pem signed/
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          # Pinned explicitly: the installer's own default (v3.0.6) fails its
+          # version validation and falls back to building cosign from HEAD,
+          # whose --bundle-only CLI breaks sign-blob below. v2.6.x validates
+          # and supports --output-signature/--output-certificate natively.
+          # Keep this pin when Dependabot bumps the installer action itself.
+          cosign-release: v2.6.1
 
-        cp attestations/dist/SHA256SUMS signed/
+      - name: Sign artifacts with Cosign (keyless)
+        run: |
+          for f in dist/*.whl dist/*.tar.gz; do
+            cosign sign-blob --yes --output-signature "${f}.sig" --output-certificate "${f}.pem" "$f"
+          done
+          echo "Cosign signatures:"
+          ls -la dist/*.sig dist/*.pem
 
-        cp "attestations/dist/safeai-${VER}-slsa-provenance.json" signed/
+      - name: Verify signatures with Cosign (fail closed)
+        # Signing completing is NOT evidence of integrity: every
+        # signature/certificate pair is verified against its artifact and
+        # the expected keyless identity before anything is published.
+        # Any verification failure fails this step (bash -e) and blocks
+        # the publish/release jobs via `needs: [checklist, sign]`.
+        run: |
+          for f in dist/*.whl dist/*.tar.gz; do
+            cosign verify-blob --signature "${f}.sig" --certificate "${f}.pem" \
+              --certificate-identity-regexp "https://github.com/${{ github.repository }}/.*" \
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+              "$f"
+            echo "Verified: $f"
+          done
 
-        cp "attestations/release-artifacts/safeai-${VER}-sbom.spdx.json" signed/
+      - name: Prepare release assets
+        run: |
+          VER="${{ needs.checklist.outputs.version }}"
+          mkdir -p signed
+          cp dist/*.whl dist/*.tar.gz signed/
+          cp dist/*.sig dist/*.pem signed/
+          cp attestations/dist/SHA256SUMS signed/
+          cp "attestations/dist/safeai-${VER}-slsa-provenance.json" signed/
+          cp "attestations/release-artifacts/safeai-${VER}-sbom.spdx.json" signed/
+          echo "Release assets:"
+          ls -la signed/
 
-        echo "Release assets:"
+      - name: Verify release asset invariants
+        run: |
+          python scripts/verify_release_assets.py signed/ \
+            "${{ needs.checklist.outputs.version }}"
 
-        ls -la signed/
+      - name: Upload signed artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: signed
+          path: signed/
+          retention-days: 5
 
-        '
-    - name: Verify release asset invariants
-      run: "python scripts/verify_release_assets.py signed/ \\\n  \"${{ needs.checklist.outputs.version\
-        \ }}\"\n"
-    - name: Upload signed artifacts
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-      with:
-        name: signed
-        path: signed/
-        retention-days: 5
+  # ── Gate 5: Publish to PyPI ─────────────────────────────────────────
   publish:
     name: Publish to PyPI
-    needs:
-    - checklist
-    - sign
+    needs: [checklist, sign]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -368,38 +456,57 @@ jobs:
       contents: read
       id-token: write
     steps:
-    - name: Download signed artifacts
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-      with:
-        name: signed
-        path: signed/
-    - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
-      with:
-        packages-dir: signed/
+      # Promote the verified bits: publish consumes the signed artifact
+      # from the sign job (needs: [checklist, sign] above) instead of
+      # rebuilding, so PyPI ships exactly what Cosign verified. The tag
+      # binding holds because the build job pins needs.checklist.outputs.sha.
+      - name: Download signed artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: signed
+          path: signed/
+
+      # PyPI accepts only wheels/sdists: stage the distributions without
+      # the .sig/.pem/SHA256SUMS/SBOM/provenance sidecars that share the
+      # signed/ directory (Twine rejects those filenames).
+      - name: Stage PyPI distributions
+        run: |
+          mkdir -p pypi
+          cp signed/*.whl signed/*.tar.gz pypi/
+          ls -la pypi/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
+        with:
+          packages-dir: pypi/
+
+  # ── Gate 6: Upload to GitHub Release ─────────────────────────────────
   release:
     name: Upload to GitHub Release
-    needs:
-    - checklist
-    - sign
-    - publish
+    needs: [checklist, sign, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-    - name: Download signed artifacts
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-      with:
-        name: signed
-        path: signed/
-    - name: Upload to GitHub Release
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG: ${{ needs.checklist.outputs.version }}
-        GH_REPO: ${{ github.repository }}
-      run: "TAG=\"v${TAG}\"\n# Create release if it doesn't exist\ngh release view\
-        \ \"$TAG\" >/dev/null 2>&1 || gh release create \"$TAG\" --generate-notes\n\
-        # Upload signed artifacts only: signed/ passed the asset\n# invariant gate,\
-        \ so every file belongs to this tag.\nfor f in signed/*; do\n  [ -f \"$f\"\
-        \ ] || continue\n  gh release upload \"$TAG\" \"$f\" --clobber\ndone\necho\
-        \ \"All artifacts uploaded to release $TAG\"\n"
+      - name: Download signed artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: signed
+          path: signed/
+
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.checklist.outputs.version }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG="v${TAG}"
+          # Create release if it doesn't exist
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --generate-notes
+          # Upload signed artifacts only: signed/ passed the asset
+          # invariant gate, so every file belongs to this tag.
+          for f in signed/*; do
+            [ -f "$f" ] || continue
+            gh release upload "$TAG" "$f" --clobber
+          done
+          echo "All artifacts uploaded to release $TAG"

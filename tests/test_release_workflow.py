@@ -302,3 +302,30 @@ def test_release_workflow_id_token_permissions_scoped():
                 f"Job '{job_name}' must have id-token: write for signing/publishing, got {id_token_perms!r}"
             )
         # For other jobs (like release), we're flexible - could be read, write, or None
+
+def test_publish_uploads_only_distributions():
+    """Publish to PyPI must stage only wheels/sdists, never sidecars.
+
+    The signed/ artifact directory carries .sig/.pem/SHA256SUMS/SBOM/
+    provenance files that Twine rejects; publish must point
+    packages-dir at a staged directory holding only *.whl/*.tar.gz.
+    """
+    workflow = _load()
+    publish = (workflow.get("jobs") or {}).get("publish") or {}
+    steps = publish.get("steps") or []
+    packages_dir = None
+    for step in steps:
+        if str(step.get("uses") or "").startswith("pypa/gh-action-pypi-publish"):
+            packages_dir = (step.get("with") or {}).get("packages-dir")
+    assert packages_dir, "publish job must publish to PyPI"
+    staged_dir = str(packages_dir).rstrip("/")
+    assert staged_dir != "signed", \
+        "packages-dir must not be signed/ (holds .sig/.pem sidecars)"
+    staged = [str(step.get("run") or "") for step in steps
+              if staged_dir in str(step.get("run") or "")]
+    assert staged, f"publish job must stage distributions into {packages_dir}"
+    for cmd in staged:
+        assert ".sig" not in cmd and ".pem" not in cmd, \
+            f"publish must not stage signature sidecars: {cmd[:80]}"
+        assert "*.whl" in cmd and "*.tar.gz" in cmd, \
+            f"publish must stage wheels and sdists: {cmd[:80]}"
