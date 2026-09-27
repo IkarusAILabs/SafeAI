@@ -165,6 +165,11 @@ We are grateful to the following community members for their contributions:
 | [@YaoSong808](https://github.com/YaoSong808) | OpenClaw and GitHub Copilot config-file adapters (PR #159) |
 | [@Teachmeplaycode](https://github.com/Teachmeplaycode) | Benchmark corpus expansion, static subprocess precision gap documentation (PR #174) |
 | [@nikitajos7](https://github.com/nikitajos7) | Policy profile display in terminal and HTML reports (PR #175) |
+| [@be-student](https://github.com/be-student) | Portable registry import, MCP tool-pattern golden fixtures, canonical release checklist (PRs #123, #124, #125) |
+| [@Karthik9849309055](https://github.com/Karthik9849309055) | Multi-framework scan automation script (PR #161) |
+| [@chenzeyan54-commits](https://github.com/chenzeyan54-commits) | Terminal output sanitization against ANSI/OSC injection (PR #203) |
+| [@HarshRajSinghania](https://github.com/HarshRajSinghania) | PR comment markdown injection sanitization (PR #204) |
+| [@thadidaniel-ctrl](https://github.com/thadidaniel-ctrl) | Release workflow supply-chain posture tests (PR #206) |
 
 Your contributions help make AI safer for everyone. Thank you!
 
