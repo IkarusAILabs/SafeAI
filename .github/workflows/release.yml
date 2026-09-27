@@ -15,16 +15,17 @@ jobs:
   # ── Gate 1: Pre-release checklist ────────────────────────────────────
   checklist:
     name: Pre-release checklist
-    # The floating v2 tag only moves an existing release pointer — it must
-    # never cut a release (republish to PyPI would 403, resigning is noise).
-    # Skipping here cascades to every downstream job via `needs`.
-    if: github.ref_name != 'v2' && (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
+    # Floating tags (v2, v2.5, ...) only move existing release pointers —
+    # they must never cut a release. The checklist detects the floater and
+    # every downstream job gates on its output below (neutral skip, not red).
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
     outputs:
       version: ${{ steps.meta.outputs.version }}
       sha: ${{ steps.meta.outputs.sha }}
+      floater: ${{ steps.meta.outputs.floater }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -35,6 +36,12 @@ jobs:
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" =~ ^v[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Floating tag $TAG moves a release pointer; no release will be cut"
+            echo "floater=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "floater=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -54,8 +61,8 @@ jobs:
         run: |
           TAG_VERSION="${{ steps.meta.outputs.version }}"
           CODE_VERSION=$(python -c "from safeai.version import SAFEAI_VERSION; print(SAFEAI_VERSION)")
-          if [ "$TAG_VERSION" = "2" ]; then
-            echo "Floating tag v2 — skipping version-match check"
+          if [[ "$TAG_VERSION" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Floating tag v$TAG_VERSION — skipping version-match check"
           elif [ "$TAG_VERSION" != "$CODE_VERSION" ]; then
             echo "::error::Tag version ($TAG_VERSION) != code version ($CODE_VERSION)"
             exit 1
@@ -235,16 +242,20 @@ jobs:
       - name: "Check: CHANGELOG has entry for this version"
         run: |
           VERSION="${{ steps.meta.outputs.version }}"
-          if ! grep -q "\[$VERSION\]" CHANGELOG.md; then
+          if [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Floating tag v$VERSION — skipping CHANGELOG check"
+          elif ! grep -q "\[$VERSION\]" CHANGELOG.md; then
             echo "::error::CHANGELOG.md has no entry for v$VERSION"
             exit 1
+          else
+            echo "CHANGELOG entry found for v$VERSION"
           fi
-          echo "CHANGELOG entry found for v$VERSION"
 
   # ── Gate 2: Build ────────────────────────────────────────────────────
   build:
     name: Build package
     needs: checklist
+    if: needs.checklist.outputs.floater != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -280,6 +291,7 @@ jobs:
   attest:
     name: Generate artifacts
     needs: [checklist, build]
+    if: needs.checklist.outputs.floater != 'true'
     runs-on: ubuntu-latest
     permissions:
       # Least privilege: this job writes SBOM/provenance JSON locally and
@@ -357,6 +369,7 @@ jobs:
   sign:
     name: Sigstore-sign artifacts
     needs: [checklist, attest]
+    if: needs.checklist.outputs.floater != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -452,6 +465,7 @@ jobs:
   publish:
     name: Publish to PyPI
     needs: [checklist, sign]
+    if: needs.checklist.outputs.floater != 'true'
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -487,6 +501,7 @@ jobs:
   release:
     name: Upload to GitHub Release
     needs: [checklist, sign, publish]
+    if: needs.checklist.outputs.floater != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write

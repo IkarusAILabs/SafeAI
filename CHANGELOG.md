@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Release pipeline treats any floating tag (`v2`, `v2.5`, ...) as a
+  release-pointer move: the checklist detects the floater and all
+  downstream jobs skip neutrally instead of failing red (or worse,
+  republishing to PyPI). `check_release.py` floater detection
+  generalized from `v2`-only to a version-pattern rule.
+
 ## [2.5.0] - 2026-09-27
 
 **IaC Authority Evidence (Lane B).**

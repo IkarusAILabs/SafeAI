@@ -1,9 +1,20 @@
 """Pre-release checklist verification."""
 import os
+import re
 import subprocess
 import sys
 
 import yaml
+
+#: Floating release pointers (``v2``, ``v2.5``, ...) move existing
+#: releases and must never cut one: version-match and CHANGELOG checks
+#: are skipped for them (the workflow gates downstream jobs separately).
+FLOATER_RE = re.compile(r"^\d+(\.\d+)?$")
+
+
+def is_floater(version):
+    """True when ``version`` is a floating pointer, not a release."""
+    return bool(FLOATER_RE.match(str(version or "").strip()))
 
 
 def detect_tag_version():
@@ -38,10 +49,10 @@ def main():
               "(pass it explicitly or run on a v* tag)")
         return 1
 
-    if tag_version == "2":
-        # Floating major-version tag: no single version to match and no
+    if is_floater(tag_version):
+        # Floating major/minor tag: no single version to match and no
         # CHANGELOG section; still run the structural checks below.
-        print("Floating tag v2 — skipping version-match and CHANGELOG checks")
+        print(f"Floating tag v{tag_version} — skipping version-match and CHANGELOG checks")
     else:
         # Check version matches tag
         from safeai.version import SAFEAI_VERSION
