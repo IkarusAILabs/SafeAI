@@ -15,7 +15,10 @@ jobs:
   # ── Gate 1: Pre-release checklist ────────────────────────────────────
   checklist:
     name: Pre-release checklist
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    # The floating v2 tag only moves an existing release pointer — it must
+    # never cut a release (republish to PyPI would 403, resigning is noise).
+    # Skipping here cascades to every downstream job via `needs`.
+    if: github.ref_name != 'v2' && (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: read
