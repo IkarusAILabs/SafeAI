@@ -1,18 +1,62 @@
 """Pre-release checklist verification."""
+import os
+import subprocess
 import sys
 
 import yaml
 
 
-def main():
-    tag_version = "2.4.0"
+def detect_tag_version():
+    """Return the release version for this run, without a leading ``v``.
 
-    # Check version matches tag
-    from safeai.version import SAFEAI_VERSION
-    if tag_version != SAFEAI_VERSION:
-        print(f"FAIL: Tag version ({tag_version}) != code version ({SAFEAI_VERSION})")
+    Precedence: explicit argv ``python scripts/check_release.py <version>``,
+    then the ``GITHUB_REF_NAME`` environment variable on tag pushes, then
+    ``git describe``. Returns None when nothing determines a version.
+    """
+    if len(sys.argv) > 1 and sys.argv[1].strip():
+        return sys.argv[1].strip().lstrip("v")
+    ref = os.environ.get("GITHUB_REF_NAME", "").strip()
+    if ref.startswith("v") and len(ref) > 1:
+        return ref[1:]
+    try:
+        out = subprocess.run(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            capture_output=True, text=True, check=True, timeout=30,
+        )
+        tag = out.stdout.strip()
+        if tag.startswith("v") and len(tag) > 1:
+            return tag[1:]
+    except Exception:
+        pass
+    return None
+
+
+def main():
+    tag_version = detect_tag_version()
+    if not tag_version:
+        print("FAIL: cannot determine release version "
+              "(pass it explicitly or run on a v* tag)")
         return 1
-    print(f"Version match: {SAFEAI_VERSION}")
+
+    if tag_version == "2":
+        # Floating major-version tag: no single version to match and no
+        # CHANGELOG section; still run the structural checks below.
+        print("Floating tag v2 — skipping version-match and CHANGELOG checks")
+    else:
+        # Check version matches tag
+        from safeai.version import SAFEAI_VERSION
+        if tag_version != SAFEAI_VERSION:
+            print(f"FAIL: Tag version ({tag_version}) != code version ({SAFEAI_VERSION})")
+            return 1
+        print(f"Version match: {SAFEAI_VERSION}")
+
+        # Check CHANGELOG
+        with open("CHANGELOG.md") as f:
+            changelog = f.read()
+        if f"[{tag_version}]" not in changelog:
+            print(f"CHANGELOG.md has no entry for v{tag_version}")
+            return 1
+        print(f"CHANGELOG entry found for v{tag_version}")
 
     # Check all rules have required fields
     with open("safeai/rules/base_rules.yaml") as f:
@@ -24,14 +68,6 @@ def main():
             print(f"Missing fields in rule: {r.get('id', 'UNKNOWN')}")
         return 1
     print(f"All {len(rules)} rules have required fields")
-
-    # Check CHANGELOG
-    with open("CHANGELOG.md") as f:
-        changelog = f.read()
-    if f"[{tag_version}]" not in changelog:
-        print(f"CHANGELOG.md has no entry for v{tag_version}")
-        return 1
-    print(f"CHANGELOG entry found for v{tag_version}")
 
     # Check Action I/O contract
     with open("action.yml") as f:

@@ -45,7 +45,7 @@ jobs:
           pip install --require-hashes -r requirements-test.txt
 
       - name: "Check: canonical release checklist"
-        run: python scripts/check_release.py
+        run: python scripts/check_release.py "${{ steps.meta.outputs.version }}"
 
       - name: "Check: version string matches tag"
         run: |
