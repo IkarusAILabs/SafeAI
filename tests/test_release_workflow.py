@@ -330,15 +330,31 @@ def test_publish_uploads_only_distributions():
         assert "*.whl" in cmd and "*.tar.gz" in cmd, \
             f"publish must stage wheels and sdists: {cmd[:80]}"
 
-def test_release_skips_floating_v2_tag():
-    """Moving the floating v2 tag must not cut a release.
+def test_release_skips_floating_tags():
+    """Moving a floating tag (v2, v2.5, ...) must not cut a release.
 
-    The v2 tag only moves an existing release pointer: republishing
-    would 403 on PyPI and resign published bits. The checklist carries
-    a v2 exclusion that cascades to every downstream job via `needs`.
+    Floaters only move existing release pointers: republishing would
+    403 on PyPI and resign published bits. The checklist detects the
+    floater and every downstream job gates on its output (neutral skip,
+    not red).
     """
+    import importlib.util
+
     workflow = _load()
-    checklist = (workflow.get("jobs") or {}).get("checklist") or {}
-    condition = str(checklist.get("if") or "")
-    assert "v2" in condition and "ref_name" in condition, \
-        "checklist job must exclude the floating v2 tag"
+    jobs = workflow.get("jobs") or {}
+    checklist = jobs.get("checklist") or {}
+    outputs = checklist.get("outputs") or {}
+    assert "floater" in outputs, \
+        "checklist job must publish a floater output"
+    for job_name in ("build", "attest", "sign", "publish", "release"):
+        condition = str((jobs.get(job_name) or {}).get("if") or "")
+        assert "floater" in condition, \
+            f"{job_name} job must gate on the checklist floater output"
+    spec = importlib.util.spec_from_file_location(
+        "check_release", "scripts/check_release.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.is_floater("2") is True
+    assert module.is_floater("2.5") is True
+    assert module.is_floater("2.5.0") is False
+    assert module.is_floater("main") is False
