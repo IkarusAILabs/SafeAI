@@ -329,3 +329,16 @@ def test_publish_uploads_only_distributions():
             f"publish must not stage signature sidecars: {cmd[:80]}"
         assert "*.whl" in cmd and "*.tar.gz" in cmd, \
             f"publish must stage wheels and sdists: {cmd[:80]}"
+
+def test_release_skips_floating_v2_tag():
+    """Moving the floating v2 tag must not cut a release.
+
+    The v2 tag only moves an existing release pointer: republishing
+    would 403 on PyPI and resign published bits. The checklist carries
+    a v2 exclusion that cascades to every downstream job via `needs`.
+    """
+    workflow = _load()
+    checklist = (workflow.get("jobs") or {}).get("checklist") or {}
+    condition = str(checklist.get("if") or "")
+    assert "v2" in condition and "ref_name" in condition, \
+        "checklist job must exclude the floating v2 tag"
