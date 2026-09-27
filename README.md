@@ -570,6 +570,11 @@ contributors who have helped make AI safer:
 | [@yugaaank](https://github.com/yugaaank) | Capability detectors (Docker, Kubernetes, Redis, S3, GCP, Slack, Jira, browser) |
 | [@Teachmeplaycode](https://github.com/Teachmeplaycode) | Benchmark corpus expansion, static subprocess precision gap documentation (PR #174) |
 | [@nikitajos7](https://github.com/nikitajos7) | Policy profile display in terminal and HTML reports (PR #175) |
+| [@be-student](https://github.com/be-student) | Portable registry import, MCP tool-pattern golden fixtures, canonical release checklist (PRs #123, #124, #125) |
+| [@Karthik9849309055](https://github.com/Karthik9849309055) | Multi-framework scan automation script (PR #161) |
+| [@chenzeyan54-commits](https://github.com/chenzeyan54-commits) | Terminal output sanitization against ANSI/OSC injection (PR #203) |
+| [@HarshRajSinghania](https://github.com/HarshRajSinghania) | PR comment markdown injection sanitization (PR #204) |
+| [@thadidaniel-ctrl](https://github.com/thadidaniel-ctrl) | Release workflow supply-chain posture tests (PR #206) |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get involved.
 

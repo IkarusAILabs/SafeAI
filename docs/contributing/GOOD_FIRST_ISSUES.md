@@ -2,11 +2,14 @@
 
 Welcome, and thank you for considering contributing to SafeAI!
 
-This document indexes **59 beginner-friendly issues** designed for first-time contributors (28 currently open). Each issue includes the files you'll need to modify, the tests you should write, and the acceptance criteria.
+This document indexes **59 beginner-friendly issues** designed for first-time
+contributors (25 currently open). Each issue includes the files you'll need to modify, the tests you should write, and
+the acceptance criteria.
 
 > **For maintainers:** These issues are defined in `.github/good-first-issues/` as YAML templates. Run the [create-good-first-issues workflow](../../actions/workflows/create-good-first-issues.yml) to create them in the GitHub issue tracker with the `good first issue` label. Once created, this file serves as a curated index.
 
-> **31 issues have already been completed** by community and internal contributors. See the [Completed Issues](#-completed-issues) section at the bottom.
+> **34 issues have already been completed** by community and internal
+contributors. See the [Completed Issues](#-completed-issues) section at the bottom.
 
 ---
 
@@ -206,18 +209,21 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 - **Description:** Seed `<script>`, attribute-breakout, and table-breakout payloads through findings into rendered HTML; assert every call site escapes (`html_kit` promises call-site escaping — prove it).
 
 ### 57. Security test: terminal escape-sequence sanitization (#199)
+- **Status:** ✅ Complete — `_sanitize()` at all terminal print sites + residual-ESC backstop, `tests/test_terminal_report.py` (@chenzeyan54-commits, PR #203)
 - **Difficulty:** Easy | **Effort:** 2 hours
 - **Labels:** good first issue, security, test-coverage
 - **Suggested files:** `safeai/report/terminal.py`, `tests/test_terminal_report.py` (new)
 - **Description:** ANSI/OSC sequences in file paths and finding messages print raw today. Add `_sanitize()` at print sites; payloads must not clear the screen or set terminal titles; clean input stays byte-identical.
 
 ### 58. Security test: PR comment markdown injection (#200)
+- **Status:** ✅ Complete — `sanitize_pr_text()` over composed comment output + `tool_key` backtick neutralization (@HarshRajSinghania, PR #204)
 - **Difficulty:** Easy | **Effort:** 2 hours
 - **Labels:** good first issue, security, test-coverage
 - **Suggested files:** `safeai/report/pr_comment.py`, `tests/test_pr_comment.py`
 - **Description:** Composed comment bodies must not allow code-fence breakouts, markdown links from finding paths, or `@mention` spam originating from scanned content; 60-line cap must hold under injection attempts.
-
-### 59. Security review: release workflow supply-chain posture tests (#201)
+### 59. Security review: release workflow supply-chain posture tests
+(#201)
+- **Status:** ✅ Complete — fail-fast posture tests, id-token scoping, promote-signed-artifact publish with PyPI sidecar staging (@thadidaniel-ctrl, PR #206)
 - **Difficulty:** Easy | **Effort:** 2 hours
 - **Labels:** good first issue, security, test-coverage
 - **Suggested files:** `.github/workflows/release.yml`, `tests/test_release_workflow.py`
@@ -291,6 +297,14 @@ These issues have been implemented by community contributors and are now part of
 |---|-------|-------------|
 | — | Interprocedural data-flow tracking (follow taint one call deep) | @ARAVIND281 (PR #110) |
 | — | Resolve Claude Code permission evaluation order | @ARAVIND281 (PR #111) |
+
+### Security Reviews & Tests
+
+| # | Issue | Contributor |
+|---|-------|-------------|
+| #199 | Terminal escape-sequence sanitization | @chenzeyan54-commits (PR #203) |
+| #200 | PR comment markdown injection sanitization | @HarshRajSinghania (PR #204) |
+| #201 | Release workflow supply-chain posture tests | @thadidaniel-ctrl (PR #206) |
 
 ---
 
