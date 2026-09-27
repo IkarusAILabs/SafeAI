@@ -1,0 +1,5 @@
+# BENCH k8s-malformed: broken YAML never raises, yields nothing.
+apiVersion: v1
+kind: ServiceAccount
+metadata: [unclosed
+  name: sa

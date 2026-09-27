@@ -1,0 +1,6 @@
+# BENCH link-partial: only the longer name exists.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-sa-prod
+  namespace: prod

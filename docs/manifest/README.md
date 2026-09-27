@@ -67,6 +67,30 @@ verdicts agree on every required-field and enum rule.
 - Pre-v2.4 manifests omit these keys and remain readable: validators
   treat absence as unknown, never as safe.
 
+## v2.5 IaC correlation fields (additive, optional, Lane B)
+
+- Findings from IaC correlation carry `provenance_class:
+  repo-iac-observed` and `gateability: review-only` (pre-set at
+  creation; normalization never overwrites explicit values).
+- `iac_correlations` (schema v2) carries `identities` (kind/name/
+  namespace/source_ref), `agent_identity_links` (agent/identity/
+  link_type/confidence/file:line evidence), `grants` (identity,
+  per-field resolved/partially-resolved/unresolved actions/resources,
+  scope, source file:line, provenance, fidelity notes),
+  `grant_bindings` (identity → binding → role chains), per-domain
+  `verdicts` (`MATCH | EXCESS_AUTHORITY | AUTHORITY_MISMATCH |
+  UNVERIFIED_LINK | UNKNOWN`) each with agent, identity, declared,
+  grant, and link evidence refs plus resolution, and `counts`.
+  `lane` is pinned to `"B"`; Contract v1 requires non-UNKNOWN
+  verdicts to cite evidence.
+- `summary` carries `iac_grant_count` and `iac_verdict_counts`.
+- Fidelity ceiling: Terraform parsing is a brace-block scanner
+  (ADR-0006/0009) — interpolation, modules, dynamic blocks, and
+  external payloads degrade the affected fields; unresolved material
+  shadows absence claims (UNKNOWN, never false mismatch). Repository
+  IaC is evidence of declared grants, never proof of deployed
+  permission.
+
 ## Not a guarantee
 
 A valid manifest proves **structure**, not truth: import validates declared

@@ -1,0 +1,30 @@
+# BENCH k8s-chain: ServiceAccount -> RoleBinding -> Role -> rule.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-sa
+  namespace: prod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agent-reader
+  namespace: prod
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: agent-binding
+  namespace: prod
+subjects:
+  - kind: ServiceAccount
+    name: agent-sa
+    namespace: prod
+roleRef:
+  kind: Role
+  name: agent-reader
+  apiGroup: rbac.authorization.k8s.io

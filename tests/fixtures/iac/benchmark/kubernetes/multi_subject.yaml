@@ -1,0 +1,39 @@
+# BENCH k8s-multi-subject: one binding, two service accounts.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-a
+  namespace: prod
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-b
+  namespace: prod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: r
+  namespace: prod
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: b
+  namespace: prod
+subjects:
+  - kind: ServiceAccount
+    name: sa-a
+    namespace: prod
+  - kind: ServiceAccount
+    name: sa-b
+    namespace: prod
+roleRef:
+  kind: Role
+  name: r
+  apiGroup: rbac.authorization.k8s.io

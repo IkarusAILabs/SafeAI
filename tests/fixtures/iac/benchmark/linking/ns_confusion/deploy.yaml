@@ -1,0 +1,11 @@
+# BENCH link-ns: workload in ns-a, identical SA names in ns-a/ns-b.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent
+  namespace: ns-a
+spec:
+  template:
+    spec:
+      serviceAccountName: sa
+      containers: []

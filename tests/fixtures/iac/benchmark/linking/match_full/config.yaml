@@ -1,0 +1,3 @@
+# BENCH verdict-match: explicit ARN link.
+agent:
+  role_arn: arn:aws:iam::123456789012:role/agent-role

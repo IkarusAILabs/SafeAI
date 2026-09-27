@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — v2.5 IaC Authority Evidence (Lane B)
+
+- Explicit authority graph (`safeai/iac/model.py`, ADR-0009):
+  Identity (kind/name/namespace), Grant (per-field
+  resolved/partially-resolved/unresolved), GrantBinding chains,
+  AgentIdentityLink (workload/config evidence only), and verdicts
+  carrying agent, identity, declared, grant, and link evidence refs.
+- Terraform relationship extraction: identities, policy statements
+  (inline, attached, data-document-inherited), Role → policy →
+  statement bindings; attachments are relationships, never fake
+  permissions; trust policies excluded; managed/external/module
+  content recorded unresolved, never guessed.
+- Kubernetes RBAC chains: ServiceAccount → Binding → Role → rule
+  with namespace isolation, cluster scope, multi-subject/rule
+  support, workload references, and dangling-reference honesty.
+- Identity-link resolver: workload `serviceAccountName` and explicit
+  config references (role ARNs, identity keys) with file:line
+  evidence; string coincidence never links (namespace-aware).
+- Semantic matcher: provider/service/operation-class comparison with
+  conservative wildcard reasoning; un-normalizable semantics →
+  UNKNOWN. Strict verdicts: MATCH (evidenced link + compatible
+  resolved grant), EXCESS (linked grant strictly beyond need),
+  MISMATCH (authoritatively visible absence only), UNVERIFIED_LINK
+  (ambiguous default), UNKNOWN (preferred over false conclusions).
+- Orchestrator `collect_iac_evidence()` first-class stage;
+  assurance-boundary IaC inspection notes; manifest
+  `iac_correlations` schema v2 + summary counts (additive, Contract
+  v1 + JSON schema validate verdicts, evidence refs, Lane B);
+  PR "Infrastructure authority" Lane-B section inside the 60-line
+  cap with control-character sanitization.
+- Benchmark corpus (`tests/fixtures/iac/benchmark/catalog.yml`:
+  Terraform, Kubernetes, linking, verdict cases) with a
+  precision/recall harness, adversarial tests, and invariant
+  extensions (IaC never gates; unresolved shadows absence claims).
+  Findings `IAC_EXCESS_AUTHORITY` / `IAC_AUTHORITY_MISMATCH` /
+  `IAC_UNVERIFIED_LINK` remain `repo-iac-observed` / `review-only`;
+  no new gates, no exit-code changes, no new dependencies.
+
 ### Added — v2.4.x Security Architecture Hardening
 
 - Release pipeline signs *and* verifies: `cosign verify-blob` against

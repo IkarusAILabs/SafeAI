@@ -89,6 +89,33 @@ def _authority_change_counts(report):
     return {}
 
 
+def _iac_correlations_entry(report):
+    """Compact IaC authority correlation evidence (v2.5, Lane B).
+
+    Returns None when the scan carries no IaC correlation (no IaC
+    sources, or a pre-v2.5 report) so the block stays absent rather
+    than empty. Schema v2: identities, agent_identity_links, grants,
+    grant_bindings, verdicts with full evidence refs.
+    """
+    iac = report.get("iac_correlations")
+    if not isinstance(iac, dict):
+        return None
+    if not (iac.get("grants") or iac.get("verdicts")):
+        return None
+    return {
+        "schema_version": int(iac.get("schema_version") or 2),
+        "correlation_model": iac.get("correlation_model"),
+        "lane": "B",
+        "files": iac.get("files") or {},
+        "identities": iac.get("identities") or [],
+        "agent_identity_links": iac.get("agent_identity_links") or [],
+        "grants": iac.get("grants") or [],
+        "grant_bindings": iac.get("grant_bindings") or [],
+        "verdicts": iac.get("verdicts") or [],
+        "counts": iac.get("counts") or {},
+    }
+
+
 def _capability_counts(agents, report):
     counts = {}
     seen = set()
@@ -233,6 +260,10 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
             }
             for e in (report.get("exception_evaluations") or [])
         ],
+        # v2.5: IaC authority correlation evidence (Lane B review-only).
+        # Optional block: absent on scans without IaC sources or on
+        # pre-v2.5 reports. Verdicts cite both sides or are UNKNOWN.
+        "iac_correlations": _iac_correlations_entry(report),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,
@@ -240,6 +271,8 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
             "agent_count": len(agents),
             "component_count": len(report.get("components") or []),
             "dependency_count": len(report.get("dependency_inventory") or []),
+            "iac_grant_count": len((report.get("iac_correlations") or {}).get("grants") or []),
+            "iac_verdict_counts": ((report.get("iac_correlations") or {}).get("counts") or {}),
             "policy_decision": policy_decision or {"outcome": "warn", "reasons": ["No policy file supplied; default posture."]},
             "authority_change_counts": _authority_change_counts(report),
             "highest_change_class": (report.get("capability_diff") or {}).get(
