@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Decision-support HTML reporting backed by a new `security_brief`
+  reporting layer (`safeai/report/security_brief.py`): pure
+  deterministic scan report → brief transformation (posture, evidence,
+  changes, authority, actions, uncertainty, coverage, value) consumed
+  by the HTML report. New sections: Security Brief, What SafeAI
+  Found, Recommended Review Actions, Capability Changes, Authority
+  Review, Evidence Confidence; the assurance boundary moved before
+  detailed evidence. Table IDs are now content-derived (deterministic
+  renders). No scanner, scoring, or CI behavior changed.
+
 ### Fixed
 
 - Release pipeline treats any floating tag (`v2`, `v2.5`, ...) as a

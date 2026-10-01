@@ -20,6 +20,7 @@ an SVG risk gauge, and print-friendly styles. ``data-theme`` on the
 """
 
 from datetime import UTC, datetime
+from hashlib import md5
 from html import escape
 
 # --- Severity palette ----------------------------------------------------
@@ -121,8 +122,10 @@ def data_table(headers, rows, empty="No records.", searchable=True, id_=None):
     ``rows`` is a list of lists; every cell is rendered escaped.
     ``empty`` is shown when there are no rows. When ``searchable`` is
     True a search input filters rows by their combined text content.
+    Table IDs are content-derived (stable across renders of the same
+    report) so output stays deterministic.
     """
-    table_id = id_ or f"tbl-{abs(hash((str(headers), len(rows))))}"
+    table_id = id_ or f"tbl-{md5((str(headers) + str(len(rows))).encode()).hexdigest()[:8]}"
     filter_html = (
         f"<input class='filter' type='search' data-filter='{table_id}' "
         f"placeholder='Filter...' aria-label='Filter rows'/>"
