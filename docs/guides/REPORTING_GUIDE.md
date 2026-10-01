@@ -66,22 +66,42 @@ safeai scan . --html report.html
 
 ### What to inspect
 
-1. **Executive Summary** — overall score, finding counts, and risk posture at
+1. **Security Brief** — the 30-second view: risk signal with band,
+   evidence-confidence share, agent/tool/capability counts,
+   escalation and authority-observation counts, unresolved unknowns,
+   and the baseline change line. Risk and evidence confidence are
+   different dimensions: verify high-risk claims on weak evidence.
+2. **Assurance Boundary** — what SafeAI verified and what it could
+   not (now placed before detailed evidence, not after).
+3. **What SafeAI Found** — traced human statements (each cites
+   evidence; nothing inferred beyond the reference).
+4. **Recommended Review Actions** — prioritized cards with reason,
+   evidence, remediation, confidence, limitations, and reviewer
+   questions. Nothing here decides for you.
+5. **Capability Changes** — human-readable new/removed/changed
+   authority since the baseline (per-tool detail follows below).
+6. **Authority Review** — IaC verdicts (`MATCH | EXCESS_AUTHORITY |
+   AUTHORITY_MISMATCH | UNVERIFIED_LINK | UNKNOWN`) with identity,
+   evidence, and resolution. Repository IaC is evidence of declared
+   grants, never proof of deployed permission.
+7. **Evidence Confidence** — legend of the five evidence classes
+   with live counts plus worked Risk/Evidence/Gateability examples.
+8. **Executive Summary** — overall score, finding counts, and risk posture at
    a glance.
-2. **Capability Matrix** — which tools have which capabilities and at what
+9. **Capability Matrix** — which tools have which capabilities and at what
    access level. Look for unexpected `write`, `mutate`, or `execute` access.
-3. **Findings by severity** — expand each severity tier. For each finding:
+10. **Findings by severity** — expand each severity tier. For each finding:
    - **File and line** — where the evidence was found.
    - **Evidence** — the matching source code excerpt.
    - **Remediation** — suggested fix.
    - **Confidence** — `high` (AST-based) vs `medium`/`low` (regex fallback).
      Low-confidence findings may need manual verification.
-4. **Trust Score breakdown** — which of the 7 categories contributed the most
+11. **Trust Score breakdown** — which of the 7 categories contributed the most
    penalty. High Capability risk means dangerous tools; high Governance risk
    means missing controls.
-5. **Assurance Boundary** — what SafeAI verified and what it could not. If
-   files were skipped or access modes were inferred, it says so here.
-6. **Policy Decision** — whether the scan passed, warned, or was blocked by
+12. **Assurance Boundary (detail)** — the full verified-vs-not tables and
+    coverage notes (summary already shown near the top).
+13. **Policy Decision** — whether the scan passed, warned, or was blocked by
    policy rules.
 
 ### How to use it

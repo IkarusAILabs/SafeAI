@@ -11,6 +11,231 @@ from datetime import UTC, datetime
 from html import escape
 
 from safeai.report import html_kit
+from safeai.report.security_brief import (
+    build_actions,
+    build_authority,
+    build_changes,
+    build_evidence,
+    build_highlights,
+    build_posture,
+)
+
+
+def _priority_badge(priority):
+    colors = {"high": ("#dc2626", "#fef2f2"), "medium": ("#ea580c", "#fff7ed"),
+              "low": ("#2563eb", "#eff6ff")}
+    fg, bg = colors.get(str(priority or "").lower(), ("#6b7280", "#f9fafb"))
+    return (
+        f"<span class='badge' style='color:{fg};background:{bg};border-color:{fg}33'>"
+        f"{escape(str(priority or 'low').upper())}</span>"
+    )
+
+
+def _verdict_badge(verdict):
+    colors = {"MATCH": ("#16a34a", "#f0fdf4"),
+              "EXCESS_AUTHORITY": ("#dc2626", "#fef2f2"),
+              "AUTHORITY_MISMATCH": ("#ea580c", "#fff7ed"),
+              "UNVERIFIED_LINK": ("#ca8a04", "#fefce8"),
+              "UNKNOWN": ("#6b7280", "#f9fafb")}
+    fg, bg = colors.get(str(verdict or "").upper(), ("#6b7280", "#f9fafb"))
+    return (
+        f"<span class='badge' style='color:{fg};background:{bg};border-color:{fg}33'>"
+        f"{escape(str(verdict or 'UNKNOWN'))}</span>"
+    )
+
+
+def _brief_section(report):
+    """Security Brief: 30-second risk signal, evidence confidence, scope."""
+    posture = build_posture(report)
+    evidence = build_evidence(report)
+    brief_changes = build_changes(report)
+    authority = build_authority(report)
+    total_findings = sum(evidence.values())
+    grounded = evidence.get("detected", 0) + evidence.get("declared", 0)
+    confidence = (f"{100.0 * grounded / total_findings:.0f}% deterministic"
+                  if total_findings else "n/a (no findings)")
+    unknown = evidence.get("unknown", 0)
+    escalations = len(brief_changes.get("escalations") or [])
+    verdict_bits = []
+    if authority.get("available"):
+        for key in ("excess", "mismatch", "unverified_link", "unknown"):
+            count = authority.get(key, 0)
+            if count:
+                verdict_bits.append("{} {}".format(count, key.replace("_", " ")))
+    cards = "".join([
+        html_kit.kpi("Risk signal",
+                     "{} ({} band)".format(
+                         "–" if posture["risk_score"] is None else posture["risk_score"],
+                         posture["risk_band"]),
+                     accent="#0f766e"),
+        html_kit.kpi("Evidence confidence", escape(confidence), accent="#2563eb"),
+        html_kit.kpi("Agents / Tools / Capabilities",
+                     "{}/{}/{}".format(posture["agent_count"], posture["tool_count"],
+                                       posture["capability_count"]),
+                     accent="#7c3aed"),
+        html_kit.kpi("Escalations", escalations, accent="#dc2626"),
+        html_kit.kpi("Authority observations",
+                     escape(", ".join(verdict_bits) if verdict_bits else "none"),
+                     accent="#ea580c"),
+        html_kit.kpi("Unresolved / unknown", unknown, accent="#6b7280"),
+    ])
+    baseline_line = ""
+    for line in brief_changes.get("summary") or []:
+        baseline_line = escape(line)
+        break
+    return f"""
+    <h2>Security Brief</h2>
+    <div class='hero'>{cards}</div>
+    {("<p>" + baseline_line + "</p>") if baseline_line else ""}
+    <p class='muted'>Risk and evidence confidence are different dimensions: a high
+    risk signal with inferred evidence needs verification before action.</p>"""
+
+
+def _found_section(report):
+    """What SafeAI Found: traced human statements from tool-surface evidence."""
+    highlights = build_highlights(report)
+    if not highlights:
+        return ""
+    items = "".join(
+        "<li>{} <span class='muted'>({})</span></li>".format(
+            escape(h["text"]), escape(h["evidence_ref"] or "static evidence"))
+        for h in highlights
+    )
+    return f"""
+    <h2>What SafeAI Found</h2>
+    <div class='card'><ul>{items}</ul>
+    <p class='muted'>Each statement traces to cited evidence; nothing here is inferred beyond the reference.</p></div>"""
+
+
+def _actions_section(report):
+    """Recommended Review Actions: prioritized, evidence-mapped, capped."""
+    actions = build_actions(report)
+    if not actions:
+        return """
+    <h2>Recommended Review Actions</h2>
+    <div class='card'><p class='muted'>No review actions: no escalations, policy questions, authority findings, or critical findings in this scan.</p></div>"""
+    cards = []
+    for action in actions:
+        refs = "".join(f"<li><code>{escape(r)}</code></li>"
+                       for r in action["evidence_refs"]) or "<li>—</li>"
+        questions = "".join(f"<li>{escape(q)}</li>"
+                            for q in action.get("review_questions") or [])
+        limits = "".join(f"<li>{escape(item)}</li>"
+                         for item in action["limitations"])
+        cards.append(f"""
+      <div class='card'>
+        <h3>{_priority_badge(action['priority'])} {escape(action['title'])}</h3>
+        <p><strong>Why:</strong> {escape(action['reason'])}</p>
+        <p><strong>Evidence:</strong></p><ul>{refs}</ul>
+        <p><strong>Recommended reviewer action:</strong> {escape(action['remediation'])}</p>
+        <p class='muted'>Confidence: {escape(action['confidence'])}</p>
+        {("<p><strong>Reviewer questions:</strong></p><ul>" + questions + "</ul>") if questions else ""}
+        <p class='muted'>Limitations:</p><ul>{limits}</ul>
+      </div>""")
+    return f"""
+    <h2>Recommended Review Actions</h2>
+    <div class='grid-2'>{''.join(cards)}</div>"""
+
+
+def _changes_section(report):
+    """Capability Changes in human terms (drill-down table kept below)."""
+    changes = build_changes(report)
+    if not changes.get("available"):
+        return """
+    <h2>Capability Changes</h2>
+    <div class='card'><p class='muted'>No baseline supplied: change comparison needs <code>--baseline</code> with a prior manifest or JSON report.</p></div>"""
+    lines = "".join(f"<li>{escape(line)}</li>" for line in changes["summary"])
+    return f"""
+    <h2>Capability Changes</h2>
+    <div class='card'><ul>{lines or "<li>No material changes.</li>"}</ul>
+    <p class='muted'>Per-tool detail with escalation rules follows in Capability Escalations.</p></div>"""
+
+
+def _authority_section(report):
+    """Authority Review: IaC verdicts grouped with evidence and confidence."""
+    iac = report.get("iac_correlations")
+    if not isinstance(iac, dict) or not (iac.get("grants") or iac.get("verdicts")):
+        return ""
+    rows = []
+    for item in iac.get("verdicts") or []:
+        if not isinstance(item, dict):
+            continue
+        identity = item.get("identity_ref") or {}
+        refs = list(item.get("grant_evidence_refs") or []) + list(item.get("link_evidence_refs") or [])
+        rows.append([
+            _verdict_badge(item.get("verdict")),
+            escape(str(item.get("domain") or "")),
+            escape(str(identity.get("name") or "repository")),
+            escape(", ".join(refs) if refs else "—"),
+            escape(str(item.get("resolution") or "")),
+        ])
+    rows.sort(key=lambda r: (r[0], r[1]))
+    legend = ("MATCH: grant covers the linked requirement. EXCESS_AUTHORITY: grant "
+              "exceeds need. AUTHORITY_MISMATCH: linked identity lacks a needed grant. "
+              "UNVERIFIED_LINK: no static Agent-to-Identity link. UNKNOWN: insufficient evidence.")
+    return f"""
+    <h2>Authority Review</h2>
+    <div class='card'><p>{escape(legend)}</p>
+    <p class='muted'>Repository IaC is evidence of declared grants, never proof of deployed runtime permission.</p></div>
+    """ + html_kit.data_table(
+        ["Verdict", "Domain", "Identity", "Evidence", "Resolution"],
+        rows,
+        empty="No authority verdicts.",
+    )
+
+
+def _worked_example(finding, gateability_label):
+    """One Risk/Evidence/Gateability example line, fully escaped."""
+    location = ""
+    if finding.get("file"):
+        location = " ({}:{})".format(finding.get("file", ""),
+                                     finding.get("line", 0))
+    return (
+        "<p>Risk: {}<br>Evidence: {}<br>Gateability: {} ({}{})</p>".format(
+            escape(str(finding.get("severity", "")).capitalize()),
+            escape(str(finding.get("provenance_class", "unknown")).capitalize()),
+            escape(gateability_label),
+            escape(str(finding.get("rule_id", ""))),
+            escape(location),
+        )
+    )
+
+
+def _confidence_section(report):
+    """Evidence Confidence legend with live counts and worked examples."""
+    evidence = build_evidence(report)
+    legend = [
+        ["Detected", "Observed in code/config by SafeAI analysis", str(evidence.get("detected", 0))],
+        ["Declared", "Stated by the agent's own configuration", str(evidence.get("declared", 0))],
+        ["Inferred", "Heuristic conclusion; verify before acting", str(evidence.get("inferred", 0))],
+        ["Repository IaC observed", "Granted in repo IaC; review-only, never runtime proof",
+         str(evidence.get("repo-iac-observed", 0))],
+        ["Unknown", "Could not be determined; never treated as safe", str(evidence.get("unknown", 0))],
+    ]
+    examples = ""
+    deterministic = [f for f in report.get("findings") or []
+                     if isinstance(f, dict) and str(f.get("gateability") or "") == "deterministic"]
+    deterministic.sort(key=lambda f: ({"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}.get(
+        str(f.get("severity") or "").lower(), 5), str(f.get("rule_id", ""))))
+    review_only = [f for f in report.get("findings") or []
+                   if isinstance(f, dict)
+                   and (str(f.get("provenance_class") or "") in ("inferred", "unknown")
+                        or str(f.get("gateability") or "") == "review-only")]
+    if deterministic:
+        examples += _worked_example(deterministic[0], "Deterministic")
+    if review_only:
+        examples += _worked_example(review_only[0], "Review-only")
+    return """
+    <h2>Evidence Confidence</h2>
+    <div class='card'><p>Risk (how bad if exploited) and evidence confidence (how reliably
+    SafeAI observed it) are different dimensions. A high-risk finding on inferred evidence
+    needs verification; a medium-risk finding on repository IaC is review-only by design.</p></div>
+    """ + html_kit.data_table(
+        ["Evidence class", "Meaning", "Findings"],
+        legend,
+        empty="No evidence.",
+        searchable=False,
+    ) + (f"<div class='card'><h3>Worked examples from this scan</h3>{examples}</div>" if examples else "")
 
 
 def _sev_badge(severity):
@@ -488,6 +713,20 @@ def write_html(report, path, include_architecture=True, include_mermaid=False):
       <div class='card'><h3>Baseline</h3>{baseline_html or "<div class='muted'>No baseline supplied.</div>"}</div>
     </section>
 
+    {_brief_section(report)}
+
+    {_assurance_section(report)}
+
+    {_found_section(report)}
+
+    {_actions_section(report)}
+
+    {_changes_section(report)}
+
+    {_authority_section(report)}
+
+    {_confidence_section(report)}
+
     <h2>Executive Summary</h2>
     <div class='card'><p>{escape("SafeAI scanned " + str(report.get("files_scanned", 0)) + " files" + (" for " + ", ".join(frameworks) if frameworks else "") + " and produced " + str(len(findings)) + " findings.")}</p>
     <p class='muted'>All results are static analysis evidence from source/configuration - they do not verify deployed runtime permissions, identities, or behavior.</p></div>
@@ -544,8 +783,6 @@ def write_html(report, path, include_architecture=True, include_mermaid=False):
     {_kya_section(report)}
 
     {_tool_surface_section(report)}
-
-    {_assurance_section(report)}
     """
 
     html = html_kit.page(
