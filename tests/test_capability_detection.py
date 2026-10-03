@@ -9,6 +9,7 @@ def _run_analyzer(code, rules=None):
         {"id": "CAP_redis", "severity": "medium", "owasp_llm": "LLM06"},
         {"id": "CAP_s3", "severity": "medium", "owasp_llm": "LLM06"},
         {"id": "CAP_slack", "severity": "medium", "owasp_llm": "LLM06"},
+        {"id": "CAP_ms_teams", "severity": "medium", "owasp_llm": "LLM06"},
         {"id": "CAP_jira", "severity": "low", "owasp_llm": "LLM06"},
         {"id": "CAP_browser_playwright", "severity": "medium", "owasp_llm": "LLM06"},
         {"id": "CAP_browser_selenium", "severity": "medium", "owasp_llm": "LLM06"},
@@ -72,6 +73,26 @@ def test_slack_socket():
 def test_jira_import():
     findings = _run_analyzer("from jira import JIRA\njira = JIRA(server='https://example.atlassian.net')\n")
     assert any(f["rule_id"] == "CAP_jira" for f in findings)
+
+
+def test_teams_import():
+    findings = _run_analyzer("import teams\nclient = teams.TeamsClient()\n")
+    assert any(f["rule_id"] == "CAP_ms_teams" for f in findings)
+
+
+def test_teams_from_import():
+    findings = _run_analyzer("from teams import TeamsClient\nclient = TeamsClient(token='abc')\n")
+    assert any(f["rule_id"] == "CAP_ms_teams" for f in findings)
+
+
+def test_teams_sdk_reference():
+    findings = _run_analyzer("from teams_sdk import TeamsClient\nclient = TeamsClient(token='abc')\n")
+    assert any(f["rule_id"] == "CAP_ms_teams" for f in findings)
+
+
+def test_teams_name_is_not_a_false_positive_on_substrings():
+    findings = _run_analyzer("myteamscore = 42\nprint(myteamscore)\n")
+    assert all(f["rule_id"] != "CAP_ms_teams" for f in findings)
 
 
 def test_jira_client():

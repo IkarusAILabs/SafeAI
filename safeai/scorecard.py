@@ -104,6 +104,7 @@ _CATEGORY_MAP = [
     ("CAP_redis", "Tool and capability risk"),
     ("CAP_s3", "Tool and capability risk"),
     ("CAP_slack", "Tool and capability risk"),
+    ("CAP_ms_teams", "Tool and capability risk"),
     ("CAP_jira", "Tool and capability risk"),
     ("CAP_http", "Network and external access"),
     ("CAP_filesystem", "Tool and capability risk"),

@@ -386,6 +386,32 @@ client.chat_postMessage(channel="#general", text=agent_reply)
 
 ---
 
+### CAP_ms_teams
+
+| Field | Value |
+|-------|-------|
+| **Rule ID** | `CAP_ms_teams` |
+| **Name** | Microsoft Teams Integration Capability |
+| **Description** | Microsoft Teams integration capability detected |
+| **Severity** | Medium |
+| **OWASP LLM** | LLM06 |
+| **Risk Category** | Capability |
+| **Score Contribution** | 8 |
+| **Detection** | Regex: `import teams`, `from teams`, `TeamsClient`, `teams_sdk`, `pymsteams`, `pymsteams\.connectorcard`, `pymsteams\.cardsection` |
+
+**Evidence example:**
+```python
+from pymsteams import connectorcard
+card = connectorcard.ConnectorCard("https://outlook.office.com/webhook/...")
+card.text("Agent update: access granted")
+```
+
+**Why it matters:** A Teams webhook or bot client with message-posting scope can send announcements to channels or users the agent should not address, enabling message spam or unauthorized status updates.
+
+**Recommendation:** Use least-privilege webhooks or bot credentials scoped to the exact Teams channel and message types required, and avoid broad posting permissions for general-purpose agents.
+
+---
+
 ### CAP_jira
 
 | Field | Value |
