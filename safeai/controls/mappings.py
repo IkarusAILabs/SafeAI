@@ -59,6 +59,10 @@ RULE_MAPPINGS = {
         ("owasp_llm", "LLM06"),
         ("owasp_agentic", "AGENTIC06"),
     ],
+    "CAP_ms_teams": [
+        ("owasp_llm", "LLM06"),
+        ("owasp_agentic", "AGENTIC06"),
+    ],
     "CAP_jira": [
         ("owasp_llm", "LLM06"),
         ("owasp_agentic", "AGENTIC06"),

@@ -212,6 +212,11 @@
   severity: medium
   owasp_llm: LLM06
 
+- id: CAP_ms_teams
+  description: Microsoft Teams integration capability detected
+  severity: medium
+  owasp_llm: LLM06
+
 - id: CAP_jira
   description: Jira integration capability detected
   severity: low
