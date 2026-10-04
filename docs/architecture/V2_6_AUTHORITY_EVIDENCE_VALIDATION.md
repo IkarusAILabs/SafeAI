@@ -1,5 +1,7 @@
 # v2.6 — Authority Evidence Validation: Architecture Assessment
 
+> Research hub: [ikaruslabs.net](https://ikaruslabs.net) | SafeAI: [ikaruslabs.net/safeai](https://ikaruslabs.net/safeai)
+
 Status: implemented and validated on corpus (scanner behavior
 unchanged; benchmark-only change). Maps the v2.6 brief onto the
 v2.5.0 tree, commit by commit verified; hardening review applied
