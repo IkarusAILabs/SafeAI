@@ -1,0 +1,70 @@
+{
+  "case": "unknown/tf_variables",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "independent_annotation"
+  },
+  "notes": "Unresolved Terraform variables: identity falls back to the block name, grant actions/resources stay unresolved, verdict UNKNOWN. Nothing is fabricated from var.*.",
+  "agents": [],
+  "tools": [],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "agent_role",
+      "namespace": ""
+    }
+  ],
+  "grants": [
+    {
+      "identity": "agent_role",
+      "actions": [],
+      "resources": [],
+      "resolution": "unresolved"
+    }
+  ],
+  "verdicts": {
+    "*:*": "UNKNOWN"
+  },
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "main.tf"
+  ],
+  "uncertainty": [],
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "identities": [
+      {
+        "id": "aws_iam_role//agent_role",
+        "kind": "aws_iam_role",
+        "name": "agent_role",
+        "namespace": ""
+      }
+    ],
+    "grants": [
+      {
+        "identity": "agent_role",
+        "identity_namespace": "",
+        "actions": [],
+        "resources": [],
+        "resolution": "unresolved"
+      }
+    ],
+    "relationships": [],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "*:*",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

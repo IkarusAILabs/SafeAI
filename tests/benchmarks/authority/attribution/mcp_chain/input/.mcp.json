@@ -1,0 +1,1 @@
+{"mcpServers": {"web": {"command": "npx", "args": ["-y", "@safeai/web-server"], "tools": ["fetch_url"], "resources": ["https://docs.example.com/*"]}}}

@@ -1,0 +1,207 @@
+{
+  "case": "adversarial/partial_identity",
+  "notes": "role_hint is not an identity key, so no link forms despite the name overlap; the declared need stays unverified. config.yaml is correctly inert (no citation expected).",
+  "agents": [
+    {
+      "framework": "langchain",
+      "name": "initialize_agent"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "mcp_server:storage",
+      "capabilities": [
+        {
+          "name": "cloud",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:s3_list_buckets",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    },
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "multi_agent_or_delegation",
+          "access_mode": "read"
+        },
+        {
+          "name": "planner_chain",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "agent-role",
+      "namespace": ""
+    },
+    {
+      "kind": "aws_iam_role",
+      "name": "agent-role-prod",
+      "namespace": ""
+    }
+  ],
+  "grants": [],
+  "links": [],
+  "verdicts": {
+    "aws:*": "UNKNOWN"
+  },
+  "must_fire": [
+    "CAP_s3"
+  ],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "agent.py",
+    "main.tf",
+    ".mcp.json"
+  ],
+  "uncertainty": [
+    {
+      "kind": "inferred",
+      "match": "multi_agent_or_delegation"
+    }
+  ],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "langchain:initialize_agent",
+        "framework": "langchain",
+        "name": "initialize_agent"
+      }
+    ],
+    "tools": [
+      {
+        "id": "storage",
+        "name": "storage",
+        "kind": "mcp_server",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "storage",
+        "capability": "cloud",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "storage",
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "storage",
+        "capability": "mcp_tool:s3_list_buckets",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "storage",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      },
+      {
+        "tool": null,
+        "capability": "multi_agent_or_delegation",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "planner_chain",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "identities": [
+      {
+        "id": "aws_iam_role//agent-role",
+        "kind": "aws_iam_role",
+        "name": "agent-role",
+        "namespace": ""
+      },
+      {
+        "id": "aws_iam_role//agent-role-prod",
+        "kind": "aws_iam_role",
+        "name": "agent-role-prod",
+        "namespace": ""
+      }
+    ],
+    "grants": [],
+    "relationships": [
+      {
+        "type": "agent_uses_tool",
+        "agent": "langchain:initialize_agent",
+        "tool": "storage",
+        "resolvable": false
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "storage",
+        "capability": "cloud",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "storage",
+        "capability": "mcp",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "storage",
+        "capability": "mcp_tool:s3_list_buckets",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "storage",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "aws:*",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "inferred",
+        "expected": "INFERRED",
+        "match": "multi_agent_or_delegation"
+      }
+    ]
+  }
+}

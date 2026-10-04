@@ -1,0 +1,175 @@
+{
+  "case": "attribution/mcp_chain",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "independent_annotation"
+  },
+  "notes": "Agent -> MCP server -> MCP tool -> external resource. The server/tool/resource chain is attributed to the server identity; which agent drives the server is not evidenced.",
+  "agents": [
+    {
+      "framework": "langchain",
+      "name": "initialize_agent"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "mcp_server:web",
+      "capabilities": [
+        {
+          "name": "external_apis",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:fetch_url",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    },
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "multi_agent_or_delegation",
+          "access_mode": "read"
+        },
+        {
+          "name": "planner_chain",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "must_fire": [
+    "MCP_AUTH_MISSING"
+  ],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "agent.py",
+    ".mcp.json"
+  ],
+  "uncertainty": [
+    {
+      "kind": "inferred",
+      "match": "multi_agent_or_delegation"
+    }
+  ],
+  "canonical": {
+    "agents": [
+      {
+        "id": "langchain:initialize_agent",
+        "framework": "langchain",
+        "name": "initialize_agent"
+      }
+    ],
+    "tools": [
+      {
+        "id": "web",
+        "name": "web",
+        "kind": "mcp_server",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "web",
+        "capability": "external_apis",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "web",
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "web",
+        "capability": "mcp_tool:fetch_url",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "web",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      },
+      {
+        "tool": null,
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "multi_agent_or_delegation",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "planner_chain",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "agent_uses_tool",
+        "agent": "langchain:initialize_agent",
+        "tool": "web",
+        "resolvable": false
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "web",
+        "capability": "external_apis",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "web",
+        "capability": "mcp",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "web",
+        "capability": "mcp_tool:fetch_url",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "web",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "inferred",
+        "expected": "INFERRED",
+        "match": "multi_agent_or_delegation"
+      }
+    ]
+  }
+}

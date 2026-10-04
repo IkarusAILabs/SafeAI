@@ -1,0 +1,6 @@
+# Generated manifest: namespace is templated at deploy time.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-sa
+  namespace: ${NAMESPACE}

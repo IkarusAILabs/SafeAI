@@ -1,0 +1,3 @@
+{"case": "unknown/unresolved_egress", "category": "unknown",
+ "description": "Configuration-driven egress destination stays unresolved, correlation fires.",
+ "version": "v2.6"}

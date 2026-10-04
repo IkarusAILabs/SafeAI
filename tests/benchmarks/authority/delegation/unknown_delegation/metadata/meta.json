@@ -1,0 +1,3 @@
+{"case": "delegation/unknown_delegation", "category": "delegation",
+ "description": "Unresolvable delegation targets stay unknown; no target is invented.",
+ "version": "v2.6"}

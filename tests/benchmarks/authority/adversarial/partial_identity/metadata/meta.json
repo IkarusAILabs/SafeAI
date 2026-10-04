@@ -1,0 +1,3 @@
+{"case": "adversarial/partial_identity", "category": "adversarial",
+ "description": "Near-miss identity keys and partial names never establish links.",
+ "version": "v2.6"}

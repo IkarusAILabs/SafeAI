@@ -1,0 +1,3 @@
+{"case": "delegation/subagent_chain", "category": "delegation",
+ "description": "Delegated shell work detected; worker attribution recorded honestly.",
+ "version": "v2.6"}

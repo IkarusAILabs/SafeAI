@@ -1,0 +1,3 @@
+{"case": "terraform/attachment_chain", "category": "terraform",
+ "description": "Attachment chains resolve to role grants; verdicts still require link evidence.",
+ "version": "v2.6"}

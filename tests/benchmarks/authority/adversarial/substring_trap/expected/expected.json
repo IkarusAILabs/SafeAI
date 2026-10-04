@@ -1,0 +1,26 @@
+{
+  "case": "adversarial/substring_trap",
+  "notes": "No Teams SDK usage exists; myteamscore must not fire CAP_ms_teams. No frameworks, agents, or tools detected.",
+  "agents": [],
+  "tools": [],
+  "must_fire": [],
+  "must_not_fire": [
+    "CAP_ms_teams",
+    "CAP_shell"
+  ],
+  "evidence_refs": [],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "unknown_expectations": []
+  }
+}

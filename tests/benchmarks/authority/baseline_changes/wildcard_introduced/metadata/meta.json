@@ -1,0 +1,3 @@
+{"case": "baseline_changes/wildcard_introduced", "category": "baseline_changes",
+ "description": "IaC-only grant widening is currently invisible: recorded miss, not hidden.",
+ "version": "v2.6"}

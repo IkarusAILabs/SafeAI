@@ -1,0 +1,1 @@
+{"case": "attribution/shared_tool", "category": "attribution", "description": "Two agents share one shell tool; the execution is detected but attributed to neither.", "version": "v2.6"}

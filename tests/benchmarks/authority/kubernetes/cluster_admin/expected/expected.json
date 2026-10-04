@@ -1,0 +1,92 @@
+{
+  "case": "kubernetes/cluster_admin",
+  "notes": "ClusterRole wildcard grant is observed breadth on a cluster scope; without declared counterpart it records UNKNOWN, never MATCH.",
+  "agents": [],
+  "tools": [],
+  "identities": [
+    {
+      "kind": "kubernetes_service_account",
+      "name": "cluster-agent",
+      "namespace": "kube-system"
+    }
+  ],
+  "grants": [
+    {
+      "identity": "cluster-agent",
+      "namespace": "kube-system",
+      "actions": [
+        "*"
+      ],
+      "resources": [
+        "*"
+      ],
+      "resolution": "resolved"
+    }
+  ],
+  "verdicts": {
+    "*:*": "UNKNOWN"
+  },
+  "must_fire": [
+    "CAP_kubernetes"
+  ],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "rbac.yaml"
+  ],
+  "uncertainty": [
+    {
+      "kind": "unlinked",
+      "match": "*:*"
+    }
+  ],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "identities": [
+      {
+        "id": "kubernetes_service_account/kube-system/cluster-agent",
+        "kind": "kubernetes_service_account",
+        "name": "cluster-agent",
+        "namespace": "kube-system"
+      }
+    ],
+    "grants": [
+      {
+        "identity": "cluster-agent",
+        "identity_namespace": "kube-system",
+        "actions": [
+          "*"
+        ],
+        "resources": [
+          "*"
+        ],
+        "resolution": "resolved"
+      }
+    ],
+    "relationships": [],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "*:*",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "unlinked",
+        "expected": "UNVERIFIED_LINK",
+        "match": "*:*"
+      }
+    ]
+  }
+}

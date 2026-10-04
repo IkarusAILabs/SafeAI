@@ -1,0 +1,76 @@
+{
+  "case": "attribution/workflow_chain",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "independent_annotation"
+  },
+  "notes": "Agent -> workflow -> tool -> capability. The fetch/check nodes and their filesystem, HTTP, and shell capabilities are detected but attributed to no tool.",
+  "agents": [],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "filesystem_access",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell_execution",
+          "access_mode": "execute"
+        }
+      ]
+    }
+  ],
+  "must_fire": [
+    "CAP_shell",
+    "CAP_http",
+    "CAP_filesystem"
+  ],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "graph.py"
+  ],
+  "uncertainty": [
+    {
+      "kind": "unlinked",
+      "match": "shell_execution"
+    },
+    {
+      "kind": "unlinked",
+      "match": "filesystem_access"
+    }
+  ],
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "filesystem_access",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "unlinked",
+        "expected": "UNVERIFIED_LINK",
+        "match": "shell_execution"
+      },
+      {
+        "area": "unlinked",
+        "expected": "UNVERIFIED_LINK",
+        "match": "filesystem_access"
+      }
+    ]
+  }
+}

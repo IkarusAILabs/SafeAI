@@ -1,0 +1,3 @@
+{"case": "mcp/missing_auth", "category": "mcp",
+ "description": "Missing MCP authentication evidence is a finding, not an assumption.",
+ "version": "v2.6"}

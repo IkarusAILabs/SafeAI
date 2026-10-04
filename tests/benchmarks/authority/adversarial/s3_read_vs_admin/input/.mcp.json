@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "storage": {
+      "command": "npx",
+      "args": ["-y", "@safeai/s3-server"],
+      "tools": ["s3_list_buckets"]
+    }
+  }
+}

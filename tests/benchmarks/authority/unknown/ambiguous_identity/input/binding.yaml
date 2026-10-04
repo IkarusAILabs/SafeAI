@@ -1,0 +1,13 @@
+# Binding subject carries no namespace: dev and prod both match.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: agent-binding
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: agent-sa
+roleRef:
+  kind: Role
+  name: agent-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,1 @@
+{"case": "unknown/ambiguous_identity", "category": "unknown", "description": "Namespace-less binding subject matches two identities; no grant resolved.", "version": "v2.6"}

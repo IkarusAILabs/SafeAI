@@ -1,0 +1,3 @@
+{"case": "capabilities/file_read_only", "category": "capabilities",
+ "description": "Read-only file access must not be reported as write or execute authority.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "terraform/linked_match", "category": "terraform",
+ "description": "Covered requirement with evidenced link resolves to MATCH, silently.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "adversarial/s3_read_vs_admin", "category": "adversarial",
+ "description": "Admin grant over a read need is excess, never a match; read is not admin.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "adversarial/role_name_prefix", "category": "adversarial",
+ "description": "Prefix-similar identities never merge; unlinked grants stay unverified.",
+ "version": "v2.6"}

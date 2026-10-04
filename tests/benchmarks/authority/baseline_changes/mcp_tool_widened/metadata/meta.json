@@ -1,0 +1,1 @@
+{"case": "baseline_changes/mcp_tool_widened", "category": "baseline_changes", "description": "Existing server gains an execute tool; surface escalates with no new finding kinds.", "version": "v2.6"}

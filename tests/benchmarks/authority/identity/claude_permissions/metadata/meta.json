@@ -1,0 +1,3 @@
+{"case": "identity/claude_permissions", "category": "identity",
+ "description": "Config-declared permissions attribute authority to named tools.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "terraform/wildcard_unresolved", "category": "terraform",
+ "description": "Wildcards are observed breadth; interpolation stays unresolved and shadows verdicts.",
+ "version": "v2.6"}

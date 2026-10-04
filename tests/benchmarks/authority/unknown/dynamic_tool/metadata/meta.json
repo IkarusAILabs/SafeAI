@@ -1,0 +1,3 @@
+{"case": "unknown/dynamic_tool", "category": "unknown",
+ "description": "Dynamically imported tool targets stay unnamed.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "mcp/declared_server", "category": "mcp",
+ "description": "Declared MCP servers attribute tools to a named server identity.",
+ "version": "v2.6"}
