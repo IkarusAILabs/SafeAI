@@ -1,30 +1,68 @@
 # Authority Evidence Validation — benchmark report
 
-Cases: 37 total, 37 passed, 0 mismatched.
+Status: RESEARCH / NOT LANE-A READY — vetoed by 17 observed unknown/unresolved items
 
-## Corpus metrics (measured, not targets)
+This report measures SafeAI on a fixed offline corpus (56 cases); it is not a claim about arbitrary customer scans. 'Rule-level detection' counts fired rules only. 'Observed false-escalation rate on benchmark corpus' is exactly that — corpus-observed, not universal.
 
-- Discovery: precision 1.0, recall 1.0, F1 1.0 (TP 38, FP 0, FN 0)
-- Tool recall: 1.0
-- Capability recall: 1.0
-- Attribution end-to-end (incl. unattributed bucket): 0.4222 (38/90); attributable-only accuracy: 1.0 (38/38)
-- False escalation rate: 0.0 (0/0 observed)
-- Evidence completeness: 1.0 (52/52)
-- Uncertainty expression recall: 1.0 (33/33)
-- Determinism: 1.0 (37/37 cases clean)
-- Unknown/unresolved observed: 10
+Cases: 56 total, 56 passed, 0 mismatched.
+
+## Discovery (entity P/R/F1 on corpus; n/a = no gold truth)
+
+Entity rows verify harness calibration against reviewed truth: they move only when the scanner or the truth changes, which is their scientific use. They are not product accuracy guarantees.
+- Entity agents: precision 1.0, recall 1.0, F1 1.0 (TP 31, FP 0, FN 0)
+- Entity tools: precision 1.0, recall 1.0, F1 1.0 (TP 17, FP 0, FN 0)
+- Entity capabilities: precision 1.0, recall 1.0, F1 1.0 (TP 121, FP 0, FN 0)
+- Entity identities: precision 1.0, recall 1.0, F1 1.0 (TP 22, FP 0, FN 0)
+- Entity grants: precision 1.0, recall 1.0, F1 1.0 (TP 17, FP 0, FN 0)
+- Entity relationships: precision 1.0, recall 1.0, F1 1.0 (TP 79, FP 0, FN 0)
+- Entity statements: precision 1.0, recall 1.0, F1 1.0 (TP 16, FP 0, FN 0)
+- Rule-level detection: precision 1.0, recall 1.0, F1 1.0 (TP 59, FP 0, FN 0; rule firing only, not authority discovery)
+
+## Attribution (8 levels, P/R/F1 where gold permits)
+
+- Attribution tool: precision 1.0, recall 1.0, F1 1.0 (TP 17, FP 0, FN 0)
+- Attribution capability: precision 1.0, recall 1.0, F1 1.0 (TP 58, FP 0, FN 0)
+- Attribution agent: precision 1.0, recall 1.0, F1 1.0 (TP 31, FP 0, FN 0)
+- Attribution identity: precision 1.0, recall 1.0, F1 1.0 (TP 24, FP 0, FN 0)
+- Attribution grant: precision 1.0, recall 1.0, F1 1.0 (TP 18, FP 0, FN 0)
+- Attribution agent_identity: precision 1.0, recall 1.0, F1 1.0 (TP 5, FP 0, FN 0)
+- Attribution capability_grant: precision 1.0, recall 1.0, F1 1.0 (TP 16, FP 0, FN 0)
+- Attribution end_to_end: precision 1.0, recall 1.0, F1 1.0 (TP 5, FP 0, FN 0)
+- End-to-end legacy rate (incl. unattributed bucket): 0.464 (58/125); attributable-only accuracy: 1.0 (58/58)
+
+## ChangeGuard (baseline pairs only)
+
+- Material change: precision 1.0, recall 1.0, F1 1.0 (TP 5, FP 0, FN 0)
+- Escalation: precision 1.0, recall 1.0, F1 1.0 (TP 4, FP 0, FN 0)
+- Observed false-escalation rate on benchmark corpus: 0.0
+- Missed material-change rate: 0.0
+- Surface-blind material entries (explicitly out of the surface model, detection via findings/summary): 3
+
+## Evidence
+
+- Evidence completeness: 1.0 (73/73)
+- Unknown preservation recall: 1.0 (43/43)
+- Determinism: 1.0 (56/56 cases clean)
+- Unknown/unresolved observed: 17
 
 ## Lane-A graduation (PROPOSED targets, report-only)
 
-Eligible: False
-- [PASS] discovery_precision: 1.0 (target 0.95)
-- [PASS] discovery_recall: 1.0 (target 0.9)
-- [FAIL] attribution_accuracy: 0.4222 (target 0.95)
-- [PASS] false_escalation_rate: 0.0 (target 0.05)
-- [PASS] evidence_completeness: 1.0 (target 0.95)
-- [PASS] determinism: 1.0 (target 1.0)
-- Note: Targets are PROPOSED per ADR-0008; no gate consumes this output.
-- Note: Unresolved/unknown items veto class-level graduation until resolved or explicitly scoped.
+- capability_detection: LANE-A CANDIDATE (precision 1.0, recall 1.0; targets P 0.95 R 0.9)
+- identity_attribution: LANE-A CANDIDATE (precision 1.0, recall 1.0; targets P 0.95 R 0.9)
+- authority_attribution: LANE-B (precision 0.464, recall 0.464; targets P 0.95 R 0.9) — legacy end-to-end rate over all exercised capabilities incl. unattributed bucket (58/125)
+- change_detection: LANE-A CANDIDATE (precision 1.0, recall 1.0; targets P 0.95 R 0.9)
+- escalation_detection: LANE-A CANDIDATE (precision 1.0, recall 1.0; targets P 0.95 R 0.9) — observed false-escalation rate on benchmark corpus 0.0 (max 0.05)
+- Overall: RESEARCH / NOT LANE-A READY — vetoed by 17 observed unknown/unresolved items
+- Note: Per-class thresholds are PROPOSED (reused global bars; ADR-0008 ratification required; no gate consumes this).
+- Legacy global eligible (reference): None
+
+## Known limitations (weakest measured categories first)
+
+- Watch: attribution_levels/agent
+- Watch: attribution_levels/agent_identity
+- Primary limitation: agent-to-tool attribution (agent_uses_tool edges beyond the current model; counted, not hidden)
+- Secondary limitation: infrastructure identity correlation without tool-scoped need (repo-level links yield UNKNOWN verdicts)
+- End-to-end legacy rate 0.464: 67 capabilities sit in unknown:unattributed (code-defined tools).
 
 ## Cases
 
@@ -42,7 +80,27 @@ Eligible: False
 
 ### [PASS] adversarial/substring_trap
 
+### [PASS] attribution/delegation_chain
+
+### [PASS] attribution/factory_tools
+
+### [PASS] attribution/mcp_chain
+
+### [PASS] attribution/multiple_identities
+
+### [PASS] attribution/shared_capability
+
+### [PASS] attribution/shared_tool
+
+### [PASS] attribution/similar_tools
+
+### [PASS] attribution/workflow_chain
+
 ### [PASS] baseline_changes/identity_changed
+
+### [PASS] baseline_changes/mcp_server_added
+
+### [PASS] baseline_changes/mcp_tool_widened
 
 ### [PASS] baseline_changes/new_tool
 
@@ -92,11 +150,29 @@ Eligible: False
 
 ### [PASS] terraform/wildcard_unresolved
 
+### [PASS] unknown/ambiguous_identity
+
+### [PASS] unknown/dynamic_policy
+
 ### [PASS] unknown/dynamic_tool
+
+### [PASS] unknown/external_policy
+
+### [PASS] unknown/generated_manifest
+
+### [PASS] unknown/mcp_auth_unresolved
+
+### [PASS] unknown/missing_sa_link
 
 ### [PASS] unknown/runtime_identity
 
+### [PASS] unknown/tf_module
+
+### [PASS] unknown/tf_variables
+
 ### [PASS] unknown/unresolved_egress
+
+### [PASS] unknown/unsupported_framework
 
 ### [PASS] workflows/langgraph_tools
 
