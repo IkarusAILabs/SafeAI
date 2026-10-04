@@ -193,6 +193,13 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
     scanned project is known by (project id, directory name, remote
     fingerprint); repository scope is enforced only against these, and
     an absent identity is recorded — never treated as a match.
+
+    ``scope_verified`` reports whether a declared repository scope could
+    be checked: ``None`` when none was declared, ``True`` when it was
+    checked against a known identity, ``False`` when one was declared and
+    no identity was available. ``False`` means the entry stayed active
+    without its scope being confirmed, which ``--strict-exceptions``
+    refuses (#196).
     """
     live = _live_targets(findings, escalations, policy_ids, changed_tool_keys)
     evaluations = []
@@ -211,6 +218,7 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
                 "expires_at": entry.get("expires_at"),
                 "compensating_controls": entry.get("compensating_controls") or [],
                 "review_trigger": entry.get("review_trigger") or [],
+                "scope_verified": None,
                 "warnings": [
                     (
                         f"Exception {entry.get('exception_id')} has unknown target_type "
@@ -234,21 +242,38 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
             )
         else:
             state = "active"
+        # ``scope_verified`` is tri-state and deliberately separate from
+        # ``state``: None when the entry declares no repository scope, True
+        # when a declared scope was checked against a known identity, False
+        # when one was declared and could not be checked at all.
+        #
+        # The False case is a fail-open. With no identity the evaluator cannot
+        # tell an exception scoped to *this* project from one scoped to
+        # somebody else's, so both stay active and suppress. The state is left
+        # alone here to keep that long-standing behaviour, but the fact is now
+        # recorded so --strict-exceptions can refuse it rather than the risk
+        # staying invisible to the gate. See issue #196.
+        scope_verified = None
         scope_repo = (entry.get("scope") or {}).get("repository")
         if scope_repo:
             identities = set(project_identities or ())
             if identities and scope_repo not in identities:
+                scope_verified = True
                 state = "scope-mismatch"
                 warnings.append(
                     f"Exception {entry['exception_id']} scope repository "
                     f"{scope_repo!r} does not match the scanned project; "
                     f"it is not active here."
                 )
-            elif not identities:
+            elif identities:
+                scope_verified = True
+            else:
+                scope_verified = False
                 warnings.append(
                     f"Exception {entry['exception_id']} scope repository "
                     f"{scope_repo!r} is unverified (no project identity); "
-                    f"recorded, not enforced."
+                    f"recorded, not enforced - it would suppress here even if "
+                    f"it names another repository."
                 )
         evaluations.append({
             "exception_id": entry["exception_id"],
@@ -259,6 +284,7 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
             "expires_at": entry.get("expires_at"),
             "compensating_controls": entry.get("compensating_controls") or [],
             "review_trigger": entry.get("review_trigger") or [],
+            "scope_verified": scope_verified,
             "warnings": warnings,
         })
     return evaluations
