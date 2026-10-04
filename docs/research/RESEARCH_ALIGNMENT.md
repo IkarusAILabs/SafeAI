@@ -75,11 +75,16 @@ not gate agent changes.
   IaC-observed authority on the benchmark corpus; report precision,
   recall, false-positive/negative rates per verdict class.
 - **E2 — Attribution accuracy** (P5): tool/capability/access-mode
-  attribution scored against annotated fixtures. First measurement
-  (2026-10-04, `docs/benchmarks/authority/VALIDATION_REPORT.md`):
-  attributable-only accuracy 1.0 (38/38), end-to-end 0.4222 (38/90)
-  with 52 capabilities in `unknown:unattributed` — the quantified
-  code-defined-tools gap; Lane-A graduation correctly withheld.
+  attribution scored against annotated fixtures. Hardened measurement
+  (`docs/benchmarks/authority/VALIDATION_REPORT.md`, canonical truth
+  v2.0, 56 cases): attributable-only accuracy 1.0 (58/58), end-to-end
+  0.464 (58/125) with 67 capabilities in `unknown:unattributed` — the
+  quantified code-defined-tools gap (rate moved 0.4222 → 0.464 from
+  corpus mix alone: 19 targeted cases added attributable MCP/other
+  capabilities; the scanner did not improve and no benchmark change
+  raised any score); authority attribution LANE-B, overall NOT
+  LANE-A READY with unknown veto. Lane-A graduation correctly
+  withheld.
 
 ## Benchmark strategy
 
@@ -98,6 +103,16 @@ First slice delivered (2026-10-04): 37-case corpus
 (`docs/benchmarks/authority/`). Discovery P/R/F1 1.0, determinism
 1.0, evidence completeness 1.0, uncertainty expression 1.0, false
 escalation rate 0.0. E1 verdict classes measured per-case; full
+per-verdict-class precision/recall publication remains open.
+
+Hardened slice (canonical truth v2.0, 56 cases): entity discovery
+P/R/F1 with insufficient_evidence; 8 attribution levels;
+material-change/escalation P/R/F1 with measured corpus
+false-escalation (0.0, 4 observed) and missed-material (0.0)
+rates; unknown preservation 1.0 across five uncertainty kinds;
+per-class Lane-A (4× CANDIDATE, authority LANE-B at 0.464, overall
+NOT READY + veto); 8-area mutation tests; determinism digests.
+E1 verdict classes measured per-case; full
 per-verdict-class precision/recall publication remains open.
 - **E3 — Flagship: combined assurance** (P7): conditions A
   (dependency-only), B (agent-only), C (combined + deterministic

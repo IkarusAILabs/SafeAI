@@ -1,0 +1,1 @@
+{"case": "attribution/shared_capability", "category": "attribution", "description": "Two tools share the S3 capability with different access modes; neither is attributed.", "version": "v2.6"}

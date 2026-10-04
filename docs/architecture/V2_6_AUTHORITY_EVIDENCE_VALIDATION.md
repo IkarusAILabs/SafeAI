@@ -1,7 +1,12 @@
 # v2.6 — Authority Evidence Validation: Architecture Assessment
 
-Status: design document (no behavior change). Maps the v2.6 brief onto
-the v2.5.0 tree, commit by commit verified.
+Status: implemented and validated on corpus (scanner behavior
+unchanged; benchmark-only change). Maps the v2.6 brief onto the
+v2.5.0 tree, commit by commit verified; hardening review applied
+(canonical gold truth v2.0, entity/attribution/change/unknown PRF,
+per-class Lane-A, 8-area mutation tests). Verdict: overall
+RESEARCH / NOT LANE-A READY (authority attribution LANE-B at
+end-to-end 0.464 over all exercised capabilities; unknown veto).
 
 ## 1. Existing models (all verified in-tree)
 

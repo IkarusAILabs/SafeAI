@@ -1,0 +1,13 @@
+# Workload references a ServiceAccount with no manifest in the repo.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent
+  namespace: dev
+spec:
+  template:
+    spec:
+      serviceAccountName: ghost-sa
+      containers:
+        - name: agent
+          image: agent:1.0

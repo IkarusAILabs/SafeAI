@@ -1,0 +1,110 @@
+{
+  "case": "unknown/mcp_auth_unresolved",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "notes": "Unresolved MCP authentication: the placeholder credential is flagged, never resolved. Auth-missing fires; no secret value is ever modeled.",
+  "agents": [],
+  "tools": [
+    {
+      "tool_key": "mcp_server:private",
+      "capabilities": [
+        {
+          "name": "databases",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:query",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    }
+  ],
+  "must_fire": [
+    "MCP_AUTH_MISSING"
+  ],
+  "must_not_fire": [],
+  "evidence_refs": [
+    ".mcp.json"
+  ],
+  "uncertainty": [],
+  "canonical": {
+    "agents": [],
+    "tools": [
+      {
+        "id": "private",
+        "name": "private",
+        "kind": "mcp_server",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "private",
+        "capability": "databases",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "private",
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "private",
+        "capability": "mcp_tool:query",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "private",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "private",
+        "capability": "databases",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "private",
+        "capability": "mcp",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "private",
+        "capability": "mcp_tool:query",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "private",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

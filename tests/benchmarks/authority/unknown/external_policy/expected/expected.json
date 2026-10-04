@@ -1,0 +1,69 @@
+{
+  "case": "unknown/external_policy",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "notes": "External IAM policy: the attachment is evidenced but the managed content is not expanded. Unresolved \u2014 never treated as allow-all, never dropped.",
+  "agents": [],
+  "tools": [],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "agent-role",
+      "namespace": ""
+    }
+  ],
+  "grants": [
+    {
+      "identity": "agent-role",
+      "actions": [],
+      "resources": [],
+      "resolution": "unresolved"
+    }
+  ],
+  "verdicts": {
+    "*:*": "UNKNOWN"
+  },
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": [
+    "main.tf"
+  ],
+  "uncertainty": [],
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "identities": [
+      {
+        "id": "aws_iam_role//agent-role",
+        "kind": "aws_iam_role",
+        "name": "agent-role",
+        "namespace": ""
+      }
+    ],
+    "grants": [
+      {
+        "identity": "agent-role",
+        "identity_namespace": "",
+        "actions": [],
+        "resources": [],
+        "resolution": "unresolved"
+      }
+    ],
+    "relationships": [],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "*:*",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

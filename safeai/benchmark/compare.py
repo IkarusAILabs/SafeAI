@@ -1,10 +1,14 @@
 """Structural comparison: expected truth vs observed scan output.
 
-Every check is explicit about what it proves. Surface entries with a
-null ``tool_key`` are security truth the scanner cannot attribute;
-they are measured (surface-unmeasurable) rather than asserted, so the
-benchmark documents blind spots instead of hiding them or failing on
-the impossible.
+Two layers run on every case:
+
+- Legacy section checks (agents/tools/identities/grants/links/verdicts,
+  changes channels, must_fire, evidence refs, uncertainty pools).
+- Canonical comparison (``safeai.benchmark.canonical``):
+  implementation-independent gold truth vs a neutral projection of
+  the scan output — entity discovery, 8 attribution levels, change /
+  escalation PRF, unknown preservation. Missing gold sections report
+  ``insufficient_evidence``, never 0/1.
 """
 
 import os
@@ -376,13 +380,17 @@ def compare_case(expected, current, baseline=None):
         and str(t.get("change_class") or "").upper() == "HIGH_RISK_CHANGE"
         and str(t.get("status") or "").lower() in ("new", "changed", "escalated")
     )
-    expected_escalations = sum(
-        1
-        for e in expected.get("changes", [])
+    expected_escalations = len({
+        (str(e.get("materiality") or e.get("kind") or ""),
+         str(e.get("status") or "").lower(),
+         str(e.get("tool") or e.get("subject") or ""))
+        for e in list(expected.get("changes", []) or [])
+        + list((expected.get("canonical") or {}).get("changes") or [])
         if isinstance(e, dict)
-        and str(e.get("materiality") or "") == "AUTHORITY_ESCALATION"
+        and str(e.get("materiality") or e.get("kind") or "")
+        == "AUTHORITY_ESCALATION"
         and str(e.get("status") or "").lower() in ("new", "changed")
-    )
+    })
     change_hits = change_total = unmeasurable = 0
     for entry in expected.get("changes", []):
         if not isinstance(entry, dict):
@@ -499,5 +507,21 @@ def compare_case(expected, current, baseline=None):
         "unknown": len(pools["unknown"]),
         "unresolved": len(pools["unresolved"]),
     }
+
+    # --- canonical (implementation-independent) comparison ---
+    from safeai.benchmark import canonical as canon_mod
+
+    gold, gold_notes = canon_mod.gold_from_expected(expected)
+    schema_problems = canon_mod.validate_gold(gold)
+    if schema_problems:
+        failures.append(
+            "canonical gold invalid: " + "; ".join(schema_problems))
+    obs = canon_mod.project_report(current)
+    canon_result = canon_mod.compare_all(gold, obs, current, baseline)
+    failures.extend(canon_result["failures"])
+    parts["canonical"] = canon_result["parts"]
+    parts["canonical"]["gold_derived_from_legacy"] = gold.get(
+        "derived_from_legacy", False)
+    parts["canonical"]["gold_notes"] = gold_notes
 
     return {"passed": not failures, "failures": failures, "parts": parts}

@@ -1,0 +1,6 @@
+# Explicit identity links for both agent entrypoints.
+agents:
+  reader:
+    role_arn: arn:aws:iam::123456789012:role/role-a
+  writer:
+    role_arn: arn:aws:iam::123456789012:role/role-b

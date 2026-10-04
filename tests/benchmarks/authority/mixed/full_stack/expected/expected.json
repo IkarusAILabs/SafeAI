@@ -1,25 +1,190 @@
 {
   "case": "mixed/full_stack",
   "notes": "Crew agent plus MCP server plus IaC grant: each layer observed independently; no declared cloud surface exists so the grant stays UNKNOWN.",
-  "agents": [{"framework": "crewai", "name": "Agent"}],
+  "agents": [
+    {
+      "framework": "crewai",
+      "name": "Agent"
+    }
+  ],
   "tools": [
-    {"tool_key": "mcp_server:docs",
-     "capabilities": [
-       {"name": "mcp", "access_mode": "read"},
-       {"name": "mcp_tool:search_docs", "access_mode": "read"},
-       {"name": "shell", "access_mode": "execute"}
-     ]},
-    {"tool_key": "unknown:unattributed",
-     "capabilities": [{"name": "mcp", "access_mode": "read"}]}
+    {
+      "tool_key": "mcp_server:docs",
+      "capabilities": [
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:search_docs",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    },
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        }
+      ]
+    }
   ],
-  "identities": [{"kind": "aws_iam_role", "name": "support-role", "namespace": ""}],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "support-role",
+      "namespace": ""
+    }
+  ],
   "grants": [
-    {"identity": "support-role", "actions": ["s3:GetObject"],
-     "resources": ["arn:aws:s3:::support-docs/*"], "resolution": "resolved"}
+    {
+      "identity": "support-role",
+      "actions": [
+        "s3:GetObject"
+      ],
+      "resources": [
+        "arn:aws:s3:::support-docs/*"
+      ],
+      "resolution": "resolved"
+    }
   ],
-  "verdicts": {"aws:s3": "UNKNOWN"},
-  "must_fire": ["MCP_AUTH_MISSING"],
+  "verdicts": {
+    "aws:s3": "UNKNOWN"
+  },
+  "must_fire": [
+    "MCP_AUTH_MISSING"
+  ],
   "must_not_fire": [],
-  "evidence_refs": ["crew.py", ".mcp.json", "main.tf"],
-  "uncertainty": [{"kind": "unlinked", "match": "aws:s3"}]
+  "evidence_refs": [
+    "crew.py",
+    ".mcp.json",
+    "main.tf"
+  ],
+  "uncertainty": [
+    {
+      "kind": "unlinked",
+      "match": "aws:s3"
+    }
+  ],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "crewai:Agent",
+        "framework": "crewai",
+        "name": "Agent"
+      }
+    ],
+    "tools": [
+      {
+        "id": "docs",
+        "name": "docs",
+        "kind": "mcp_server",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "docs",
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "docs",
+        "capability": "mcp_tool:search_docs",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "docs",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      },
+      {
+        "tool": null,
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "identities": [
+      {
+        "id": "aws_iam_role//support-role",
+        "kind": "aws_iam_role",
+        "name": "support-role",
+        "namespace": ""
+      }
+    ],
+    "grants": [
+      {
+        "identity": "support-role",
+        "identity_namespace": "",
+        "actions": [
+          "s3:GetObject"
+        ],
+        "resources": [
+          "arn:aws:s3:::support-docs/*"
+        ],
+        "resolution": "resolved"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "agent_uses_tool",
+        "agent": "crewai:Agent",
+        "tool": "docs",
+        "resolvable": false
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "mcp",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "mcp_tool:search_docs",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "aws:s3",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "unlinked",
+        "expected": "UNVERIFIED_LINK",
+        "match": "aws:s3"
+      }
+    ]
+  }
 }

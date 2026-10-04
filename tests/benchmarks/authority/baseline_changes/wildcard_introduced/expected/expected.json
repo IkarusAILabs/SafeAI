@@ -1,32 +1,157 @@
 {
   "case": "baseline_changes/wildcard_introduced",
   "notes": "Identical code, widened IaC grant (GetObject to s3:*). No findings, surface, or verdict channel detects grant widening: recorded miss.",
-  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "agents": [
+    {
+      "framework": "langchain",
+      "name": "initialize_agent"
+    }
+  ],
   "tools": [
-    {"tool_key": "unknown:unattributed",
-     "capabilities": [
-       {"name": "multi_agent_or_delegation", "access_mode": "read"},
-       {"name": "planner_chain", "access_mode": "read"}
-     ]}
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "multi_agent_or_delegation",
+          "access_mode": "read"
+        },
+        {
+          "name": "planner_chain",
+          "access_mode": "read"
+        }
+      ]
+    }
   ],
-  "identities": [{"kind": "aws_iam_role", "name": "agent-role", "namespace": ""}],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "agent-role",
+      "namespace": ""
+    }
+  ],
   "grants": [
-    {"identity": "agent-role", "actions": ["s3:*"],
-     "resources": ["*"], "resolution": "resolved"}
+    {
+      "identity": "agent-role",
+      "actions": [
+        "s3:*"
+      ],
+      "resources": [
+        "*"
+      ],
+      "resolution": "resolved"
+    }
   ],
-  "verdicts": {"aws:s3": "UNKNOWN"},
+  "verdicts": {
+    "aws:s3": "UNKNOWN"
+  },
   "changes": [
-    {"tool": "agent-role grant (main.tf)",
-     "status": "changed",
-     "materiality": "AUTHORITY_ESCALATION",
-     "channels": [],
-     "new_findings": []}
+    {
+      "tool": "agent-role grant (main.tf)",
+      "status": "changed",
+      "materiality": "AUTHORITY_ESCALATION",
+      "channels": [],
+      "new_findings": []
+    }
   ],
   "must_fire": [],
   "must_not_fire": [],
-  "evidence_refs": ["agent.py", "main.tf"],
+  "evidence_refs": [
+    "agent.py",
+    "main.tf"
+  ],
   "uncertainty": [
-    {"kind": "inferred", "match": "multi_agent_or_delegation"},
-    {"kind": "unlinked", "match": "aws:s3"}
-  ]
+    {
+      "kind": "inferred",
+      "match": "multi_agent_or_delegation"
+    },
+    {
+      "kind": "unlinked",
+      "match": "aws:s3"
+    }
+  ],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "langchain:initialize_agent",
+        "framework": "langchain",
+        "name": "initialize_agent"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "multi_agent_or_delegation",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "planner_chain",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "identities": [
+      {
+        "id": "aws_iam_role//agent-role",
+        "kind": "aws_iam_role",
+        "name": "agent-role",
+        "namespace": ""
+      }
+    ],
+    "grants": [
+      {
+        "identity": "agent-role",
+        "identity_namespace": "",
+        "actions": [
+          "s3:*"
+        ],
+        "resources": [
+          "*"
+        ],
+        "resolution": "resolved"
+      }
+    ],
+    "relationships": [],
+    "authority_statements": [
+      {
+        "capability": null,
+        "domain": "aws:s3",
+        "identity": null,
+        "resource": null,
+        "outcome": "UNKNOWN"
+      }
+    ],
+    "changes": [
+      {
+        "subject": "agent-role grant (main.tf)",
+        "kind": "AUTHORITY_ESCALATION",
+        "status": "changed",
+        "domain": "grant",
+        "evidence": [
+          "main.tf"
+        ],
+        "surface_expected": false
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "inferred",
+        "expected": "INFERRED",
+        "match": "multi_agent_or_delegation"
+      },
+      {
+        "area": "unlinked",
+        "expected": "UNVERIFIED_LINK",
+        "match": "aws:s3"
+      }
+    ]
+  }
 }

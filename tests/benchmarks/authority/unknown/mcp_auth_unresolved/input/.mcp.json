@@ -1,0 +1,1 @@
+{"mcpServers": {"private": {"command": "npx", "args": ["-y", "@safeai/private-server"], "tools": ["query"], "env": {"API_TOKEN": "${PRIVATE_API_TOKEN}"}}}}

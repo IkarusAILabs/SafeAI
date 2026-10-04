@@ -165,11 +165,11 @@ authority → REVIEW, with all of the above attached.
 | Plugin SDK, custom rules, control mappings (taxonomy) | SHIPPED AND VERIFIED | entry points, `rules check`, OWASP/NIST mappings |
 | Registry, suppressions, lifecycle, components, dependency inventory + DEP correlation | SHIPPED AND VERIFIED | SQLite registry, export/import, lockfile |
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
-| IaC precision/recall, attribution accuracy, escalation precision | PARTIALLY SHIPPED | first measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (37/37 hold; discovery P/R/F1 1.0; attributable-only 1.0; end-to-end 0.4222; Lane-A correctly not eligible) |
+| IaC precision/recall, attribution accuracy, escalation precision | PARTIALLY SHIPPED | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (56/56 hold; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.464 with 67/125 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/change/escalation/identity LANE-A CANDIDATE, authority attribution LANE-B, overall NOT LANE-A READY + unknown veto) |
 | Delegation depth (sub-agent scope, indirect authority) | PARTIALLY SHIPPED | ESC_COMBO + component graph cover proxies; no dedicated model |
 | CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
 | Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
-| Public authority benchmark (first slice: 37 cases + harness + published measurements) | PARTIALLY SHIPPED | `tests/benchmarks/authority/`, `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
+| Public authority benchmark (hardened slice: 56 cases + canonical v2 truth + harness + published measurements) | PARTIALLY SHIPPED | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
 
 **Drift corrected in this re-baseline:** Outcome 1's lanes and Outcome
@@ -302,20 +302,26 @@ accountable human decisions.*
 
 ## Layer 8 — Research Validation
 
-- **Agent Authority Benchmark (first slice SHIPPED AND VERIFIED,
-  rest RESEARCH ITEM):** 37-case corpus
-  (`tests/benchmarks/authority/`: capability-escalation,
-  governance-change, delegation-change, MCP, IaC-mismatch,
-  unknown-scenario fixtures, each with expected evidence and expected
-  authority classification) + `safeai benchmark` harness + published
+- **Agent Authority Benchmark (IMPLEMENTED, VALIDATED on corpus;
+  publishable dataset still RESEARCH ITEM):** 56-case corpus
+  (`tests/benchmarks/authority/` with canonical v2.0 gold truth:
+  capability-escalation, governance-change, delegation-change, MCP,
+  IaC-mismatch, unknown-scenario, and targeted attribution fixtures,
+  each with expected evidence and expected authority classification)
+  + `safeai benchmark` harness (entity/attribution/change/unknown
+  PRF, determinism digests, 8-area mutation tests) + published
   measurements (`docs/benchmarks/authority/VALIDATION_REPORT.md`).
   Target remainder: publishable dataset + reproducibility package.
-- **Evaluation methodology (first slice SHIPPED AND VERIFIED):**
-  detection precision/recall/F1; attribution accuracy (tool,
-  capability, access mode; attributable-only vs end-to-end split);
-  evidence completeness, reproducibility, determinism;
-  material-change precision/recall, false-escalation rate;
-  unknown rate, unsupported-inference rate, incorrect-certainty rate.
+- **Evaluation methodology (IMPLEMENTED, VALIDATED on corpus):**
+  entity discovery P/R/F1 (with insufficient_evidence, never 0/1);
+  8-level attribution (tool, capability, agent, identity, grant,
+  agent→identity, capability→grant, end-to-end; attributable-only vs
+  end-to-end split); evidence completeness, reproducibility,
+  determinism; material-change and escalation P/R/F1 plus measured
+  false-escalation and missed-material rates (0/0 reports
+  insufficient, never 0); unknown preservation across
+  UNKNOWN/UNVERIFIED_LINK/PARTIAL/INFERRED/UNRESOLVED; per-class
+  Lane-A verdicts (LANE-A CANDIDATE vs LANE-B, overall NOT READY).
 - **Research deliverables per milestone:** schema, benchmark, dataset,
   experiment, reproducibility package, technical report, paper, or
   reference implementation — engineering must generate academic value.

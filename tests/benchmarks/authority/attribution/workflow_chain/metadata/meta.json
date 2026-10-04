@@ -1,0 +1,1 @@
+{"case": "attribution/workflow_chain", "category": "attribution", "description": "Workflow nodes with HTTP, filesystem, and shell capabilities; all unattributed.", "version": "v2.6"}

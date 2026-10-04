@@ -80,6 +80,41 @@ def rate(numerator, denominator):
     return round(max(0.0, min(1.0, numerator / denominator)), 4)
 
 
+def maybe_rate(numerator, denominator):
+    """Rate or None: empty denominator means insufficient evidence, not 0."""
+    if denominator <= 0:
+        return None
+    return round(max(0.0, min(1.0, numerator / denominator)), 4)
+
+
+def sum_prf(items):
+    """Sum per-case status-aware PRF dicts into one corpus PRF dict.
+
+    A metric with no positive gold or observed instance across the
+    corpus reports ``insufficient_evidence`` — never 0, never 1.
+    Halves with an empty denominator report None individually.
+    """
+    tp = sum(int(i.get("true_positives") or 0) for i in items)
+    fp = sum(int(i.get("false_positives") or 0) for i in items)
+    fn = sum(int(i.get("false_negatives") or 0) for i in items)
+    precision = tp / (tp + fp) if (tp + fp) > 0 else None
+    recall = tp / (tp + fn) if (tp + fn) > 0 else None
+    if precision is None or recall is None:
+        f1 = None
+    elif precision + recall > 0:
+        f1 = 2 * precision * recall / (precision + recall)
+    else:
+        f1 = 0.0
+    status = ("measured" if (precision is not None or recall is not None)
+              else "insufficient_evidence")
+    return {"true_positives": tp, "false_positives": fp,
+            "false_negatives": fn,
+            "precision": round(precision, 4) if precision is not None else None,
+            "recall": round(recall, 4) if recall is not None else None,
+            "f1": round(f1, 4) if f1 is not None else None,
+            "status": status}
+
+
 def aggregate(case_results):
     """Aggregate per-case ``parts`` into corpus metrics + Lane-A report.
 
@@ -187,6 +222,21 @@ def aggregate(case_results):
         "unknown_unresolved_count": (totals["unknown_obs"] + totals["unresolved_obs"]),
     }
     lane_a = check_lane_a(metrics)
+    canonical = aggregate_canonical(case_results)
+    metrics["canonical"] = canonical
+    metrics["lane_a_classes"] = check_lane_a_classes(
+        metrics,
+        legacy_attribution=metrics.get("attribution") or {},
+        unknown_count=metrics.get("unknown_unresolved_count") or 0)
+    import hashlib
+    import json as _json
+
+    digest = hashlib.sha256(
+        _json.dumps({"summary": {
+            "total": len(case_results),
+            "passed": metrics["passed"],
+            "failed": len(case_results) - metrics["passed"],
+        }, "metrics": metrics}, sort_keys=True).encode("utf-8")).hexdigest()
     return {
         "cases": case_results,
         "summary": {
@@ -196,6 +246,162 @@ def aggregate(case_results):
         },
         "metrics": metrics,
         "lane_a": lane_a,
+        "digest": digest,
+    }
+
+
+def aggregate_canonical(case_results):
+    """Aggregate canonical per-case parts into corpus entity/attribution/change metrics."""
+    entity_names = ("agents", "tools", "capabilities", "identities", "grants",
+                    "relationships", "statements")
+    level_names = ("tool", "capability", "agent", "identity", "grant",
+                   "agent_identity", "capability_grant", "end_to_end")
+    entities = {n: [] for n in entity_names}
+    levels = {n: [] for n in level_names}
+    change_items, esc_items, unknown_items = [], [], []
+    for result in case_results:
+        canon = (result.get("parts") or {}).get("canonical") or {}
+        for name in entity_names:
+            entities[name].append(
+                (canon.get("entities") or {}).get(name) or {})
+        for name in level_names:
+            levels[name].append(
+                (canon.get("attribution") or {}).get(name) or {})
+        change_items.append((canon.get("change") or {}).get("material_change")
+                            or {})
+        esc_items.append((canon.get("change") or {}).get("escalation") or {})
+        unknown_items.append(canon.get("unknown") or {})
+    entities = {n: sum_prf(v) for n, v in entities.items()}
+    levels = {n: sum_prf(v) for n, v in levels.items()}
+    change = sum_prf(change_items)
+    escalation = sum_prf(esc_items)
+    # False-escalation corpus rate: FP escalations / observed HIGH_RISK.
+    esc_fp = escalation["false_positives"]
+    esc_tp = escalation["true_positives"]
+    if esc_tp + esc_fp > 0:
+        false_escalation_rate = {"value": round(esc_fp / (esc_tp + esc_fp), 4),
+                                 "status": "measured"}
+    else:
+        false_escalation_rate = {
+            "value": None, "status": "insufficient_evidence",
+            "reason": "no HIGH_RISK diffs observed on corpus"}
+    # Missed-material corpus rate: FN material / expected material.
+    mat_fn = change["false_negatives"]
+    mat_tp = change["true_positives"]
+    if mat_tp + mat_fn > 0:
+        missed_material_rate = {"value": round(mat_fn / (mat_tp + mat_fn), 4),
+                                "status": "measured"}
+    else:
+        missed_material_rate = {
+            "value": None, "status": "insufficient_evidence",
+            "reason": "no material changes expected on corpus"}
+    unknown = sum_prf([
+        {"true_positives": (u.get("preserved") or {}).get("matched") or 0,
+         "false_positives": 0,
+         "false_negatives": ((u.get("preserved") or {}).get("expected") or 0)
+         - ((u.get("preserved") or {}).get("matched") or 0)}
+        for u in unknown_items
+    ])
+    surface_blind = sum(
+        int(((r.get("parts") or {}).get("canonical") or {}).get("change", {})
+            .get("surface_blind") or 0)
+        for r in case_results
+    )
+    return {"entities": entities, "attribution_levels": levels,
+            "change_detection": change, "escalation_detection": escalation,
+            "false_escalation_rate": false_escalation_rate,
+            "missed_material_rate": missed_material_rate,
+            "surface_blind": surface_blind,
+            "unknown_preservation": unknown}
+
+
+def check_lane_a_classes(metrics, legacy_attribution=None,
+                         unknown_count=0, targets=None):
+    """Per-class Lane-A eligibility from validated evidence.
+
+    Classes: capability detection, identity attribution, authority
+    attribution, change detection, escalation detection. Each reports
+    LANE-A CANDIDATE, LANE-B, or INSUFFICIENT EVIDENCE with the gates
+    that decided it. The roadmap defines no per-class thresholds, so
+    the PROPOSED global precision/recall bars are reused and every
+    class is labeled accordingly: no threshold is silently treated as
+    official.
+
+    Authority attribution gates on the legacy end-to-end rate (all
+    exercised capabilities including the unattributed bucket), not on
+    the narrow complete-chain subset: a 5-chain 1.0 must never mask
+    the measured 0.46 end-to-end gap. Any observed unknown/unresolved
+    evidence vetoes overall readiness with an explicit reason.
+    """
+    targets = targets or LANE_A_TARGETS
+    legacy_attribution = legacy_attribution or {}
+    classes = []
+
+    def verdict(name, precision, recall, extra_pass=True, extra_note=""):
+        if precision is None or recall is None:
+            classes.append({
+                "class": name, "status": "INSUFFICIENT EVIDENCE",
+                "precision": precision, "recall": recall,
+                "precision_target": targets["precision"],
+                "recall_target": targets["recall"],
+                "extra": extra_note or "no measurable instances on corpus",
+            })
+            return False
+        p_ok = precision >= targets["precision"]
+        r_ok = recall >= targets["recall"]
+        passed = bool(p_ok and r_ok and extra_pass)
+        classes.append({
+            "class": name,
+            "status": "LANE-A CANDIDATE" if passed else "LANE-B",
+            "precision": precision, "recall": recall,
+            "precision_target": targets["precision"],
+            "recall_target": targets["recall"],
+            "extra": extra_note,
+        })
+        return passed
+
+    canonical = metrics.get("canonical", {}) if isinstance(metrics, dict) else {}
+    entities = canonical.get("entities", {})
+    levels = canonical.get("attribution_levels", {})
+    cap = entities.get("capabilities", {})
+    verdict("capability_detection", cap.get("precision"), cap.get("recall"))
+    ident = levels.get("identity", {})
+    verdict("identity_attribution", ident.get("precision"), ident.get("recall"))
+    e2e = legacy_attribution.get("end_to_end")
+    verdict("authority_attribution", e2e, e2e,
+            extra_note=("legacy end-to-end rate over all exercised "
+                        "capabilities incl. unattributed bucket "
+                        f"({legacy_attribution.get('matched')}/"
+                        f"{legacy_attribution.get('expected')})"))
+    change = canonical.get("change_detection", {})
+    verdict("change_detection", change.get("precision"), change.get("recall"))
+    esc = canonical.get("escalation_detection", {})
+    fer = canonical.get("false_escalation_rate", {})
+    fer_value = fer.get("value")
+    fer_ok = (fer.get("status") == "measured" and fer_value is not None
+              and fer_value <= targets["false_escalation_rate_max"])
+    verdict("escalation_detection", esc.get("precision"), esc.get("recall"),
+            extra_pass=fer_ok,
+            extra_note=(f"observed false-escalation rate on benchmark corpus "
+                        f"{fer_value} "
+                        f"(max {targets['false_escalation_rate_max']})"
+                        if fer.get("status") == "measured" else
+                        "false-escalation rate: insufficient evidence"))
+    veto = (unknown_count or 0) > 0
+    overall_ready = all(c["status"] == "LANE-A CANDIDATE" for c in classes) \
+        and not veto
+    overall = ("LANE-A READY" if overall_ready
+               else "RESEARCH / NOT LANE-A READY")
+    if veto:
+        overall += (f" — vetoed by {unknown_count} observed "
+                    f"unknown/unresolved items")
+    return {
+        "classes": classes,
+        "overall": overall,
+        "unknown_veto": bool(veto),
+        "unknown_veto_count": int(unknown_count or 0),
+        "note": ("Per-class thresholds are PROPOSED (reused global bars; "
+                 "ADR-0008 ratification required; no gate consumes this)."),
     }
 
 

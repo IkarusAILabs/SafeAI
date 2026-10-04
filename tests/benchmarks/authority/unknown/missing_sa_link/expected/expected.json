@@ -1,0 +1,30 @@
+{
+  "case": "unknown/missing_sa_link",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "notes": "Missing ServiceAccount linkage: a bare serviceAccountName reference evidences no identity. No phantom identity, no link, no verdict.",
+  "agents": [],
+  "tools": [],
+  "identities": [],
+  "grants": [],
+  "links": [],
+  "verdicts": {},
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": [],
+  "uncertainty": [],
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "identities": [],
+    "grants": [],
+    "relationships": [],
+    "authority_statements": [],
+    "unknown_expectations": []
+  }
+}

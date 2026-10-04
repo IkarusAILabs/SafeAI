@@ -4,14 +4,66 @@
   "agents": [],
   "tools": [],
   "identities": [
-    {"kind": "kubernetes_service_account", "name": "agent-sa", "namespace": "prod"},
-    {"kind": "kubernetes_service_account", "name": "agent-sa", "namespace": "dev"}
+    {
+      "kind": "kubernetes_service_account",
+      "name": "agent-sa",
+      "namespace": "prod"
+    },
+    {
+      "kind": "kubernetes_service_account",
+      "name": "agent-sa",
+      "namespace": "dev"
+    }
   ],
   "grants": [],
-  "links": [{"identity": "agent-sa", "namespace": "dev"}],
+  "links": [
+    {
+      "identity": "agent-sa",
+      "namespace": "dev"
+    }
+  ],
   "verdicts": {},
   "must_fire": [],
   "must_not_fire": [],
-  "evidence_refs": ["workload.yaml"],
-  "uncertainty": []
+  "evidence_refs": [
+    "workload.yaml"
+  ],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "canonical": {
+    "agents": [],
+    "tools": [],
+    "capabilities": [],
+    "identities": [
+      {
+        "id": "kubernetes_service_account/prod/agent-sa",
+        "kind": "kubernetes_service_account",
+        "name": "agent-sa",
+        "namespace": "prod"
+      },
+      {
+        "id": "kubernetes_service_account/dev/agent-sa",
+        "kind": "kubernetes_service_account",
+        "name": "agent-sa",
+        "namespace": "dev"
+      }
+    ],
+    "grants": [],
+    "relationships": [
+      {
+        "type": "agent_linked_identity",
+        "agent": null,
+        "identity": "agent-sa",
+        "identity_namespace": "dev",
+        "resolvable": true
+      }
+    ],
+    "authority_statements": [],
+    "unknown_expectations": []
+  }
 }

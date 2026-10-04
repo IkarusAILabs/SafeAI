@@ -3,16 +3,108 @@
   "notes": "Declared MCP server with named tools attributes capabilities to the server identity.",
   "agents": [],
   "tools": [
-    {"tool_key": "mcp_server:docs",
-     "capabilities": [
-       {"name": "mcp", "access_mode": "read"},
-       {"name": "mcp_tool:fetch_page", "access_mode": "read"},
-       {"name": "mcp_tool:search_docs", "access_mode": "read"},
-       {"name": "shell", "access_mode": "execute"}
-     ]}
+    {
+      "tool_key": "mcp_server:docs",
+      "capabilities": [
+        {
+          "name": "mcp",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:fetch_page",
+          "access_mode": "read"
+        },
+        {
+          "name": "mcp_tool:search_docs",
+          "access_mode": "read"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    }
   ],
-  "must_fire": ["MCP_AUTH_MISSING"],
+  "must_fire": [
+    "MCP_AUTH_MISSING"
+  ],
   "must_not_fire": [],
-  "evidence_refs": [".mcp.json"],
-  "uncertainty": []
+  "evidence_refs": [
+    ".mcp.json"
+  ],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections"
+  },
+  "canonical": {
+    "agents": [],
+    "tools": [
+      {
+        "id": "docs",
+        "name": "docs",
+        "kind": "mcp_server",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "docs",
+        "capability": "mcp",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "docs",
+        "capability": "mcp_tool:fetch_page",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "docs",
+        "capability": "mcp_tool:search_docs",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "docs",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "mcp",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "mcp_tool:fetch_page",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "mcp_tool:search_docs",
+        "access_mode": "read",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "docs",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "unknown_expectations": []
+  }
 }

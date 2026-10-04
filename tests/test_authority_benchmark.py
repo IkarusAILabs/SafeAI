@@ -310,13 +310,17 @@ def test_report_roundtrip_and_markdown(tmp_path):
 # --- runner discovery ---
 
 
-def test_corpus_discovers_37_cases():
+def test_corpus_discovers_cases_with_v2_truth():
     cases = runner.discover_cases(runner.default_corpus())
-    assert len(cases) == 37, [c["id"] for c in cases]
-    assert len({c["id"] for c in cases}) == 37
+    assert len(cases) == 56, [c["id"] for c in cases]
+    assert len({c["id"] for c in cases}) == 56
     for case in cases:
         expected = runner.load_expected(case["dir"])
         assert expected["case"] == case["id"]
+        assert expected.get("truth_schema_version") == "2.0", case["id"]
+        assert (expected.get("annotation") or {}).get("basis") == (
+            "human_reviewed_source"
+        ), case["id"]
 
 
 def test_canonical_projection_stable_and_order_free():
