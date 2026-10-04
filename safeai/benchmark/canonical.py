@@ -665,12 +665,11 @@ def compare_entities(gold, obs):
             name, ns, actions = key
             if not ns:
                 for okey in list(spurious):
-                    if okey[0] == name and okey[2] == actions:
-                        if obs_map[okey] == gold_map[key]:
-                            missing.discard(key)
-                            spurious.discard(okey)
-                            correct.add(key)
-                            break
+                    if okey[0] == name and okey[2] == actions and obs_map[okey] == gold_map[key]:
+                        missing.discard(key)
+                        spurious.discard(okey)
+                        correct.add(key)
+                        break
         res = _prf_counts(len(correct), len(spurious), len(missing),
                           contradicted=len(contra))
         res.update(_coverage_block(len(correct), len(contra),

@@ -1,5 +1,6 @@
 """Agent posting to a URL taken from configuration (destination unknown)."""
 import os
+
 import httpx
 from langchain.agents import initialize_agent
 from langchain.tools import Tool

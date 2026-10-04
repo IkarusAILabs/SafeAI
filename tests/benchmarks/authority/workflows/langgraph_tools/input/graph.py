@@ -1,8 +1,9 @@
 """Triage workflow: classify then answer, with a shell-capable tool node."""
+import subprocess
+
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
-import subprocess
 
 
 def classify(state):
@@ -10,7 +11,9 @@ def classify(state):
 
 
 def shell_run(cmd):
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
+    return subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, check=False
+    ).stdout
 
 
 graph = StateGraph(dict)

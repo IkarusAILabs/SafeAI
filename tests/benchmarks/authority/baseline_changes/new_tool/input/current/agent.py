@@ -1,5 +1,6 @@
 """Reader agent, version 2: lookup plus a new shell tool."""
 import subprocess
+
 from langchain.agents import initialize_agent
 from langchain.tools import Tool
 
@@ -11,7 +12,9 @@ def lookup(key: str) -> str:
 
 def diagnose(cmd: str) -> str:
     """Run a diagnostic shell command."""
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
+    return subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, check=False
+    ).stdout
 
 
 lookup_tool = Tool(name="lookup", func=lookup, description="Look up values")

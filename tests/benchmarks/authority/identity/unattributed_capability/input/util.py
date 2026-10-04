@@ -3,4 +3,4 @@ import subprocess
 
 
 def helper(cmd):
-    return subprocess.run(cmd, shell=True)
+    return subprocess.run(cmd, shell=True, check=False)

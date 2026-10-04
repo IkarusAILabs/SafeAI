@@ -1,12 +1,15 @@
 """Manager agent delegating shell work to a sub-agent (CrewAI)."""
+import subprocess
+
 from crewai import Agent, Crew, Task
 from crewai.tools import Tool
 
 
 def run(cmd: str) -> str:
     """Sub-agent shell entrypoint."""
-    import subprocess
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
+    return subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, check=False
+    ).stdout
 
 
 shell_tool = Tool(name="run", func=run)

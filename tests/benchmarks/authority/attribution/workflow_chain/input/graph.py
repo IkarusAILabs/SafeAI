@@ -1,6 +1,7 @@
 """Review workflow: fetch context over HTTP, then run a shell check."""
 import subprocess
 import urllib.request
+
 from langgraph.graph import END, StateGraph
 
 
@@ -10,7 +11,9 @@ def fetch_context(url):
 
 
 def shell_check(cmd):
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
+    return subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, check=False
+    ).stdout
 
 
 graph = StateGraph(dict)

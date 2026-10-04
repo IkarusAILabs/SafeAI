@@ -7,7 +7,9 @@ from langchain.tools import Tool
 
 def deploy(cmd: str) -> str:
     """Run a deployment shell command."""
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    result = subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, check=False
+    )
     return result.stdout
 
 
