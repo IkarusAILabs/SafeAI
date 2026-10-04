@@ -1,5 +1,7 @@
 # SafeAI — Roadmap
 
+> Research hub: [ikaruslabs.net](https://ikaruslabs.net) | SafeAI: [ikaruslabs.net/safeai](https://ikaruslabs.net/safeai) | OpenPulse: [ikaruslabs.net/openpulse](https://ikaruslabs.net/openpulse)
+
 > SafeAI is one research instrument within the Ikarus AI Labs programme on
 > **Evidence-Based Assurance for AI-Mediated Software Change**.
 >

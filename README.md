@@ -2,7 +2,8 @@
 
 [![CI](https://github.com/ikaruscareer/SafeAI/actions/workflows/ci.yml/badge.svg)](https://github.com/ikaruscareer/SafeAI/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ikaruscareer/SafeAI/badge)](https://scorecard.dev/viewer/?uri=github.com/ikaruscareer/SafeAI)
-[![Website](https://img.shields.io/badge/web-safeai--analyzer.ikaruscareer.com-0f766e)](https://safeai-analyzer.ikaruscareer.com)
+[![Research Hub](https://img.shields.io/badge/research-ikaruslabs.net-0f766e)](https://ikaruslabs.net)
+[![SafeAI](https://img.shields.io/badge/SafeAI-ikaruslabs.net/safeai-0f766e)](https://ikaruslabs.net/safeai)
 [![Latest Release](https://img.shields.io/badge/latest-v2.5.0-0f766e)](https://github.com/ikaruscareer/SafeAI/releases/tag/v2.5.0)
 [![Best Practices](https://bestpractices.dev/projects/14126/badge)](https://www.bestpractices.dev/en/projects/14126)
 
@@ -22,7 +23,7 @@ Enjoying SafeAI? A ⭐ on [GitHub](https://github.com/ikaruscareer/SafeAI) helps
 
 > SafeAI is not a runtime guardrail and does not certify an agent as safe. It provides source-first, evidence-backed visibility into agent authority and meaningful changes *before deployment*.
 
-> 🌐 [safeai-analyzer.ikaruscareer.com](https://safeai-analyzer.ikaruscareer.com) — project landing page
+> 🌐 [Ikarus AI Labs Research Hub](https://ikaruslabs.net) — SafeAI: [ikaruslabs.net/safeai](https://ikaruslabs.net/safeai) | OpenPulse: [ikaruslabs.net/openpulse](https://ikaruslabs.net/openpulse) | Research: [ikaruslabs.net/research](https://ikaruslabs.net/research)
 
 <img width="1024" height="1024" alt="SafeAI_Agent_Software_Static_Analyzer" src="https://github.com/user-attachments/assets/de40f40b-14b9-4cd6-bc2c-27e81e8253fe" />
 
