@@ -1,0 +1,3 @@
+{"case": "access_modes/read_only_tool", "category": "access_modes",
+ "description": "Read-only access must not be reported as write or execute.",
+ "version": "v2.6"}

@@ -1,0 +1,3 @@
+{"case": "kubernetes/namespace_confusion", "category": "kubernetes",
+ "description": "Same SA name in two namespaces: isolated identities, dev-only link.",
+ "version": "v2.6"}

@@ -1,0 +1,10 @@
+{
+  "case": "adversarial/substring_trap",
+  "notes": "No Teams SDK usage exists; myteamscore must not fire CAP_ms_teams. No frameworks, agents, or tools detected.",
+  "agents": [],
+  "tools": [],
+  "must_fire": [],
+  "must_not_fire": ["CAP_ms_teams", "CAP_shell"],
+  "evidence_refs": [],
+  "uncertainty": []
+}

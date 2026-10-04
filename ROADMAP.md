@@ -165,10 +165,11 @@ authority → REVIEW, with all of the above attached.
 | Plugin SDK, custom rules, control mappings (taxonomy) | SHIPPED AND VERIFIED | entry points, `rules check`, OWASP/NIST mappings |
 | Registry, suppressions, lifecycle, components, dependency inventory + DEP correlation | SHIPPED AND VERIFIED | SQLite registry, export/import, lockfile |
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
-| IaC precision/recall, attribution accuracy, escalation precision | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED | corpus + harness exist; no published measurements |
+| IaC precision/recall, attribution accuracy, escalation precision | PARTIALLY SHIPPED | first measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (37/37 hold; discovery P/R/F1 1.0; attributable-only 1.0; end-to-end 0.4222; Lane-A correctly not eligible) |
 | Delegation depth (sub-agent scope, indirect authority) | PARTIALLY SHIPPED | ESC_COMBO + component graph cover proxies; no dedicated model |
 | CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
-| Authority attestation object, public benchmark, evaluation methodology, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
+| Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
+| Public authority benchmark (first slice: 37 cases + harness + published measurements) | PARTIALLY SHIPPED | `tests/benchmarks/authority/`, `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
 
 **Drift corrected in this re-baseline:** Outcome 1's lanes and Outcome
@@ -301,13 +302,17 @@ accountable human decisions.*
 
 ## Layer 8 — Research Validation
 
-- **Agent Authority Benchmark (PLANNED → RESEARCH ITEM):** grow the
-  IaC benchmark corpus into capability-escalation, governance-change,
-  delegation-change, MCP, IaC-mismatch, and unknown-scenario fixtures,
-  each with expected evidence and expected authority classification.
-  Target: publishable dataset + reproducibility package.
-- **Evaluation methodology (PLANNED):** detection precision/recall/F1;
-  attribution accuracy (tool, capability, access mode);
+- **Agent Authority Benchmark (first slice SHIPPED AND VERIFIED,
+  rest RESEARCH ITEM):** 37-case corpus
+  (`tests/benchmarks/authority/`: capability-escalation,
+  governance-change, delegation-change, MCP, IaC-mismatch,
+  unknown-scenario fixtures, each with expected evidence and expected
+  authority classification) + `safeai benchmark` harness + published
+  measurements (`docs/benchmarks/authority/VALIDATION_REPORT.md`).
+  Target remainder: publishable dataset + reproducibility package.
+- **Evaluation methodology (first slice SHIPPED AND VERIFIED):**
+  detection precision/recall/F1; attribution accuracy (tool,
+  capability, access mode; attributable-only vs end-to-end split);
   evidence completeness, reproducibility, determinism;
   material-change precision/recall, false-escalation rate;
   unknown rate, unsupported-inference rate, incorrect-certainty rate.

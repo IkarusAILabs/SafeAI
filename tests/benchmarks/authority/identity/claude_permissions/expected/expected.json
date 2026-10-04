@@ -1,0 +1,15 @@
+{
+  "case": "identity/claude_permissions",
+  "notes": "Claude Code permission config attributes shell/filesystem to named tools.",
+  "agents": [],
+  "tools": [
+    {"tool_key": "tool:bash",
+     "capabilities": [{"name": "shell", "access_mode": "execute"}]},
+    {"tool_key": "tool:read",
+     "capabilities": [{"name": "filesystem", "access_mode": "read"}]}
+  ],
+  "must_fire": ["CAP_shell", "CAP_filesystem"],
+  "must_not_fire": [],
+  "evidence_refs": ["settings.json"],
+  "uncertainty": []
+}

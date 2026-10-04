@@ -1,0 +1,18 @@
+{
+  "name": "ticket-webhook",
+  "nodes": [
+    {
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {"path": "ticket", "httpMethod": "POST"}
+    },
+    {
+      "name": "Classify",
+      "type": "n8n-nodes-base.function",
+      "parameters": {"functionCode": "return [{label: 'synthetic'}]"}
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node": "Classify"}]]}
+  }
+}

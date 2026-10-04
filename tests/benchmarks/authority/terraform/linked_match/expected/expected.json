@@ -1,0 +1,26 @@
+{
+  "case": "terraform/linked_match",
+  "notes": "Read need (MCP-declared storage tool; no agent code in input), resolved read grant, explicit ARN link: the expected MATCH verdict.",
+  "agents": [],
+  "tools": [
+    {"tool_key": "mcp_server:storage",
+     "capabilities": [
+       {"name": "cloud", "access_mode": "read"},
+       {"name": "mcp", "access_mode": "read"},
+       {"name": "mcp_tool:s3_list_buckets", "access_mode": "read"},
+       {"name": "shell", "access_mode": "execute"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "agent-role", "namespace": ""}],
+  "grants": [
+    {"identity": "agent-role", "actions": ["s3:GetObject", "s3:ListBucket"],
+     "resources": ["arn:aws:s3:::agent-bucket", "arn:aws:s3:::agent-bucket/*"],
+     "resolution": "resolved"}
+  ],
+  "links": [{"identity": "agent-role", "namespace": ""}],
+  "verdicts": {"aws:s3": "MATCH"},
+  "must_fire": [],
+  "must_not_fire": ["IAC_EXCESS_AUTHORITY", "IAC_AUTHORITY_MISMATCH"],
+  "evidence_refs": ["main.tf", "config.yaml", ".mcp.json"],
+  "uncertainty": []
+}

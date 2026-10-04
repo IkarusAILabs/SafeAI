@@ -1,0 +1,3 @@
+{"case": "mixed/minimal_clean", "category": "mixed",
+ "description": "Clean baseline: no authority findings, no false positives.",
+ "version": "v2.6"}

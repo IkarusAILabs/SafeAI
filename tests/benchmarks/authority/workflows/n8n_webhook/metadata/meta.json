@@ -1,0 +1,3 @@
+{"case": "workflows/n8n_webhook", "category": "workflows",
+ "description": "Webhook-triggered workflow capabilities recorded without invented attribution.",
+ "version": "v2.6"}

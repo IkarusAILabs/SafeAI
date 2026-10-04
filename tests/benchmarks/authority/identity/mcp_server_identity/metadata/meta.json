@@ -1,0 +1,3 @@
+{"case": "identity/mcp_server_identity", "category": "identity",
+ "description": "MCP server identity carries its tools as attributed capabilities.",
+ "version": "v2.6"}

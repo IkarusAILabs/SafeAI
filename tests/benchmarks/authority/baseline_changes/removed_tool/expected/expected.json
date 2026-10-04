@@ -1,0 +1,23 @@
+{
+  "case": "baseline_changes/removed_tool",
+  "notes": "Shell tool removed. No surface entry disappears (nothing was attributed), and no resolved finding entries persist; only summary resolved counts move.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "changes": [
+    {"tool": "diagnose tool (agent.py)",
+     "status": "removed",
+     "materiality": "AUTHORITY_REDUCTION",
+     "channels": ["summary"],
+     "new_findings": []}
+  ],
+  "must_fire": [],
+  "must_not_fire": ["CAP_shell"],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

@@ -1,0 +1,2706 @@
+{
+  "cases": [
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "access_modes/execute_tool",
+      "category": "access_modes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "access_modes/read_only_tool",
+      "category": "access_modes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "access_modes/write_tool",
+      "category": "access_modes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 6,
+          "matched": 6
+        },
+        "attribution": {
+          "expected": 6,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 3,
+          "matched": 3
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "adversarial/partial_identity",
+      "category": "adversarial",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 6,
+          "matched": 6
+        },
+        "attribution": {
+          "expected": 6,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "grants": {
+          "expected": 2,
+          "matched": 2
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 3,
+          "matched": 3
+        },
+        "uncertainty": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "adversarial/role_name_prefix",
+      "category": "adversarial",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 6,
+          "matched": 6
+        },
+        "attribution": {
+          "expected": 6,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 1,
+          "matched": 1
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 4,
+          "matched": 4
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "adversarial/s3_read_vs_admin",
+      "category": "adversarial",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 0,
+          "matched": 0
+        },
+        "capabilities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "attribution": {
+          "expected": 0,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "adversarial/substring_trap",
+      "category": "adversarial",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 2,
+          "matched": 0,
+          "unmeasurable": 2
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 1,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "baseline_changes/identity_changed",
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 1,
+          "matched": 1,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 1,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "baseline_changes/new_tool",
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 1,
+          "matched": 1,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "baseline_changes/read_to_write",
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 1,
+          "matched": 1,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "baseline_changes/removed_tool",
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 1,
+          "matched": 0,
+          "unmeasurable": 1
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 1,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "baseline_changes/wildcard_introduced",
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "capabilities/file_read_only",
+      "category": "capabilities",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "capabilities/network_egress",
+      "category": "capabilities",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 3,
+          "matched": 3,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "capabilities/shell_tool",
+      "category": "capabilities",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "attribution": {
+          "expected": 1,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "delegation/subagent_chain",
+      "category": "delegation",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "delegation/unknown_delegation",
+      "category": "delegation",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 2,
+          "attributable_expected": 2,
+          "attributable_matched": 2
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "identity/claude_permissions",
+      "category": "identity",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 4,
+          "matched": 4
+        },
+        "attribution": {
+          "expected": 4,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "identity/mcp_server_identity",
+      "category": "identity",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 0,
+          "matched": 0
+        },
+        "capabilities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "attribution": {
+          "expected": 0,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "identity/unattributed_capability",
+      "category": "identity",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 0,
+          "matched": 0
+        },
+        "capabilities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "attribution": {
+          "expected": 0,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "kubernetes/cluster_admin",
+      "category": "kubernetes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 0,
+          "matched": 0
+        },
+        "capabilities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "attribution": {
+          "expected": 0,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 1,
+          "matched": 1
+        },
+        "verdicts": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "kubernetes/namespace_confusion",
+      "category": "kubernetes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 0,
+          "matched": 0
+        },
+        "capabilities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "attribution": {
+          "expected": 0,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "kubernetes/sa_binding",
+      "category": "kubernetes",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 4,
+          "matched": 4
+        },
+        "attribution": {
+          "expected": 4,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "mcp/declared_server",
+      "category": "mcp",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 3,
+          "matched": 3
+        },
+        "attribution": {
+          "expected": 3,
+          "matched": 3,
+          "attributable_expected": 3,
+          "attributable_matched": 3
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "mcp/missing_auth",
+      "category": "mcp",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 6,
+          "matched": 6
+        },
+        "attribution": {
+          "expected": 6,
+          "matched": 6,
+          "attributable_expected": 6,
+          "attributable_matched": 6
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "mcp/multi_server",
+      "category": "mcp",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 2,
+          "matched": 2
+        },
+        "capabilities": {
+          "expected": 4,
+          "matched": 4
+        },
+        "attribution": {
+          "expected": 4,
+          "matched": 3,
+          "attributable_expected": 3,
+          "attributable_matched": 3
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 3,
+          "matched": 3
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "mixed/full_stack",
+      "category": "mixed",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "mixed/minimal_clean",
+      "category": "mixed",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "terraform/attachment_chain",
+      "category": "terraform",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 4,
+          "matched": 4
+        },
+        "attribution": {
+          "expected": 4,
+          "matched": 4,
+          "attributable_expected": 4,
+          "attributable_matched": 4
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 1,
+          "matched": 1
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "matched": 0,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 3,
+          "matched": 3
+        },
+        "uncertainty": {
+          "expected": 0,
+          "matched": 0
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "terraform/linked_match",
+      "category": "terraform",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 1,
+          "matched": 1
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 0
+        }
+      },
+      "id": "terraform/role_inline_policy",
+      "category": "terraform",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 2,
+          "matched": 2
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 1,
+          "matched": 1
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty": {
+          "expected": 2,
+          "matched": 2
+        },
+        "uncertainty_observed": {
+          "unknown": 1,
+          "unresolved": 1
+        }
+      },
+      "id": "terraform/wildcard_unresolved",
+      "category": "terraform",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "unknown/dynamic_tool",
+      "category": "unknown",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "verdicts": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "unknown/runtime_identity",
+      "category": "unknown",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "unknown/unresolved_egress",
+      "category": "unknown",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 4,
+          "matched": 4
+        },
+        "attribution": {
+          "expected": 4,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 1,
+          "matched": 1,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "workflows/langgraph_tools",
+      "category": "workflows",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    },
+    {
+      "passed": true,
+      "failures": [],
+      "parts": {
+        "agents": {
+          "expected": 0,
+          "matched": 0
+        },
+        "tools": {
+          "expected": 1,
+          "matched": 1
+        },
+        "capabilities": {
+          "expected": 2,
+          "matched": 2
+        },
+        "attribution": {
+          "expected": 2,
+          "matched": 0,
+          "attributable_expected": 0,
+          "attributable_matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "changes": {
+          "expected": 0,
+          "matched": 0,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "observed": 0,
+          "expected": 0,
+          "false": 0
+        },
+        "must_fire": {
+          "expected": 2,
+          "matched": 2,
+          "false_positives": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "id": "workflows/n8n_webhook",
+      "category": "workflows",
+      "determinism": {
+        "checked": true,
+        "violations": []
+      }
+    }
+  ],
+  "summary": {
+    "total": 37,
+    "passed": 37,
+    "failed": 0
+  },
+  "metrics": {
+    "cases": 37,
+    "passed": 37,
+    "discovery": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positives": 38,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    "tool_recall": 1.0,
+    "capability_recall": 1.0,
+    "attribution": {
+      "expected": 90,
+      "matched": 38,
+      "end_to_end": 0.4222,
+      "attributable_expected": 38,
+      "attributable_matched": 38,
+      "attributable_accuracy": 1.0
+    },
+    "change": {
+      "observed_escalations": 0,
+      "false_escalations": 0,
+      "false_escalation_rate": 0.0
+    },
+    "evidence_completeness": {
+      "expected": 52,
+      "matched": 52,
+      "completeness": 1.0
+    },
+    "uncertainty_expression": {
+      "expected": 33,
+      "matched": 33,
+      "recall": 1.0
+    },
+    "determinism": {
+      "checked": 37,
+      "clean": 37,
+      "rate": 1.0
+    },
+    "unknown_unresolved_count": 10
+  },
+  "lane_a": {
+    "eligible": false,
+    "gates": [
+      {
+        "name": "discovery_precision",
+        "value": 1.0,
+        "threshold": 0.95,
+        "passed": true
+      },
+      {
+        "name": "discovery_recall",
+        "value": 1.0,
+        "threshold": 0.9,
+        "passed": true
+      },
+      {
+        "name": "attribution_accuracy",
+        "value": 0.4222,
+        "threshold": 0.95,
+        "passed": false
+      },
+      {
+        "name": "false_escalation_rate",
+        "value": 0.0,
+        "threshold": 0.05,
+        "passed": true
+      },
+      {
+        "name": "evidence_completeness",
+        "value": 1.0,
+        "threshold": 0.95,
+        "passed": true
+      },
+      {
+        "name": "determinism",
+        "value": 1.0,
+        "threshold": 1.0,
+        "passed": true
+      }
+    ],
+    "notes": [
+      "Targets are PROPOSED per ADR-0008; no gate consumes this output.",
+      "Unresolved/unknown items veto class-level graduation until resolved or explicitly scoped."
+    ]
+  }
+}

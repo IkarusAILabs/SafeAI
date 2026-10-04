@@ -1,0 +1,16 @@
+{
+  "case": "kubernetes/sa_binding",
+  "notes": "ServiceAccount -> RoleBinding -> Role -> rule chain with namespace isolation, but no declared k8s capability and no workload link.",
+  "agents": [],
+  "tools": [],
+  "identities": [{"kind": "kubernetes_service_account", "name": "agent-sa", "namespace": "prod"}],
+  "grants": [
+    {"identity": "agent-sa", "actions": ["get", "list"],
+     "resources": ["pods", "configmaps"], "resolution": "resolved"}
+  ],
+  "verdicts": {"kubernetes:*": "UNKNOWN"},
+  "must_fire": ["CAP_kubernetes"],
+  "must_not_fire": [],
+  "evidence_refs": ["rbac.yaml"],
+  "uncertainty": [{"kind": "unlinked", "match": "kubernetes"}]
+}

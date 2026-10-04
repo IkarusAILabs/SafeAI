@@ -1,0 +1,22 @@
+{
+  "case": "terraform/role_inline_policy",
+  "notes": "Inline policy statements attribute directly to the role; no link evidence exists so the verdict stays UNKNOWN, not MATCH.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "agent-role", "namespace": ""}],
+  "grants": [
+    {"identity": "agent-role", "actions": ["s3:GetObject"],
+     "resources": ["arn:aws:s3:::agent-bucket/*"], "resolution": "resolved"}
+  ],
+  "verdicts": {"aws:s3": "UNKNOWN"},
+  "must_fire": ["CAP_s3"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py", "main.tf"],
+  "uncertainty": [{"kind": "unlinked", "match": "aws:s3"}]
+}

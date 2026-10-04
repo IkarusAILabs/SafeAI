@@ -1,0 +1,30 @@
+{
+  "case": "adversarial/partial_identity",
+  "notes": "role_hint is not an identity key, so no link forms despite the name overlap; the declared need stays unverified. config.yaml is correctly inert (no citation expected).",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "mcp_server:storage",
+     "capabilities": [
+       {"name": "cloud", "access_mode": "read"},
+       {"name": "mcp", "access_mode": "read"},
+       {"name": "mcp_tool:s3_list_buckets", "access_mode": "read"},
+       {"name": "shell", "access_mode": "execute"}
+     ]},
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [
+    {"kind": "aws_iam_role", "name": "agent-role", "namespace": ""},
+    {"kind": "aws_iam_role", "name": "agent-role-prod", "namespace": ""}
+  ],
+  "grants": [],
+  "links": [],
+  "verdicts": {"aws:*": "UNKNOWN"},
+  "must_fire": ["CAP_s3"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py", "main.tf", ".mcp.json"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

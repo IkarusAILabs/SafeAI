@@ -1,0 +1,30 @@
+{
+  "case": "adversarial/s3_read_vs_admin",
+  "notes": "Declared read need with a linked admin grant yields EXCESS_AUTHORITY: read is covered but exceeded, never equated with admin.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "mcp_server:storage",
+     "capabilities": [
+       {"name": "cloud", "access_mode": "read"},
+       {"name": "mcp", "access_mode": "read"},
+       {"name": "mcp_tool:s3_list_buckets", "access_mode": "read"},
+       {"name": "shell", "access_mode": "execute"}
+     ]},
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "agent-role", "namespace": ""}],
+  "grants": [
+    {"identity": "agent-role", "actions": ["s3:*"],
+     "resources": ["*"], "resolution": "resolved"}
+  ],
+  "links": [{"identity": "agent-role", "namespace": ""}],
+  "verdicts": {"aws:s3": "EXCESS_AUTHORITY"},
+  "must_fire": ["CAP_s3", "IAC_EXCESS_AUTHORITY"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py", "main.tf", "config.yaml", ".mcp.json"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

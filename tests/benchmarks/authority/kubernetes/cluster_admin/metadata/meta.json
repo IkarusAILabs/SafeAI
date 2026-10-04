@@ -1,0 +1,3 @@
+{"case": "kubernetes/cluster_admin", "category": "kubernetes",
+ "description": "Cluster-admin wildcard is observed, not assumed into any verdict.",
+ "version": "v2.6"}

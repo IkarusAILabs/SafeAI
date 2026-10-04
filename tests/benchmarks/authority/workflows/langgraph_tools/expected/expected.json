@@ -1,0 +1,18 @@
+{
+  "case": "workflows/langgraph_tools",
+  "notes": "ToolNode shell capability observed at workflow level with filesystem and model context.",
+  "agents": [],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "external_model_api", "access_mode": "read"},
+       {"name": "filesystem_access", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"},
+       {"name": "shell_execution", "access_mode": "execute"}
+     ]}
+  ],
+  "must_fire": ["CAP_shell"],
+  "must_not_fire": [],
+  "evidence_refs": ["graph.py"],
+  "uncertainty": [{"kind": "inferred", "match": "shell_execution"}]
+}

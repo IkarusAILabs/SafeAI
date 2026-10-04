@@ -1,0 +1,3 @@
+{"case": "mcp/multi_server", "category": "mcp",
+ "description": "Multiple servers keep isolated identities and capabilities.",
+ "version": "v2.6"}

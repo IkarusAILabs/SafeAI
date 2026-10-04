@@ -1,0 +1,17 @@
+{
+  "case": "kubernetes/namespace_confusion",
+  "notes": "Identical ServiceAccount names in two namespaces stay separate identities; the dev workload links only the dev identity.",
+  "agents": [],
+  "tools": [],
+  "identities": [
+    {"kind": "kubernetes_service_account", "name": "agent-sa", "namespace": "prod"},
+    {"kind": "kubernetes_service_account", "name": "agent-sa", "namespace": "dev"}
+  ],
+  "grants": [],
+  "links": [{"identity": "agent-sa", "namespace": "dev"}],
+  "verdicts": {},
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": ["workload.yaml"],
+  "uncertainty": []
+}

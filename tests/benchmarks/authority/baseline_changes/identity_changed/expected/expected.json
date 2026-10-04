@@ -1,0 +1,37 @@
+{
+  "case": "baseline_changes/identity_changed",
+  "notes": "agent-role replaced by deployer-role with admin scope. Identities differ across scans, but no mechanism compares them: recorded miss.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "deployer-role", "namespace": ""}],
+  "grants": [
+    {"identity": "deployer-role", "actions": ["s3:*"],
+     "resources": ["*"], "resolution": "resolved"}
+  ],
+  "verdicts": {"aws:s3": "UNKNOWN"},
+  "changes": [
+    {"tool": "agent-role identity (main.tf)",
+     "status": "removed",
+     "materiality": "AUTHORITY_REDUCTION",
+     "channels": [],
+     "new_findings": []},
+    {"tool": "deployer-role identity (main.tf)",
+     "status": "new",
+     "materiality": "AUTHORITY_ESCALATION",
+     "channels": [],
+     "new_findings": []}
+  ],
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py", "main.tf"],
+  "uncertainty": [
+    {"kind": "inferred", "match": "multi_agent_or_delegation"},
+    {"kind": "unlinked", "match": "aws:s3"}
+  ]
+}

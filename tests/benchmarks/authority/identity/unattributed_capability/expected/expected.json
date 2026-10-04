@@ -1,0 +1,10 @@
+{
+  "case": "identity/unattributed_capability",
+  "notes": "Shell use in a plain module is detected (CAP_shell fires) but attributed to no named tool. Known blind spot, measured here.",
+  "agents": [],
+  "tools": [],
+  "must_fire": ["CAP_shell", "CAP_subprocess_shell"],
+  "must_not_fire": [],
+  "evidence_refs": ["util.py"],
+  "uncertainty": [{"kind": "unlinked", "match": "shell"}]
+}

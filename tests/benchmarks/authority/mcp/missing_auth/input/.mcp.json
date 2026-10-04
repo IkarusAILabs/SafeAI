@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "shellbox": {
+      "command": "python",
+      "args": ["server.py"],
+      "tools": ["run_command"]
+    }
+  }
+}

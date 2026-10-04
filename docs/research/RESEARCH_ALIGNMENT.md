@@ -75,14 +75,11 @@ not gate agent changes.
   IaC-observed authority on the benchmark corpus; report precision,
   recall, false-positive/negative rates per verdict class.
 - **E2 — Attribution accuracy** (P5): tool/capability/access-mode
-  attribution scored against annotated fixtures.
-- **E3 — Flagship: combined assurance** (P7): conditions A
-  (dependency-only), B (agent-only), C (combined + deterministic
-  policy); measure unsafe changes detected, false
-  positives/negatives, unnecessary human review, explainability,
-  evidence completeness, unknown exposure, human effort,
-  reproducibility. The combined model is **not proven**; E3 tests
-  whether it holds.
+  attribution scored against annotated fixtures. First measurement
+  (2026-10-04, `docs/benchmarks/authority/VALIDATION_REPORT.md`):
+  attributable-only accuracy 1.0 (38/38), end-to-end 0.4222 (38/90)
+  with 52 capabilities in `unknown:unattributed` — the quantified
+  code-defined-tools gap; Lane-A graduation correctly withheld.
 
 ## Benchmark strategy
 
@@ -94,6 +91,21 @@ classification, plus an evaluation harness reporting the methodology
 metrics (detection, attribution, evidence, change, uncertainty).
 Publish dataset + harness + results as the reproducibility package.
 Academic publication follows measurement, never precedes it.
+
+First slice delivered (2026-10-04): 37-case corpus
+(`tests/benchmarks/authority/`), `safeai benchmark` harness
+(`safeai/benchmark/`), published measurements
+(`docs/benchmarks/authority/`). Discovery P/R/F1 1.0, determinism
+1.0, evidence completeness 1.0, uncertainty expression 1.0, false
+escalation rate 0.0. E1 verdict classes measured per-case; full
+per-verdict-class precision/recall publication remains open.
+- **E3 — Flagship: combined assurance** (P7): conditions A
+  (dependency-only), B (agent-only), C (combined + deterministic
+  policy); measure unsafe changes detected, false
+  positives/negatives, unnecessary human review, explainability,
+  evidence completeness, unknown exposure, human effort,
+  reproducibility. The combined model is **not proven**; E3 tests
+  whether it holds.
 
 ## What this alignment does NOT claim
 

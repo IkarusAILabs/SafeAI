@@ -1,0 +1,19 @@
+{
+  "case": "unknown/runtime_identity",
+  "notes": "Ambient AWS credentials resolve only at runtime; no identity may be attributed from code alone.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [],
+  "grants": [],
+  "verdicts": {},
+  "must_fire": ["CAP_s3"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

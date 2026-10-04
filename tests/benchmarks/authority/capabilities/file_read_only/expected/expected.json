@@ -1,0 +1,16 @@
+{
+  "case": "capabilities/file_read_only",
+  "notes": "Read-only file access; no write/execute authority may be reported for this tool.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "must_fire": ["CAP_filesystem"],
+  "must_not_fire": ["CAP_shell", "CAP_subprocess_shell"],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

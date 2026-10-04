@@ -1,0 +1,16 @@
+{
+  "case": "delegation/unknown_delegation",
+  "notes": "Runtime-dispatched helper cannot be resolved statically; no delegation target may be claimed.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

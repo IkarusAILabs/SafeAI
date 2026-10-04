@@ -1,0 +1,3 @@
+{"case": "unknown/runtime_identity", "category": "unknown",
+ "description": "Runtime-resolved identity is never attributed from code alone.",
+ "version": "v2.6"}

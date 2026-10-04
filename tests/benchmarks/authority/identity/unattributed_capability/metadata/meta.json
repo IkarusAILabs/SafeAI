@@ -1,0 +1,3 @@
+{"case": "identity/unattributed_capability", "category": "identity",
+ "description": "Detected-but-unattributed capability is recorded honestly instead of guessed.",
+ "version": "v2.6"}

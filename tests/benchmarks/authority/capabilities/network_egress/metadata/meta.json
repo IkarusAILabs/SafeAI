@@ -1,0 +1,3 @@
+{"case": "capabilities/network_egress", "category": "capabilities",
+ "description": "External HTTP egress counts as destination-relevant capability evidence.",
+ "version": "v2.6"}

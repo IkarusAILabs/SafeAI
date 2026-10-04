@@ -1,0 +1,23 @@
+{
+  "case": "baseline_changes/new_tool",
+  "notes": "A new shell-capable tool appears. Surface diff cannot name it (attribution gap), but the findings channel fires new shell rules.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "changes": [
+    {"tool": "diagnose tool (agent.py)",
+     "status": "new",
+     "materiality": "AUTHORITY_ESCALATION",
+     "channels": ["findings"],
+     "new_findings": ["CAP_shell", "TOOL_SHELL_ACCESS"]}
+  ],
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

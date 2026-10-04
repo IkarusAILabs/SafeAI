@@ -1,0 +1,16 @@
+{
+  "case": "access_modes/execute_tool",
+  "notes": "Execute access detected via shell rules; read-only-only claims would be false.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "must_fire": ["CAP_shell", "CAP_subprocess_shell"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

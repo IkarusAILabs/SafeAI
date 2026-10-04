@@ -246,6 +246,22 @@ def _build_parser():
     rules_check.add_argument("directory", nargs="?", default=".safeai/rules",
                              help="Rule pack directory (default: .safeai/rules)")
 
+    benchmark = sub.add_parser(
+        "benchmark",
+        help="Run the offline authority-evidence validation corpus (offline)")
+    benchmark.add_argument("--corpus", default=None,
+                           help="Corpus root (default: tests/benchmarks/authority)")
+    benchmark.add_argument("--case", default=None,
+                           help="Run one case or category only (e.g. terraform/linked_match)")
+    benchmark.add_argument("--workdir", default=None,
+                           help="Scratch directory for scan outputs (default: temp dir)")
+    benchmark.add_argument("--no-determinism", action="store_true",
+                           help="Skip repeat + order-shuffle determinism checks")
+    benchmark.add_argument("--json", dest="json_path", default=None,
+                           help="Write the machine-readable evaluation to PATH")
+    benchmark.add_argument("--markdown", dest="markdown_path", default=None,
+                           help="Write the reviewer-facing brief to PATH")
+
     return parser
 
 
@@ -617,6 +633,41 @@ def _run_rules_check(args):
     return 0
 
 
+def _run_benchmark(args):
+    """Handle ``safeai benchmark``: run the authority corpus (offline).
+
+    The benchmark measures; it never gates. Exit 0 when every case
+    holds, 1 on truth mismatch, 2 on harness/usage error.
+    """
+    import tempfile
+
+    from safeai.benchmark import report as report_mod
+    from safeai.benchmark import runner as runner_mod
+
+    corpus = args.corpus or runner_mod.default_corpus()
+    workdir = args.workdir or tempfile.mkdtemp(prefix="safeai-bench-")
+    try:
+        aggregate = runner_mod.run_corpus(
+            corpus, workdir, case_filter=args.case,
+            determinism=not args.no_determinism)
+    except runner_mod.BenchmarkError as exc:
+        print(f"authority benchmark harness error: {exc}")
+        return 2
+    if args.json_path:
+        report_mod.write_json(aggregate, args.json_path)
+    if args.markdown_path:
+        report_mod.write_markdown(aggregate, args.markdown_path)
+    failed = [r["id"] for r in aggregate.get("cases", [])
+              if not r.get("passed")]
+    if failed:
+        print(f"authority benchmark: {len(failed)} case(s) mismatched: "
+              f"{', '.join(failed)}")
+        return 1
+    print(f"authority benchmark: all "
+          f"{len(aggregate.get('cases', []))} cases hold")
+    return 0
+
+
 def main(argv=None):
     _configure_stdout()
     parser = _build_parser()
@@ -649,6 +700,8 @@ def main(argv=None):
         if getattr(args, "rules_command", None) != "check":
             parser.error("rules requires a subcommand: check")
         exit_code = _run_rules_check(args)
+    elif args.command == "benchmark":
+        exit_code = _run_benchmark(args)
     else:
         parser.print_help()
 

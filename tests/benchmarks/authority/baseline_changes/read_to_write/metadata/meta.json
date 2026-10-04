@@ -1,0 +1,3 @@
+{"case": "baseline_changes/read_to_write", "category": "baseline_changes",
+ "description": "Read-to-write widening detected via new findings; surface modes do not cover it.",
+ "version": "v2.6"}

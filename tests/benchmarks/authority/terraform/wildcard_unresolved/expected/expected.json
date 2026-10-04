@@ -1,0 +1,27 @@
+{
+  "case": "terraform/wildcard_unresolved",
+  "notes": "Wildcard grant is observed breadth (flagged, not uncertain); interpolated values stay unresolved and shadow conclusions.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "agent-role", "namespace": ""}],
+  "grants": [
+    {"identity": "agent-role", "actions": ["s3:*"],
+     "resources": ["*"], "resolution": "resolved"},
+    {"identity": "agent-role", "actions": ["s3:ListBucket"],
+     "resolution": "partially-resolved"}
+  ],
+  "verdicts": {"aws:s3": "UNKNOWN"},
+  "must_fire": ["CAP_s3"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py", "main.tf"],
+  "uncertainty": [
+    {"kind": "unresolved", "match": "agent-role"},
+    {"kind": "unlinked", "match": "aws:s3"}
+  ]
+}

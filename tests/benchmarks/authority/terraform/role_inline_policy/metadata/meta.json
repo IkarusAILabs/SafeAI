@@ -1,0 +1,3 @@
+{"case": "terraform/role_inline_policy", "category": "terraform",
+ "description": "Inline policy grant without identity link evidence stays UNKNOWN.",
+ "version": "v2.6"}

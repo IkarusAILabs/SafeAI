@@ -1,0 +1,3 @@
+{"case": "adversarial/substring_trap", "category": "adversarial",
+ "description": "Substring coincidence (myteamscore) must not become a Teams capability.",
+ "version": "v2.6"}

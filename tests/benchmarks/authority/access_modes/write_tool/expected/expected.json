@@ -1,0 +1,16 @@
+{
+  "case": "access_modes/write_tool",
+  "notes": "Write access detected via CAP_file_write; no shell/execute rules may fire.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "must_fire": ["CAP_file_write"],
+  "must_not_fire": ["CAP_shell", "CAP_subprocess_shell"],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}]
+}

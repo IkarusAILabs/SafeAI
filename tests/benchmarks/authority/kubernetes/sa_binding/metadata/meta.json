@@ -1,0 +1,3 @@
+{"case": "kubernetes/sa_binding", "category": "kubernetes",
+ "description": "RBAC chain resolves with namespace isolation; verdicts need declared capability and links.",
+ "version": "v2.6"}

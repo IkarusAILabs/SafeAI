@@ -1,0 +1,16 @@
+{
+  "case": "kubernetes/cluster_admin",
+  "notes": "ClusterRole wildcard grant is observed breadth on a cluster scope; without declared counterpart it records UNKNOWN, never MATCH.",
+  "agents": [],
+  "tools": [],
+  "identities": [{"kind": "kubernetes_service_account", "name": "cluster-agent", "namespace": "kube-system"}],
+  "grants": [
+    {"identity": "cluster-agent", "actions": ["*"],
+     "resources": ["*"], "resolution": "resolved"}
+  ],
+  "verdicts": {"*:*": "UNKNOWN"},
+  "must_fire": ["CAP_kubernetes"],
+  "must_not_fire": [],
+  "evidence_refs": ["rbac.yaml"],
+  "uncertainty": [{"kind": "unlinked", "match": "*:*"}]
+}

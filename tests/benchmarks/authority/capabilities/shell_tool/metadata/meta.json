@@ -1,0 +1,3 @@
+{"case": "capabilities/shell_tool", "category": "capabilities",
+ "description": "Shell execution available to an agent tool; must be detected and surfaced for review.",
+ "version": "v2.6"}

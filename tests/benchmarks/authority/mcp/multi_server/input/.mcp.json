@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "docs": {
+      "command": "npx",
+      "args": ["-y", "@safeai/docs-server"],
+      "tools": ["search_docs"]
+    },
+    "shellbox": {
+      "command": "python",
+      "args": ["server.py"],
+      "tools": ["run_command"]
+    }
+  }
+}

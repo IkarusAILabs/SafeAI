@@ -1,0 +1,17 @@
+{
+  "case": "mcp/missing_auth",
+  "notes": "MCP server without authentication evidence must be flagged, not assumed safe.",
+  "agents": [],
+  "tools": [
+    {"tool_key": "mcp_server:shellbox",
+     "capabilities": [
+       {"name": "mcp", "access_mode": "execute"},
+       {"name": "mcp_tool:run_command", "access_mode": "execute"},
+       {"name": "shell", "access_mode": "execute"}
+     ]}
+  ],
+  "must_fire": ["MCP_AUTH_MISSING", "MCP_PERMISSIONS_MISSING"],
+  "must_not_fire": [],
+  "evidence_refs": [".mcp.json"],
+  "uncertainty": []
+}
