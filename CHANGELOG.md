@@ -12,18 +12,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hardened Authority Evidence Validation benchmark (v2.6, benchmark
   only — no scanner behavior changed): canonical implementation-
   independent gold truth (`truth_schema_version: "2.0"`,
-  human-reviewed annotations) over a 56-case corpus
-  (`tests/benchmarks/authority/`); entity discovery P/R/F1 with
+  human-reviewed annotations with `annotation.derivation`) over a 58-case
+  corpus (`tests/benchmarks/authority/`); entity discovery P/R/F1 with
   `insufficient_evidence` (never 0/1); 8 attribution levels with
-  TP/FP/FN; material-change and escalation P/R/F1 with measured
-  corpus false-escalation and missed-material rates; UNKNOWN /
-  UNVERIFIED_LINK / PARTIAL / INFERRED / UNRESOLVED preservation
-  checks; per-class Lane-A verdicts (overall RESEARCH / NOT LANE-A
-  READY: authority attribution LANE-B at end-to-end 0.464 with 67/125
-  capabilities unattributed, plus unknown veto); determinism digests;
-  8-area mutation tests. Measured: 56/56 hold, determinism 56/56,
+  TP/FP/FN; three-state outcomes (RESOLVED/UNRESOLVED/CONTRADICTED)
+  with coverage fields (applicable/resolvable/correct/contradicted/
+  unresolved/coverage); material-change and escalation P/R/F1 with
+  measured corpus false-escalation and missed-material rates;
+  UNKNOWN / UNVERIFIED_LINK / PARTIAL / INFERRED / UNRESOLVED
+  preservation checks; per-class Lane-A verdicts (overall RESEARCH /
+  NOT LANE-A READY: authority attribution LANE-B at end-to-end 0.4851
+  with 69/134 capabilities unattributed, change detection LANE-B at
+  model coverage 0.625, escalation detection LANE-B at model coverage
+  0.8, plus 17 unknown veto); deterministic digests; 8-area mutation
+  tests; gold provenance tracking (21 independent_annotation / 37
+  migrated_from_legacy); canonical-vs-legacy consistency checking.
+  Measured: 58/58 hold, determinism 58/58, digest
+  `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`,
   discovery P/R/F1 1.0, attributable-only 1.0, evidence 1.0, unknown
-  preservation 1.0. Report: `docs/benchmarks/authority/`.
+  preservation 1.0, zero contradicted expectations. Report:
+  `docs/benchmarks/authority/`.
 - Decision-support HTML reporting backed by a new `security_brief`
   reporting layer (`safeai/report/security_brief.py`): pure
   deterministic scan report → brief transformation (posture, evidence,

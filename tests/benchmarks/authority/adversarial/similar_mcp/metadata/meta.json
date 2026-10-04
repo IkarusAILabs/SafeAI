@@ -1,0 +1,1 @@
+{"case": "adversarial/similar_mcp", "category": "adversarial", "description": "Similarly named MCP servers keep their capabilities separated; destructive tool isolated.", "version": "v2.6"}

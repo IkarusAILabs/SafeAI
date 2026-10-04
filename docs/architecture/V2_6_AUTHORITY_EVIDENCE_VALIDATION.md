@@ -3,10 +3,14 @@
 Status: implemented and validated on corpus (scanner behavior
 unchanged; benchmark-only change). Maps the v2.6 brief onto the
 v2.5.0 tree, commit by commit verified; hardening review applied
-(canonical gold truth v2.0, entity/attribution/change/unknown PRF,
-per-class Lane-A, 8-area mutation tests). Verdict: overall
-RESEARCH / NOT LANE-A READY (authority attribution LANE-B at
-end-to-end 0.464 over all exercised capabilities; unknown veto).
+(canonical gold truth v2.0, entity/attribution/change/unknown PRF with
+three-state outcomes and coverage fields, per-class Lane-A with
+proposed coverage floor, 8-area mutation tests, gold provenance,
+canonical-vs-legacy consistency). Verdict: overall RESEARCH / NOT
+LANE-A READY (authority attribution LANE-B at end-to-end 0.4851 over
+all exercised capabilities; change detection LANE-B at model coverage
+0.625; escalation detection LANE-B at model coverage 0.8; 17-item
+unknown veto).
 
 ## 1. Existing models (all verified in-tree)
 
@@ -89,6 +93,22 @@ methodology (P5), Lane-A graduation criteria (feeds P3), materiality
 model doc (P1), unknown-rate metrics (P0/P6). No roadmap status flips
 until benchmark evidence exists (§23: IMPLEMENTED vs VALIDATED vs
 RESEARCH discipline).
+
+Final corpus: 58 cases (56 original + 2 adversarial: `unused_role`,
+`similar_mcp`); digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`.
+Entity discovery P/R/F1 1.0 (insufficient_evidence where gold
+section missing); 8 attribution levels P/R/F1 1.0 resolvable, coverage
+0.4851 end-to-end (65/134); ChangeGuard material-change P/R/F1 1.0
+(5 TP), escalation P/R/F1 1.0 (4 TP), false-escalation 0.0, missed
+material 0.0; unknown preservation 1.0 (44/44 across 5 kinds);
+evidence completeness 1.0 (76/76 refs); determinism 58/58. Lane-A
+per-class: capability_detection CANDIDATE (coverage 1.0),
+identity_attribution CANDIDATE (coverage 1.0), authority_attribution
+LANE-B (0.4851 < 0.95), change_detection LANE-B (model coverage
+0.625), escalation_detection LANE-B (model coverage 0.8). Proposed
+coverage floor 0.90 reported but not gated. Provenance: 21
+independent_annotation, 37 migrated_from_legacy. Zero contradicted
+expectations corpus-wide.
 
 ## 5. Authority statement representation (no parallel schema)
 

@@ -1,0 +1,49 @@
+{
+  "case": "adversarial/unused_role",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "derivation": "independent_annotation",
+    "rationale": "idle-role has no policy: identity extracted, zero grants, no verdicts. The unused role must attract no authority (verified by scan)."
+  },
+  "notes": "Unused IAM role: existence evidences identity, never authority. No grant is resolved from a bare role and no verdict is emitted.",
+  "agents": [{"framework": "langchain", "name": "initialize_agent"}],
+  "tools": [
+    {"tool_key": "unknown:unattributed",
+     "capabilities": [
+       {"name": "multi_agent_or_delegation", "access_mode": "read"},
+       {"name": "planner_chain", "access_mode": "read"}
+     ]}
+  ],
+  "identities": [{"kind": "aws_iam_role", "name": "idle-role", "namespace": ""}],
+  "grants": [],
+  "verdicts": {},
+  "must_fire": ["CAP_s3"],
+  "must_not_fire": ["IAC_EXCESS_AUTHORITY", "IAC_AUTHORITY_MISMATCH"],
+  "evidence_refs": ["agent.py", "main.tf"],
+  "uncertainty": [{"kind": "inferred", "match": "multi_agent_or_delegation"}],
+  "canonical": {
+    "agents": [
+      {"id": "langchain:initialize_agent", "framework": "langchain",
+       "name": "initialize_agent"}
+    ],
+    "tools": [],
+    "capabilities": [
+      {"tool": null, "capability": "multi_agent_or_delegation",
+       "access_mode": "read", "attribution": "unresolved"},
+      {"tool": null, "capability": "planner_chain", "access_mode": "read",
+       "attribution": "unresolved"}
+    ],
+    "identities": [
+      {"id": "aws_iam_role//idle-role", "kind": "aws_iam_role",
+       "name": "idle-role", "namespace": ""}
+    ],
+    "grants": [],
+    "relationships": [],
+    "unknown_expectations": [
+      {"area": "capability-attribution", "expected": "INFERRED",
+       "match": "multi_agent_or_delegation"}
+    ]
+  }
+}

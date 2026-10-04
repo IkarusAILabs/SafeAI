@@ -383,6 +383,86 @@ def test_unknown_never_silently_safe():
         "expected": 1, "matched": 1}
 
 
+# --- wrong-X contradiction tests (§12) ---
+
+
+def test_wrong_tool_is_detectable():
+    import copy
+
+    scan = copy.deepcopy(SCAN_BASE)
+    scan["tool_surface"] = [{"tool_key": "mcp_server:other",
+                             "capabilities": [{"name": "cloud",
+                                               "access_mode": "read"}]}]
+    result = compare.compare_case(_v2_legacy(**copy.deepcopy(MUTATION_BASE)),
+                                  _report(**scan))
+    assert not result["passed"]
+    assert any("tool" in f for f in result["failures"])
+
+
+def test_wrong_agent_framework_is_contradicted():
+    import copy
+
+    scan = copy.deepcopy(SCAN_BASE)
+    scan["agent_models"] = [{"framework": "crewai",
+                             "data": {"agents": [{"name": "initialize_agent"}]}}]
+    result = compare.compare_case(_v2_legacy(**copy.deepcopy(MUTATION_BASE)),
+                                  _report(**scan))
+    assert not result["passed"]
+    level = result["parts"]["canonical"]["attribution"]["agent"]
+    assert level["contradicted"] == 1
+
+
+def test_wrong_identity_kind_is_contradicted():
+    import copy
+
+    scan = copy.deepcopy(SCAN_BASE)
+    scan["iac_correlations"]["identities"][0]["kind"] = "kubernetes_service_account"
+    result = compare.compare_case(_v2_legacy(**copy.deepcopy(MUTATION_BASE)),
+                                  _report(**scan))
+    assert not result["passed"]
+    level = result["parts"]["canonical"]["attribution"]["identity"]
+    assert level["contradicted"] == 1
+
+
+def test_wrong_grant_resource_is_contradicted():
+    import copy
+
+    scan = copy.deepcopy(SCAN_BASE)
+    scan["iac_correlations"]["grants"][0]["resources"]["values"] = ["*"]
+    result = compare.compare_case(_v2_legacy(**copy.deepcopy(MUTATION_BASE)),
+                                  _report(**scan))
+    assert not result["passed"]
+    level = result["parts"]["canonical"]["attribution"]["grant"]
+    assert level["contradicted"] == 1
+
+
+def test_wrong_namespace_link_is_contradicted():
+    import copy
+
+    scan = copy.deepcopy(SCAN_BASE)
+    scan["iac_correlations"]["agent_identity_links"][0]["identity"][
+        "namespace"] = "prod"
+    result = compare.compare_case(_v2_legacy(**copy.deepcopy(MUTATION_BASE)),
+                                  _report(**scan))
+    assert not result["passed"]
+    assert any("CONTRADICTED" in f for f in result["failures"])
+
+
+def test_all_fixtures_pass_gold_consistency_without_scanning():
+    import glob
+
+    bad = []
+    for path in glob.glob(os.path.join(
+            REPO_ROOT, "tests", "benchmarks", "authority", "*", "*",
+            "expected", "expected.json")):
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        problems = canon_mod.check_consistency(doc)
+        if problems:
+            bad.append((doc.get("case"), problems))
+    assert bad == []
+
+
 # --- determinism ---
 
 
@@ -421,6 +501,29 @@ def test_aggregate_digest_stable():
           "parts": {}, "determinism": {"checked": False, "violations": []}}])
     assert first["digest"] == second["digest"]
     assert len(first["digest"]) == 64
+
+
+def test_aggregate_order_robust():
+    import random
+
+    base = [
+        {"id": "a/1", "category": "a", "passed": True, "failures": [],
+         "parts": {"canonical": {"change": {"surface_blind": 1,
+                                           "surface_blind_escalations": 0}}},
+         "provenance": "independent_annotation",
+         "determinism": {"checked": True, "violations": []}},
+        {"id": "b/2", "category": "b", "passed": False,
+         "failures": ["boom"], "parts": {},
+         "provenance": "migrated_from_legacy",
+         "determinism": {"checked": True, "violations": []}},
+    ]
+    first = metrics.aggregate(list(base))
+    shuffled = list(base)
+    random.Random(42).shuffle(shuffled)
+    second = metrics.aggregate(shuffled)
+    assert first["digest"] == second["digest"]
+    assert (first["metrics"]["provenance"] ==
+            second["metrics"]["provenance"])
 
 
 def test_report_rendering_stable_and_sorted_json(tmp_path):

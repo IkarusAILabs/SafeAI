@@ -312,8 +312,8 @@ def test_report_roundtrip_and_markdown(tmp_path):
 
 def test_corpus_discovers_cases_with_v2_truth():
     cases = runner.discover_cases(runner.default_corpus())
-    assert len(cases) == 56, [c["id"] for c in cases]
-    assert len({c["id"] for c in cases}) == 56
+    assert len(cases) == 58, [c["id"] for c in cases]
+    assert len({c["id"] for c in cases}) == 58
     for case in cases:
         expected = runner.load_expected(case["dir"])
         assert expected["case"] == case["id"]
@@ -321,6 +321,9 @@ def test_corpus_discovers_cases_with_v2_truth():
         assert (expected.get("annotation") or {}).get("basis") == (
             "human_reviewed_source"
         ), case["id"]
+        assert (expected.get("annotation") or {}).get("derivation") in (
+            "independent_annotation", "migrated_from_legacy",
+            "generated_from_source"), case["id"]
 
 
 def test_canonical_projection_stable_and_order_free():

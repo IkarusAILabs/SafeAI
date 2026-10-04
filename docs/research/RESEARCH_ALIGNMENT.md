@@ -77,14 +77,17 @@ not gate agent changes.
 - **E2 — Attribution accuracy** (P5): tool/capability/access-mode
   attribution scored against annotated fixtures. Hardened measurement
   (`docs/benchmarks/authority/VALIDATION_REPORT.md`, canonical truth
-  v2.0, 56 cases): attributable-only accuracy 1.0 (58/58), end-to-end
-  0.464 (58/125) with 67 capabilities in `unknown:unattributed` — the
-  quantified code-defined-tools gap (rate moved 0.4222 → 0.464 from
-  corpus mix alone: 19 targeted cases added attributable MCP/other
+  v2.0, 58 cases): attributable-only accuracy 1.0 (65/65 resolvable),
+  end-to-end 0.4851 (65/134) with 69 capabilities in
+  `unknown:unattributed` — the quantified code-defined-tools gap
+  (rate moved 0.4222 → 0.464 → 0.4851 from corpus mix alone: targeted
+  cases added attributable MCP/other capabilities and unresolved code
   capabilities; the scanner did not improve and no benchmark change
-  raised any score); authority attribution LANE-B, overall NOT
-  LANE-A READY with unknown veto. Lane-A graduation correctly
-  withheld.
+  raised any score); authority attribution LANE-B, change detection
+  LANE-B at model coverage 0.625, escalation detection LANE-B at
+  model coverage 0.8, overall NOT LANE-A READY with 17-item unknown
+  veto. Lane-A graduation correctly withheld; coverage floor proposed
+  (0.90) reported but not gated.
 
 ## Benchmark strategy
 
@@ -105,14 +108,17 @@ First slice delivered (2026-10-04): 37-case corpus
 escalation rate 0.0. E1 verdict classes measured per-case; full
 per-verdict-class precision/recall publication remains open.
 
-Hardened slice (canonical truth v2.0, 56 cases): entity discovery
-P/R/F1 with insufficient_evidence; 8 attribution levels;
-material-change/escalation P/R/F1 with measured corpus
-false-escalation (0.0, 4 observed) and missed-material (0.0)
-rates; unknown preservation 1.0 across five uncertainty kinds;
-per-class Lane-A (4× CANDIDATE, authority LANE-B at 0.464, overall
-NOT READY + veto); 8-area mutation tests; determinism digests.
-E1 verdict classes measured per-case; full
+Hardened slice (canonical truth v2.0, 58 cases): entity discovery
+P/R/F1 with insufficient_evidence; 8 attribution levels with
+three-state outcomes (RESOLVED/UNRESOLVED/CONTRADICTED) and coverage
+fields; material-change/escalation P/R/F1 with measured corpus
+false-escalation (0.0, 4 observed) and missed-material (0.0) rates;
+unknown preservation 1.0 across five uncertainty kinds; per-class
+Lane-A (2× CANDIDATE: capability/identity; authority LANE-B at 0.4851,
+change LANE-B at 0.625, escalation LANE-B at 0.8, overall NOT READY +
+17-item veto); 8-area mutation tests; determinism digests; gold
+provenance (21 independent / 37 migrated); canonical-vs-legacy
+consistency checking. E1 verdict classes measured per-case; full
 per-verdict-class precision/recall publication remains open.
 - **E3 — Flagship: combined assurance** (P7): conditions A
   (dependency-only), B (agent-only), C (combined + deterministic

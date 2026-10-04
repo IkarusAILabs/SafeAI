@@ -250,6 +250,9 @@ def evaluate_case(case, workdir):
     result = compare.compare_case(expected, current, baseline)
     result["id"] = case["id"]
     result["category"] = case["category"]
+    result["provenance"] = (
+        (expected.get("annotation") or {}).get("derivation")
+        or "unspecified")
     return result
 
 

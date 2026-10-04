@@ -1,0 +1,1 @@
+{"case": "adversarial/unused_role", "category": "adversarial", "description": "Bare IAM role evidences identity but grants nothing and emits no verdict.", "version": "v2.6"}

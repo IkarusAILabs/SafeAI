@@ -1,0 +1,1 @@
+{"mcpServers": {"docs": {"command": "npx", "args": ["-y", "@safeai/docs-server"], "tools": ["search_docs"]}, "docs-admin": {"command": "npx", "args": ["-y", "@safeai/docs-admin-server"], "tools": ["search_docs", "delete_page"]}}}

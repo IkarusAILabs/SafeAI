@@ -516,6 +516,8 @@ def compare_case(expected, current, baseline=None):
     if schema_problems:
         failures.append(
             "canonical gold invalid: " + "; ".join(schema_problems))
+    for contradiction in canon_mod.check_consistency(expected):
+        failures.append(f"gold contradiction: {contradiction}")
     obs = canon_mod.project_report(current)
     canon_result = canon_mod.compare_all(gold, obs, current, baseline)
     failures.extend(canon_result["failures"])

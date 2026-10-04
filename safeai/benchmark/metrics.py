@@ -44,6 +44,12 @@ LANE_A_TARGETS = {
     "determinism_required": 1.0,
 }
 
+#: PROPOSED minimum resolution coverage for a Lane-A candidate class.
+#: A class can be 100% accurate on its resolvable subset yet cover too
+#: little of the applicable graph to graduate; that must read LANE-B.
+#: Not in the roadmap — PROPOSED, labeled everywhere it appears.
+COVERAGE_FLOOR_PROPOSED = 0.90
+
 
 def prf(true_positives, false_positives, false_negatives):
     """Precision/recall/F1 from counts. Zero-division yields 0.0, never NaN."""
@@ -93,10 +99,24 @@ def sum_prf(items):
     A metric with no positive gold or observed instance across the
     corpus reports ``insufficient_evidence`` — never 0, never 1.
     Halves with an empty denominator report None individually.
+    Coverage fields (applicable/resolvable/correct/contradicted/
+    unresolved) are summed alongside; corpus coverage is
+    correct / applicable recomputed from totals, never averaged.
     """
     tp = sum(int(i.get("true_positives") or 0) for i in items)
     fp = sum(int(i.get("false_positives") or 0) for i in items)
     fn = sum(int(i.get("false_negatives") or 0) for i in items)
+    contra = sum(int(i.get("contradicted") or 0) for i in items)
+    unres = sum(int(i.get("unresolved") or 0) for i in items)
+    applicable = sum(int(i.get("applicable") or 0) for i in items)
+    resolvable = sum(int(i.get("resolvable") or 0) for i in items)
+    correct = 0
+    for i in items:
+        if "correct" in i and i["correct"] is not None:
+            correct += int(i["correct"])
+        else:
+            # Pre-coverage result shapes: correct == TP by construction.
+            correct += int(i.get("true_positives") or 0)
     precision = tp / (tp + fp) if (tp + fp) > 0 else None
     recall = tp / (tp + fn) if (tp + fn) > 0 else None
     if precision is None or recall is None:
@@ -112,7 +132,10 @@ def sum_prf(items):
             "precision": round(precision, 4) if precision is not None else None,
             "recall": round(recall, 4) if recall is not None else None,
             "f1": round(f1, 4) if f1 is not None else None,
-            "status": status}
+            "status": status, "contradicted": contra, "unresolved": unres,
+            "applicable": applicable, "resolvable": resolvable,
+            "correct": correct,
+            "coverage": round(correct / applicable, 4) if applicable else None}
 
 
 def aggregate(case_results):
@@ -224,6 +247,12 @@ def aggregate(case_results):
     lane_a = check_lane_a(metrics)
     canonical = aggregate_canonical(case_results)
     metrics["canonical"] = canonical
+    provenance = {}
+    for result in case_results:
+        derivation = result.get("provenance") or "unspecified"
+        provenance[derivation] = provenance.get(derivation, 0) + 1
+    metrics["provenance"] = {"cases": provenance,
+                             "total": len(case_results)}
     metrics["lane_a_classes"] = check_lane_a_classes(
         metrics,
         legacy_attribution=metrics.get("attribution") or {},
@@ -307,11 +336,17 @@ def aggregate_canonical(case_results):
             .get("surface_blind") or 0)
         for r in case_results
     )
+    surface_blind_escalations = sum(
+        int(((r.get("parts") or {}).get("canonical") or {}).get("change", {})
+            .get("surface_blind_escalations") or 0)
+        for r in case_results
+    )
     return {"entities": entities, "attribution_levels": levels,
             "change_detection": change, "escalation_detection": escalation,
             "false_escalation_rate": false_escalation_rate,
             "missed_material_rate": missed_material_rate,
             "surface_blind": surface_blind,
+            "surface_blind_escalations": surface_blind_escalations,
             "unknown_preservation": unknown}
 
 
@@ -337,25 +372,36 @@ def check_lane_a_classes(metrics, legacy_attribution=None,
     legacy_attribution = legacy_attribution or {}
     classes = []
 
-    def verdict(name, precision, recall, extra_pass=True, extra_note=""):
+    def verdict(name, precision, recall, coverage=None, extra_pass=True,
+                extra_note=""):
         if precision is None or recall is None:
             classes.append({
                 "class": name, "status": "INSUFFICIENT EVIDENCE",
                 "precision": precision, "recall": recall,
+                "coverage": coverage,
                 "precision_target": targets["precision"],
                 "recall_target": targets["recall"],
+                "coverage_floor": COVERAGE_FLOOR_PROPOSED,
                 "extra": extra_note or "no measurable instances on corpus",
             })
             return False
         p_ok = precision >= targets["precision"]
         r_ok = recall >= targets["recall"]
-        passed = bool(p_ok and r_ok and extra_pass)
+        c_ok = (coverage is None or coverage >= COVERAGE_FLOOR_PROPOSED)
+        passed = bool(p_ok and r_ok and c_ok and extra_pass)
+        status = "LANE-A CANDIDATE" if passed else "LANE-B"
+        if not c_ok:
+            extra_note = ((extra_note + " ") if extra_note else "") + (
+                f"resolution coverage {coverage} below PROPOSED floor "
+                f"{COVERAGE_FLOOR_PROPOSED}")
         classes.append({
             "class": name,
-            "status": "LANE-A CANDIDATE" if passed else "LANE-B",
+            "status": status,
             "precision": precision, "recall": recall,
+            "coverage": coverage,
             "precision_target": targets["precision"],
             "recall_target": targets["recall"],
+            "coverage_floor": COVERAGE_FLOOR_PROPOSED,
             "extra": extra_note,
         })
         return passed
@@ -364,29 +410,55 @@ def check_lane_a_classes(metrics, legacy_attribution=None,
     entities = canonical.get("entities", {})
     levels = canonical.get("attribution_levels", {})
     cap = entities.get("capabilities", {})
-    verdict("capability_detection", cap.get("precision"), cap.get("recall"))
+    verdict("capability_detection", cap.get("precision"), cap.get("recall"),
+            coverage=cap.get("coverage"))
     ident = levels.get("identity", {})
-    verdict("identity_attribution", ident.get("precision"), ident.get("recall"))
+    verdict("identity_attribution", ident.get("precision"),
+            ident.get("recall"), coverage=ident.get("coverage"))
     e2e = legacy_attribution.get("end_to_end")
-    verdict("authority_attribution", e2e, e2e,
+    e2e_applicable = legacy_attribution.get("expected") or 0
+    e2e_correct = legacy_attribution.get("matched") or 0
+    e2e_coverage = (round(e2e_correct / e2e_applicable, 4)
+                    if e2e_applicable else None)
+    verdict("authority_attribution", e2e, e2e, coverage=e2e_coverage,
             extra_note=("legacy end-to-end rate over all exercised "
                         "capabilities incl. unattributed bucket "
-                        f"({legacy_attribution.get('matched')}/"
-                        f"{legacy_attribution.get('expected')})"))
+                        f"({e2e_correct}/{e2e_applicable})"))
     change = canonical.get("change_detection", {})
-    verdict("change_detection", change.get("precision"), change.get("recall"))
+    blind = canonical.get("surface_blind", 0)
+    # ChangeGuard model coverage counts blind material entries: of every
+    # material change in gold, how many sit inside the surface model.
+    change_tp = change.get("true_positives") or 0
+    change_fn = change.get("false_negatives") or 0
+    change_cov_denom = change_tp + change_fn + (blind or 0)
+    change_coverage = (round(change_tp / change_cov_denom, 4)
+                       if change_cov_denom else None)
+    verdict("change_detection", change.get("precision"), change.get("recall"),
+            coverage=change_coverage,
+            extra_note=(f"ChangeGuard model coverage {change_coverage} "
+                        f"({change_tp}/{change_cov_denom} material changes "
+                        f"inside the surface model; {blind} blind, detection "
+                        f"via findings/summary)") if blind else "")
     esc = canonical.get("escalation_detection", {})
     fer = canonical.get("false_escalation_rate", {})
     fer_value = fer.get("value")
     fer_ok = (fer.get("status") == "measured" and fer_value is not None
               and fer_value <= targets["false_escalation_rate_max"])
+    esc_tp = esc.get("true_positives") or 0
+    esc_fn = esc.get("false_negatives") or 0
+    blind_esc = canonical.get("surface_blind_escalations", 0) or 0
+    esc_cov_denom = esc_tp + esc_fn + blind_esc
+    esc_coverage = (round(esc_tp / esc_cov_denom, 4) if esc_cov_denom else None)
+    esc_note = (f"observed false-escalation rate on benchmark corpus "
+                f"{fer_value} "
+                f"(max {targets['false_escalation_rate_max']})"
+                if fer.get("status") == "measured" else
+                "false-escalation rate: insufficient evidence")
+    if blind_esc:
+        esc_note += (f"; escalation model coverage {esc_coverage} "
+                     f"({esc_tp}/{esc_cov_denom} inside the surface model)")
     verdict("escalation_detection", esc.get("precision"), esc.get("recall"),
-            extra_pass=fer_ok,
-            extra_note=(f"observed false-escalation rate on benchmark corpus "
-                        f"{fer_value} "
-                        f"(max {targets['false_escalation_rate_max']})"
-                        if fer.get("status") == "measured" else
-                        "false-escalation rate: insufficient evidence"))
+            coverage=esc_coverage, extra_pass=fer_ok, extra_note=esc_note)
     veto = (unknown_count or 0) > 0
     overall_ready = all(c["status"] == "LANE-A CANDIDATE" for c in classes) \
         and not veto

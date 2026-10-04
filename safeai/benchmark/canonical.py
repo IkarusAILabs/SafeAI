@@ -91,12 +91,14 @@ def _basename(path):
     return os.path.basename(path.replace("\\", "/"))
 
 
-def _prf_counts(tp, fp, fn):
+def _prf_counts(tp, fp, fn, contradicted=0):
     """PRF from counts. Halves with an empty denominator stay None but are
-    preserved; status is measured whenever any instance exists, so a lone
-    false negative (recall 0.0, precision undefined) still fails loudly
-    instead of dissolving into insufficient_evidence."""
+    preserved; status is measured whenever any instance exists — a lone
+    false negative (recall 0.0, precision undefined) or a lone
+    contradiction still fails loudly instead of dissolving into
+    insufficient_evidence."""
     tp, fp, fn = int(tp), int(fp), int(fn)
+    contradicted = int(contradicted or 0)
     precision = tp / (tp + fp) if (tp + fp) > 0 else None
     recall = tp / (tp + fn) if (tp + fn) > 0 else None
     if precision is None or recall is None:
@@ -110,7 +112,7 @@ def _prf_counts(tp, fp, fn):
         "false_positives": fp,
         "false_negatives": fn,
     }
-    if (tp + fp + fn) > 0:
+    if (tp + fp + fn + contradicted) > 0:
         out.update(
             {
                 "precision": round(precision, 4) if precision is not None else None,
@@ -135,6 +137,46 @@ def _empty_prf(reason):
     return {"true_positives": 0, "false_positives": 0, "false_negatives": 0,
             "precision": None, "recall": None, "f1": None,
             "status": INSUFFICIENT, "reason": reason}
+
+
+#: Relationship outcome states. RESOLVED = observed matches gold.
+#: UNRESOLVED = gold asserts, observed lacks (missing evidence or beyond
+#: the model — affects coverage, never auto-counted as FP). CONTRADICTED
+#: = observed value conflicts with gold on the same key (always fails).
+RESOLVED = "resolved"
+UNRESOLVED = "unresolved"
+CONTRADICTED = "contradicted"
+
+
+def _state_counts(tp, fp, fn, contradicted=0, unresolved=0,
+                  applicable=0, resolvable=0):
+    """PRF plus three-state coverage accounting.
+
+    Partition rule: applicable == correct + contradicted + unresolved,
+    where correct == TP. FP/FN keep their decidable meanings (entirely
+    spurious / entirely missing on a resolvable expectation).
+    Contradicted items are never double-counted inside FP/FN.
+    Coverage == correct / applicable (None when applicable is 0, which
+    teams with the insufficient_evidence status, never 0 or 1).
+    """
+    res = _prf_counts(tp, fp, fn, contradicted=contradicted)
+    correct = int(tp)
+    contra = int(contradicted)
+    unres = int(unresolved)
+    app = int(applicable)
+    reso = int(resolvable)
+    coverage = round(correct / app, 4) if app > 0 else None
+    res.update({"contradicted": contra, "unresolved": unres,
+                "applicable": app, "resolvable": reso,
+                "correct": correct, "coverage": coverage})
+    return res
+
+
+def _empty_state(reason):
+    res = _empty_prf(reason)
+    res.update({"contradicted": 0, "unresolved": 0, "applicable": 0,
+                "resolvable": 0, "correct": 0, "coverage": None})
+    return res
 
 
 # ---------------------------------------------------------------------------
@@ -457,80 +499,231 @@ def _match_tool(gold_tool, named_tools):
 # Entity discovery
 # ---------------------------------------------------------------------------
 
+def _partition_keyed(gold_map, obs_map):
+    """Partition keyed expectations into correct/contradicted/missing/spurious.
+
+    gold_map: key -> value (or None where presence alone decides).
+    obs_map: key -> value. Same key + different value == CONTRADICTED
+    (never double-counted inside FP/FN). Returns
+    (correct, contradicted, missing, spurious) as sets of keys.
+    """
+    correct, contradicted, missing, spurious = set(), set(), set(), set()
+    for key, value in gold_map.items():
+        if key not in obs_map:
+            missing.add(key)
+        elif value is None or obs_map[key] is None or obs_map[key] == value:
+            correct.add(key)
+        else:
+            contradicted.add(key)
+    for key in obs_map:
+        if key not in gold_map:
+            spurious.add(key)
+    # Scope conflicts: same identity linked under a different namespace
+    # (or vice versa) is a contradiction about scope, not a plain
+    # miss plus a plain extra.
+    for miss in list(missing):
+        if not (isinstance(miss, tuple) and miss
+                and miss[0] == "agent_linked_identity"):
+            continue
+        for spur in list(spurious):
+            if (isinstance(spur, tuple) and spur
+                    and spur[0] == "agent_linked_identity"
+                    and spur[1] == miss[1]):
+                missing.discard(miss)
+                spurious.discard(spur)
+                contradicted.add(miss)
+                break
+    return correct, contradicted, missing, spurious
+
+
 def compare_entities(gold, obs):
-    """Per-entity TP/FP/FN. Missing gold section -> insufficient_evidence."""
+    """Per-entity discovery with three-state outcomes + coverage.
+
+    Missing gold section -> insufficient_evidence. Same key observed
+    with a conflicting value -> CONTRADICTED (fails, never hidden in
+    FP/FN). Coverage == correct / applicable over all gold items.
+    """
     out = {}
 
     if gold.get("agents") is None:
-        out["agents"] = _empty_prf("no agent truth in fixture")
+        out["agents"] = _empty_state("no agent truth in fixture")
     else:
-        want = {str(a.get("name")) for a in gold["agents"] if a.get("name")}
-        got = {name for _, name in obs["agents"]}
-        out["agents"] = _prf(want & got, got - want, want - got)
+        gold_keys = {(str(a.get("framework") or ""), str(a.get("name") or ""))
+                     for a in gold["agents"] if a.get("name")}
+        obs_keys = set(obs["agents"])
+        correct = gold_keys & obs_keys
+        missing = gold_keys - obs_keys
+        spurious = obs_keys - gold_keys
+        contra = set()
+        for miss in list(missing):
+            for spur in list(spurious):
+                if spur[1] == miss[1]:
+                    missing.discard(miss)
+                    spurious.discard(spur)
+                    contra.add(miss)
+                    break
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_keys), len(gold_keys)))
+        out["agents"] = res
 
     if gold.get("tools") is None:
-        out["tools"] = _empty_prf("no tool truth in fixture")
+        out["tools"] = _empty_state("no tool truth in fixture")
     else:
-        want = {slug(t.get("id")) or slug(t.get("name"))
-                for t in gold["tools"] if t.get("attributable", True)}
+        applicable = [t for t in gold["tools"]]
+        resolvable = [t for t in applicable if t.get("attributable", True)]
+        want = {slug(t.get("id")) or slug(t.get("name")) for t in resolvable}
         want.discard("")
         got = set()
         for key in obs["named_tools"]:
             got.add(slug(key.split(":")[-1].split(".")[-1]) or slug(key))
         got.discard("")
-        out["tools"] = _prf(want & got, got - want, want - got)
+        tp, fp, fn = want & got, got - want, want - got
+        res = _prf_counts(len(tp), len(fp), len(fn))
+        res.update(_coverage_block(len(tp), 0, len(applicable), len(resolvable)))
+        out["tools"] = res
 
     if gold.get("capabilities") is None:
-        out["capabilities"] = _empty_prf("no capability truth in fixture")
+        out["capabilities"] = _empty_state("no capability truth in fixture")
     else:
-        want = {(str(c.get("capability")), str(c.get("access_mode") or ""))
-                for c in gold["capabilities"] if c.get("capability")}
-        got_named = {(cap, mode) for _, cap, mode in obs["named_caps"]}
-        got_unattr = set(obs["unattributed_caps"])
-        got = got_named | got_unattr
-        out["capabilities"] = _prf(want & got, got - want, want - got)
+        gold_map = {}
+        for cap in gold["capabilities"]:
+            if cap.get("capability"):
+                gold_map[(str(cap.get("tool") or ""),
+                          str(cap.get("capability")))] = str(
+                              cap.get("access_mode") or "")
+        obs_map = {}
+        for key, cap, mode in obs["named_caps"]:
+            matched = None
+            for tool in gold.get("tools") or []:
+                if _match_tool(tool, {key: obs["named_tools"][key]}):
+                    matched = str(tool.get("id"))
+                    break
+            obs_map.setdefault((matched or "", cap), mode)
+        for cap, mode in obs["unattributed_caps"]:
+            obs_map.setdefault(("", cap), mode)
+        correct, contra, missing, spurious = _partition_keyed(gold_map, obs_map)
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                            contradicted=len(contra))
+        resolvable_n = sum(1 for c in gold["capabilities"]
+                           if c.get("attribution") == "attributed")
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_map), resolvable_n))
+        out["capabilities"] = res
 
     if gold.get("identities") is None:
-        out["identities"] = _empty_prf("no identity truth in fixture")
+        out["identities"] = _empty_state("no identity truth in fixture")
     else:
-        want = {str(i.get("name")) for i in gold["identities"] if i.get("name")}
-        got = {name for _, name, _ in obs["identities"]}
-        out["identities"] = _prf(want & got, got - want, want - got)
+        # Keyed by full triple: same-name identities in different
+        # namespaces/scopes are distinct expectations (name-keyed maps
+        # would collapse them nondeterministically by set order).
+        gold_keys = {(str(i.get("kind") or ""), str(i.get("name") or ""),
+                      str(i.get("namespace") or ""))
+                     for i in gold["identities"] if i.get("name")}
+        obs_keys = set(obs["identities"])
+        correct = gold_keys & obs_keys
+        missing = gold_keys - obs_keys
+        spurious = obs_keys - gold_keys
+        # Same name, different triple: scope contradiction, not miss+extra.
+        contra = set()
+        for miss in list(missing):
+            for spur in list(spurious):
+                if spur[1] == miss[1]:
+                    missing.discard(miss)
+                    spurious.discard(spur)
+                    contra.add(miss)
+                    break
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_keys), len(gold_keys)))
+        out["identities"] = res
 
     if gold.get("grants") is None:
-        out["grants"] = _empty_prf("no grant truth in fixture")
+        out["grants"] = _empty_state("no grant truth in fixture")
     else:
-        want = {str(g.get("identity")) for g in gold["grants"]
-                if g.get("identity")}
-        got = {name for name, _, _, _, _ in obs["grants"]}
-        out["grants"] = _prf(want & got, got - want, want - got)
+        # Keyed by (identity, namespace, actions): one identity may hold
+        # several grants (wildcard_unresolved pattern). Namespace "" in
+        # gold matches any observed namespace on content (legacy
+        # leniency for namespace-less legacy grants).
+        gold_map = {}
+        for grant in gold["grants"]:
+            key = (str(grant.get("identity") or ""),
+                   str(grant.get("identity_namespace") or ""),
+                   tuple(sorted(grant.get("actions") or [])))
+            gold_map[key] = (tuple(sorted(grant.get("resources") or [])),
+                             str(grant.get("resolution") or ""))
+        obs_map = {}
+        for name, namespace, actions, resources, resolution in obs["grants"]:
+            key = (name, namespace or "", tuple(actions))
+            if key in gold_map or key not in obs_map:
+                obs_map.setdefault(key, (tuple(resources), resolution))
+        correct, contra, missing, spurious = _partition_keyed(gold_map, obs_map)
+        # Namespace-agnostic fallback for namespace-less gold grants.
+        for key in list(missing):
+            name, ns, actions = key
+            if not ns:
+                for okey in list(spurious):
+                    if okey[0] == name and okey[2] == actions:
+                        if obs_map[okey] == gold_map[key]:
+                            missing.discard(key)
+                            spurious.discard(okey)
+                            correct.add(key)
+                            break
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_map), len(gold_map)))
+        out["grants"] = res
 
     if gold.get("relationships") is None and gold.get("capabilities") is None:
-        out["relationships"] = _empty_prf("no relationship truth in fixture")
+        out["relationships"] = _empty_state("no relationship truth in fixture")
     else:
-        want = set()
-        for rel in gold.get("relationships") or []:
-            if rel.get("resolvable", True):
-                want.add(_rel_key(rel))
-        want |= _gold_tool_edges(gold)
-        want |= _gold_covered_edges(gold)
-        if not want:
-            out["relationships"] = _empty_prf("no resolvable relationship truth")
+        want, unresolvable_n = _gold_relationship_keys(gold)
+        got = _observed_relationship_keys(gold, obs)
+        correct, contra, missing, spurious = _partition_keyed(want, got)
+        # Unresolvable-marked expectations can never resolve: they leave
+        # the decidable set and live in unresolved/coverage only.
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                            contradicted=len(contra))
+        applicable = len(want) + unresolvable_n
+        unresolved = applicable - len(correct) - len(contra)
+        res.update(_coverage_block(len(correct), len(contra),
+                                   applicable, len(want),
+                                   unresolved_override=unresolved))
+        if not want and not unresolvable_n:
+            out["relationships"] = _empty_state(
+                "no resolvable relationship truth")
         else:
-            got = set()
-            for rel in _observed_relationships(gold, obs):
-                got.add(_rel_key(rel))
-            out["relationships"] = _prf(want & got, got - want, want - got)
+            out["relationships"] = res
 
     if gold.get("authority_statements") is None:
-        out["statements"] = _empty_prf("no authority-statement truth")
+        out["statements"] = _empty_state("no authority-statement truth")
     else:
-        want = {(str(s.get("domain") or "")) for s in gold["authority_statements"]
-                if s.get("domain")}
-        got = set(obs["verdicts"])
-        out["statements"] = _prf(want & got, got - want, want - got)
+        gold_map = {str(s.get("domain")): str(s.get("outcome") or "")
+                    for s in gold["authority_statements"] if s.get("domain")}
+        obs_map = {domain: verdict for domain, (verdict, _)
+                   in obs["verdicts"].items()}
+        correct, contra, missing, spurious = _partition_keyed(gold_map, obs_map)
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                            contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_map), len(gold_map)))
+        out["statements"] = res
 
     return out
+
+
+def _coverage_block(correct, contradicted, applicable, resolvable,
+                    unresolved_override=None):
+    """Coverage accounting block shared by entity/attribution results."""
+    unresolved = (applicable - correct - contradicted
+                  if unresolved_override is None else unresolved_override)
+    return {"contradicted": int(contradicted), "unresolved": int(unresolved),
+            "applicable": int(applicable), "resolvable": int(resolvable),
+            "correct": int(correct),
+            "coverage": round(correct / applicable, 4) if applicable else None}
 
 
 # ---------------------------------------------------------------------------
@@ -538,140 +731,229 @@ def compare_entities(gold, obs):
 # ---------------------------------------------------------------------------
 
 def compare_attribution(gold, obs):
-    """Eight independent attribution measurements with TP/FP/FN."""
+    """Eight independent attribution measurements.
+
+    Each level reports applicable / resolvable / correct /
+    contradicted / unresolved plus resolvable P/R/F1 and resolution
+    coverage (correct / applicable). Unresolved items affect coverage
+    only — never auto-FP/FN — except where benchmark semantics
+    explicitly require a miss (a resolvable expectation with no
+    observed counterpart is FN). Contradicted items always fail.
+    """
     out = {}
-    tools = [t for t in gold.get("tools") or []] if gold.get("tools") is not None else None
+    tools = ([t for t in gold.get("tools") or []]
+             if gold.get("tools") is not None else None)
     caps = gold.get("capabilities")
 
     # L1 tool attribution: attributable gold tools reconstructed by name.
     if tools is None:
-        out["tool"] = _empty_prf("no tool truth in fixture")
+        out["tool"] = _empty_state("no tool truth in fixture")
     else:
-        want = {t.get("id") for t in tools if t.get("attributable", True)}
-        got = {t.get("id") for t in tools
-               if t.get("attributable", True)
-               and _match_tool(t, obs["named_tools"])}
+        applicable = [t for t in tools if t.get("id")]
+        resolvable = [t for t in applicable if t.get("attributable", True)]
+        want = {t.get("id") for t in resolvable}
+        got = {t.get("id") for t in resolvable
+               if _match_tool(t, obs["named_tools"])}
         extra = set()
         for key in obs["named_tools"]:
             if not any(_match_tool(t, {key: obs["named_tools"][key]})
-                       for t in tools if t.get("attributable", True)):
+                       for t in resolvable):
                 extra.add(key)
-        out["tool"] = _prf_counts(len(got), len(extra), len(want - got))
+        res = _prf_counts(len(got), len(extra), len(want - got))
+        res.update(_coverage_block(len(got), 0, len(applicable),
+                                   len(resolvable)))
+        out["tool"] = res
 
     # L2 capability attribution: attributed caps under the right tool.
     if caps is None:
-        out["capability"] = _empty_prf("no capability truth in fixture")
+        out["capability"] = _empty_state("no capability truth in fixture")
     else:
-        want = {(c.get("tool"), str(c.get("capability")),
-                 str(c.get("access_mode") or ""))
-                for c in caps if c.get("attribution") == "attributed"}
-        got = set()
-        for tool_id, cap, mode in want:
-            gold_tool = {"id": tool_id, "name": tool_id}
-            key = _match_tool(gold_tool, obs["named_tools"])
-            if key and (key, cap, mode) in obs["named_caps"]:
-                got.add((tool_id, cap, mode))
-        out["capability"] = _prf_counts(len(got), 0, len(want - got))
+        gold_keys = {}  # (tool-or-None, cap) -> (mode, resolvable)
+        for cap in caps:
+            if cap.get("capability"):
+                key = (str(cap.get("tool") or ""), str(cap.get("capability")))
+                gold_keys[key] = (
+                    str(cap.get("access_mode") or ""),
+                    cap.get("attribution") == "attributed")
+        obs_keys = {}
+        for key, cap, mode in obs["named_caps"]:
+            matched = ""
+            for tool in tools or []:
+                if _match_tool(tool, {key: obs["named_tools"][key]}):
+                    matched = str(tool.get("id"))
+                    break
+            obs_keys.setdefault((matched, cap), mode)
+        for cap, mode in obs["unattributed_caps"]:
+            obs_keys.setdefault(("", cap), mode)
+        tp = contra = fp = 0
+        for key, (mode, resolvable) in gold_keys.items():
+            if key not in obs_keys:
+                continue
+            if not resolvable:
+                continue  # correctly-unresolved evidence, not attribution
+            if obs_keys[key] == mode:
+                tp += 1
+            else:
+                contra += 1
+        for key in obs_keys:
+            # Unattributed-bucket caps are explicit non-claims.
+            if key not in gold_keys and key[0]:
+                fp += 1
+        fn = sum(1 for key, (mode, resolvable) in gold_keys.items()
+                 if resolvable and key not in obs_keys)
+        res = _prf_counts(tp, fp, fn, contradicted=contra)
+        res.update(_coverage_block(tp, contra, len(gold_keys),
+                                   sum(1 for _, r in gold_keys.values() if r)))
+        out["capability"] = res
 
     # L3 agent attribution: exact (framework, name) identification.
+    # Keyed by pair: same-name agents under different frameworks are
+    # distinct expectations (name-keyed maps would collapse them by
+    # nondeterministic set order).
     if gold.get("agents") is None:
-        out["agent"] = _empty_prf("no agent truth in fixture")
+        out["agent"] = _empty_state("no agent truth in fixture")
     else:
-        want = {(str(a.get("framework") or ""), str(a.get("name") or ""))
-                for a in gold["agents"]}
-        got_names = {n for _, n in obs["agents"]}
-        got = {(f, n) for f, n in obs["agents"]} & want
-        fn = {(f, n) for f, n in want
-              if n in got_names and (f, n) not in got}
-        fn |= {(f, n) for f, n in want if n not in got_names}
-        fp = {(f, n) for f, n in obs["agents"]
-              if n not in {nn for _, nn in want}}
-        out["agent"] = _prf_counts(len(got), len(fp), len(fn))
+        gold_keys = {(str(a.get("framework") or ""), str(a.get("name") or ""))
+                     for a in gold["agents"] if a.get("name")}
+        obs_keys = set(obs["agents"])
+        correct = gold_keys & obs_keys
+        missing = gold_keys - obs_keys
+        spurious = obs_keys - gold_keys
+        contra = set()
+        for miss in list(missing):
+            for spur in list(spurious):
+                if spur[1] == miss[1]:
+                    missing.discard(miss)
+                    spurious.discard(spur)
+                    contra.add(miss)
+                    break
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_keys), len(gold_keys)))
+        out["agent"] = res
 
     # L4 identity attribution: full (kind, name, namespace) triples.
     if gold.get("identities") is None:
-        out["identity"] = _empty_prf("no identity truth in fixture")
+        out["identity"] = _empty_state("no identity truth in fixture")
     else:
-        want = {(str(i.get("kind") or ""), str(i.get("name") or ""),
-                 str(i.get("namespace") or "")) for i in gold["identities"]}
-        out["identity"] = _prf(want & obs["identities"],
-                               obs["identities"] - want, want - obs["identities"])
-
-    # L5 grant attribution: actions + resources + resolution per identity.
-    if gold.get("grants") is None:
-        out["grant"] = _empty_prf("no grant truth in fixture")
-    else:
-        tp = fp = fn = 0
-        unmatched_obs = list(obs["grants"])
-        for grant in gold["grants"]:
-            name = str(grant.get("identity") or "")
-            ns = str(grant.get("identity_namespace") or "")
-            cands = [g for g in unmatched_obs
-                     if g[0] == name and (not ns or g[1] == ns or not g[1])]
-            hit = False
-            for cand in cands:
-                if (sorted(cand[2]) == sorted(grant.get("actions") or []) and
-                        sorted(cand[3]) == sorted(grant.get("resources") or []) and
-                        (not grant.get("resolution") or
-                         cand[4] == grant.get("resolution"))):
-                    hit = True
-                    unmatched_obs.remove(cand)
+        gold_keys = {(str(i.get("kind") or ""), str(i.get("name") or ""),
+                      str(i.get("namespace") or ""))
+                     for i in gold["identities"] if i.get("name")}
+        obs_keys = set(obs["identities"])
+        correct = gold_keys & obs_keys
+        missing = gold_keys - obs_keys
+        spurious = obs_keys - gold_keys
+        contra = set()
+        for miss in list(missing):
+            for spur in list(spurious):
+                if spur[1] == miss[1]:
+                    missing.discard(miss)
+                    spurious.discard(spur)
+                    contra.add(miss)
                     break
-            if hit:
-                tp += 1
-            else:
-                fn += 1
-        fp = len(unmatched_obs)
-        out["grant"] = _prf_counts(tp, fp, fn)
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_keys), len(gold_keys)))
+        out["identity"] = res
 
-    # L6 agent -> identity attribution.
+    # L5 grant attribution: actions + resources + resolution per grant.
+    # Keyed by (identity, namespace, actions): one identity may hold
+    # several grants. Namespace "" in gold matches any observed
+    # namespace on content (legacy leniency, never a contradiction).
+    if gold.get("grants") is None:
+        out["grant"] = _empty_state("no grant truth in fixture")
+    else:
+        gold_map = {}
+        for grant in gold["grants"]:
+            key = (str(grant.get("identity") or ""),
+                   str(grant.get("identity_namespace") or ""),
+                   tuple(sorted(grant.get("actions") or [])))
+            gold_map[key] = (tuple(sorted(grant.get("resources") or [])),
+                             str(grant.get("resolution") or ""))
+        obs_map = {}
+        for name, namespace, actions, resources, resolution in obs["grants"]:
+            key = (name, namespace or "", tuple(actions))
+            if key in gold_map or key not in obs_map:
+                obs_map.setdefault(key, (tuple(resources), resolution))
+        correct, contra, missing, spurious = _partition_keyed(gold_map, obs_map)
+        for key in list(missing):
+            name, ns, actions = key
+            if not ns:
+                for okey in list(spurious):
+                    if (okey[0] == name and okey[2] == actions
+                            and obs_map[okey] == gold_map[key]):
+                        missing.discard(key)
+                        spurious.discard(okey)
+                        correct.add(key)
+                        break
+        res = _prf_counts(len(correct), len(spurious), len(missing),
+                          contradicted=len(contra))
+        res.update(_coverage_block(len(correct), len(contra),
+                                   len(gold_map), len(gold_map)))
+        out["grant"] = res
+
+    # L6 agent -> identity attribution (presence; agent side repo-scoped).
     rels = gold.get("relationships")
     if rels is None:
-        out["agent_identity"] = _empty_prf("no relationship truth in fixture")
+        out["agent_identity"] = _empty_state("no relationship truth in fixture")
     else:
         want = {(str(r.get("identity") or ""),
                  str(r.get("identity_namespace") or ""))
                 for r in rels if r.get("type") == "agent_linked_identity"}
         if not want and not any(r.get("type") == "agent_linked_identity"
                                 for r in rels):
-            out["agent_identity"] = _empty_prf("no agent-identity truth")
+            out["agent_identity"] = _empty_state("no agent-identity truth")
         else:
             got = {(name, ns) for _, name, ns in obs["links"]}
-            out["agent_identity"] = _prf(want & got, got - want, want - got)
+            correct = want & got
+            res = _prf_counts(len(correct), len(got - want), len(want - got))
+            res.update(_coverage_block(len(correct), 0, len(want), len(want)))
+            out["agent_identity"] = res
 
     # L7 capability -> grant attribution (outcome must match).
     stmts = gold.get("authority_statements")
     if stmts is None:
-        out["capability_grant"] = _empty_prf("no authority-statement truth")
+        out["capability_grant"] = _empty_state("no authority-statement truth")
     else:
-        want = {str(s.get("domain")): str(s.get("outcome"))
-                for s in stmts if s.get("domain")}
-        if not want:
-            out["capability_grant"] = _empty_prf("no domain truth in fixture")
+        gold_map = {str(s.get("domain")): str(s.get("outcome"))
+                    for s in stmts if s.get("domain")}
+        if not gold_map:
+            out["capability_grant"] = _empty_state("no domain truth in fixture")
         else:
-            tp = sum(1 for d, o in want.items()
-                     if d in obs["verdicts"] and obs["verdicts"][d][0] == o)
-            fp = sum(1 for d in obs["verdicts"] if d not in want)
-            fn = len(want) - tp
-            out["capability_grant"] = _prf_counts(tp, fp, fn)
+            obs_map = {domain: verdict for domain, (verdict, _)
+                       in obs["verdicts"].items()}
+            correct, contra, missing, spurious = _partition_keyed(
+                gold_map, obs_map)
+            res = _prf_counts(len(correct), len(spurious), len(missing),
+                            contradicted=len(contra))
+            res.update(_coverage_block(len(correct), len(contra),
+                                       len(gold_map), len(gold_map)))
+            out["capability_grant"] = res
 
     # L8 end-to-end: complete chains with matching outcomes.
     if stmts is None:
-        out["end_to_end"] = _empty_prf("no authority-statement truth")
+        out["end_to_end"] = _empty_state("no authority-statement truth")
     else:
         full = [s for s in stmts
                 if s.get("domain") and s.get("capability") and s.get("identity")]
         if not full:
-            out["end_to_end"] = _empty_prf(
+            out["end_to_end"] = _empty_state(
                 "no complete authority chains in fixture truth")
         else:
-            tp = 0
-            for stmt in full:
-                domain = str(stmt.get("domain"))
-                if (domain in obs["verdicts"] and
-                        obs["verdicts"][domain][0] == stmt.get("outcome")):
-                    tp += 1
-            out["end_to_end"] = _prf_counts(tp, 0, len(full) - tp)
+            gold_map = {str(s.get("domain")): str(s.get("outcome"))
+                        for s in full}
+            obs_map = {domain: verdict for domain, (verdict, _)
+                       in obs["verdicts"].items() if domain in gold_map}
+            # Spurious extra verdicts count at L7/statements, not here.
+            correct = {d for d, o in gold_map.items() if obs_map.get(d) == o}
+            contra = {d for d in gold_map if d in obs_map and d not in correct}
+            missing = {d for d in gold_map if d not in obs_map}
+            res = _prf_counts(len(correct), 0, len(missing))
+            res.update(_coverage_block(len(correct), len(contra),
+                                       len(gold_map), len(gold_map)))
+            out["end_to_end"] = res
 
     return out
 
@@ -680,31 +962,49 @@ def _prf(tp_set, fp_set, fn_set):
     return _prf_counts(len(tp_set), len(fp_set), len(fn_set))
 
 
-def _rel_key(rel):
+def _rel_identity(rel):
+    """Stable identity of a relationship (participants, not the outcome)."""
     rtype = rel.get("type")
     if rtype == "agent_uses_tool":
         return (rtype, str(rel.get("agent") or ""), str(rel.get("tool") or ""))
     if rtype == "tool_has_capability":
-        return (
-            rtype,
-            str(rel.get("tool") or ""),
-            str(rel.get("capability") or ""),
-            str(rel.get("access_mode") or ""),
-        )
+        return (rtype, str(rel.get("tool") or ""),
+                str(rel.get("capability") or ""))
     if rtype == "agent_linked_identity":
-        return (
-            rtype,
-            str(rel.get("identity") or ""),
-            str(rel.get("identity_namespace") or ""),
-        )
+        return (rtype, str(rel.get("identity") or ""),
+                str(rel.get("identity_namespace") or ""))
     if rtype == "capability_covered_by_grant":
-        return (
-            rtype,
-            str(rel.get("capability") or ""),
-            str(rel.get("domain") or ""),
-            str(rel.get("outcome") or ""),
-        )
+        return (rtype, str(rel.get("capability") or ""),
+                str(rel.get("domain") or ""))
     return (str(rtype),)
+
+
+def _rel_value(rel):
+    """Decided outcome of a relationship, or None where presence decides."""
+    rtype = rel.get("type")
+    if rtype == "tool_has_capability":
+        return str(rel.get("access_mode") or "")
+    if rtype == "capability_covered_by_grant":
+        return str(rel.get("outcome") or "")
+    return None
+
+
+def _gold_relationship_keys(gold):
+    """(want identities->values, unresolvable count) from gold truth."""
+    want = {}
+    unresolvable = 0
+    for rel in gold.get("relationships") or []:
+        if not rel.get("resolvable", True):
+            unresolvable += 1
+            continue
+        want[_rel_identity(rel)] = _rel_value(rel)
+    for edge in _gold_tool_edges(gold):
+        _, tool, cap, mode = edge
+        want[("tool_has_capability", tool, cap)] = mode
+    for edge in _gold_covered_edges(gold):
+        _, cap, domain, outcome = edge
+        want[("capability_covered_by_grant", cap, domain)] = outcome
+    return want, unresolvable
 
 
 def _gold_tool_edges(gold):
@@ -746,27 +1046,47 @@ def _gold_covered_edges(gold):
 
 
 def _observed_relationships(gold, obs):
-    """Relationships the scanner output evidences (neutral keys)."""
+    """Relationships the scanner output evidences (neutral keys).
+
+    Leakage guard: observed edges are enumerated exhaustively — every
+    verdict becomes a covered edge (capability "" when gold states
+    nothing for the domain) and every named capability under a tool
+    matching no gold tool is kept with tool None. An unexpected
+    relationship can therefore only surface as FP/contradicted, never
+    vanish because gold did not predict it.
+    """
     rels = []
     gold_tools = [t for t in gold.get("tools") or [] if isinstance(t, dict)]
     for key, cap, mode in obs["named_caps"]:
+        matched = None
         for gold_tool in gold_tools:
             if _match_tool(gold_tool, {key: obs["named_tools"][key]}):
-                rels.append({"type": "tool_has_capability",
-                             "tool": gold_tool.get("id"), "capability": cap,
-                             "access_mode": mode})
+                matched = str(gold_tool.get("id"))
                 break
+        rels.append({"type": "tool_has_capability", "tool": matched,
+                     "capability": cap, "access_mode": mode})
     for agent, name, namespace in obs["links"]:
         rels.append({"type": "agent_linked_identity",
                      "agent": agent or None, "identity": name,
                      "identity_namespace": namespace})
     for domain, (verdict, _) in obs["verdicts"].items():
+        capability = ""
         for stmt in gold.get("authority_statements") or []:
             if stmt.get("domain") == domain:
-                rels.append({"type": "capability_covered_by_grant",
-                             "capability": stmt.get("capability") or "",
-                             "domain": domain, "outcome": verdict})
+                capability = str(stmt.get("capability") or "")
+                break
+        rels.append({"type": "capability_covered_by_grant",
+                     "capability": capability, "domain": domain,
+                     "outcome": verdict})
     return rels
+
+
+def _observed_relationship_keys(gold, obs):
+    """Observed relationship identities->values (exhaustive)."""
+    got = {}
+    for rel in _observed_relationships(gold, obs):
+        got.setdefault(_rel_identity(rel), _rel_value(rel))
+    return got
 
 
 # ---------------------------------------------------------------------------
@@ -858,6 +1178,7 @@ def compare_change(gold, current, baseline):
             "escalation": _empty_prf("no baseline-pair change truth"),
             "no_change_correct": 0, "no_change_total": 0,
             "unknown_changes": 0, "surface_blind": 0,
+            "surface_blind_escalations": 0,
             "false_escalation_rate": {
                 "value": None,
                 "status": INSUFFICIENT,
@@ -880,6 +1201,7 @@ def compare_change(gold, current, baseline):
     no_ok = no_total = 0
     unknown_changes = 0
     surface_blind = 0
+    surface_blind_escalations = 0
     failures = []
     matched_diff = set()
 
@@ -897,6 +1219,8 @@ def compare_change(gold, current, baseline):
             # Explicitly out of the surface model: counted blind spot,
             # detection enforced via findings/summary by legacy checks.
             surface_blind += 1
+            if kind in ESCALATION_KINDS:
+                surface_blind_escalations += 1
             continue
         if kind == "NO_CHANGE":
             no_total += 1
@@ -964,6 +1288,7 @@ def compare_change(gold, current, baseline):
             "no_change_correct": no_ok, "no_change_total": no_total,
             "unknown_changes": unknown_changes,
             "surface_blind": surface_blind,
+            "surface_blind_escalations": surface_blind_escalations,
             "false_escalation_rate": fer, "missed_material_rate": mmr,
             "failures": failures}
 
@@ -1056,8 +1381,185 @@ def compare_unknown(gold, obs, pools):
 
 
 # ---------------------------------------------------------------------------
-# Entry point
+# Gold consistency (canonical vs legacy)
 # ---------------------------------------------------------------------------
+
+def check_consistency(expected):
+    """Contradictions between canonical truth and legacy expected truth.
+
+    Canonical truth is authoritative; legacy sections remain for
+    backwards compatibility. Where both describe the same fact they
+    must agree — a silent override in either direction is benchmark
+    drift, so any disagreement FAILS with an explicit message.
+    Canonical-only content is enrichment (legacy has no vocabulary
+    for it) and never a contradiction; legacy-only content FAILS
+    (canonical must carry the truth). Enrichment-only canonical
+    detail (statement capability/identity/resource, change
+    status/domain/surface_expected/evidence, agent ids, relationship
+    lists, annotation) is not comparable and never a contradiction.
+    """
+    problems = []
+    if not isinstance(expected, dict):
+        return ["expected truth is not an object"]
+    canon = expected.get("canonical")
+    if not isinstance(canon, dict):
+        return []
+    legacy = {k: v for k, v in expected.items() if k != "canonical"}
+    derived, _ = gold_from_expected(legacy)
+
+    def present(section):
+        return section in legacy
+
+    def canon_present(section):
+        return section in canon
+
+    def derived_present(section):
+        value = derived.get(section)
+        if isinstance(value, (list, dict)):
+            return bool(value)
+        return value is not None
+
+    # Agents: (framework, name) sets.
+    in_legacy, in_canon = present("agents"), canon_present("agents")
+    if in_legacy and not in_canon and derived_present("agents"):
+        problems.append("legacy agents with no canonical truth: canonical "
+                        "must carry the truth")
+    elif in_legacy and in_canon:
+        legacy_agents = {(a.get("framework"), a.get("name"))
+                         for a in legacy.get("agents") or []}
+        canon_agents = {(a.get("framework"), a.get("name"))
+                        for a in canon.get("agents") or []}
+        if legacy_agents != canon_agents:
+            problems.append(
+                f"agents disagree: legacy {sorted(legacy_agents)} vs "
+                f"canonical {sorted(canon_agents)}")
+
+    # Tools/capabilities: compare through the legacy derivation so the
+    # unattributed-bucket mapping is identical on both sides. Canonical
+    # ids compare slug-normalized (human "docs-admin" == derived slug).
+    in_legacy, in_canon = present("tools"), canon_present("tools")
+    if in_legacy and not in_canon and derived_present("tools"):
+        problems.append("legacy tools with no canonical truth: canonical "
+                        "must carry the truth")
+    elif in_legacy and in_canon:
+        derived_tools = {(t.get("id"), t.get("attributable", True))
+                         for t in derived.get("tools") or []}
+        canon_tools = {(slug(t.get("id")), t.get("attributable", True))
+                       for t in canon.get("tools") or []}
+        if derived_tools != canon_tools:
+            problems.append(
+                f"tools disagree: legacy {sorted(derived_tools)} vs "
+                f"canonical {sorted(canon_tools)}")
+        derived_caps = {(c.get("tool"), c.get("capability"),
+                         c.get("access_mode"), c.get("attribution"))
+                        for c in derived.get("capabilities") or []}
+        canon_caps = {(slug(c.get("tool")) if c.get("tool") else None,
+                       c.get("capability"), c.get("access_mode"),
+                       c.get("attribution"))
+                      for c in canon.get("capabilities") or []}
+        if derived_caps != canon_caps:
+            problems.append("capabilities disagree between legacy and canonical")
+
+    # Identities / grants (namespace defaults "" on both sides).
+    for section in ("identities", "grants"):
+        in_legacy, in_canon = present(section), canon_present(section)
+        if in_legacy and not in_canon and derived_present(section):
+            problems.append(
+                f"legacy {section} with no canonical truth: canonical "
+                f"must carry the truth")
+        elif in_legacy and in_canon:
+            if section == "identities":
+                derived_set = {(i.get("kind"), i.get("name"),
+                                i.get("namespace") or "")
+                               for i in derived.get("identities") or []}
+                canon_set = {(i.get("kind"), i.get("name"),
+                              i.get("namespace") or "")
+                             for i in canon.get("identities") or []}
+            else:
+                derived_set = {(g.get("identity"),
+                                g.get("identity_namespace") or "",
+                                tuple(g.get("actions") or []),
+                                tuple(g.get("resources") or []),
+                                g.get("resolution") or "resolved")
+                               for g in derived.get("grants") or []}
+                canon_set = {(g.get("identity"),
+                              g.get("identity_namespace") or "",
+                              tuple(g.get("actions") or []),
+                              tuple(g.get("resources") or []),
+                              g.get("resolution") or "resolved")
+                             for g in canon.get("grants") or []}
+            if derived_set != canon_set:
+                problems.append(f"{section} disagree between legacy and canonical")
+
+    # Verdicts <-> statements: domain->outcome maps must match exactly.
+    in_legacy, in_canon = (present("verdicts"),
+                           canon_present("authority_statements"))
+    if in_legacy and not in_canon and derived_present("authority_statements"):
+        problems.append("legacy verdicts with no canonical statements: "
+                        "canonical must carry the truth")
+    elif in_legacy and in_canon:
+        derived_map = {s.get("domain"): s.get("outcome")
+                       for s in derived.get("authority_statements") or []}
+        canon_map = {s.get("domain"): s.get("outcome")
+                     for s in canon.get("authority_statements") or []}
+        if derived_map != canon_map:
+            problems.append(
+                f"verdicts/statements disagree: legacy {derived_map} vs "
+                f"canonical {canon_map}")
+
+    # Links <-> agent_linked_identity relationships.
+    canon_has_links = any(
+        r.get("type") == "agent_linked_identity"
+        for r in canon.get("relationships") or [])
+    in_legacy, in_canon = present("links"), canon_has_links
+    derived_has_links = any(
+        r.get("type") == "agent_linked_identity"
+        for r in derived.get("relationships") or [])
+    if in_legacy and not in_canon and derived_has_links:
+        problems.append("legacy links with no canonical relationships: "
+                        "canonical must carry the truth")
+    elif in_legacy and in_canon:
+        derived_links = {(str(r.get("identity") or ""),
+                          str(r.get("identity_namespace") or ""))
+                         for r in derived.get("relationships") or []
+                         if r.get("type") == "agent_linked_identity"}
+        canon_links = {(str(r.get("identity") or ""),
+                        str(r.get("identity_namespace") or ""))
+                       for r in canon.get("relationships") or []
+                       if r.get("type") == "agent_linked_identity"}
+        if derived_links != canon_links:
+            problems.append("links disagree between legacy and canonical")
+
+    # Changes: (subject, kind) pairs.
+    in_legacy, in_canon = present("changes"), canon_present("changes")
+    if in_legacy and not in_canon and derived_present("changes"):
+        problems.append("legacy changes with no canonical changes: "
+                        "canonical must carry the truth")
+    elif in_legacy and in_canon:
+        derived_changes = {(e.get("subject"), e.get("kind"))
+                           for e in derived.get("changes") or []}
+        canon_changes = {(e.get("subject"), e.get("kind"))
+                         for e in canon.get("changes") or []}
+        if derived_changes != canon_changes:
+            problems.append("changes disagree between legacy and canonical")
+
+    # Uncertainty: (expected, match) pairs. Area is free-form
+    # documentation of where the uncertainty lives, not comparable.
+    in_legacy, in_canon = (present("uncertainty"),
+                           canon_present("unknown_expectations"))
+    if in_legacy and not in_canon and derived_present("unknown_expectations"):
+        problems.append("legacy uncertainty with no canonical expectations: "
+                        "canonical must carry the truth")
+    elif in_legacy and in_canon:
+        derived_unk = {(u.get("expected"), u.get("match"))
+                       for u in derived.get("unknown_expectations") or []}
+        canon_unk = {(u.get("expected"), u.get("match"))
+                     for u in canon.get("unknown_expectations") or []}
+        if derived_unk != canon_unk:
+            problems.append("uncertainty disagree between legacy and canonical")
+
+    return problems
+
 
 def compare_all(gold, obs, current, baseline):
     """Run entity + attribution + change + unknown comparison."""
@@ -1067,17 +1569,25 @@ def compare_all(gold, obs, current, baseline):
     parts = {}
     parts["entities"] = compare_entities(gold, obs)
     for name, res in parts["entities"].items():
-        if res.get("status") == "measured" and (
-            res.get("false_negatives") or res.get("false_positives")
-        ):
+        if res.get("status") != "measured":
+            continue
+        if res.get("contradicted"):
+            failures.append(
+                f"entity {name}: CONTRADICTED "
+                f"{res['contradicted']} expectation(s)")
+        if res.get("false_negatives") or res.get("false_positives"):
             failures.append(
                 f"entity {name}: TP {res['true_positives']} "
                 f"FP {res['false_positives']} FN {res['false_negatives']}")
     parts["attribution"] = compare_attribution(gold, obs)
     for name, res in parts["attribution"].items():
-        if res.get("status") == "measured" and (
-            res.get("false_negatives") or res.get("false_positives")
-        ):
+        if res.get("status") != "measured":
+            continue
+        if res.get("contradicted"):
+            failures.append(
+                f"attribution {name}: CONTRADICTED "
+                f"{res['contradicted']} expectation(s)")
+        if res.get("false_negatives") or res.get("false_positives"):
             failures.append(
                 f"attribution {name}: TP {res['true_positives']} "
                 f"FP {res['false_positives']} FN {res['false_negatives']}")

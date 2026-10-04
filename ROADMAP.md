@@ -152,7 +152,7 @@ authority → REVIEW, with all of the above attached.
 
 ---
 
-## Repository status (verified at v2.5.0)
+## Repository status (verified at v2.5.0; v2.6 benchmark hardened)
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -165,11 +165,11 @@ authority → REVIEW, with all of the above attached.
 | Plugin SDK, custom rules, control mappings (taxonomy) | SHIPPED AND VERIFIED | entry points, `rules check`, OWASP/NIST mappings |
 | Registry, suppressions, lifecycle, components, dependency inventory + DEP correlation | SHIPPED AND VERIFIED | SQLite registry, export/import, lockfile |
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
-| IaC precision/recall, attribution accuracy, escalation precision | PARTIALLY SHIPPED | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (56/56 hold; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.464 with 67/125 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/change/escalation/identity LANE-A CANDIDATE, authority attribution LANE-B, overall NOT LANE-A READY + unknown veto) |
+| IaC precision/recall, attribution accuracy, escalation precision | **SHIPPED AND VERIFIED (v2.6 hardened)** | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (58/58 hold; digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.4851 with 69/134 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/identity LANE-A CANDIDATE, authority attribution/change/escalation LANE-B, overall NOT LANE-A READY + unknown veto; provenance: 21 independent / 37 migrated) |
 | Delegation depth (sub-agent scope, indirect authority) | PARTIALLY SHIPPED | ESC_COMBO + component graph cover proxies; no dedicated model |
 | CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
 | Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
-| Public authority benchmark (hardened slice: 56 cases + canonical v2 truth + harness + published measurements) | PARTIALLY SHIPPED | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
+| Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
 
 **Drift corrected in this re-baseline:** Outcome 1's lanes and Outcome
@@ -302,15 +302,16 @@ accountable human decisions.*
 
 ## Layer 8 — Research Validation
 
-- **Agent Authority Benchmark (IMPLEMENTED, VALIDATED on corpus;
-  publishable dataset still RESEARCH ITEM):** 56-case corpus
+- **Agent Authority Benchmark (SHIPPED AND VERIFIED on corpus; publishable
+  dataset still RESEARCH ITEM):** 58-case corpus
   (`tests/benchmarks/authority/` with canonical v2.0 gold truth:
   capability-escalation, governance-change, delegation-change, MCP,
-  IaC-mismatch, unknown-scenario, and targeted attribution fixtures,
-  each with expected evidence and expected authority classification)
-  + `safeai benchmark` harness (entity/attribution/change/unknown
-  PRF, determinism digests, 8-area mutation tests) + published
-  measurements (`docs/benchmarks/authority/VALIDATION_REPORT.md`).
+  IaC-mismatch, unknown-scenario, and targeted attribution/adversarial
+  fixtures, each with expected evidence and expected authority
+  classification) + `safeai benchmark` harness (entity/attribution/change/unknown
+  PRF with three-state outcomes, determinism digests, 8-area mutation tests)
+  + published measurements (`docs/benchmarks/authority/VALIDATION_REPORT.md`,
+  digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`).
   Target remainder: publishable dataset + reproducibility package.
 - **Evaluation methodology (IMPLEMENTED, VALIDATED on corpus):**
   entity discovery P/R/F1 (with insufficient_evidence, never 0/1);
