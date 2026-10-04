@@ -1,5 +1,7 @@
 # Ikarus AI Labs — Research Alignment
 
+> Research hub: [ikaruslabs.net](https://ikaruslabs.net) | SafeAI: [ikaruslabs.net/safeai](https://ikaruslabs.net/safeai) | OpenPulse: [ikaruslabs.net/openpulse](https://ikaruslabs.net/openpulse) | Publications: [ikaruslabs.net/publications](https://ikaruslabs.net/publications)
+
 ## Research thesis
 
 **Evidence-Based Assurance for AI-Mediated Software Change.**
