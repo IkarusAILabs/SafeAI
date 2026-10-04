@@ -35,6 +35,26 @@ def _ruleset_version(rules):
     return f"sha256:{sha256_text(canonical)[:16]}"
 
 
+#: Exception evaluation states that --strict-exceptions refuses.
+GATED_EXCEPTION_STATES = ("expired", "stale", "scope-mismatch", "invalid")
+
+
+def gated_exception_evaluations(evaluations):
+    """Exception evaluations that ``--strict-exceptions`` must refuse.
+
+    State is not sufficient on its own. An entry whose declared repository
+    scope could not be checked stays ``active`` and suppresses, so it reaches
+    no gate by state alone; an operator asking for strict exceptions is asking
+    not to be suppressed by something unverified. ``scope_verified is False``
+    is therefore gated alongside the non-active states (#196).
+    """
+    return [
+        evaluation for evaluation in evaluations
+        if evaluation["state"] in GATED_EXCEPTION_STATES
+        or evaluation.get("scope_verified") is False
+    ]
+
+
 class ScanPostProcessor:
     """Runs the post-scan pipeline for ``safeai scan`` and returns the exit code.
 
@@ -267,10 +287,10 @@ class ScanPostProcessor:
             for warning in evaluation.get("warnings") or []:
                 print(f"warning: {warning}", file=sys.stderr)
         self.report["exception_evaluations"] = evaluations
-        bad = [e for e in evaluations
-               if e["state"] in ("expired", "stale", "scope-mismatch", "invalid")]
+        bad = gated_exception_evaluations(evaluations)
         if getattr(self.args, "strict_exceptions", False) and bad:
-            print("error: --strict-exceptions is set; expired or stale exceptions detected",
+            print("error: --strict-exceptions is set; expired, stale or "
+                  "unverified-scope exceptions detected",
                   file=sys.stderr)
             return 1
         return None
