@@ -34,3 +34,30 @@ def test_resolve_symbol_origin_uses_import_graph(tmp_path):
 
     origin = resolve_symbol_origin(doc_a, "do_it", import_graph=graph)
     assert origin["file"].endswith("b.py")
+
+
+def test_init_reexport_from_same_named_submodule(tmp_path):
+    init = tmp_path / "scraper" / "__init__.py"
+    sub = tmp_path / "scraper" / "scraper.py"
+    init.parent.mkdir()
+    init.write_text("from .scraper import Scraper\n")
+    sub.write_text("class Scraper:\n    pass\n")
+
+    doc = build_semantic_document(str(init), init.read_text(), module_name="scraper")
+    assert resolve_symbol(doc, "Scraper") == "scraper.scraper.Scraper"
+
+
+def test_resolve_symbol_handles_cycle_gracefully(tmp_path):
+    init = tmp_path / "pkg" / "__init__.py"
+    init.parent.mkdir()
+    init.write_text("from .core import Core\n")
+
+    doc = build_semantic_document(str(init), init.read_text(), module_name="pkg")
+    graph = build_import_graph(
+        str(tmp_path),
+        [str(init)],
+        {str(init): doc},
+    )
+
+    origin = resolve_symbol_origin(doc, "Core", import_graph=graph)
+    assert origin["file"].endswith("__init__.py")

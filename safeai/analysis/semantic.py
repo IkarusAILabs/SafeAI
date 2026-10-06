@@ -78,14 +78,19 @@ def _literal_value(node):
     return None
 
 
-def _resolve_from_module(module, level, current_module):
+def _resolve_from_module(module, level, current_module, path=""):
     """Resolve a relative import to an absolute module name.
 
     ``level`` corresponds to the number of leading dots in a ``from ... import``.
+    When ``path`` ends with ``__init__.py`` the level is reduced by one because
+    a relative import from a package's ``__init__`` is resolved relative to the
+    package itself, not one level deeper.
     """
     if level == 0:
         return module or ""
     parts = current_module.split(".") if current_module else []
+    if path.endswith("__init__.py"):
+        level = max(0, level - 1)
     keep = max(0, len(parts) - level)
     prefix = ".".join(parts[:keep])
     if module:
@@ -112,7 +117,7 @@ def build_semantic_document(path, content, module_name=""):
                 local = alias.asname or alias.name.split(".")[0]
                 doc.imports[local] = alias.name
         elif isinstance(node, ast.ImportFrom):
-            base = _resolve_from_module(node.module, node.level, module_name)
+            base = _resolve_from_module(node.module, node.level, module_name, path)
             for alias in node.names:
                 local = alias.asname or alias.name
                 doc.from_imports[local] = f"{base}.{alias.name}" if base else alias.name
