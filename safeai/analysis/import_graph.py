@@ -51,7 +51,7 @@ class ImportGraph:
     def resolve_module(self, module_name):
         return self.module_to_file.get(module_name)
 
-    def resolve_symbol(self, qualified_name):
+    def resolve_symbol(self, qualified_name, _visited=None):
         """Map a fully-qualified symbol to its defining module and file.
 
         Tries progressively shorter module prefixes (e.g. ``a.b.c.Var`` ->
@@ -59,6 +59,12 @@ class ImportGraph:
         chains when a symbol is re-exported through ``__init__.py``.
         Returns a dict with keys ``module``, ``file``, and ``symbol``, or ``None``.
         """
+        if _visited is None:
+            _visited = set()
+        if qualified_name in _visited:
+            return None
+        _visited.add(qualified_name)
+
         parts = qualified_name.split(".")
         for i in range(len(parts), 0, -1):
             module = ".".join(parts[:i])
@@ -70,7 +76,7 @@ class ImportGraph:
                 direct = symbol.split(".")[0]
                 target = self.symbol_index[path].get(direct)
                 if isinstance(target, dict) and target.get("kind") == "reexport":
-                    return self.resolve_symbol(target.get("target"))
+                    return self.resolve_symbol(target.get("target"), _visited)
             return {
                 "module": module,
                 "file": path,
