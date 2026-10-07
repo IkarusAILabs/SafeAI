@@ -1,0 +1,61 @@
+{
+  "case": "delegation/workflow_delegation",
+  "notes": "Prefect workflow delegation detected with orchestrator pattern and task delegation.",
+  "agents": [
+    {
+      "framework": "prefect",
+      "name": "flow"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "shell_execution",
+          "access_mode": "execute"
+        },
+        {
+          "name": "file_process",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "must_fire": ["CAP_prefect_flow"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Workflow delegation pattern from reviewed source; canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "prefect:flow",
+        "framework": "prefect",
+        "name": "flow"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "file_process",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

@@ -1,0 +1,1 @@
+{"case": "delegation/unknown_delegation_2", "category": "delegation", "description": "Dynamic agent creation with runtime-resolved delegation target that cannot be statically determined.", "version": "v2.6"}

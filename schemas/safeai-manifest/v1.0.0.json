@@ -273,6 +273,122 @@
         }
       }
     },
+    "authority_evidence": {
+      "description": "Agent Authority Evidence Contract v1 (additive extension to the KYA Manifest Contract). Represents statically evidenced, potentially reachable agent authority with provenance, uncertainty, and assurance boundaries. Independent tooling can consume this without SafeAI internals.",
+      "type": "object",
+      "properties": {
+        "contract_identity": {
+          "type": "object",
+          "required": ["name", "version"],
+          "properties": {
+            "name": {"type": "string"},
+            "version": {"type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$"}
+          }
+        },
+        "subject_agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["agent_id", "framework"],
+            "properties": {
+              "agent_id": {"type": "string", "minLength": 1},
+              "framework": {"type": "string"}
+            }
+          }
+        },
+        "principal_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["principal_id", "kind"],
+            "properties": {
+              "principal_id": {"type": "string", "minLength": 1},
+              "kind": {"enum": ["aws_iam_role", "kubernetes_service_account", "kubernetes_user", "kubernetes_group", "unknown"]},
+              "provenance": {"enum": ["declared", "detected", "inferred", "unknown", "repo-iac-observed"]},
+              "source_ref": {"type": "string"},
+              "namespace": {"type": "string"}
+            }
+          }
+        },
+        "delegation_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source_agent", "target_agent", "delegation_type"],
+            "properties": {
+              "source_agent": {"type": "string"},
+              "target_agent": {"type": "string"},
+              "delegation_type": {"enum": ["explicit_sub_agent", "framework_delegation", "workflow_delegation", "mcp_delegation", "unknown"]},
+              "provenance": {"enum": ["declared", "detected", "inferred", "unknown", "repo-iac-observed"]},
+              "resolvability": {"enum": ["resolved", "unresolved", "unknown"]},
+              "evidence_refs": {"type": "array", "items": {"type": "string"}},
+              "confidence": {"type": "string"},
+              "notes": {"type": "string"}
+            }
+          }
+        },
+        "authority_statements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["statement_id", "agent_id", "capability", "provenance"],
+            "properties": {
+              "statement_id": {"type": "string", "minLength": 1},
+              "agent_id": {"type": "string", "minLength": 1},
+              "principal_ref": {"type": ["string", "null"]},
+              "tool_ref": {"type": ["string", "null"]},
+              "capability": {"type": "string"},
+              "access_mode": {"enum": ["none", "read", "write", "mutate", "execute", "unknown"]},
+              "resource_provider": {"enum": ["aws", "kubernetes", "gcp", "azure", "filesystem", "shell", "network", "database", "mcp", "unknown"]},
+              "resource": {"type": "string"},
+              "destination": {"type": "string"},
+              "provenance": {"enum": ["declared", "detected", "inferred", "unknown", "repo-iac-observed"]},
+              "confidence": {"type": "string"},
+              "resolution": {"enum": ["resolved", "unresolved", "contradicted", "unknown"]},
+              "evidence_refs": {"type": "array", "items": {"type": "string"}},
+              "assurance_boundary": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "evidence_references": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "uncertainty_summary": {
+          "type": "object",
+          "properties": {
+            "authority_statement_count": {"type": "integer"},
+            "resolved_count": {"type": "integer"},
+            "unresolved_count": {"type": "integer"},
+            "unknown_count": {"type": "integer"},
+            "inferred_count": {"type": "integer"},
+            "evidence_backed_count": {"type": "integer"}
+          }
+        },
+        "assurance_boundary": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "source_revision": {
+          "type": "object",
+          "properties": {
+            "commit": {"type": "string"},
+            "repository": {"type": "string"}
+          }
+        },
+        "safeai_version": {"type": "string"},
+        "ruleset_version": {"type": "string"},
+        "change_context": {
+          "type": "object",
+          "properties": {
+            "baseline_ref": {"type": "string"},
+            "current_revision": {"type": "string"},
+            "change_class": {"enum": ["NO_CHANGE", "LOW_CHANGE", "MATERIAL_CHANGE", "HIGH_RISK_CHANGE", "UNKNOWN"]}
+          }
+        }
+      },
+      "additionalProperties": true
+    },
     "integrity": {
       "description": "Offline integrity block (added in contract v1.0.0, Workstream 2). Absent on pre-2.2 manifests.",
       "type": "object",

@@ -39,6 +39,52 @@ EXCEPTION_STATES = ("active", "expired", "stale", "scope-mismatch", "invalid")
 CORRELATION_VERDICTS = ("MATCH", "EXCESS_AUTHORITY", "AUTHORITY_MISMATCH",
                         "UNVERIFIED_LINK", "UNKNOWN")
 
+#: Agent Authority Evidence Contract — provenance vocabulary.
+#: These extend the existing provenance classes at the authority-statement level.
+AUTHORITY_PROVENANCE_CLASSES = PROVENANCE_CLASSES
+
+#: Delegation relationship types.
+DELEGATION_TYPES = (
+    "explicit_sub_agent",
+    "framework_delegation",
+    "workflow_delegation",
+    "mcp_delegation",
+    "unknown",
+)
+
+#: Delegation resolvability states.
+DELEGATION_RESOLVABILITY = ("resolved", "unresolved", "unknown")
+
+#: Access mode vocabulary (from capability model).
+ACCESS_MODES = ("none", "read", "write", "mutate", "execute")
+
+#: Resource/Destination providers.
+RESOURCE_PROVIDERS = (
+    "aws",
+    "kubernetes",
+    "gcp",
+    "azure",
+    "filesystem",
+    "shell",
+    "network",
+    "database",
+    "mcp",
+    "unknown",
+)
+
+#: Assurance boundary statements (machine-readable).
+ASSURANCE_BOUNDARY_STATEMENTS = (
+    "runtime_identity_not_proven",
+    "runtime_permissions_not_proven",
+    "runtime_egress_not_proven",
+    "dynamic_tool_binding_not_proven",
+    "runtime_behaviour_not_proven",
+    "deployed_configuration_not_proven",
+)
+
+#: Authority statement resolution states.
+AUTHORITY_RESOLUTION = ("resolved", "unresolved", "contradicted", "unknown")
+
 
 def contract_block():
     """Return the ``contract`` metadata block stamped into new manifests."""
@@ -250,6 +296,14 @@ def validate_manifest(document):
                     _err(errors, f"{base}.source_file",
                          "must be a non-empty string")
 
+    # --- authority_evidence (optional; Agent Authority Evidence Contract) ---
+    auth = document.get("authority_evidence")
+    if auth is not None:
+        if not isinstance(auth, dict):
+            _err(errors, "$.authority_evidence", "must be an object")
+        else:
+            _validate_authority_evidence(errors, auth)
+
     # --- assurance boundary / limitations ---------------------------------
     if "assurance_boundary" not in document:
         _err(errors, "$.assurance_boundary", "is required (static-evidence statement)")
@@ -275,3 +329,178 @@ def validate_manifest(document):
                      "must be 64 lowercase hex characters")
 
     return (errors, warnings)
+
+
+def _validate_authority_evidence(errors, auth):
+    """Validate the authority_evidence section (additive, optional)."""
+    # contract_identity
+    contract_id = auth.get("contract_identity")
+    if contract_id is not None:
+        if not isinstance(contract_id, dict):
+            _err(errors, "$.authority_evidence.contract_identity", "must be an object")
+        else:
+            if not isinstance(contract_id.get("name"), str):
+                _err(errors, "$.authority_evidence.contract_identity.name", "must be a string")
+            version = contract_id.get("version")
+            if not isinstance(version, str):
+                _err(errors, "$.authority_evidence.contract_identity.version", "must be a string")
+            else:
+                # Validate version pattern: ^1\.[0-9]+\.[0-9]+$
+                import re
+                if not re.match(r"^1\.[0-9]+\.[0-9]+$", version):
+                    _err(errors, "$.authority_evidence.contract_identity.version",
+                         f"must match pattern ^1\\.[0-9]+\\.[0-9]+$, got {version!r}")
+
+    # subject_agents
+    agents = auth.get("subject_agents")
+    if agents is not None:
+        if not isinstance(agents, list):
+            _err(errors, "$.authority_evidence.subject_agents", "must be an array")
+        else:
+            for i, agent in enumerate(agents):
+                base = f"$.authority_evidence.subject_agents[{i}]"
+                if not isinstance(agent, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                agent_id = agent.get("agent_id")
+                if not isinstance(agent_id, str):
+                    _err(errors, f"{base}.agent_id", "must be a non-empty string")
+                elif not agent_id:
+                    _err(errors, f"{base}.agent_id", "must be a non-empty string")
+                if not isinstance(agent.get("framework"), str):
+                    _err(errors, f"{base}.framework", "must be a string")
+
+    # principal_evidence
+    principals = auth.get("principal_evidence")
+    if principals is not None:
+        if not isinstance(principals, list):
+            _err(errors, "$.authority_evidence.principal_evidence", "must be an array")
+        else:
+            for i, p in enumerate(principals):
+                base = f"$.authority_evidence.principal_evidence[{i}]"
+                if not isinstance(p, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                principal_id = p.get("principal_id")
+                if not isinstance(principal_id, str):
+                    _err(errors, f"{base}.principal_id", "must be a non-empty string")
+                elif not principal_id:
+                    _err(errors, f"{base}.principal_id", "must be a non-empty string")
+                if p.get("kind") not in (None, "aws_iam_role", "kubernetes_service_account", "kubernetes_user", "kubernetes_group", "unknown"):
+                    _err(errors, f"{base}.kind", "must be a known identity kind")
+                if p.get("provenance") not in (None, *AUTHORITY_PROVENANCE_CLASSES):
+                    _err(errors, f"{base}.provenance", f"must be one of {', '.join(AUTHORITY_PROVENANCE_CLASSES)}")
+
+    # delegation_evidence
+    delegations = auth.get("delegation_evidence")
+    if delegations is not None:
+        if not isinstance(delegations, list):
+            _err(errors, "$.authority_evidence.delegation_evidence", "must be an array")
+        else:
+            for i, d in enumerate(delegations):
+                base = f"$.authority_evidence.delegation_evidence[{i}]"
+                if not isinstance(d, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                if not isinstance(d.get("source_agent"), str):
+                    _err(errors, f"{base}.source_agent", "must be a non-empty string")
+                if not isinstance(d.get("target_agent"), str):
+                    _err(errors, f"{base}.target_agent", "must be a non-empty string")
+                if d.get("delegation_type") not in (None, *DELEGATION_TYPES):
+                    _err(errors, f"{base}.delegation_type", f"must be one of {', '.join(DELEGATION_TYPES)}")
+                if d.get("provenance") not in (None, *AUTHORITY_PROVENANCE_CLASSES):
+                    _err(errors, f"{base}.provenance", f"must be one of {', '.join(AUTHORITY_PROVENANCE_CLASSES)}")
+                if d.get("resolvability") not in (None, *DELEGATION_RESOLVABILITY):
+                    _err(errors, f"{base}.resolvability", f"must be one of {', '.join(DELEGATION_RESOLVABILITY)}")
+
+    # authority_statements
+    statements = auth.get("authority_statements")
+    if statements is not None:
+        if not isinstance(statements, list):
+            _err(errors, "$.authority_evidence.authority_statements", "must be an array")
+        else:
+            for i, stmt in enumerate(statements):
+                base = f"$.authority_evidence.authority_statements[{i}]"
+                if not isinstance(stmt, dict):
+                    _err(errors, base, "must be an object")
+                    continue
+                statement_id = stmt.get("statement_id")
+                if not isinstance(statement_id, str):
+                    _err(errors, f"{base}.statement_id", "must be a non-empty string")
+                elif not statement_id:
+                    _err(errors, f"{base}.statement_id", "must be a non-empty string")
+                agent_id = stmt.get("agent_id")
+                if not isinstance(agent_id, str):
+                    _err(errors, f"{base}.agent_id", "must be a non-empty string")
+                elif not agent_id:
+                    _err(errors, f"{base}.agent_id", "must be a non-empty string")
+                if stmt.get("provenance") not in (None, *AUTHORITY_PROVENANCE_CLASSES):
+                    _err(errors, f"{base}.provenance", f"must be one of {', '.join(AUTHORITY_PROVENANCE_CLASSES)}")
+                if stmt.get("access_mode") not in (None, *ACCESS_MODES):
+                    _err(errors, f"{base}.access_mode", f"must be one of {', '.join(ACCESS_MODES)}")
+                if stmt.get("resource_provider") not in (None, *RESOURCE_PROVIDERS):
+                    _err(errors, f"{base}.resource_provider", f"must be one of {', '.join(RESOURCE_PROVIDERS)}")
+                if stmt.get("resolution") not in (None, *AUTHORITY_RESOLUTION):
+                    _err(errors, f"{base}.resolution", f"must be one of {', '.join(AUTHORITY_RESOLUTION)}")
+
+    # evidence_references
+    refs = auth.get("evidence_references")
+    if refs is not None:
+        if not isinstance(refs, dict):
+            _err(errors, "$.authority_evidence.evidence_references", "must be an object")
+
+    # uncertainty_summary
+    uncertainty = auth.get("uncertainty_summary")
+    if uncertainty is not None:
+        if not isinstance(uncertainty, dict):
+            _err(errors, "$.authority_evidence.uncertainty_summary", "must be an object")
+        else:
+            for field in ("authority_statement_count", "resolved_count", "unresolved_count",
+                          "unknown_count", "inferred_count", "evidence_backed_count"):
+                if field in uncertainty:
+                    if not isinstance(uncertainty[field], int):
+                        _err(errors, f"$.authority_evidence.uncertainty_summary.{field}", "must be an integer")
+
+    # assurance_boundary
+    boundary = auth.get("assurance_boundary")
+    if boundary is not None:
+        if not isinstance(boundary, list):
+            _err(errors, "$.authority_evidence.assurance_boundary", "must be an array")
+        else:
+            for i, item in enumerate(boundary):
+                if not isinstance(item, str):
+                    _err(errors, f"$.authority_evidence.assurance_boundary[{i}]", "must be a string")
+                elif item not in ASSURANCE_BOUNDARY_STATEMENTS:
+                    _err(errors, f"$.authority_evidence.assurance_boundary[{i}]",
+                         f"must be one of {', '.join(ASSURANCE_BOUNDARY_STATEMENTS)}")
+
+    # source_revision
+    rev = auth.get("source_revision")
+    if rev is not None:
+        if not isinstance(rev, dict):
+            _err(errors, "$.authority_evidence.source_revision", "must be an object")
+        else:
+            if not isinstance(rev.get("commit"), str):
+                _err(errors, "$.authority_evidence.source_revision.commit", "must be a string")
+            if not isinstance(rev.get("repository"), str):
+                _err(errors, "$.authority_evidence.source_revision.repository", "must be a string")
+
+    # safeai_version
+    if "safeai_version" in auth and not isinstance(auth.get("safeai_version"), str):
+        _err(errors, "$.authority_evidence.safeai_version", "must be a string")
+    if "ruleset_version" in auth and not isinstance(auth.get("ruleset_version"), str):
+        _err(errors, "$.authority_evidence.ruleset_version", "must be a string")
+
+    # change_context
+    change = auth.get("change_context")
+    if change is not None:
+        if not isinstance(change, dict):
+            _err(errors, "$.authority_evidence.change_context", "must be an object")
+        else:
+            if change.get("baseline_ref") is not None and not isinstance(change.get("baseline_ref"), str):
+                _err(errors, "$.authority_evidence.change_context.baseline_ref", "must be a string")
+            if change.get("current_revision") is not None and not isinstance(change.get("current_revision"), str):
+                _err(errors, "$.authority_evidence.change_context.current_revision", "must be a string")
+            if change.get("change_class") not in (None, *CHANGE_CLASSES):
+                _err(errors, "$.authority_evidence.change_context.change_class",
+                     f"must be one of {', '.join(CHANGE_CLASSES)}")

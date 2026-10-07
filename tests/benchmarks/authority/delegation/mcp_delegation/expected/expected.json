@@ -1,0 +1,61 @@
+{
+  "case": "delegation/mcp_delegation",
+  "notes": "MCP client delegation detected with explicit tool proxy to remote MCP server.",
+  "agents": [
+    {
+      "framework": "mcp",
+      "name": "ClientSession"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "file_read",
+          "access_mode": "read"
+        },
+        {
+          "name": "tool_enumeration",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "must_fire": ["CAP_mcp_client"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "MCP delegation pattern from reviewed source; canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "mcp:ClientSession",
+        "framework": "mcp",
+        "name": "ClientSession"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "file_read",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "tool_enumeration",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

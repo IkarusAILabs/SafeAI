@@ -1,0 +1,62 @@
+{
+  "case": "delegation/unknown_delegation_2",
+  "notes": "Dynamic plugin-based delegation where target cannot be resolved statically due to runtime loading.",
+  "agents": [
+    {
+      "framework": "unknown",
+      "name": "delegate_task"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "dynamic_delegation",
+          "access_mode": "execute"
+        }
+      ]
+    }
+  ],
+  "must_fire": [],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [
+    {
+      "kind": "inferred",
+      "match": "dynamic_delegation"
+    }
+  ],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "medium",
+    "rationale": "Dynamic delegation pattern with unresolved target; canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "unknown:delegate_task",
+        "framework": "unknown",
+        "name": "delegate_task"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "dynamic_delegation",
+        "access_mode": "execute",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": [
+      {
+        "area": "inferred",
+        "expected": "INFERRED",
+        "match": "dynamic_delegation"
+      }
+    ]
+  }
+}

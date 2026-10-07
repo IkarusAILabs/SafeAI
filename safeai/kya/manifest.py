@@ -58,6 +58,141 @@ def _finding_entry(finding):
     }
 
 
+def _build_authority_evidence(report, safeai_meta):
+    """Build the Agent Authority Evidence Contract section.
+
+    This is an additive extension to the KYA Manifest Contract v1.
+    It represents statically evidenced, potentially reachable agent
+    authority with explicit provenance, uncertainty, and assurance
+    boundaries.
+    """
+    # Start with minimal structure - will be populated as evidence is available
+    authority_evidence = {
+        "contract_identity": {
+            "name": "agent-authority-evidence",
+            "version": "1.0.0",
+        },
+        "subject_agents": [],
+        "principal_evidence": [],
+        "delegation_evidence": [],
+        "authority_statements": [],
+        "evidence_references": {},
+        "uncertainty_summary": {
+            "authority_statement_count": 0,
+            "resolved_count": 0,
+            "unresolved_count": 0,
+            "unknown_count": 0,
+            "inferred_count": 0,
+            "evidence_backed_count": 0,
+        },
+        "assurance_boundary": [],
+        "source_revision": {},
+        "safeai_version": safeai_meta.get("version") if isinstance(safeai_meta, dict) else "",
+        "ruleset_version": safeai_meta.get("ruleset_version", "") if isinstance(safeai_meta, dict) else "",
+        "change_context": {},
+    }
+
+    # Extract agent information from the report
+    agents = report.get("agents", [])
+    for agent in agents:
+        authority_evidence["subject_agents"].append({
+            "agent_id": agent.get("agent_id"),
+            "framework": agent.get("framework", "unknown"),
+        })
+
+    # Extract tool and capability information for authority statements
+    tool_surface = report.get("tool_surface", [])
+    normalized_capabilities = report.get("normalized_capabilities", [])
+
+    # Build a mapping from tool_key to tool info
+    tool_map = {}
+    for tool in tool_surface:
+        if isinstance(tool, dict):
+            tool_key = tool.get("tool_key")
+            if tool_key:
+                tool_map[tool_key] = tool
+
+    # Process capabilities to build authority statements
+    for cap in normalized_capabilities:
+        if not isinstance(cap, dict):
+            continue
+
+        cap_name = cap.get("name")
+        cap_category = cap.get("category", "Capability")
+        access_mode = cap.get("access_mode", "unknown")
+        evidence = cap.get("evidence", [])
+
+        # Determine provenance from evidence
+        provenance = "unknown"
+        if evidence:
+            # Simple heuristic: if evidence has analyzer info, use it
+            first_evidence = evidence[0] if evidence else {}
+            if isinstance(first_evidence, dict):
+                analyzer = first_evidence.get("analyzer", "unknown")
+                if analyzer != "unknown":
+                    provenance = "detected" if analyzer in ("capability", "tool", "framework") else "inferred"
+                else:
+                    provenance = "inferred"
+
+        # For now, create a basic authority statement
+        # In a full implementation, this would be enriched with IaC data, delegation info, etc.
+        if cap_name and access_mode != "unknown":
+            stmt = {
+                "statement_id": f"stmt-{len(authority_evidence['authority_statements'])}",
+                "agent_id": agents[0].get("agent_id") if agents else "unknown-agent",
+                "principal_ref": None,  # Would be populated from IaC/identity evidence
+                "tool_ref": None,       # Would need tool-capability mapping
+                "capability": f"{cap_category.lower()}:{cap_name}",
+                "access_mode": access_mode,
+                "provenance": provenance,
+                "confidence": "medium" if provenance == "detected" else "low",
+                "resolution": "unresolved",  # Placeholder - would be determined by evidence completeness
+                "evidence_refs": [],
+            }
+            # resource and destination are schema-required strings; omit when unknown
+            # to avoid validation errors. These would be populated from IaC evidence.
+            authority_evidence["authority_statements"].append(stmt)
+
+    # Update uncertainty summary counts
+    stmts = authority_evidence["authority_statements"]
+    authority_evidence["uncertainty_summary"]["authority_statement_count"] = len(stmts)
+    resolved = sum(1 for s in stmts if s.get("resolution") == "resolved")
+    unresolved = sum(1 for s in stmts if s.get("resolution") == "unresolved")
+    unknown = sum(1 for s in stmts if s.get("resolution") == "unknown")
+    contradicted = sum(1 for s in stmts if s.get("resolution") == "contradicted")
+    # inferred/provenance would need more sophisticated tracking
+
+    authority_evidence["uncertainty_summary"]["resolved_count"] = resolved
+    authority_evidence["uncertainty_summary"]["unresolved_count"] = unresolved
+    authority_evidence["uncertainty_summary"]["unknown_count"] = unknown
+    authority_evidence["uncertainty_summary"]["evidence_backed_count"] = resolved  # Simplified
+
+    # Add standard assurance boundary statements
+    authority_evidence["assurance_boundary"] = [
+        "runtime_identity_not_proven",
+        "runtime_permissions_not_proven",
+        "runtime_egress_not_proven",
+        "dynamic_tool_binding_not_proven",
+        "runtime_behaviour_not_proven",
+        "deployed_configuration_not_proven",
+    ]
+    
+    # Add source revision info if available
+    if isinstance(safeai_meta, dict):
+        authority_evidence["source_revision"] = {
+            "commit": safeai_meta.get("config_hash", "") or "",
+            "repository": safeai_meta.get("custom_rules_dir", "") or "",
+        }
+        
+        # Add change context if we had a baseline (would come from capability_diff)
+        # For now, minimal change context
+        authority_evidence["change_context"] = {
+            "current_revision": safeai_meta.get("config_hash", ""),
+        }
+    
+    return authority_evidence
+
+
 def _authority_change_entries(report):
     """Compact per-tool authority changes for portable evidence.
 
@@ -264,6 +399,9 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # Optional block: absent on scans without IaC sources or on
         # pre-v2.5 reports. Verdicts cite both sides or are UNKNOWN.
         "iac_correlations": _iac_correlations_entry(report),
+        # v2.6: Agent Authority Evidence Contract (additive extension).
+        # Represents statically evidenced, potentially reachable agent authority.
+        "authority_evidence": _build_authority_evidence(report, safeai_meta),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,

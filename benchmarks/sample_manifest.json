@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.2",
+  "manifest_type": "safeai.kya",
+  "authority_evidence": {
+    "contract_identity": {
+      "name": "agent-authority-evidence",
+      "version": "1.0.0"
+    },
+    "subject_agents": [
+      {
+        "agent_id": "langchain:initialize_agent",
+        "framework": "langchain"
+      }
+    ],
+    "principal_evidence": [],
+    "delegation_evidence": [
+      {
+        "source_agent": "manager",
+        "target_agent": "worker",
+        "delegation_type": "explicit_sub_agent",
+        "provenance": "detected",
+        "resolvability": "resolved",
+        "evidence_refs": ["agent.py"],
+        "confidence": "high",
+        "notes": "Manager delegates shell work to worker"
+      }
+    ],
+    "authority_statements": [
+      {
+        "statement_id": "stmt-0",
+        "agent_id": "langchain:initialize_agent",
+        "principal_ref": null,
+        "tool_ref": null,
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "provenance": "detected",
+        "confidence": "high",
+        "resolution": "unresolved",
+        "evidence_refs": ["agent.py"]
+      },
+      {
+        "statement_id": "stmt-1",
+        "agent_id": "langchain:initialize_agent",
+        "principal_ref": null,
+        "tool_ref": null,
+        "capability": "file_read",
+        "access_mode": "read",
+        "provenance": "detected",
+        "confidence": "high",
+        "resolution": "unresolved",
+        "evidence_refs": ["agent.py"]
+      }
+    ],
+    "evidence_references": {},
+    "uncertainty_summary": {
+      "authority_statement_count": 2,
+      "resolved_count": 0,
+      "unresolved_count": 2,
+      "unknown_count": 0,
+      "inferred_count": 0,
+      "evidence_backed_count": 0
+    },
+    "assurance_boundary": [
+      "runtime_identity_not_proven",
+      "runtime_permissions_not_proven",
+      "runtime_egress_not_proven",
+      "dynamic_tool_binding_not_proven",
+      "runtime_behaviour_not_proven",
+      "deployed_configuration_not_proven"
+    ],
+    "source_revision": {
+      "commit": "abc123def456",
+      "repository": "https://github.com/example/repo"
+    },
+    "safeai_version": "2.6.0",
+    "ruleset_version": "1.0.0",
+    "change_context": {
+      "baseline_ref": "main",
+      "current_revision": "abc123def456",
+      "change_class": "NO_CHANGE"
+    }
+  }
+}

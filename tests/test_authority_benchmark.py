@@ -312,8 +312,8 @@ def test_report_roundtrip_and_markdown(tmp_path):
 
 def test_corpus_discovers_cases_with_v2_truth():
     cases = runner.discover_cases(runner.default_corpus())
-    assert len(cases) == 58, [c["id"] for c in cases]
-    assert len({c["id"] for c in cases}) == 58
+    assert len(cases) == 66, [c["id"] for c in cases]
+    assert len({c["id"] for c in cases}) == 66
     for case in cases:
         expected = runner.load_expected(case["dir"])
         assert expected["case"] == case["id"]

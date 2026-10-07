@@ -1,0 +1,61 @@
+{
+  "case": "delegation/framework_delegation_2",
+  "notes": "AutoGen framework delegation detected with assistant-agent and user-proxy pattern.",
+  "agents": [
+    {
+      "framework": "autogen",
+      "name": "AssistantAgent"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "data_analysis",
+          "access_mode": "read"
+        },
+        {
+          "name": "file_processing",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "must_fire": ["CAP_autogen_agent"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "AutoGen delegation pattern from reviewed source; canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "autogen:AssistantAgent",
+        "framework": "autogen",
+        "name": "AssistantAgent"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "data_analysis",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "file_processing",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}

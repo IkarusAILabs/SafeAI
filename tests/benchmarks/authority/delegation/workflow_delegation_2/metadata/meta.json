@@ -1,0 +1,1 @@
+{"case": "delegation/workflow_delegation_2", "category": "delegation", "description": "LangGraph workflow delegation with conditional edges and node-based task routing.", "version": "v2.6"}

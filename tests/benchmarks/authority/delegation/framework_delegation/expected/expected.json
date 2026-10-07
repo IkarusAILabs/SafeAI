@@ -1,0 +1,61 @@
+{
+  "case": "delegation/framework_delegation",
+  "notes": "Framework-level agent delegation (delegator -> subprocess agent) inferred from agent composition.",
+  "agents": [
+    {
+      "framework": "langchain",
+      "name": "initialize_agent"
+    }
+  ],
+  "tools": [
+    {
+      "tool_key": "unknown:unattributed",
+      "capabilities": [
+        {
+          "name": "shell_execution",
+          "access_mode": "execute"
+        },
+        {
+          "name": "file_read",
+          "access_mode": "read"
+        }
+      ]
+    }
+  ],
+  "must_fire": ["CAP_langchain_sub_agent"],
+  "must_not_fire": [],
+  "evidence_refs": ["agent.py"],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "human_reviewed_source",
+    "confidence": "high",
+    "rationale": "Framework-level delegation pattern from reviewed source; canonical block absent: gold derived from legacy reviewed sections",
+    "derivation": "migrated_from_legacy"
+  },
+  "canonical": {
+    "agents": [
+      {
+        "id": "langchain:initialize_agent",
+        "framework": "langchain",
+        "name": "initialize_agent"
+      }
+    ],
+    "tools": [],
+    "capabilities": [
+      {
+        "tool": null,
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "attribution": "unresolved"
+      },
+      {
+        "tool": null,
+        "capability": "file_read",
+        "access_mode": "read",
+        "attribution": "unresolved"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}
