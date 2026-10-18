@@ -1,11 +1,16 @@
 """Validation report writers for the authority benchmark.
 
 JSON is the machine-readable record; Markdown is the reviewer-facing
-brief. Both describe the same aggregate dict produced by
-``safeai.benchmark.metrics.aggregate``. Neither writer gates anything.
+brief, also presented as offline HTML. All describe the same aggregate
+dict produced by ``safeai.benchmark.metrics.aggregate``. No writer gates
+anything.
 """
 
 import json
+import os
+import re
+from collections.abc import Sequence
+from html import escape
 
 
 def to_dict(aggregate):
@@ -316,4 +321,218 @@ def write_markdown(aggregate, path):
     """Write the Markdown brief to ``path``."""
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(render_markdown(aggregate))
+    return path
+
+
+_HTML_STYLE = """
+body { margin: 0; background: #f4f6f8; color: #172b3a;
+       font: 1rem/1.6 system-ui, sans-serif; }
+main { max-width: 76rem; margin: auto; padding: 2rem 1rem; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 2rem; } h2 { margin-top: 2rem; }
+section { background: white; padding: 1rem; margin: 1rem 0;
+          border: 1px solid #cad4de; border-radius: .4rem; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-weight: bold; padding: .5rem 0; }
+th, td { text-align: left; vertical-align: top; padding: .65rem;
+         border-bottom: 1px solid #cad4de; overflow-wrap: anywhere; }
+thead { background: #edf2f6; }
+tbody th { min-width: 10rem; }
+meter { display: inline-block; width: 6rem; height: .8rem; margin: 0 .5rem; }
+meter::-webkit-meter-optimum-value { background: #526b86; }
+meter::-moz-meter-bar { background: #526b86; }
+.limitations { border-left: .4rem solid #8a4b08; background: #fff8eb; }
+.limitations li { margin: .65rem 0; }
+.watch { font-weight: bold; }
+summary { cursor: pointer; font-weight: bold; padding: .6rem 0; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media print { body { background: white; } main { padding: 0; }
+               .table-scroll { overflow: visible; } }
+"""
+
+# Only decorate measured numeric strings already printed by the Markdown
+# writer. Never infer a zero, round a value, or assign a verdict from a bar.
+_BAR_VALUE = re.compile(
+    r"(?P<label>resolvable precision |resolvable recall |precision |recall |"
+    r"F1 |resolution coverage |coverage )"
+    r"(?P<value>0(?:\.\d+)?|1(?:\.0+)?)(?=[,; )]|$)"
+)
+
+
+def _html_metrics(text: str) -> str:
+    """Escape all input, adding decorative meters beside printed rates."""
+    parts = []
+    start = 0
+    for match in _BAR_VALUE.finditer(text):
+        parts.append(escape(text[start:match.end()]))
+        parts.append(_meter(match["value"]))
+        start = match.end()
+    parts.append(escape(text[start:]))
+    return "".join(parts)
+
+
+def _meter(value: str) -> str:
+    """Show a redundant visual only for a valid, already formatted rate."""
+    if not re.fullmatch(r"0(?:\.\d+)?|1(?:\.0+)?", value):
+        return ""
+    return (f'<meter min="0" max="1" value="{value}" aria-hidden="true" '
+            'title="0–1 scale"></meter>')
+
+
+def _brief_html(markdown: str) -> str:
+    """Present the writer's limited block syntax, never interpret raw HTML.
+
+    This is deliberately not a general Markdown engine. Metric sentences
+    come verbatim from render_markdown, including every qualification.
+    """
+    out = []
+    lines = markdown.splitlines()
+    section = ""
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        index += 1
+        if not line:
+            continue
+        if line.startswith("#"):
+            heading, _, title = line.partition(" ")
+            level = len(heading)
+            if level == 2:
+                if section:
+                    out.append("</section>")
+                section = title
+                style = (' class="limitations"'
+                         if title.startswith("Known limitations") else "")
+                out.append(f"<section{style}>")
+            out.append(f"<h{level}>{escape(title)}</h{level}>")
+        elif line.startswith("| "):
+            out.append('<div class="table-scroll" tabindex="0" role="region" '
+                       f'aria-label="{escape(section)}"><table>')
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            out.append("<thead><tr>" + "".join(
+                f'<th scope="col">{escape(cell)}</th>' for cell in cells
+            ) + "</tr></thead><tbody>")
+            # The writer always follows the header with a separator.
+            if index < len(lines) and re.fullmatch(r"[| \-]+", lines[index]):
+                index += 1
+            while index < len(lines) and lines[index].startswith("| "):
+                cells = [cell.strip() for cell in lines[index].strip("|").split("|")]
+                out.append("<tr>" + "".join(
+                    f'<th scope="row">{escape(cell)}</th>' if n == 0
+                    else f"<td>{escape(cell)}</td>"
+                    for n, cell in enumerate(cells)
+                ) + "</tr>")
+                index += 1
+            out.append("</tbody></table></div>")
+        elif line.startswith("- "):
+            items = [line[2:]]
+            while index < len(lines) and lines[index].startswith("- "):
+                items.append(lines[index][2:])
+                index += 1
+            tabular = section.startswith(
+                ("Attribution", "ChangeGuard", "Lane-A graduation"))
+            if tabular:
+                out.append('<div class="table-scroll" tabindex="0" role="region" '
+                           f'aria-label="{escape(section)}"><table><tbody>')
+                for item in items:
+                    name, sep, detail = item.partition(": ")
+                    # Rate-only rows have no inline metric label.
+                    bar = _meter(detail) if section.startswith("ChangeGuard") else ""
+                    # Keep the colon and space so row text equals the brief.
+                    out.append(f'<tr><th scope="row">{escape(name + sep)}</th>'
+                               f'<td>{_html_metrics(detail)}{bar}</td></tr>')
+                out.append("</tbody></table></div>")
+            else:
+                out.append("<ul>")
+                for item in items:
+                    style = ' class="watch"' if item.startswith("Watch: ") else ""
+                    out.append(f"<li{style}>{escape(item)}</li>")
+                out.append("</ul>")
+        else:
+            out.append(f"<p>{escape(line)}</p>")
+    if section:
+        out.append("</section>")
+    return "\n".join(out)
+
+
+def _history_html(snapshots: Sequence[tuple[str, dict]]) -> str:
+    """Display supplied artifact order without comparing or rescoring it."""
+    out = [
+        '<section aria-label="Artifact trends"><h2>Artifact trends</h2>',
+        ('<p>Artifacts appear in the supplied order, ending with the current '
+        'evaluation. Rates are observed on each corpus; changes in corpus '
+        'mix or truth do not prove scanner improvement. Bars use a 0–1 scale; '
+        'missing values have no bar. See each brief for full qualifications, '
+        'including surface-blind changes and UNKNOWN vetoes.</p>'),
+        ('<div class="table-scroll" tabindex="0" role="region" '
+        'aria-label="Artifact trend table"><table>'),
+        '<caption>Corpus observations by revision (not an improvement score)</caption>',
+        ('<thead><tr><th scope="col">Revision</th><th scope="col">Cases</th>'
+        '<th scope="col">Lane-A status</th>'
+        '<th scope="col">End-to-end exercised authority attribution coverage</th>'
+        '<th scope="col">False escalation (observed rate on benchmark corpus)</th>'
+        '<th scope="col">Missed material change</th></tr></thead><tbody>'),
+    ]
+    for label, aggregate in snapshots:
+        metrics = aggregate.get("metrics") or {}
+        legacy = metrics.get("attribution") or {}
+        classes = metrics.get("lane_a_classes") or {}
+        canon = metrics.get("canonical") or {}
+        rate = str(legacy.get("end_to_end"))
+        cells = [
+            escape(str((aggregate.get("summary") or {}).get("total", 0))),
+            escape(str(classes.get("overall", "RESEARCH / NOT LANE-A READY"))),
+            (f'{escape(rate)} ({escape(str(legacy.get("matched")))}/'
+            f'{escape(str(legacy.get("expected")))}){_meter(rate)}'),
+        ]
+        for key in ("false_escalation_rate", "missed_material_rate"):
+            result = canon.get(key) or {}
+            if result.get("status") == "measured":
+                value = str(result.get("value"))
+                cells.append(escape(value) + _meter(value))
+            else:
+                cells.append('n/a (' + escape(str(result.get("reason") or
+                                                 "insufficient evidence")) + ')')
+        out.append(f'<tr><th scope="row">{escape(label)}</th>' +
+                   "".join(f"<td>{cell}</td>" for cell in cells) + "</tr>")
+    out.append("</tbody></table></div></section>")
+    return "\n".join(out)
+
+
+def render_html(aggregate: dict, *, history: Sequence[tuple[str, dict]] = (),
+                label: str = "Current") -> str:
+    """Render an offline HTML brief with optional, explicitly ordered history.
+
+    Each history entry is (revision label, loaded evaluation.json). History
+    precedes the current aggregate; nothing is sorted, scanned or fetched.
+    The current brief includes its exact Markdown source for comparison;
+    historical briefs retain their full text in expandable sections.
+    """
+    markdown = render_markdown(aggregate)
+    out = ['<!doctype html>', '<html lang="en"><head><meta charset="utf-8">',
+           '<meta name="viewport" content="width=device-width, initial-scale=1">',
+           '<title>Authority Evidence Validation — benchmark report</title>',
+           f'<style>{_HTML_STYLE}</style></head><body><main>',
+           '<article aria-label="Current benchmark brief">',
+           _brief_html(markdown), '</article>']
+    if history:
+        out.append(_history_html([*history, (label, aggregate)]))
+        for revision, previous in history:
+            out.append('<details><summary>Historical brief: '
+                       f'{escape(revision)}</summary>')
+            out.append(_brief_html(render_markdown(previous)))
+            out.append('</details>')
+    out.extend(['<details><summary>Markdown source (current evaluation)</summary>',
+                f'<pre id="markdown-source">{escape(markdown)}</pre></details>',
+                '</main></body></html>'])
+    return "\n".join(out) + "\n"
+
+
+def write_html(aggregate: dict, path: str | os.PathLike, *,
+               history: Sequence[tuple[str, dict]] = (),
+               label: str = "Current") -> str | os.PathLike:
+    """Write deterministic UTF-8 HTML with LF newlines on every platform."""
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(render_html(aggregate, history=history, label=label))
     return path

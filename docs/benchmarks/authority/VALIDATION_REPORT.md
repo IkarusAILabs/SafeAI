@@ -17,6 +17,69 @@ on a fixed corpus"). It never belongs inside a customer scan report
 ("your project"): customer reports contain no benchmark numbers
 (enforced by `test_customer_reports_contain_no_benchmark_numbers`).
 
+## Offline HTML presentation
+
+Generate an HTML view from an existing `evaluation.json` without running
+the scanner or recalculating metrics. From the repository root, run this
+Python snippet (standard library only; no new dependencies):
+
+```python
+import json
+from pathlib import Path
+from safeai.benchmark.report import write_html
+
+source = Path("docs/benchmarks/authority/evaluation.json")
+evaluation = json.loads(source.read_text(encoding="utf-8"))
+write_html(evaluation, "authority-benchmark.html")
+```
+
+Open `authority-benchmark.html` in a browser. It is self-contained and
+works offline, with no scripts, remote fonts, or other network assets.
+Keep generated HTML local; it does not need to be committed.
+
+The page presents all eight attribution levels, per-class Lane-A
+verdicts, and ChangeGuard rates in tables, with redundant bars on a 0–1
+scale. Text retains the exact numbers and qualifications from
+`render_markdown(evaluation)`; no percentages are rounded or verdicts
+reclassified. Missing values and insufficient evidence have no bar;
+measured zero remains `0.0`. Known limitations and the existing `Watch`
+categories are highlighted. Tables scroll on narrow screens and remain
+readable without color or animation. The expandable **Markdown source**
+contains the complete current brief, recoverable byte-for-byte as UTF-8
+after HTML entity decoding.
+
+For trends, load historical committed evaluations exported to local
+JSON files, and supply revision labels in the order to display:
+
+```python
+# These files must already exist; choose revisions whose artifacts you
+# want to review. No Git lookup, download, or automatic sorting occurs.
+history = [
+    ("older-revision", json.loads(Path("older-evaluation.json").read_text(encoding="utf-8"))),
+    ("newer-revision", json.loads(Path("newer-evaluation.json").read_text(encoding="utf-8"))),
+]
+write_html(evaluation, "authority-benchmark.html",
+           history=history, label="current-revision")
+```
+
+The current evaluation is appended after the supplied history. The trend
+table shows revision labels, corpus case counts, Lane-A status,
+end-to-end exercised authority attribution coverage (including matched
+and expected counts), observed false-escalation rates, and missed-material
+rates. Each historical brief is available in an expandable section with
+its full qualifications and limitations. With no history, only the
+current brief is shown; one historical artifact is sufficient to enable
+the trend view. Repeated inputs and ordering produce identical UTF-8 HTML
+bytes with LF newlines on every platform.
+
+These are observations on each artifact's corpus, not an improvement
+score. Corpus mix, annotations, or truth can change between revisions;
+case counts alone do not establish comparability. A rising coverage bar
+does not prove scanner improvement, and zero observed false escalations
+does not establish universal safety. The original UNKNOWN vetoes,
+PROPOSED targets, and surface-blind-change qualifications remain visible
+in the briefs. Metric calculation and comparison are unchanged.
+
 ## Executive summary
 
 v2.6 Authority Evidence Validation. Overall status: RESEARCH /

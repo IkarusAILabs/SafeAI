@@ -4,8 +4,11 @@ Pure-function tests only (no corpus scans); corpus execution is
 exercised via ``safeai benchmark`` itself.
 """
 
+import copy
 import json
 import os
+import re
+from html.parser import HTMLParser
 
 from safeai.benchmark import compare, metrics, report, runner
 
@@ -352,3 +355,198 @@ def test_cli_parses_benchmark_args():
     assert args.case == "terraform/x"
     assert args.json_path == "o.json"
     assert args.no_determinism is False
+
+
+# --- offline HTML presentation (no scans or metric recalculation) ---
+
+
+class _BenchmarkHTML(HTMLParser):
+    """Read visible current-brief text, source bytes, and table cells separately."""
+
+    def __init__(self, text):
+        super().__init__()
+        self.current = False
+        self.source = False
+        self.visible = []
+        self.markdown = []
+        self.tags = []
+        self.meters = []
+        self.rows = []
+        self.row = None
+        self.cell = None
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        self.tags.append((tag, attrs))
+        if tag == "article":
+            self.current = attrs.get("aria-label") == "Current benchmark brief"
+        if tag == "pre":
+            self.source = attrs.get("id") == "markdown-source"
+        if tag == "meter":
+            self.meters.append(attrs)
+        if tag == "tr":
+            self.row = []
+        if tag in ("td", "th"):
+            self.cell = []
+
+    def handle_endtag(self, tag):
+        if self.current and tag in ("h1", "h2", "h3", "p", "li", "td", "th"):
+            self.visible.append(" ")
+        if tag == "article":
+            self.current = False
+        if tag == "pre":
+            self.source = False
+        if tag in ("td", "th"):
+            self.row.append("".join(self.cell))
+            self.cell = None
+        if tag == "tr":
+            self.rows.append(self.row)
+            self.row = None
+
+    def handle_data(self, data):
+        if self.current:
+            self.visible.append(data)
+        if self.source:
+            self.markdown.append(data)
+        if self.cell is not None:
+            self.cell.append(data)
+
+
+def _committed_evaluation():
+    with open(os.path.join(REPO_ROOT, "docs", "benchmarks", "authority",
+                           "evaluation.json"), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _brief_words(markdown):
+    """Strip only the Markdown writer's block markers for visible parity."""
+    lines = []
+    for line in markdown.splitlines():
+        if re.fullmatch(r"[| \-]+", line):
+            continue
+        if line.startswith("#"):
+            line = line.split(" ", 1)[1]
+        elif line.startswith("- "):
+            line = line[2:]
+        elif line.startswith("| "):
+            line = line.replace("|", " ")
+        lines.append(line)
+    return " ".join(" ".join(lines).split())
+
+
+def test_html_preserves_complete_markdown_content_and_all_eight_levels():
+    aggregate = _committed_evaluation()
+    markdown = report.render_markdown(aggregate)
+    page = _BenchmarkHTML(report.render_html(aggregate))
+    assert " ".join("".join(page.visible).split()) == _brief_words(markdown)
+    assert "".join(page.markdown).encode("utf-8") == markdown.encode("utf-8")
+    levels = aggregate["metrics"]["canonical"]["attribution_levels"]
+    assert len(levels) == 8
+    for name in levels:
+        assert any(row[0] == f"Resolvable {name} attribution: " for row in page.rows)
+    for cls in aggregate["metrics"]["lane_a_classes"]["classes"]:
+        row = next(row for row in page.rows if row[0] == cls["class"] + ": ")
+        assert row[1].startswith(cls["status"] + " (precision ")
+        assert "PROPOSED" in row[1]
+    assert any(attrs.get("class") == "limitations" for _, attrs in page.tags)
+    assert sum(attrs.get("class") == "watch" for _, attrs in page.tags) == 3
+    assert page.meters
+    assert all(m["aria-hidden"] == "true" and m["min"] == "0" and m["max"] == "1"
+               for m in page.meters)
+
+
+def test_html_deterministic_bytes_and_input_immutability(tmp_path):
+    aggregate = _committed_evaluation()
+    history = [("revision-before", copy.deepcopy(aggregate))]
+    before = copy.deepcopy((aggregate, history))
+    markdown = report.render_markdown(aggregate)
+    first = tmp_path / "one.html"
+    second = tmp_path / "two.html"
+    assert report.write_html(aggregate, first, history=history) == first
+    report.write_html(aggregate, second, history=history)
+    assert first.read_bytes() == second.read_bytes()
+    assert first.read_bytes() == report.render_html(
+        aggregate, history=history).encode("utf-8")
+    assert b"\r\n" not in first.read_bytes()
+    assert (aggregate, history) == before
+    assert report.render_markdown(aggregate) == markdown
+
+
+def test_html_escapes_artifact_text_and_revision_labels():
+    aggregate = _committed_evaluation()
+    payload = '<script>alert("x")</script>&<img src=x onerror="alert(1)">'
+    aggregate["digest"] = payload
+    aggregate["cases"] = [{"id": payload, "passed": False,
+                           "failures": [payload], "harness_error": payload}]
+    aggregate["metrics"]["lane_a_classes"]["overall"] = payload
+    aggregate["metrics"]["lane_a_classes"]["classes"][0]["extra"] = payload
+    aggregate["metrics"]["canonical"]["false_escalation_rate"] = {
+        "status": "insufficient_evidence", "reason": payload,
+    }
+    html = report.render_html(aggregate, history=[(payload, aggregate)], label=payload)
+    page = _BenchmarkHTML(html)
+    assert payload not in html
+    assert payload in "".join(page.visible)
+    assert "".join(page.markdown) == report.render_markdown(aggregate)
+    assert not {tag for tag, _ in page.tags} & {"script", "img", "iframe", "link"}
+    assert not any(key.startswith("on") for _, attrs in page.tags for key in attrs)
+    assert any(row[0] == payload for row in page.rows)
+
+
+def test_html_preserves_missing_zero_and_insufficient_evidence():
+    aggregate = {"metrics": {"canonical": {
+        "attribution_levels": {
+            "absent": {},
+            "unmeasured": {"status": "insufficient_evidence", "coverage": 0.9},
+            "measured": {"status": "measured", "precision": 0.0,
+                         "recall": None, "f1": 0.0, "coverage": None},
+        },
+        "false_escalation_rate": {"status": "measured", "value": 0.0},
+        "missed_material_rate": {"status": "insufficient_evidence", "value": 0.0},
+    }}}
+    page = _BenchmarkHTML(report.render_html(aggregate))
+    assert " ".join("".join(page.visible).split()) == _brief_words(
+        report.render_markdown(aggregate))
+    rows = {row[0]: row[1] for row in page.rows if len(row) == 2}
+    assert rows["Resolvable absent attribution: "].startswith(
+        "n/a (insufficient evidence")
+    assert rows["Resolvable unmeasured attribution: "].startswith(
+        "n/a (insufficient evidence")
+    assert "resolvable precision 0.0, resolvable recall n/a, F1 0.0" in rows[
+        "Resolvable measured attribution: "]
+    assert rows["False escalation (observed rate on benchmark corpus): "] == "0.0"
+    assert rows["Missed material change: "] == "n/a (insufficient evidence)"
+    assert [m["value"] for m in page.meters] == ["0.0", "0.0", "0.0"]
+    empty = _BenchmarkHTML(report.render_html({}))
+    assert " ".join("".join(empty.visible).split()) == _brief_words(
+        report.render_markdown({}))
+    assert not empty.meters
+
+
+def test_html_history_keeps_explicit_order_counts_and_corpus_caveat():
+    old = {"summary": {"total": 10}, "metrics": {
+        "attribution": {"end_to_end": 0.25, "matched": 1, "expected": 4},
+        "lane_a_classes": {"overall": "UNKNOWN / NOT LANE-A READY"},
+        "canonical": {"false_escalation_rate": {
+            "status": "insufficient_evidence", "value": 0.0,
+            "reason": "no baseline pairs"}},
+    }}
+    current = {"summary": {"total": 20}, "metrics": {
+        "attribution": {"end_to_end": 0.5, "matched": 4, "expected": 8},
+        "canonical": {"false_escalation_rate": {"status": "measured", "value": 0.0}},
+    }}
+    assert "Artifact trends" not in report.render_html(current)
+    for history in ([("z-old", old)], [("z-old", old), ("a-next", current)]):
+        html = report.render_html(current, history=history, label="current-revision")
+        page = _BenchmarkHTML(html)
+        labels = [label for label, _ in history] + ["current-revision"]
+        rows = [row for row in page.rows if row[0] in labels]
+        assert [row[0] for row in rows] == labels
+        assert rows[0] == ["z-old", "10", "UNKNOWN / NOT LANE-A READY", "0.25 (1/4)",
+                           "n/a (no baseline pairs)", "n/a (insufficient evidence)"]
+        assert rows[-1] == ["current-revision", "20", "RESEARCH / NOT LANE-A READY",
+                            "0.5 (4/8)", "0.0", "n/a (insufficient evidence)"]
+        assert "mix or truth do not prove scanner improvement" in html
+        assert "Historical brief: z-old" in html
+        assert "".join(page.markdown) == report.render_markdown(current)
