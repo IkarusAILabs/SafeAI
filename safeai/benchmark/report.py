@@ -500,15 +500,24 @@ def _history_html(snapshots: Sequence[tuple[str, dict]]) -> str:
     return "\n".join(out)
 
 
+_MAX_HISTORY = 50
+
+
 def render_html(aggregate: dict, *, history: Sequence[tuple[str, dict]] = (),
-                label: str = "Current") -> str:
+                label: str = "Current", max_history: int = _MAX_HISTORY) -> str:
     """Render an offline HTML brief with optional, explicitly ordered history.
 
     Each history entry is (revision label, loaded evaluation.json). History
     precedes the current aggregate; nothing is sorted, scanned or fetched.
     The current brief includes its exact Markdown source for comparison;
     historical briefs retain their full text in expandable sections.
+
+    Args:
+        max_history: Maximum number of historical entries to render (default 50).
+                     Excess entries are ignored to prevent DoS via oversized history.
     """
+    if len(history) > max_history:
+        history = history[-max_history:]
     markdown = render_markdown(aggregate)
     out = ['<!doctype html>', '<html lang="en"><head><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -530,9 +539,9 @@ def render_html(aggregate: dict, *, history: Sequence[tuple[str, dict]] = (),
 
 
 def write_html(aggregate: dict, path: str | os.PathLike, *,
-               history: Sequence[tuple[str, dict]] = (),
-               label: str = "Current") -> str | os.PathLike:
+                history: Sequence[tuple[str, dict]] = (),
+                label: str = "Current", max_history: int = _MAX_HISTORY) -> str | os.PathLike:
     """Write deterministic UTF-8 HTML with LF newlines on every platform."""
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(render_html(aggregate, history=history, label=label))
+        fh.write(render_html(aggregate, history=history, label=label, max_history=max_history))
     return path

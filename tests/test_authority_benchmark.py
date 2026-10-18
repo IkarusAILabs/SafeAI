@@ -550,3 +550,41 @@ def test_html_history_keeps_explicit_order_counts_and_corpus_caveat():
         assert "mix or truth do not prove scanner improvement" in html
         assert "Historical brief: z-old" in html
         assert "".join(page.markdown) == report.render_markdown(current)
+
+
+def test_bar_value_regex_covers_all_markdown_metric_strings():
+    """Ensure _BAR_VALUE regex catches every metric label the Markdown writer emits."""
+    aggregate = _committed_evaluation()
+    markdown = report.render_markdown(aggregate)
+    # All metric labels that should get a decorative meter
+    expected_labels = [
+        "resolvable precision ",
+        "resolvable recall ",
+        "precision ",
+        "recall ",
+        "F1 ",
+        "resolution coverage ",
+        "coverage ",
+    ]
+    for label in expected_labels:
+        assert any(label in line for line in markdown.splitlines()), f"Missing {label!r} in markdown"
+    # Verify regex matches each occurrence with a valid value
+    for match in report._BAR_VALUE.finditer(markdown):
+        assert match["label"] in expected_labels, f"Unexpected label: {match['label']!r}"
+        assert re.fullmatch(r"0(?:\.\d+)?|1(?:\.0+)?", match["value"]), f"Invalid value: {match['value']!r}"
+    # Ensure every expected label appears at least once in the regex matches
+    matched_labels = {match["label"] for match in report._BAR_VALUE.finditer(markdown)}
+    assert matched_labels == set(expected_labels), f"Missing: {set(expected_labels) - matched_labels}"
+
+
+def test_html_history_max_size_limit(tmp_path):
+    """History larger than max_history is truncated to prevent DoS."""
+    aggregate = _committed_evaluation()
+    large_history = [(f"rev-{i}", aggregate) for i in range(60)]
+    html = report.render_html(aggregate, history=large_history, max_history=50)
+    page = _BenchmarkHTML(html)
+    # Only the last 50 entries + current should appear
+    rows = [row for row in page.rows if row[0].startswith("rev-")]
+    assert len(rows) == 50
+    assert rows[0][0] == "rev-10"
+    assert rows[-1][0] == "rev-59"
