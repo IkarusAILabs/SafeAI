@@ -576,6 +576,7 @@ contributors who have helped make AI safer:
 | [@chenzeyan54-commits](https://github.com/chenzeyan54-commits) | Terminal output sanitization against ANSI/OSC injection (PR #203) |
 | [@HarshRajSinghania](https://github.com/HarshRajSinghania) | PR comment markdown injection sanitization (PR #204) |
 | [@thadidaniel-ctrl](https://github.com/thadidaniel-ctrl) | Release workflow supply-chain posture tests (PR #206) |
+| [@Golden007-prog](https://github.com/Golden007-prog) | Authority Evidence Benchmark HTML presentation, history limit (PRs #239, #240) |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get involved.
 

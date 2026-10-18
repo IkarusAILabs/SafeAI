@@ -247,6 +247,7 @@ These issues have been implemented by community contributors and are now part of
 | 8 | Add Dify detector | ikaruscareer |
 | — | Add `.cursorrules` config-file adapter | @i-safonoff (PR #113) |
 | #155 | Add OpenClaw and GitHub Copilot config-file adapters | @YaoSong808 (PR #159) |
+| #224 | Improve HTML presentation of Authority Evidence Benchmark results | @Golden007-prog (PR #239, #240) |
 
 ### Capability Detection
 
