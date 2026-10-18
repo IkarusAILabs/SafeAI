@@ -10,6 +10,8 @@ import os
 import re
 from html.parser import HTMLParser
 
+import pytest
+
 from safeai.benchmark import compare, metrics, report, runner
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -550,3 +552,56 @@ def test_html_history_keeps_explicit_order_counts_and_corpus_caveat():
         assert "mix or truth do not prove scanner improvement" in html
         assert "Historical brief: z-old" in html
         assert "".join(page.markdown) == report.render_markdown(current)
+
+
+def test_html_history_limit_preserves_order_at_the_boundary():
+    history = [(f"revision-{index}", {}) for index in range(20)]
+    page = _BenchmarkHTML(report.render_html({}, history=history))
+    assert [row[0] for row in page.rows if row[0].startswith("revision-")] == [
+        label for label, _ in history]
+
+
+@pytest.mark.parametrize("existing", [False, True])
+def test_html_excess_history_is_rejected_before_rendering_or_writing(tmp_path, monkeypatch, existing):
+    destination = tmp_path / "report.html"
+    if existing:
+        destination.write_bytes(b"previous report")
+
+    def unexpected_render(_):
+        pytest.fail("excess history must be rejected before rendering any brief")
+
+    monkeypatch.setattr(report, "render_markdown", unexpected_render)
+    history = [("revision", {})] * 21
+    with pytest.raises(ValueError, match="at most 20"):
+        report.render_html({}, history=history)
+    with pytest.raises(ValueError, match="at most 20"):
+        report.write_html({}, destination, history=history)
+    if existing:
+        assert destination.read_bytes() == b"previous report"
+    else:
+        assert not destination.exists()
+
+
+@pytest.mark.parametrize("payload", [
+    '</style><script>alert(1)</script>',
+    '</summary><svg onload="alert(1)">',
+    '\"><iframe src="https://example.invalid"></iframe>',
+    '</pre><img src=x onerror=alert(1)>',
+    '<a href="javascript:alert(1)">click</a>',
+    '&lt;script&gt;alert(1)&lt;/script&gt;',
+])
+def test_html_history_keeps_adversarial_labels_and_metrics_inert(payload):
+    aggregate = _committed_evaluation()
+    aggregate["digest"] = payload
+    aggregate["cases"] = [{"id": payload, "passed": False, "failures": [payload]}]
+    aggregate["metrics"]["attribution"]["end_to_end"] = payload
+    aggregate["metrics"]["canonical"]["false_escalation_rate"] = {
+        "status": "measured", "value": payload}
+    before = copy.deepcopy(aggregate)
+    page = _BenchmarkHTML(report.render_html(aggregate, history=[(payload, aggregate)], label=payload))
+    assert not {tag for tag, _ in page.tags} & {"script", "svg", "img", "iframe", "a", "link"}
+    assert not any(key.startswith("on") for _, attrs in page.tags for key in attrs)
+    assert all(re.fullmatch(r"0(?:\.\d+)?|1(?:\.0+)?", m["value"]) for m in page.meters)
+    assert any(row[0] == payload for row in page.rows)
+    assert "".join(page.markdown) == report.render_markdown(aggregate)
+    assert aggregate == before

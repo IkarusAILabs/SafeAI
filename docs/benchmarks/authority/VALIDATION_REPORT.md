@@ -62,6 +62,12 @@ write_html(evaluation, "authority-benchmark.html",
            history=history, label="current-revision")
 ```
 
+Supply at most 20 historical evaluations per HTML report. A larger history
+raises `ValueError` before rendering or opening the output file; an existing
+report remains unchanged. Select a smaller history explicitly rather than
+relying on silent truncation. This bounds the number of embedded historical
+briefs, not the size of an individual evaluation.
+
 The current evaluation is appended after the supplied history. The trend
 table shows revision labels, corpus case counts, Lane-A status,
 end-to-end exercised authority attribution coverage (including matched

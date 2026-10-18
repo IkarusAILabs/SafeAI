@@ -500,6 +500,9 @@ def _history_html(snapshots: Sequence[tuple[str, dict]]) -> str:
     return "\n".join(out)
 
 
+MAX_HTML_HISTORY = 20
+
+
 def render_html(aggregate: dict, *, history: Sequence[tuple[str, dict]] = (),
                 label: str = "Current") -> str:
     """Render an offline HTML brief with optional, explicitly ordered history.
@@ -508,7 +511,11 @@ def render_html(aggregate: dict, *, history: Sequence[tuple[str, dict]] = (),
     precedes the current aggregate; nothing is sorted, scanned or fetched.
     The current brief includes its exact Markdown source for comparison;
     historical briefs retain their full text in expandable sections.
+    At most 20 historical evaluations are accepted; excess history raises
+    ValueError before any brief is rendered rather than silently truncating it.
     """
+    if len(history) > MAX_HTML_HISTORY:
+        raise ValueError(f"HTML history accepts at most {MAX_HTML_HISTORY} evaluations")
     markdown = render_markdown(aggregate)
     out = ['<!doctype html>', '<html lang="en"><head><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -533,6 +540,7 @@ def write_html(aggregate: dict, path: str | os.PathLike, *,
                history: Sequence[tuple[str, dict]] = (),
                label: str = "Current") -> str | os.PathLike:
     """Write deterministic UTF-8 HTML with LF newlines on every platform."""
+    document = render_html(aggregate, history=history, label=label)
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(render_html(aggregate, history=history, label=label))
+        fh.write(document)
     return path
