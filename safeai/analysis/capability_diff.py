@@ -18,6 +18,8 @@ from safeai.analysis.capabilities import access_mode_rank
 from safeai.analysis.escalation import (
     DATA_NAMES,
     DESTINATION_NAMES,
+    access_change_inferred,
+    access_change_provenance,
     classify_escalations,
     highest_severity,
 )
@@ -343,11 +345,13 @@ evaluate_combinations):
     for name in sorted(set(after_caps) & set(before_caps)):
         before, after = before_caps[name], after_caps[name]
         if before.get("access_mode") != after.get("access_mode"):
+            provenance = access_change_provenance(before, after)
             access_mode_changes.append({
                 "capability": name,
                 "before": before.get("access_mode"),
                 "after": after.get("access_mode"),
-                "inferred": bool(before.get("inferred") or after.get("inferred")),
+                "inferred": access_change_inferred(before, after),
+                **provenance,
             })
 
     escalations = classify_escalations(

@@ -68,9 +68,17 @@ def test_read_only_to_mutating_mcp_server_is_named(tmp_path):
     assert "ESC_MCP_READ_TO_MUTATE" in {e["id"] for e in server["escalations"]}
     # The server already spawned a process, so its tool-wide maximum mode is
     # unchanged. The escalation lives at the capability level.
-    assert {"capability": "mcp", "before": "read", "after": "mutate", "inferred": False} in (
-        server["access_mode_changes"]
-    )
+    # Both sides are detected here: the baseline is a real scan of the
+    # read-only project, not a hand-written guess, so the transition is
+    # confirmed on both sides and nothing is inferred.
+    assert {
+        "capability": "mcp",
+        "before": "read",
+        "after": "mutate",
+        "inferred": False,
+        "before_inferred": False,
+        "after_inferred": False,
+    } in server["access_mode_changes"]
 
 
 def test_v1_flat_diff_sees_nothing_for_the_same_change(tmp_path):
