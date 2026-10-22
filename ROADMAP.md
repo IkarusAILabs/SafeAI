@@ -334,15 +334,106 @@ accountable human decisions.*
 
 ---
 
+## External framework alignment — Blueprint Alliance reference architecture
+
+The [Blueprint Alliance](https://blueprintalliance.ai/) (announced
+2026-09-22; operated by Okta, with AWS, CrowdStrike, Databricks,
+Docker, Google Cloud, Lovable, Proofpoint, Salesforce, ServiceNow,
+Wiz and Zscaler as founding members) publishes an open, multi-vendor
+reference architecture, *Governing Agentic Execution*, built around
+four questions: *Where are my agents? What can they do? What are they
+doing? How do I respond?*
+
+**Positioning (binding):** the Blueprint is runtime-centric; SafeAI is
+source-first and pre-deployment. SafeAI aligns as an **evidence
+source** for the parts of the architecture that static authority
+evidence can constrain — posture before registration, permission
+ceilings, delegation structure, and re-attestation against a
+known-good baseline. It does not implement gateways, runtime
+monitoring, containment or recovery, and nothing here reopens the
+REMOVE list. Ikarus AI Labs is **not** an Alliance member; SafeAI
+artefacts reference the *publicly available* architecture and must
+never imply membership, endorsement or certification.
+
+### Component crosswalk
+
+| Blueprint component | SafeAI evidence | Status |
+|---|---|---|
+| P1 · AI Agent Security Posture Mgmt — tool & skill supply-chain scanning, misconfigurations, "configuration drift introduced after an agent's initial review passed" | Layer 1 discovery, MCP poisoning detection, ChangeGuard baseline diff | SHIPPED AND VERIFIED |
+| P1 · Agent Directory — agent governance metadata (owner, lifecycle, risk tier, scope), identity profile (CIMD) | KYA manifest Contract v1 (declared / detected / inferred / unknown) | PARTIALLY SHIPPED — no owner/lifecycle fields, no CIMD mapping |
+| P1 · Agent Import — MCP & skill registries as untrusted input | MCP/skill adapters, destination taxonomy | SHIPPED AND VERIFIED (static config only) |
+| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics | PLANNED (ESC_COMBO proxies today) |
+| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry | PARTIALLY SHIPPED — no SoD rule class, no approval metadata (P6) |
+| P3 · Runtime authorization, gateways, monitoring | — | OUT OF SCOPE (runtime boundary kept) |
+| P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
+| P4 · Response / kill switch | — | OUT OF SCOPE |
+| §3.5 Execution context & risk signals (SSF/CAEP) · telemetry (OCSF) | SARIF / JSON / manifest exports | PLANNED — file-only OCSF and SSF/CAEP exports (B4) |
+| §4.2 Risk tiering inputs — read-only vs transactional, autonomy, blast radius | Access modes, `autonomy` / `destination` / `data_reach` change dimensions | SHIPPED AND VERIFIED as *inputs*; SafeAI emits no tier or score |
+| §4.4 Audit-ready evidence packages, tamper-evident provenance | Evidence chain, signed release, deterministic manifest digests | SHIPPED AND VERIFIED |
+
+Dependency CVEs and execution-environment drift in the Blueprint's
+posture layer belong to the **Software Ecosystem Evidence Plane**
+(OpenPulse); they are the natural first consumer of Layer 7
+cross-plane work and are not duplicated here.
+
+### Alignment work items
+
+- **B1 — Crosswalk + Blueprint control mapping (P0, PLANNED).** Publish
+  this crosswalk; add a Blueprint component mapping alongside the
+  existing OWASP/NIST mappings (`safeai/controls/mappings.py`) so
+  findings and authority changes cite Blueprint components. Mapping is
+  taxonomy, not a conformance claim.
+- **B2 — Delegation & SoD change types (P1/P2, PLANNED).** Promote
+  delegation from combo-rule proxies to explicit change types aligned
+  with Blueprint "delegation & inheritance": new sub-agent, delegation
+  depth/breadth increase, sub-agent capability not held by its
+  delegator (confused-deputy shape). Add a Separation-of-Duties rule
+  class for conflicting capability pairs (e.g. create + approve the
+  same transaction). Each needs benchmark cases before any gating.
+- **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM).**
+  Shape the Agent Authority Attestation as a signed in-toto-style
+  predicate; map fields to Blueprint agent governance metadata and
+  CIMD where declared; position it as the known-good baseline for
+  Access Recovery re-attestation. Machine-derived, human-declared and
+  unknown fields stay separate; nothing is fabricated to fill a field.
+- **B4 — Standards exports, file-only (P7 / EE, PLANNED).** Export
+  findings and authority changes as OCSF events, and MATERIAL /
+  HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
+  Community Edition writes files only — transmission belongs to the
+  user's pipeline or the Corporate Edition, so the offline /
+  single-network-path commitment is unchanged.
+- **B5 — Blueprint scenario fixtures (P5, RESEARCH ITEM).** Add
+  benchmark cases derived from the whitepaper's "Blueprint in Action"
+  composites where static evidence applies (read → transactional
+  access-mode widening; multi-agent delegation scope), with runtime-only
+  scenarios recorded as expected `unknown`. Publish a technical report:
+  *which Blueprint questions can pre-deployment authority evidence
+  answer, and with what measured precision and unknown rate?*
+- **B6 — Open reference integration (P7, PLANNED).** An Apache-2.0
+  reference integration (SafeAI manifest → OCSF / SSF consumer),
+  published with reproducible results — the Alliance's stated
+  publication form. Engage the open standards communities (OpenID
+  Shared Signals, OCSF, IETF WIMSE, MCP) directly; Alliance membership
+  is not a prerequisite and is not assumed.
+
+**Not adopted from the Blueprint:** runtime gateways, monitoring,
+containment, kill switches, risk-scoring matrices, and the
+"risk scoring" language — these conflict with the runtime boundary,
+the REMOVE list, and the roadmap language rules.
+
+---
+
 ## Priority sequence
 
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
   completeness, deterministic manifests, assurance boundary honesty,
   unknown handling, evidence verification (mostly shipped; close the
-  gaps: manifest unknown-rate surfacing, provenance audits).
+  gaps: manifest unknown-rate surfacing, provenance audits;
+  Blueprint crosswalk + control mapping, B1).
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
-  explainable decisions (core shipped; measure + deepen).
+  explainable decisions (core shipped; measure + deepen; delegation
+  and SoD change types, B2).
 - **P2 — Authority Depth:** MCP depth, delegated authority model,
   tool→implementation mapping precision, destination/resource
   modelling, dataflow precision (scaffolding shipped).
@@ -350,13 +441,17 @@ accountable human decisions.*
   mismatch precision/recall publication, Lane-A graduation case
   (v2.6).
 - **P4 — Agent Authority Attestation:** canonical representation,
-  evidence chain object, external consumer contract (research).
+  evidence chain object, external consumer contract; re-attestation
+  baseline shape, B3 (research).
 - **P5 — Research Benchmark:** fixture corpus, expected-truth
-  annotations, evaluation harness, reproducibility (research).
+  annotations, evaluation harness, reproducibility; Blueprint
+  scenario fixtures + coverage report, B5 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
   expiry, escalation records.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
-  dependency-context export, combined policy experiment (research).
+  dependency-context export, combined policy experiment; file-only
+  OCSF / SSF-CAEP exports and open reference integration, B4/B6
+  (research).
 - **P8 — Enterprise Evidence Plane:** only after the evidence model
   is validated — aggregation, retention, SSO/RBAC, routing,
   integrations (EE0–EE4 sequencing unchanged).
