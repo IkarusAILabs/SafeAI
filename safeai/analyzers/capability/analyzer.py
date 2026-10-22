@@ -8,6 +8,7 @@ Operates in two passes:
      Also detects autonomous agent loop patterns.
 """
 
+import ast
 import re
 
 from safeai.analyzers import register_analyzer
@@ -33,6 +34,60 @@ CAP_PATTERNS = {
 
 # Higher-risk variants detected in addition to the base capability patterns.
 SUBPROCESS_SHELL_RE = re.compile(r"subprocess[\s\S]{0,200}?shell\s*=\s*True", re.IGNORECASE)
+
+# subprocess entry points that accept ``shell=``.
+SUBPROCESS_SHELL_FUNCS = {"run", "call", "check_call", "check_output", "Popen"}
+
+
+def _subprocess_shell_calls(content):
+    """Return ``(lineno, evidence)`` for subprocess calls passing ``shell=True``.
+
+    The per-line regex cannot see a call whose ``shell=True`` sits on a
+    later line than ``subprocess.run(`` — the usual black/ruff wrapping of
+    long calls. This AST pass resolves ``import subprocess [as x]`` and
+    ``from subprocess import run [as y]`` bindings and reports each call at
+    its first line. Only a literal ``True`` counts; ``**kwargs`` or
+    computed values stay unresolved. Unparseable sources yield nothing.
+    """
+    try:
+        tree = ast.parse(content)
+    except (SyntaxError, ValueError):
+        return []
+    modules, functions = set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "subprocess":
+                    modules.add(alias.asname or "subprocess")
+        elif isinstance(node, ast.ImportFrom) and node.module == "subprocess":
+            for alias in node.names:
+                if alias.name in SUBPROCESS_SHELL_FUNCS:
+                    functions.add(alias.asname or alias.name)
+    if not modules and not functions:
+        return []
+
+    calls = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        is_subprocess = (
+            isinstance(func, ast.Attribute)
+            and func.attr in SUBPROCESS_SHELL_FUNCS
+            and isinstance(func.value, ast.Name)
+            and func.value.id in modules
+        ) or (isinstance(func, ast.Name) and func.id in functions)
+        if not is_subprocess:
+            continue
+        if any(
+            kw.arg == "shell"
+            and isinstance(kw.value, ast.Constant)
+            and kw.value.value is True
+            for kw in node.keywords
+        ):
+            segment = ast.get_source_segment(content, node) or ""
+            calls.append((node.lineno, " ".join(segment.split())[:200]))
+    return sorted(calls)
 FILE_WRITE_RE = re.compile(r"\bopen\([^)]*[\"'](?:w|a|x)[bt+]?[\"']", re.IGNORECASE)
 
 RULE_BY_CAP = {
@@ -271,6 +326,28 @@ class CapabilityAnalyzer:
                             "score_contribution": 12,
                             "remediation": "Introduce iteration limits and human approval checkpoints.",
                         })
+
+                # Multi-line subprocess calls the per-line regex missed.
+                # Single-line hits are already in ``seen`` (same key), so
+                # their line, evidence, and fingerprint are unchanged.
+                if path.endswith(".py"):
+                    for lineno, evidence in _subprocess_shell_calls(content):
+                        key = (path, "subprocess_shell", lineno)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        rule = rule_map.get("CAP_subprocess_shell", {})
+                        findings.append(_finding(
+                            "CAP_subprocess_shell",
+                            rule,
+                            "subprocess invoked with shell=True",
+                            path,
+                            lineno,
+                            "Shell",
+                            evidence=evidence,
+                            confidence=0.7,
+                            score_contribution=15,
+                        ))
             except Exception:
                 continue
 

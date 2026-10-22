@@ -83,3 +83,49 @@ jobs:
 
       - name: Test
         run: PYTHONPATH=. python -m pytest tests/ -v --tb=short
+
+  authority-benchmark:
+    # Every case in tests/benchmarks/authority must hold. `safeai benchmark`
+    # exits 1 when any case's measured result stops matching its expected
+    # truth (2 on harness error), so a detection regression against the
+    # corpus fails here instead of going unnoticed until release.
+    name: Authority benchmark (Python ${{ matrix.python-version }})
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install --require-hashes -r requirements-dev.txt
+
+      - name: Run full authority corpus (with determinism checks)
+        run: |
+          mkdir -p benchmark-results
+          PYTHONPATH=. python -m safeai benchmark \
+            --json benchmark-results/authority.json \
+            --markdown benchmark-results/authority.md
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: authority-benchmark-py${{ matrix.python-version }}
+          path: benchmark-results/
+          if-no-files-found: ignore
+          retention-days: 14

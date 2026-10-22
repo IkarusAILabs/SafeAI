@@ -7,22 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Fixed
 
-- Authority evidence metrics (v2.7 Evidence Metrology, ROADMAP Layer 2
-  / P0 unknown-rate surfacing): every scan now reports how much of its
-  authority picture is evidence-backed, inferred, or unattributed,
-  plus evidence completeness, the finding provenance distribution, and
-  — when a baseline diff exists — the unknown authority-dimension rate
-  (`safeai/analysis/evidence_metrics.py`). Emitted as the optional
-  `summary.evidence_metrics` manifest field and as `evidence_metrics`
-  in the JSON report; summarised in the security brief coverage
-  section. Empty denominators report `insufficient_evidence`, never 0
-  or 1. Statement and finding metrics are recomputable from a manifest
-  alone. Informational only: no gate, policy, score, or exit code
-  consumes them, and no detection changed.
-- `docs/releases/IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`: versioned
-  implementation plan derived from the roadmap.
+- `CAP_subprocess_shell` (critical) now fires on multi-line subprocess
+  calls such as black/ruff-wrapped `subprocess.run(\n    cmd,
+  shell=True, ...)`. The detector matched one source line at a time,
+  so `shell=True` on a later line than the call was a silent false
+  negative; six authority-benchmark cases
+  (`capabilities/shell_tool`, `access_modes/execute_tool`,
+  `attribution/{delegation_chain,factory_tools,shared_tool}`,
+  `delegation/subagent_chain`) reported `must_fire rule silent`
+  against the committed fixtures. An AST pass over `.py` files now
+  resolves `import subprocess [as x]` / `from subprocess import ...`
+  bindings and reports literal `shell=True` calls at their first line.
+  Single-line detections keep their exact line, evidence, and
+  fingerprint; non-literal `shell=` values stay unflagged.
 
 ## [2.6.0] - 2026-10-04
 
