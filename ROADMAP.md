@@ -334,29 +334,206 @@ accountable human decisions.*
 
 ---
 
+## External framework alignment — Blueprint Alliance reference architecture
+
+The [Blueprint Alliance](https://blueprintalliance.ai/) (announced
+2026-09-22; operated by Okta, with AWS, CrowdStrike, Databricks,
+Docker, Google Cloud, Lovable, Proofpoint, Salesforce, ServiceNow,
+Wiz and Zscaler as founding members) publishes an open, multi-vendor
+reference architecture, *Governing Agentic Execution*, built around
+four questions: *Where are my agents? What can they do? What are they
+doing? How do I respond?*
+
+**Positioning (binding):** the Blueprint is runtime-centric; SafeAI is
+source-first and pre-deployment. SafeAI aligns as an **evidence
+source** for the parts of the architecture that static authority
+evidence can constrain — posture before registration, permission
+ceilings, delegation structure, and re-attestation against a
+known-good baseline. It does not implement gateways, runtime
+monitoring, containment or recovery, and nothing here reopens the
+REMOVE list. Ikarus AI Labs is **not** an Alliance member; SafeAI
+artefacts reference the *publicly available* architecture and must
+never imply membership, endorsement or certification.
+
+### Component crosswalk
+
+| Blueprint component | SafeAI evidence | Status |
+|---|---|---|
+| P1 · AI Agent Security Posture Mgmt — tool & skill supply-chain scanning, misconfigurations, "configuration drift introduced after an agent's initial review passed" | Layer 1 discovery, MCP poisoning detection, ChangeGuard baseline diff | SHIPPED AND VERIFIED |
+| P1 · Agent Directory — agent governance metadata (owner, lifecycle, risk tier, scope), identity profile (CIMD) | KYA manifest Contract v1 (declared / detected / inferred / unknown) | PARTIALLY SHIPPED — no owner/lifecycle fields, no CIMD mapping |
+| P1 · Agent Import — MCP & skill registries as untrusted input | MCP/skill adapters, destination taxonomy | SHIPPED AND VERIFIED (static config only) |
+| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics | PLANNED (ESC_COMBO proxies today) |
+| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry | PARTIALLY SHIPPED — no SoD rule class, no approval metadata (P6) |
+| P3 · Runtime authorization, gateways, monitoring | — | OUT OF SCOPE (runtime boundary kept) |
+| P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
+| P4 · Response / kill switch | — | OUT OF SCOPE |
+| §3.5 Execution context & risk signals (SSF/CAEP) · telemetry (OCSF) | SARIF / JSON / manifest exports | PLANNED — file-only OCSF and SSF/CAEP exports (B4) |
+| §4.2 Risk tiering inputs — read-only vs transactional, autonomy, blast radius | Access modes, `autonomy` / `destination` / `data_reach` change dimensions | SHIPPED AND VERIFIED as *inputs*; SafeAI emits no tier or score |
+| §4.4 Audit-ready evidence packages, tamper-evident provenance | Evidence chain, signed release, deterministic manifest digests | SHIPPED AND VERIFIED |
+
+Dependency CVEs and execution-environment drift in the Blueprint's
+posture layer belong to the **Software Ecosystem Evidence Plane**
+(OpenPulse); they are the natural first consumer of Layer 7
+cross-plane work and are not duplicated here.
+
+### Alignment work items
+
+- **B1 — Crosswalk + Blueprint control mapping (P0, PLANNED).** Publish
+  this crosswalk; add a Blueprint component mapping alongside the
+  existing OWASP/NIST mappings (`safeai/controls/mappings.py`) so
+  findings and authority changes cite Blueprint components. Mapping is
+  taxonomy, not a conformance claim.
+- **B2 — Delegation & SoD change types (P1/P2, PLANNED).** Promote
+  delegation from combo-rule proxies to explicit change types aligned
+  with Blueprint "delegation & inheritance": new sub-agent, delegation
+  depth/breadth increase, sub-agent capability not held by its
+  delegator (confused-deputy shape). Add a Separation-of-Duties rule
+  class for conflicting capability pairs (e.g. create + approve the
+  same transaction). Each needs benchmark cases before any gating.
+- **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM).**
+  Shape the Agent Authority Attestation as a signed in-toto-style
+  predicate; map fields to Blueprint agent governance metadata and
+  CIMD where declared; position it as the known-good baseline for
+  Access Recovery re-attestation. Machine-derived, human-declared and
+  unknown fields stay separate; nothing is fabricated to fill a field.
+- **B4 — Standards exports, file-only (P7 / EE, PLANNED).** Export
+  findings and authority changes as OCSF events, and MATERIAL /
+  HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
+  Community Edition writes files only — transmission belongs to the
+  user's pipeline or the Corporate Edition, so the offline /
+  single-network-path commitment is unchanged.
+- **B5 — Blueprint scenario fixtures (P5, RESEARCH ITEM).** Add
+  benchmark cases derived from the whitepaper's "Blueprint in Action"
+  composites where static evidence applies (read → transactional
+  access-mode widening; multi-agent delegation scope), with runtime-only
+  scenarios recorded as expected `unknown`. Publish a technical report:
+  *which Blueprint questions can pre-deployment authority evidence
+  answer, and with what measured precision and unknown rate?*
+- **B6 — Open reference integration (P7, PLANNED).** An Apache-2.0
+  reference integration (SafeAI manifest → OCSF / SSF consumer),
+  published with reproducible results — the Alliance's stated
+  publication form. Engage the open standards communities (OpenID
+  Shared Signals, OCSF, IETF WIMSE, MCP) directly; Alliance membership
+  is not a prerequisite and is not assumed.
+
+**Not adopted from the Blueprint:** runtime gateways, monitoring,
+containment, kill switches, risk-scoring matrices, and the
+"risk scoring" language — these conflict with the runtime boundary,
+the REMOVE list, and the roadmap language rules.
+
+---
+
+## External framework alignment — SPIFFE / SPIRE workload identity
+
+[SPIFFE](https://spiffe.io/) (Secure Production Identity Framework for
+Everyone) and its reference implementation SPIRE are CNCF graduated
+projects: a SPIFFE ID (`spiffe://<trust-domain>/<path>`), X.509- and
+JWT-SVIDs, the Workload API, and trust-domain federation. SPIFFE is an
+open-governance project (Steering Committee; SIG-Spec, SIG-SPIRE,
+SIG-Community; public `proposals/`), not a membership consortium. It
+is also the identity substrate the IETF WIMSE working group builds on
+for agents (`draft-ietf-wimse-aims`, *AI Identity Management System*,
+an Internet-Draft — direction, not a finished standard).
+
+**Positioning (binding):** SPIFFE's trust comes from **runtime
+attestation** — SPIRE issues an SVID only after verifying the
+workload. SafeAI observes none of that. SafeAI aligns by treating
+SPIFFE configuration committed to a repository as **static identity
+evidence** for the agent authority model (Layer 5, Lane B): which
+SPIFFE ID an agent workload is *configured* to receive, which trust
+domains it is *configured* to federate with, and which services
+*declare* that identity as an allowed caller. An issued SVID is never
+inferred: deployed identity is `RUNTIME_UNVERIFIED` and stays separate
+from static classes. SafeAI runs no SPIRE agent, calls no SPIRE server,
+issues no SVIDs, and claims no SPIFFE conformance or adopter status
+until it actually consumes SPIFFE configuration.
+
+**Fit with the current model:** `safeai/iac/` already models
+`aws_iam_role` and `kubernetes_service_account` identities and links
+workload → ServiceAccount → binding → role; the benchmark already
+measures *agent → identity* attribution as one of its eight levels.
+SPIFFE adds the identity layer most agent deployments now authenticate
+with, and gives the Blueprint crosswalk's *workload identity* row a
+concrete static evidence source.
+
+### Alignment work items
+
+- **S1 — Static SPIFFE identity collector (P3, PLANNED, Lane B only).**
+  Parse repository-committed SPIFFE configuration: SPIRE controller
+  manager `ClusterSPIFFEID` (ID templates, pod/namespace selectors,
+  `federatesWith`), `ClusterFederatedTrustDomain`, SPIRE server
+  configuration, and service-mesh authorization policy naming SPIFFE
+  principals. Add a `spiffe_id` identity kind and link agent workload
+  → ServiceAccount → SPIFFE ID. Templates or selectors that cannot be
+  resolved statically stay `unknown` — never guessed, never widened
+  into a match.
+- **S2 — Identity change types (P1, PLANNED).** Map onto the existing
+  change dimensions rather than adding new ones: new or broadened
+  SPIFFE ID template → `authority`; new federated trust domain or new
+  JWT-SVID audience → `destination`; new authorization-policy rule
+  admitting the agent's SPIFFE ID to another service → `authority`;
+  removed workload identity or regression to static credentials →
+  `credential_dependency`. Benchmark cases precede any gating.
+- **S3 — Static-credential-where-workload-identity-exists signal
+  (Layer 1/5, PLANNED).** Using the existing name-only secret
+  inventory, flag an agent relying on a long-lived API key in a
+  repository that also configures SPIFFE identity. Review-lane signal,
+  not a block; cite WIMSE/AIMS only against the draft text itself.
+- **S4 — Identity in the manifest and attestation (P4, RESEARCH
+  ITEM).** Add the agent's SPIFFE / WIMSE identifier as an evidence
+  field with provenance (`declared` | `repo-iac-observed`;
+  `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
+  evidence). Feeds B3's re-attestation baseline.
+- **S5 — SPIFFE benchmark cases (P5, RESEARCH ITEM).** Fixtures for
+  template resolution, ambiguous selectors, federation widening, and
+  principal-based authorization; publish agent → identity attribution
+  precision and unknown rate for SPIFFE cases (RQ2, RQ3).
+- **S6 — Community engagement (no membership required).** Attend
+  SPIFFE Community Day 2026 (27 October 2026, London + online; agenda
+  includes SPIFFE for agents under the AIMS model) and the SPIFFE
+  Slack; once S1 exists, present it in SIG-SPIRE or SIG-Community as
+  pre-deployment detection of identity and federation drift for
+  agents; offer evidence-boundary feedback to IETF WIMSE on the AIMS
+  draft; request an integrations listing only after S1 ships.
+
+**Not adopted:** runtime attestation, SVID issuance or validation,
+Workload API clients, live SPIRE server queries, and any claim that a
+configured identity was actually issued — these conflict with the
+offline, static-evidence commitments and the runtime boundary.
+
+---
+
 ## Priority sequence
 
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
   completeness, deterministic manifests, assurance boundary honesty,
   unknown handling, evidence verification (mostly shipped; close the
-  gaps: manifest unknown-rate surfacing, provenance audits).
+  gaps: manifest unknown-rate surfacing, provenance audits;
+  Blueprint crosswalk + control mapping, B1).
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
-  explainable decisions (core shipped; measure + deepen).
+  explainable decisions (core shipped; measure + deepen; delegation
+  and SoD change types, B2; SPIFFE identity change types, S2).
 - **P2 — Authority Depth:** MCP depth, delegated authority model,
   tool→implementation mapping precision, destination/resource
   modelling, dataflow precision (scaffolding shipped).
 - **P3 — Declared vs Repository/IaC Authority:** CFN/Helm/serverless,
   mismatch precision/recall publication, Lane-A graduation case
-  (v2.6).
+  (v2.6); static SPIFFE identity collector and static-credential
+  signal, S1/S3.
 - **P4 — Agent Authority Attestation:** canonical representation,
-  evidence chain object, external consumer contract (research).
+  evidence chain object, external consumer contract; re-attestation
+  baseline shape, B3; SPIFFE / WIMSE identity field, S4 (research).
 - **P5 — Research Benchmark:** fixture corpus, expected-truth
-  annotations, evaluation harness, reproducibility (research).
+  annotations, evaluation harness, reproducibility; Blueprint
+  scenario fixtures + coverage report, B5; SPIFFE identity cases,
+  S5 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
   expiry, escalation records.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
-  dependency-context export, combined policy experiment (research).
+  dependency-context export, combined policy experiment; file-only
+  OCSF / SSF-CAEP exports and open reference integration, B4/B6
+  (research).
 - **P8 — Enterprise Evidence Plane:** only after the evidence model
   is validated — aggregation, retention, SSO/RBAC, routing,
   integrations (EE0–EE4 sequencing unchanged).
