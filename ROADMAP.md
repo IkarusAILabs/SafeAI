@@ -423,6 +423,86 @@ the REMOVE list, and the roadmap language rules.
 
 ---
 
+## External framework alignment — SPIFFE / SPIRE workload identity
+
+[SPIFFE](https://spiffe.io/) (Secure Production Identity Framework for
+Everyone) and its reference implementation SPIRE are CNCF graduated
+projects: a SPIFFE ID (`spiffe://<trust-domain>/<path>`), X.509- and
+JWT-SVIDs, the Workload API, and trust-domain federation. SPIFFE is an
+open-governance project (Steering Committee; SIG-Spec, SIG-SPIRE,
+SIG-Community; public `proposals/`), not a membership consortium. It
+is also the identity substrate the IETF WIMSE working group builds on
+for agents (`draft-ietf-wimse-aims`, *AI Identity Management System*,
+an Internet-Draft — direction, not a finished standard).
+
+**Positioning (binding):** SPIFFE's trust comes from **runtime
+attestation** — SPIRE issues an SVID only after verifying the
+workload. SafeAI observes none of that. SafeAI aligns by treating
+SPIFFE configuration committed to a repository as **static identity
+evidence** for the agent authority model (Layer 5, Lane B): which
+SPIFFE ID an agent workload is *configured* to receive, which trust
+domains it is *configured* to federate with, and which services
+*declare* that identity as an allowed caller. An issued SVID is never
+inferred: deployed identity is `RUNTIME_UNVERIFIED` and stays separate
+from static classes. SafeAI runs no SPIRE agent, calls no SPIRE server,
+issues no SVIDs, and claims no SPIFFE conformance or adopter status
+until it actually consumes SPIFFE configuration.
+
+**Fit with the current model:** `safeai/iac/` already models
+`aws_iam_role` and `kubernetes_service_account` identities and links
+workload → ServiceAccount → binding → role; the benchmark already
+measures *agent → identity* attribution as one of its eight levels.
+SPIFFE adds the identity layer most agent deployments now authenticate
+with, and gives the Blueprint crosswalk's *workload identity* row a
+concrete static evidence source.
+
+### Alignment work items
+
+- **S1 — Static SPIFFE identity collector (P3, PLANNED, Lane B only).**
+  Parse repository-committed SPIFFE configuration: SPIRE controller
+  manager `ClusterSPIFFEID` (ID templates, pod/namespace selectors,
+  `federatesWith`), `ClusterFederatedTrustDomain`, SPIRE server
+  configuration, and service-mesh authorization policy naming SPIFFE
+  principals. Add a `spiffe_id` identity kind and link agent workload
+  → ServiceAccount → SPIFFE ID. Templates or selectors that cannot be
+  resolved statically stay `unknown` — never guessed, never widened
+  into a match.
+- **S2 — Identity change types (P1, PLANNED).** Map onto the existing
+  change dimensions rather than adding new ones: new or broadened
+  SPIFFE ID template → `authority`; new federated trust domain or new
+  JWT-SVID audience → `destination`; new authorization-policy rule
+  admitting the agent's SPIFFE ID to another service → `authority`;
+  removed workload identity or regression to static credentials →
+  `credential_dependency`. Benchmark cases precede any gating.
+- **S3 — Static-credential-where-workload-identity-exists signal
+  (Layer 1/5, PLANNED).** Using the existing name-only secret
+  inventory, flag an agent relying on a long-lived API key in a
+  repository that also configures SPIFFE identity. Review-lane signal,
+  not a block; cite WIMSE/AIMS only against the draft text itself.
+- **S4 — Identity in the manifest and attestation (P4, RESEARCH
+  ITEM).** Add the agent's SPIFFE / WIMSE identifier as an evidence
+  field with provenance (`declared` | `repo-iac-observed`;
+  `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
+  evidence). Feeds B3's re-attestation baseline.
+- **S5 — SPIFFE benchmark cases (P5, RESEARCH ITEM).** Fixtures for
+  template resolution, ambiguous selectors, federation widening, and
+  principal-based authorization; publish agent → identity attribution
+  precision and unknown rate for SPIFFE cases (RQ2, RQ3).
+- **S6 — Community engagement (no membership required).** Attend
+  SPIFFE Community Day 2026 (27 October 2026, London + online; agenda
+  includes SPIFFE for agents under the AIMS model) and the SPIFFE
+  Slack; once S1 exists, present it in SIG-SPIRE or SIG-Community as
+  pre-deployment detection of identity and federation drift for
+  agents; offer evidence-boundary feedback to IETF WIMSE on the AIMS
+  draft; request an integrations listing only after S1 ships.
+
+**Not adopted:** runtime attestation, SVID issuance or validation,
+Workload API clients, live SPIRE server queries, and any claim that a
+configured identity was actually issued — these conflict with the
+offline, static-evidence commitments and the runtime boundary.
+
+---
+
 ## Priority sequence
 
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
@@ -433,19 +513,21 @@ the REMOVE list, and the roadmap language rules.
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
   explainable decisions (core shipped; measure + deepen; delegation
-  and SoD change types, B2).
+  and SoD change types, B2; SPIFFE identity change types, S2).
 - **P2 — Authority Depth:** MCP depth, delegated authority model,
   tool→implementation mapping precision, destination/resource
   modelling, dataflow precision (scaffolding shipped).
 - **P3 — Declared vs Repository/IaC Authority:** CFN/Helm/serverless,
   mismatch precision/recall publication, Lane-A graduation case
-  (v2.6).
+  (v2.6); static SPIFFE identity collector and static-credential
+  signal, S1/S3.
 - **P4 — Agent Authority Attestation:** canonical representation,
   evidence chain object, external consumer contract; re-attestation
-  baseline shape, B3 (research).
+  baseline shape, B3; SPIFFE / WIMSE identity field, S4 (research).
 - **P5 — Research Benchmark:** fixture corpus, expected-truth
   annotations, evaluation harness, reproducibility; Blueprint
-  scenario fixtures + coverage report, B5 (research).
+  scenario fixtures + coverage report, B5; SPIFFE identity cases,
+  S5 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
   expiry, escalation records.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
