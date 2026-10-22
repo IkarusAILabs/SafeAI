@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `CAP_subprocess_shell` (critical) now fires on multi-line subprocess
+  calls such as black/ruff-wrapped `subprocess.run(\n    cmd,
+  shell=True, ...)`. The detector matched one source line at a time,
+  so `shell=True` on a later line than the call was a silent false
+  negative; six authority-benchmark cases
+  (`capabilities/shell_tool`, `access_modes/execute_tool`,
+  `attribution/{delegation_chain,factory_tools,shared_tool}`,
+  `delegation/subagent_chain`) reported `must_fire rule silent`
+  against the committed fixtures. An AST pass over `.py` files now
+  resolves `import subprocess [as x]` / `from subprocess import ...`
+  bindings and reports literal `shell=True` calls at their first line.
+  Single-line detections keep their exact line, evidence, and
+  fingerprint; non-literal `shell=` values stay unflagged.
+
 ## [2.6.0] - 2026-10-04
 
 ### Added
