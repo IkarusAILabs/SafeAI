@@ -1,5 +1,51 @@
 # SafeAI — Release Notes
 
+> Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
+> GitHub Releases page.
+
+## v2.7.0 (2026-10-22)
+
+**Evidence Metrology.** Every scan now says how much of its authority
+picture is backed by evidence, and a critical detection gap is closed.
+
+### What's New
+
+- **Authority evidence metrics.** These are new in the JSON report and
+  the manifest (`summary.evidence_metrics`), with a short summary in the
+  security brief. They give the evidence-backed, inferred and
+  unattributed authority rates, evidence completeness, findings per
+  provenance class, and, with a baseline, the unknown
+  authority-dimension rate. Empty denominators read
+  `insufficient_evidence`, never 0 or 1. The metrics are informational
+  and never gate.
+- **Benchmark gate in CI.** The full 58-case authority corpus now runs
+  on every PR (Python 3.11–3.13) and fails when any case stops holding.
+
+### Fixed
+
+- **`CAP_subprocess_shell` on wrapped calls.** `shell=True` on a later
+  line than `subprocess.run(`, which is how black/ruff wrap long calls,
+  was a silent false negative for this critical rule. An AST pass now
+  catches it. Single-line findings keep their line, evidence and
+  fingerprint, so existing baselines and suppressions still match.
+
+### Upgrade notes
+
+- No breaking changes. Expect new `CAP_subprocess_shell` findings
+  (critical) on code that wraps subprocess calls over several lines.
+  Review them before gating with `--fail-on critical` on a baseline
+  taken with v2.6.
+- Manifest Contract stays `1.0.0`; `summary.evidence_metrics` is an
+  optional field that 1.x readers ignore.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#270---2026-10-22)
+- [Implementation plan v2.7 → v2.11](../releases/IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md)
+- [Authority benchmark validation report](../benchmarks/authority/VALIDATION_REPORT.md)
+
+---
+
 ## v2.0.1 (2026-09-03)
 
 **Release hardening.** Consolidated release pipeline with mandatory

@@ -4,7 +4,7 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ikaruscareer/SafeAI/badge)](https://scorecard.dev/viewer/?uri=github.com/ikaruscareer/SafeAI)
 [![Research Hub](https://img.shields.io/badge/research-ikaruslabs.net-0f766e)](https://ikaruslabs.net)
 [![SafeAI](https://img.shields.io/badge/SafeAI-ikaruslabs.net/safeai-0f766e)](https://ikaruslabs.net/safeai)
-[![Latest Release](https://img.shields.io/badge/latest-v2.5.0-0f766e)](https://github.com/ikaruscareer/SafeAI/releases/tag/v2.5.0)
+[![Latest Release](https://img.shields.io/badge/latest-v2.7.0-0f766e)](https://github.com/ikaruscareer/SafeAI/releases/tag/v2.7.0)
 [![Best Practices](https://bestpractices.dev/projects/14126/badge)](https://www.bestpractices.dev/en/projects/14126)
 
 Enjoying SafeAI? A ⭐ on [GitHub](https://github.com/ikaruscareer/SafeAI) helps more security teams find it.

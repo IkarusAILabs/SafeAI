@@ -154,7 +154,7 @@ authority → REVIEW, with all of the above attached.
 
 ---
 
-## Repository status (verified at v2.5.0; v2.6 benchmark hardened)
+## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate)
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -171,7 +171,8 @@ authority → REVIEW, with all of the above attached.
 | Delegation depth (sub-agent scope, indirect authority) | PARTIALLY SHIPPED | ESC_COMBO + component graph cover proxies; no dedicated model |
 | CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
 | Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
-| Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md` |
+| Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6; CI-gated v2.7)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md`; `authority-benchmark` CI job fails on any case that stops holding |
+| Evidence metrics (evidence-backed / inferred / unattributed authority rates, evidence completeness, finding provenance, unknown authority-dimension rate) | **SHIPPED AND VERIFIED (v2.7)** | `safeai/analysis/evidence_metrics.py`, manifest `summary.evidence_metrics`, JSON report; informational, never gates |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
 
 **Drift corrected in this re-baseline:** Outcome 1's lanes and Outcome
@@ -202,10 +203,13 @@ unknowns, authority model.*
 - **SHIPPED AND VERIFIED:** ranked access modes with inference caps;
   per-finding provenance + gateability; confidence labels; unknown as
   explicit state; the canonical model above.
-- **Research metric (PLANNED):** unknown authority rate, inferred
-  authority rate, evidence-backed authority rate, false attribution
-  rate, evidence completeness. Unknowns are measured, not minimized
-  away — the target is justified uncertainty only.
+- **Research metric (SHIPPED v2.7, except false attribution rate):**
+  unknown authority-dimension rate, inferred authority rate,
+  evidence-backed authority rate, unattributed authority rate, and
+  evidence completeness are emitted on every scan
+  (`summary.evidence_metrics`). False attribution rate needs ground
+  truth and stays a benchmark measurement. Unknowns are measured, not
+  minimized away — the target is justified uncertainty only.
 
 ## Layer 3 — Authority Change
 
@@ -329,8 +333,9 @@ accountable human decisions.*
   experiment, reproducibility package, technical report, paper, or
   reference implementation — engineering must generate academic value.
 - **Metrics already tracked:** unknown/inferred/evidence-backed rates
-  are computable from provenance fields today; wire them into routine
-  reporting before inventing new ones.
+  are wired into routine reporting since v2.7
+  (`summary.evidence_metrics`); report movement in these before
+  inventing new ones.
 
 ---
 
@@ -507,9 +512,9 @@ offline, static-evidence commitments and the runtime boundary.
 
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
   completeness, deterministic manifests, assurance boundary honesty,
-  unknown handling, evidence verification (mostly shipped; close the
-  gaps: manifest unknown-rate surfacing, provenance audits;
-  Blueprint crosswalk + control mapping, B1).
+  unknown handling, evidence verification (mostly shipped; manifest
+  unknown-rate surfacing shipped v2.7; remaining gaps: provenance
+  audits; Blueprint crosswalk + control mapping, B1).
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
   explainable decisions (core shipped; measure + deepen; delegation
@@ -587,6 +592,11 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.7.0** — Evidence metrics on every scan (manifest + JSON +
+  brief), `CAP_subprocess_shell` multi-line false negative fixed, full
+  authority corpus gated in CI, Blueprint / SPIFFE roadmap alignment.
+- **v2.6.0** — Hardened authority evidence validation benchmark
+  (58 cases, canonical v2 truth), decision-support HTML reporting.
 - **v2.5.0** — IaC Authority Evidence Lane B (graph, verdicts,
   benchmark corpus), security_brief reporting, scope-escape review,
   Teams detector.

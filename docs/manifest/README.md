@@ -91,6 +91,24 @@ verdicts agree on every required-field and enum rule.
   IaC is evidence of declared grants, never proof of deployed
   permission.
 
+## v2.7 evidence metrics (additive, optional, informational)
+
+- `summary.evidence_metrics` (`metrics_version: 1`) reports evidence
+  quality for the scan: `authority_statements` counts (total,
+  evidence-backed, inferred, unattributed, with evidence refs),
+  `finding_provenance` (findings per `provenance_class`; missing or
+  out-of-contract classes count as `unknown`), `authority_dimensions`
+  (unknown counts per authority dimension, `null` without a baseline
+  diff), and `rates`.
+- Each rate is `{value, status, numerator, denominator}`. An empty
+  denominator is `status: insufficient_evidence` with `value: null`,
+  never 0 or 1.
+- `authority_statements` and `finding_provenance` are recomputable from
+  the manifest's own `tool_surface` and `findings`.
+  `not_measured` names what the block deliberately does not claim
+  (`false_attribution_rate` needs ground truth: `safeai benchmark`).
+- No gate, policy, score, or exit code reads these metrics.
+
 ## Not a guarantee
 
 A valid manifest proves **structure**, not truth: import validates declared
