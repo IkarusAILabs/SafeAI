@@ -3,6 +3,7 @@
 > Derived from `ROADMAP.md` (priority sequence P0–P8) including the
 > external framework alignment items B1–B6 (Blueprint Alliance) and
 > S1–S6 (SPIFFE / SPIRE). Baseline: **v2.6.0** (2026-10-04).
+> Status: v2.7.0 shipped 2026-10-22; next: v2.7.1 (patch), v2.8.0.
 >
 > Every release keeps the standing commitments: offline, deterministic,
 > static evidence only, unknown is an evidence state, additive-only
@@ -31,23 +32,29 @@ Standards exports (v2.11) wait for a stable evidence shape to export.
 
 ---
 
-## v2.7.0 — Evidence Metrology  *(P0, B1)*
+## v2.7.0 — Evidence Metrology  *(P0)* — **SHIPPED 2026-10-22**
 
-| # | Item | Roadmap | Notes |
+| # | Item | Roadmap | Outcome |
 |---|---|---|---|
-| 2.7-1 | **Authority evidence metrics** on every scan: evidence-backed, inferred, unattributed authority rates; evidence completeness; finding provenance distribution; unknown authority-dimension rate when a baseline diff exists. Emitted in the JSON report and `manifest.summary.evidence_metrics`; summarised in the security brief coverage section. | Layer 2 research metric; P0 "manifest unknown-rate surfacing" | Rates use the benchmark convention (`insufficient_evidence`, never 0/1 on empty denominators). Metrics never gate. **In progress.** |
-| 2.7-2 | Provenance audit: test that every emitted finding / capability carries an enum-valid provenance class and evidence ref shape. | P0 "provenance audits" | Test-only guard. |
-| 2.7-3 | Wire existing control mappings (`safeai/controls/`) into JSON and SARIF output (currently computed nowhere outside the module). | Layer 4 evidence mapping | Taxonomy only; no coverage claim. |
-| 2.7-4 | Blueprint reference-architecture component catalog + mappings for authority / change / MCP / IaC rules. | B1 | Prefixed control IDs to avoid catalog key collisions; "publicly available architecture" wording, no membership claim. |
+| 2.7-1 | **Authority evidence metrics** on every scan: evidence-backed, inferred, unattributed authority rates; evidence completeness; finding provenance distribution; unknown authority-dimension rate when a baseline diff exists. Emitted in the JSON report and `manifest.summary.evidence_metrics`; summarised in the security brief coverage section. | Layer 2 research metric; P0 "manifest unknown-rate surfacing" | Shipped (#253). Benchmark digest unchanged by the metrics. |
+| 2.7-F | `CAP_subprocess_shell` multi-line false negative (found by the release gate: 52/58 on the committed corpus). | Release gate | Fixed (#254); 58/58 hold. |
+| 2.7-G | CI `authority-benchmark` job: full corpus with determinism checks on every PR, Python 3.11–3.13. | Release gate item 2 | Shipped (#254). |
 
-**Exit criteria:** metrics present and deterministic on the 58-case
-benchmark corpus; benchmark digest unchanged (metrics are additive
-report fields, not benchmark inputs).
+Re-scoped under SemVer (new features need a minor version):
 
-## v2.8.0 — Workload Identity Evidence  *(P3, S1, S3, S5)*
+- **v2.7.1 (patch):** 2.7-2 provenance audit, a test-only guard that
+  every emitted finding and capability carries an enum-valid provenance
+  class and evidence-ref shape (P0 "provenance audits").
+- **v2.8.0:** 2.7-3 (control mappings in JSON/SARIF) and 2.7-4
+  (Blueprint component catalog, B1) join the workload identity work
+  below.
+
+## v2.8.0 — Evidence Mapping & Workload Identity  *(B1, P3, S1, S3, S5)*
 
 | # | Item | Roadmap |
 |---|---|---|
+| 2.8-0a | Wire existing control mappings (`safeai/controls/`) into JSON and SARIF output; taxonomy only, no coverage claim. | Layer 4 evidence mapping |
+| 2.8-0b | Blueprint reference-architecture component catalog + mappings for authority / change / MCP / IaC rules; prefixed control IDs, "publicly available architecture" wording, no membership claim. | B1 |
 | 2.8-1 | `safeai/iac/spiffe.py`: parse `ClusterSPIFFEID` (`spiffeIDTemplate`, pod/namespace selectors, `federatesWith`) and `ClusterFederatedTrustDomain`; new identity kind `spiffe_id`. | S1 |
 | 2.8-2 | Link agent workload → ServiceAccount → SPIFFE ID in `safeai/iac/linking.py`; unresolvable templates/selectors stay `UNKNOWN` / `UNVERIFIED_LINK`. | S1 |
 | 2.8-3 | Service-mesh authorization policy principals (Istio `AuthorizationPolicy`) as declared callers of a SPIFFE identity. | S1 |

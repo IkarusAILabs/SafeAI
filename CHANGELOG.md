@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-10-22
+
+**Evidence Metrology.**
+
+### Added
+
+- Authority evidence metrics (v2.7 Evidence Metrology, ROADMAP Layer 2
+  / P0 unknown-rate surfacing): every scan now reports how much of its
+  authority picture is evidence-backed, inferred, or unattributed,
+  plus evidence completeness, the finding provenance distribution, and
+  — when a baseline diff exists — the unknown authority-dimension rate
+  (`safeai/analysis/evidence_metrics.py`). Emitted as the optional
+  `summary.evidence_metrics` manifest field and as `evidence_metrics`
+  in the JSON report; summarised in the security brief coverage
+  section. Empty denominators report `insufficient_evidence`, never 0
+  or 1. Statement and finding metrics are recomputable from a manifest
+  alone. Informational only: no gate, policy, score, or exit code
+  consumes them, and no detection changed. Manifest `contract.version`
+  stays `1.0.0` (optional field; see `docs/manifest/README.md`).
+- `docs/releases/IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`: versioned
+  implementation plan derived from the roadmap.
+- ROADMAP external framework alignment: Blueprint Alliance reference
+  architecture (B1–B6) and SPIFFE / SPIRE workload identity (S1–S6).
+
+### Changed
+
+- CI: new `authority-benchmark` job (Python 3.11–3.13) runs the full
+  authority corpus with determinism checks on every pull request and
+  push to `main`; it fails when any case stops holding. Results are
+  uploaded as artifacts.
+- `docs/benchmarks/authority/VALIDATION_REPORT.md` now documents both
+  digests: committed records (`--no-determinism`, `de9cb451…`) and the
+  default/CI path with determinism checks (`ee76875d…`).
+
 ### Fixed
 
 - `CAP_subprocess_shell` (critical) now fires on multi-line subprocess
