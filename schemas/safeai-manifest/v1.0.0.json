@@ -123,6 +123,28 @@
         "dependency_count": {"type": "integer"},
         "authority_change_counts": {"type": "object"},
         "highest_change_class": {"enum": ["NO_CHANGE", "LOW_CHANGE", "MATERIAL_CHANGE", "HIGH_RISK_CHANGE", "UNKNOWN"]},
+        "evidence_metrics": {
+          "description": "Optional (v2.7). Informational evidence-quality metrics: authority statement counts, finding provenance distribution, and rates. Rates with an empty denominator carry status insufficient_evidence and value null. Never consumed by a gate.",
+          "type": "object",
+          "properties": {
+            "metrics_version": {"type": "integer"},
+            "authority_statements": {"type": "object"},
+            "finding_provenance": {"type": "object"},
+            "authority_dimensions": {"type": ["object", "null"]},
+            "rates": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["value", "status"],
+                "properties": {
+                  "value": {"type": ["number", "null"]},
+                  "status": {"enum": ["measured", "insufficient_evidence"]}
+                }
+              }
+            },
+            "not_measured": {"type": "array"}
+          }
+        },
         "policy_decision": {
           "type": "object",
           "required": ["outcome"],
