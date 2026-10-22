@@ -28,6 +28,7 @@ Risk bands reuse the documented HTML gauge bands
 (docs/architecture/RISK_MODEL.md); no new scoring is introduced.
 """
 
+from safeai.analysis.evidence_metrics import summary_lines
 
 SCHEMA_VERSION = 1
 
@@ -412,6 +413,7 @@ def build_coverage(report):
     boundary = report.get("assurance_boundary") or {}
     inferred = boundary.get("inferred_value_count") or 0
     lines.append(f"Inferred values in this scan: {inferred}")
+    lines.extend(summary_lines(report.get("evidence_metrics")))
     return lines
 
 

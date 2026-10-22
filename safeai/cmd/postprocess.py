@@ -379,6 +379,8 @@ class ScanPostProcessor:
                 "matches": self.policy_decision.get("matches") or [],
             },
         )
+        # v2.7: one computation, two surfaces (manifest summary + report).
+        self.report["evidence_metrics"] = self.manifest["summary"]["evidence_metrics"]
 
     def _persist_registry(self):
         """Persist the manifest to the shared SQLite registry (CI-aware).
