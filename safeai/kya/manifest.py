@@ -15,6 +15,7 @@ Determinism contract:
 import json
 import os
 
+from safeai.analysis.evidence_metrics import compute_evidence_metrics
 from safeai.kya import (
     MANIFEST_SCHEMA_VERSION,
     MANIFEST_TYPE,
@@ -277,6 +278,12 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
             "authority_change_counts": _authority_change_counts(report),
             "highest_change_class": (report.get("capability_diff") or {}).get(
                 "highest_change_class", "NO_CHANGE"),
+            # v2.7: evidence-quality metrics (informational; never gates).
+            "evidence_metrics": compute_evidence_metrics(
+                report.get("tool_surface"),
+                findings,
+                report.get("capability_diff"),
+            ),
         },
         # v1.2: the assurance boundary states what this scan verified and
         # what it structurally cannot. ``limitations`` is kept as the
