@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scan --fail-on-authority-change` / `--fail-on-escalation` /
+  `--unknown-authority block` are no longer silent when they cannot fire.
+  A baseline carrying neither `tool_surface` nor
+  `normalized_capabilities` yields no `capability_diff`, so all three
+  passed vacuously with no diagnostic; a warning is now printed to
+  stderr naming the gates that cannot fail this run. Exit codes are
+  unchanged. `--unknown-authority pass` and `review` cannot fail a run,
+  so they are not named.
+
 ## [2.7.0] - 2026-10-22
 
 **Evidence Metrology.**
