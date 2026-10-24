@@ -4,7 +4,6 @@ Default behavior is unchanged (UNKNOWN never fails alone); an explicit
 ``authority.unknown`` policy (or --unknown-authority flag) governs it
 through the canonical outcome vocabulary and lanes.
 """
-
 import os
 
 import pytest
