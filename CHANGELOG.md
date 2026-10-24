@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Access-mode transitions now record their provenance per side. Every
+  `access_mode_changes` entry on a capability-diff tool, and every result
+  of `escalation.access_changes_for()`, carries `before_inferred` and
+  `after_inferred` next to the existing `inferred`. The two new fields
+  answer different questions: `before_inferred` is how well the
+  *baseline* knew the access mode, `after_inferred` is how well the
+  *current* scan knows the one it now reports. A reviewer can now tell
+  "the old state was guessed" apart from "the new state is".
+  `inferred` itself is unchanged and stays the disjunction ADR-0008
+  requires: a verdict may block only when both cited sides carry
+  `declared` or `detected` provenance, and inferred authority never
+  blocks in any release. Blocking on a "confirmed current, inferred
+  baseline" transition is deliberately not enabled, because it would
+  fail `--fail-on-authority-change` for every user carrying an older
+  baseline as soon as a SafeAI upgrade or a detection refactor improved,
+  with nothing about the tool having changed. The detected current state
+  is still reported, as its own signal rather than as a change, through
+  the `authority` block per-capability `provenance_class`. Gate outcomes,
+  severity capping, and exit codes are unchanged.
+
 ### Fixed
 
 - `scan --fail-on-authority-change` / `--fail-on-escalation` /

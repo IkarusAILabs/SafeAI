@@ -318,6 +318,221 @@ class TestActionWiring:
         assert "--fail-on-authority-change" not in argv
 
 
+class TestAccessTransitionProvenanceIsRecordedPerSide:
+    """ADR-0008 decides how an access-mode transition may gate. This class
+    pins that decision and records the per-side provenance that makes it
+    reviewable (issue #197, fail-closed audit).
+
+    An access-mode transition is a claim about *both* sides. ADR-0008 allows
+    a verdict to block only when both cited sides carry ``declared`` or
+    ``detected`` provenance, and states that inferred authority never blocks
+    in any release, so ``inferred`` stays the disjunction: a baseline that
+    only guessed ``read`` cannot support the claim that the tool widened to
+    ``mutate``. Relaxing it would fail ``--fail-on-authority-change`` for
+    every user carrying an inferred baseline as soon as a SafeAI upgrade or
+    a refactor improved detection, with nothing having actually changed.
+
+    What the report does carry is the asymmetry itself. ``before_inferred``
+    and ``after_inferred`` say how well each side was known, so a reviewer
+    sees "the old state was guessed, the new state is detected" without that
+    reading as a confirmed change.
+    """
+
+    @staticmethod
+    def _tool(key, caps, access_summary="read"):
+        return {
+            "tool_key": key,
+            "tool": {"kind": "mcp_server", "name": key, "framework": None},
+            "capabilities": [
+                {"name": name, "access_mode": mode, "evidence": [],
+                 "confidence": 1.0, "inferred": inferred}
+                for name, mode, inferred in caps
+            ],
+            "access_summary": access_summary,
+        }
+
+    @staticmethod
+    def _write_baseline(path, inferred):
+        """A baseline whose *only* difference from the current scan is the
+        access mode of ``mcp``.
+
+        The current scan also detects ``mcp_tool:delete_record`` and
+        ``shell``. They have to be in the baseline already, or the gate
+        would trip on them being *added* and the test would say nothing
+        about the access-mode transition it claims to cover.
+        """
+        doc = {"tool_surface": [{
+            "tool_key": "mcp_server:writer",
+            "tool": {"kind": "mcp_server", "name": "writer", "framework": None},
+            "status": "escalated",
+            "capabilities": [
+                {"name": "mcp", "category": "MCP", "access_mode": "read",
+                 "evidence": [], "confidence": 1.0, "inferred": inferred},
+                {"name": "mcp_tool:delete_record", "category": "MCP",
+                 "access_mode": "mutate", "evidence": [], "confidence": 1.0,
+                 "inferred": False},
+                {"name": "shell", "category": "Shell", "access_mode": "execute",
+                 "evidence": [], "confidence": 1.0, "inferred": False}],
+            "access_summary": "read"}]}
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh)
+        return str(path)
+
+    @staticmethod
+    def _project(tmp_path):
+        project = tmp_path / "proj"
+        project.mkdir()
+        (project / ".mcp.json").write_text(json.dumps({"mcpServers": {
+            "writer": {"command": "node", "args": ["server.js"],
+                       "tools": [{"name": "delete_record",
+                                  "description": "delete a record"}]}}}),
+            encoding="utf-8")
+        (project / "agent.py").write_text(
+            "from langgraph.graph import StateGraph\n\n"
+            "def build():\n    return StateGraph(dict)\n",
+            encoding="utf-8")
+        return project
+
+    def test_inferred_baseline_does_not_trip_the_gate(self, tmp_path):
+        """ADR-0008: an inferred baseline cannot support a blocking verdict.
+
+        The current scan detects the widening outright, but a transition is a
+        claim about both sides and the old state was only guessed. Relaxing
+        this would fail ``--fail-on-authority-change`` for every user carrying
+        an inferred baseline the moment a SafeAI upgrade or a detection
+        refactor improved, with nothing about the tool having changed.
+        """
+        project = self._project(tmp_path)
+        baseline = self._write_baseline(tmp_path / "baseline.json", inferred=True)
+        for threshold in ("material", "high-risk"):
+            report = str(tmp_path / f"{threshold}.json")
+            rc = main(["scan", str(project), "--baseline", baseline, "--no-registry",
+                       "--sarif", str(tmp_path / f"{threshold}.sarif"),
+                       "--json", report, "--fail-on-authority-change", threshold])
+            assert rc == 0, threshold
+            with open(report, encoding="utf-8") as fh:
+                doc = json.load(fh)
+            entry = next(t for t in doc["capability_diff"]["tools"]
+                         if t["tool_key"] == "mcp_server:writer")
+            assert entry["access_mode_changes"] == [
+                {"capability": "mcp", "before": "read", "after": "mutate",
+                 "inferred": True, "before_inferred": True,
+                 "after_inferred": False}]
+            assert entry["inferred_only"] is True
+            assert entry["change_class"] == "MATERIAL_CHANGE"
+
+    def test_detected_baseline_still_trips_the_gate(self, tmp_path):
+        """Control: the disjunction must not make every gate trip."""
+        project = self._project(tmp_path)
+        baseline = self._write_baseline(tmp_path / "baseline.json", inferred=False)
+        rc = main(["scan", str(project), "--baseline", baseline, "--no-registry",
+                   "--sarif", str(tmp_path / "c.sarif"),
+                   "--json", str(tmp_path / "c.json"),
+                   "--fail-on-authority-change", "high-risk"])
+        assert rc == 1
+        with open(tmp_path / "c.json", encoding="utf-8") as fh:
+            doc = json.load(fh)
+        entry = next(t for t in doc["capability_diff"]["tools"]
+                     if t["tool_key"] == "mcp_server:writer")
+        assert entry["access_mode_changes"] == [
+            {"capability": "mcp", "before": "read", "after": "mutate",
+             "inferred": False, "before_inferred": False,
+             "after_inferred": False}]
+        assert entry["inferred_only"] is False
+        assert entry["change_class"] == "HIGH_RISK_CHANGE"
+
+    def test_inferred_current_change_still_does_not_trip(self):
+        from safeai.analysis.capability_diff import compute_capability_diff
+
+        baseline = {"tool_surface": [self._tool("mcp_server:inv", [("mcp", "read", False)])]}
+        current = {"tool_surface": [
+            self._tool("mcp_server:inv", [("mcp", "mutate", True)], "mutate")]}
+        entry = compute_capability_diff(current, baseline)["tools"][0]
+        assert entry["access_mode_changes"][0] == {
+            "capability": "mcp", "before": "read", "after": "mutate",
+            "inferred": True, "before_inferred": False, "after_inferred": True}
+        assert entry["inferred_only"] is True
+        assert authority_gate_tripped([entry], "material") is False
+        assert authority_gate_tripped([entry], "high-risk") is False
+
+    def test_inferred_baseline_does_not_cap_escalation_severity(self):
+        """The other half of ADR-0008: inferred authority is never critical.
+
+        The detected current state is still reported, as its own signal
+        rather than as a change: ``before_inferred`` is True while
+        ``after_inferred`` is False, so a reviewer can see which side was
+        guessed without the transition reading as a confirmed widening.
+        """
+        from safeai.analysis.capability_diff import compute_capability_diff
+
+        baseline = {"tool_surface": [self._tool("mcp_server:inv", [("mcp", "read", True)])]}
+        current = {"tool_surface": [
+            self._tool("mcp_server:inv", [("mcp", "mutate", False)], "mutate")]}
+        entry = compute_capability_diff(current, baseline)["tools"][0]
+        change = entry["access_mode_changes"][0]
+        assert change["inferred"] is True
+        assert change["before_inferred"] is True
+        assert change["after_inferred"] is False
+        escalations = {e["id"]: e for e in entry["escalations"]}
+        assert escalations["ESC_MCP_READ_TO_MUTATE"]["inferred"] is True
+        assert escalations["ESC_MCP_READ_TO_MUTATE"]["severity"] == "medium"
+        assert entry["change_class"] == "MATERIAL_CHANGE"
+        assert entry["authority"]["capabilities"] == [
+            {"name": "mcp", "access_mode": "mutate",
+             "provenance_class": "detected"}]
+
+    def test_confirmed_access_change_survives_an_inferred_added_capability(self):
+        from safeai.analysis.capability_diff import compute_capability_diff
+
+        baseline = {"tool_surface": [self._tool("mcp_server:inv", [("mcp", "read", False)])]}
+        current = {"tool_surface": [
+            self._tool("mcp_server:inv",
+                       [("mcp", "mutate", False), ("telemetry", "read", True)],
+                       access_summary="mutate")]}
+        entry = compute_capability_diff(current, baseline)["tools"][0]
+        assert [c["name"] for c in entry["capabilities_added"]] == ["telemetry"]
+        change = entry["access_mode_changes"][0]
+        assert (change["inferred"], change["before_inferred"],
+                change["after_inferred"]) == (False, False, False)
+        assert entry["inferred_only"] is False
+        assert authority_gate_tripped([entry], "material") is True
+
+    def test_confirmed_tool_trips_even_when_another_tool_is_inferred_only(self):
+        from safeai.analysis.capability_diff import compute_capability_diff
+
+        baseline = {"tool_surface": [
+            self._tool("mcp_server:confirmed", [("mcp", "read", False)]),
+            self._tool("mcp_server:guessed", [("http", "read", True)]),
+        ]}
+        current = {"tool_surface": [
+            self._tool("mcp_server:confirmed", [("mcp", "mutate", False)], "mutate"),
+            self._tool("mcp_server:guessed", [("http", "write", True)], "write"),
+        ]}
+        tools = compute_capability_diff(current, baseline)["tools"]
+        by_key = {t["tool_key"]: t for t in tools}
+        assert by_key["mcp_server:guessed"]["inferred_only"] is True
+        assert authority_gate_tripped([by_key["mcp_server:guessed"]], "material") is False
+        assert authority_gate_tripped(tools, "material") is True
+        confirmed = by_key["mcp_server:confirmed"]["access_mode_changes"][0]
+        assert (confirmed["inferred"], confirmed["before_inferred"],
+                confirmed["after_inferred"]) == (False, False, False)
+
+    def test_access_changes_for_publishes_per_side_provenance(self):
+        from safeai.analysis.escalation import access_changes_for
+
+        before = {"capabilities": [
+            {"name": "mcp", "access_mode": "read", "inferred": True}]}
+        detected = {"capabilities": [
+            {"name": "mcp", "access_mode": "mutate", "inferred": False}]}
+        guessed = {"capabilities": [
+            {"name": "mcp", "access_mode": "mutate", "inferred": True}]}
+        expected = {"capability": "mcp", "before": "read", "after": "mutate"}
+        assert access_changes_for(before, detected) == [
+            dict(expected, inferred=True, before_inferred=True, after_inferred=False)]
+        assert access_changes_for(before, guessed) == [
+            dict(expected, inferred=True, before_inferred=True, after_inferred=True)]
+
+
 class TestDiffDependentGatesAreNeverSilent:
     """A gate that cannot fire must say so (issue #197, check 4)."""
 
