@@ -144,6 +144,39 @@ class ScanPostProcessor:
             "normalized_capabilities" in baseline_doc or "tool_surface" in baseline_doc
         ):
             self.baseline_report = baseline_doc
+        else:
+            self._warn_diff_gates_blind()
+
+    def _warn_diff_gates_blind(self):
+        """Warn when a diff-dependent gate was asked for but cannot fire.
+
+        Without ``tool_surface`` or ``normalized_capabilities`` in the
+        baseline no ``capability_diff`` is computed, so the gates below
+        pass vacuously. ``--unknown-authority block`` belongs here for the
+        same reason: the ``authority:unknown`` policy match is built from
+        ``capability_diff["tools"]`` filtered on ``change_class ==
+        "UNKNOWN"``, so with no diff there are no UNKNOWN tools for it to
+        act on. ``pass`` and ``review`` cannot fail a run, so only
+        ``block`` is named. Exit codes are unchanged; the point is that a
+        requested gate which silently passes is itself a fail-open, and a
+        gate-affecting condition is never silent.
+        """
+        gates = []
+        if getattr(self.args, "fail_on_authority_change", None):
+            gates.append("--fail-on-authority-change")
+        if getattr(self.args, "fail_on_escalation", None):
+            gates.append("--fail-on-escalation")
+        if getattr(self.args, "unknown_authority", None) == "block":
+            gates.append("--unknown-authority block")
+        if not gates:
+            return
+        print(
+            "warning: baseline "
+            f"{self.args.baseline} carries neither 'tool_surface' nor "
+            "'normalized_capabilities', so no capability diff was computed "
+            f"and {' and '.join(gates)} cannot fail this run.",
+            file=sys.stderr,
+        )
 
     def _run_scan(self):
         from safeai.kya.util import utc_now_iso
