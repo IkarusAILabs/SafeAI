@@ -531,3 +531,87 @@ class TestAccessTransitionProvenanceIsRecordedPerSide:
             dict(expected, inferred=True, before_inferred=True, after_inferred=False)]
         assert access_changes_for(before, guessed) == [
             dict(expected, inferred=True, before_inferred=True, after_inferred=True)]
+
+
+class TestDiffDependentGatesAreNeverSilent:
+    """A gate that cannot fire must say so (issue #197, check 4)."""
+
+    @staticmethod
+    def _project(tmp_path):
+        project = tmp_path / "proj"
+        project.mkdir()
+        (project / ".mcp.json").write_text(json.dumps({"mcpServers": {
+            "writer": {"command": "node", "args": ["server.js"],
+                       "tools": [{"name": "delete_record",
+                                  "description": "delete a record"}]}}}),
+            encoding="utf-8")
+        (project / "agent.py").write_text(
+            "from langgraph.graph import StateGraph\n\n"
+            "def build():\n    return StateGraph(dict)\n",
+            encoding="utf-8")
+        return project
+
+    @staticmethod
+    def _legacy_baseline(tmp_path):
+        legacy = tmp_path / "legacy.json"
+        legacy.write_text(json.dumps({"findings": []}), encoding="utf-8")
+        return legacy
+
+    def test_gate_warns_when_baseline_cannot_produce_a_diff(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+                   "--sarif", str(tmp_path / "o.sarif"),
+                   "--fail-on-authority-change", "material"])
+        # Exit semantics are unchanged: the gate simply cannot fire.
+        assert rc == 0
+        err = capsys.readouterr().err
+        assert "neither 'tool_surface' nor 'normalized_capabilities'" in err
+        assert "--fail-on-authority-change cannot fail this run" in err
+
+    def test_no_warning_for_a_diff_capable_baseline(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        baseline = tmp_path / "baseline.json"
+        main(["scan", str(project), "--json", str(baseline), "--no-registry",
+              "--sarif", str(tmp_path / "b.sarif")])
+        capsys.readouterr()
+        main(["scan", str(project), "--baseline", str(baseline), "--no-registry",
+              "--sarif", str(tmp_path / "p.sarif"),
+              "--fail-on-authority-change", "material"])
+        assert "cannot fail this run" not in capsys.readouterr().err
+
+    def test_unknown_authority_block_is_named(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+                   "--sarif", str(tmp_path / "o.sarif"),
+                   "--unknown-authority", "block"])
+        assert rc == 0
+        assert "--unknown-authority block cannot fail this run" in capsys.readouterr().err
+
+    def test_unknown_authority_review_is_not_named(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"),
+              "--unknown-authority", "review"])
+        assert "--unknown-authority" not in capsys.readouterr().err
+
+    def test_all_three_gates_are_named_together(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"),
+              "--fail-on-authority-change", "material",
+              "--fail-on-escalation", "high",
+              "--unknown-authority", "block"])
+        err = capsys.readouterr().err
+        assert ("--fail-on-authority-change and --fail-on-escalation and "
+                "--unknown-authority block cannot fail this run") in err
+
+    def test_no_warning_when_no_diff_gate_was_requested(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif")])
+        assert "cannot fail this run" not in capsys.readouterr().err

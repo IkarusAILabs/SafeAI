@@ -137,6 +137,44 @@ class TestUnknownPolicy:
         assert policy["authority"] == {"unknown": "require_review"}
 
 
+class TestUnknownIsDiffDependent:
+    """The authority:unknown match needs a capability diff to act on.
+
+    ``evaluate_policy`` builds the match from
+    ``capability_diff["tools"]`` filtered on ``change_class == "UNKNOWN"``.
+    When the baseline carries neither ``tool_surface`` nor
+    ``normalized_capabilities`` no diff is computed at all, so ``deny``
+    has nothing to match and the run passes. That is the same blind spot
+    ``--fail-on-authority-change`` / ``--fail-on-escalation`` have, which
+    is why ``scan`` now warns about it.
+    """
+
+    @staticmethod
+    def _no_diff_report():
+        report = _report()
+        del report["capability_diff"]
+        return report
+
+    def test_deny_cannot_fire_without_a_capability_diff(self):
+        decision = evaluate_policy(_policy_doc("deny"), self._no_diff_report())
+        assert decision["outcome"] != "block"
+        assert not any(m["policy_id"] == "authority:unknown"
+                       for m in decision["matches"])
+
+    def test_deny_fires_once_a_diff_exists(self):
+        report = _report(unknown_tools=["tool:x"])
+        decision = evaluate_policy(_policy_doc("deny"), report)
+        assert decision["outcome"] == "block"
+        assert any(m["policy_id"] == "authority:unknown"
+                   for m in decision["matches"])
+
+    def test_empty_tool_list_behaves_like_no_diff(self):
+        report = _report()
+        report["capability_diff"] = {"tools": []}
+        decision = evaluate_policy(_policy_doc("deny"), report)
+        assert decision["outcome"] != "block"
+
+
 class TestUnknownCliFlag:
     def test_flag_fills_gap(self, kya_project, tmp_path):
         rc = main(["scan", kya_project["root"],
