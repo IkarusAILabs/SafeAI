@@ -390,6 +390,48 @@ def cap_severity(severity, inferred):
     return severity
 
 
+def access_change_inferred(before_cap, after_cap):
+    """True when either side of a transition rests on inferred evidence.
+
+    This is ADR-0008's rule and the disjunction is the point. An access-mode
+    transition is a claim about *both* sides, so a baseline that only guessed
+    ``read`` cannot support the claim that the tool widened to ``mutate``.
+    Relaxing it would let an inferred baseline block, which ADR-0008 forbids
+    in any release.
+
+    The false positive the rule buys is concrete: a SafeAI upgrade, or a
+    refactor that improves detection, lets the current scan *detect* an access
+    mode the baseline only guessed. Nothing about the tool's authority
+    changed, yet the transition would read as a confirmed widening and fail
+    ``--fail-on-authority-change`` for everyone carrying an older baseline.
+    The scanner cannot tell that case from a real widening; that uncertainty
+    is exactly what the ``inferred`` flag records.
+
+    The detected current state is still reported, as its own signal rather
+    than as a change: see :func:`access_change_provenance` for the per-side
+    provenance, and ``authority_for`` in ``safeai.analysis.capability_diff``,
+    which publishes the current state's access with its own provenance class.
+    """
+    provenance = access_change_provenance(before_cap, after_cap)
+    return provenance["before_inferred"] or provenance["after_inferred"]
+
+
+def access_change_provenance(before_cap, after_cap):
+    """Per-side provenance of a single access-mode transition.
+
+    ``before_inferred`` records how well the *baseline* knew the access mode;
+    ``after_inferred`` records how well the *current* scan knows the one it
+    now reports. The two answer different questions, so they are reported
+    separately: a consumer can tell "the old state was guessed" apart from
+    "the new state is", which is what makes an asymmetric transition
+    reviewable without letting it gate.
+    """
+    return {
+        "before_inferred": bool(before_cap.get("inferred")),
+        "after_inferred": bool(after_cap.get("inferred")),
+    }
+
+
 def _side_effect_present(state):
     return any(
         str(c.get("access_mode")) in SIDE_EFFECT_MODES
@@ -425,7 +467,7 @@ def classify_escalations(before_state, after_state, status, evaluate_combination
                 "category": after.get("category"),
                 "before": before.get("access_mode"),
                 "after": after.get("access_mode"),
-                "inferred": bool(before.get("inferred") or after.get("inferred")),
+                "inferred": access_change_inferred(before, after),
             })
 
     ctx = {
@@ -514,17 +556,24 @@ def highest_severity(escalations):
 
 
 def access_changes_for(before_state, after_state):
-    """Public helper: the list of access-mode transitions between two states."""
+    """Public helper: the list of access-mode transitions between two states.
+
+    Each transition carries ``inferred`` (the ADR-0008 gate) alongside the
+    per-side ``before_inferred`` / ``after_inferred`` provenance, so the
+    published shape matches what ``capability_diff`` emits.
+    """
     before_caps = {c["name"]: c for c in (before_state or {}).get("capabilities") or []}
     after_caps = {c["name"]: c for c in (after_state or {}).get("capabilities") or []}
     changes = []
     for name in sorted(set(after_caps) & set(before_caps)):
         before, after = before_caps[name], after_caps[name]
         if before.get("access_mode") != after.get("access_mode"):
+            provenance = access_change_provenance(before, after)
             changes.append({
                 "capability": name,
                 "before": before.get("access_mode"),
                 "after": after.get("access_mode"),
-                "inferred": bool(before.get("inferred") or after.get("inferred")),
+                "inferred": access_change_inferred(before, after),
+                **provenance,
             })
     return changes
