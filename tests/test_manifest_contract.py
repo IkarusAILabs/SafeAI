@@ -16,6 +16,8 @@ from safeai.kya.contract import (
     CONTRACT_NAME,
     CONTRACT_VERSION,
     CORRELATION_VERDICTS,
+    GATEABILITY_VALUES,
+    PROVENANCE_CLASSES,
     validate_manifest,
 )
 from safeai.kya.manifest import serialize_manifest
@@ -276,3 +278,21 @@ def test_scan_with_terraform_emits_valid_iac_manifest(tmp_path):
     assert manifest["summary"]["iac_grant_count"] == 1
     errors, _ = validate_manifest(manifest)
     assert errors == []
+
+
+def test_manifest_schema_parity_provenance_and_gateability():
+    """Assert set equality between the contract constants and the JSON Schema enums (#265)."""
+    path = os.path.join("schemas", "safeai-manifest", "v1.0.0.json")
+    with open(path, encoding="utf-8") as fh:
+        schema = json.load(fh)
+    finding_props = schema["properties"]["findings"]["items"]["properties"]
+    assert set(finding_props["provenance_class"]["enum"]) == set(PROVENANCE_CLASSES)
+    assert set(finding_props["gateability"]["enum"]) == set(GATEABILITY_VALUES)
+
+
+def test_enrich_reexports_contract_enums():
+    """Existing imports of PROVENANCE_CLASSES and GATEABILITY_VALUES from enrich keep working."""
+    from safeai.kya import enrich
+
+    assert enrich.PROVENANCE_CLASSES is PROVENANCE_CLASSES or set(enrich.PROVENANCE_CLASSES) == set(PROVENANCE_CLASSES)
+    assert enrich.GATEABILITY_VALUES is GATEABILITY_VALUES or set(enrich.GATEABILITY_VALUES) == set(GATEABILITY_VALUES)
