@@ -81,5 +81,5 @@ def write_sarif(report, path):
         if finding.get("remediation"):
             props["remediation"] = finding.get("remediation")
 
-    with open(path, "w") as fh:
+    with open(path, "w", encoding="utf-8") as fh:
         json.dump(sarif, fh, indent=2)
