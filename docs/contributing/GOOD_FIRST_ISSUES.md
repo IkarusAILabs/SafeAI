@@ -2,13 +2,13 @@
 
 Welcome, and thank you for considering contributing to SafeAI!
 
-This document indexes **59 beginner-friendly issues** designed for first-time
-contributors (25 currently open). Each issue includes the files you'll need to modify, the tests you should write, and
+This document indexes **beginner-friendly issues** designed for first-time
+contributors (22 currently open, 47 completed on GitHub). Each issue includes the files you'll need to modify, the tests you should write, and
 the acceptance criteria.
 
-> **For maintainers:** These issues are defined in `.github/good-first-issues/` as YAML templates. Run the [create-good-first-issues workflow](../../actions/workflows/create-good-first-issues.yml) to create them in the GitHub issue tracker with the `good first issue` label. Once created, this file serves as a curated index.
+> **For maintainers:** Issues are opened directly in the [GitHub issue tracker](https://github.com/IkarusAILabs/SafeAI/issues?q=is%3Aissue+label%3A%22good+first+issue%22) with the `good first issue` label. Once created, this document serves as a curated index.
 
-> **34 issues have already been completed** by community and internal
+> **47 issues have already been completed** by community and internal
 contributors. See the [Completed Issues](#-completed-issues) section at the bottom.
 
 ---
@@ -165,7 +165,7 @@ contributors. See the [Completed Issues](#-completed-issues) section at the bott
 ### 30. Add Windsurf config-file adapter
 - **Difficulty:** Easy-Medium | **Effort:** 3–4 hours
 - **Suggested files:** `safeai/frameworks/windsurf/__init__.py` (new), `safeai/frameworks/windsurf/parser.py` (new), `safeai/frameworks/__init__.py` (register), `safeai/engine/orchestrator.py` (add `.windsurfrules` to `_is_scannable_file`), `tests/test_windsurf_framework.py` (new), `tests/fixtures/windsurf/representative/.windsurfrules` (new)
-- **Description:** Add a framework adapter for the Windsurf IDE config file (`.windsurfrules`). Follow the exact pattern of the `.cursorrules` adapter (PR [#113](https://github.com/ikaruscareer/SafeAI/pull/113)): filename-based detection, JSON/YAML/free-text structured-first parsing, capability keyword scanning (`shell`, `filesystem`, `external_apis`, `databases`), tool/model extraction, unrestricted grant detection, MCP reference detection. Register via `@register_parser`. Write tests covering JSON parsing, YAML parsing, free-text fallback, detection by filename, and integration with `run_scan()`. Maps to v2.0.0 config-file coverage in `ROADMAP.md`.
+- **Description:** Add a framework adapter for the Windsurf IDE config file (`.windsurfrules`). Follow the exact pattern of the `.cursorrules` adapter (PR [#113](https://github.com/IkarusAILabs/SafeAI/pull/113)): filename-based detection, JSON/YAML/free-text structured-first parsing, capability keyword scanning (`shell`, `filesystem`, `external_apis`, `databases`), tool/model extraction, unrestricted grant detection, MCP reference detection. Register via `@register_parser`. Write tests covering JSON parsing, YAML parsing, free-text fallback, detection by filename, and integration with `run_scan()`. Maps to v2.0.0 config-file coverage in `ROADMAP.md`.
 
 ---
 
@@ -206,6 +206,7 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 - **Status:** In progress — per-side access-mode provenance and the diff-gate blind warning landed (@tyza66, PRs #257, #258, #260); `--unknown-authority block` without `--baseline` and removed-tool UNKNOWN handling remain open on #197
 
 ### 56. Security test: HTML report injection fixtures (#198)
+- **Status:** ✅ Complete — test_html_escapes_user_data covers injection payloads (SafeAI)
 - **Difficulty:** Easy | **Effort:** 2 hours
 - **Labels:** good first issue, security, test-coverage
 - **Suggested files:** `safeai/report/html.py`, `safeai/report/html_kit.py`, `tests/test_html_report.py`
@@ -245,12 +246,14 @@ October 2026 batch, drawn from the ROADMAP (Layers 2, 4 and 8) and from problems
 - **Description:** The example installs the wrong PyPI package and passes `scan` flags that don't exist; make it run verbatim.
 
 ### 61. Read and write text files as UTF-8 (#263)
+- **Status:** ✅ Complete — read and write text files as UTF-8 regardless of locale (@bfs2021, PR #269)
 - **Difficulty:** Easy | **Effort:** 1–2 hours
 - **Labels:** good first issue, bug
 - **Suggested files:** `safeai/engine/metadata.py`, `safeai/report/json_report.py`, `safeai/report/sarif.py`
 - **Description:** Under a non-UTF-8 locale (e.g. GBK) the scanner metadata silently reports `rule_count: 0`; pass `encoding="utf-8"` and add a regression test.
 
 ### 62. Skip the wheel-build test cleanly when the setuptools backend is missing (#264)
+- **Status:** ✅ Complete — skip wheel build when setuptools backend is unavailable (@MarioZhang420, PR #272)
 - **Difficulty:** Easy | **Effort:** 30–60 minutes
 - **Labels:** good first issue, test-coverage
 - **Suggested files:** `tests/test_github_action.py`
@@ -348,9 +351,17 @@ These issues have been implemented by community contributors and are now part of
 | # | Issue | Contributor |
 |---|-------|-------------|
 | #196 | Exception scope-escape paths | @ARAVIND281 (PR #220) |
+| #198 | HTML report injection fixtures | SafeAI |
 | #199 | Terminal escape-sequence sanitization | @chenzeyan54-commits (PR #203) |
 | #200 | PR comment markdown injection sanitization | @HarshRajSinghania (PR #204) |
 | #201 | Release workflow supply-chain posture tests | @thadidaniel-ctrl (PR #206) |
+
+### Quality & Evidence Reporting
+
+| # | Issue | Contributor |
+|---|-------|-------------|
+| #263 | Read and write text files as UTF-8 | @bfs2021 (PR #269) |
+| #264 | Skip wheel build when setuptools backend is unavailable | @MarioZhang420 (PR #272) |
 
 ---
 
@@ -647,13 +658,13 @@ result = subprocess.run(["git", "status"], capture_output=True)  # Fixed command
 
 ---
 
-## Detailed Templates
+## Issue Tracker
 
-Each issue above has a corresponding YAML template in `.github/good-first-issues/` with the full description, acceptance criteria, and labels. Run the GitHub Actions workflow to create them all in the issue tracker at once.
+Each issue is tracked in the [GitHub issue tracker](https://github.com/IkarusAILabs/SafeAI/issues?q=is%3Aissue+label%3A%22good+first+issue%22) with full descriptions, acceptance criteria, and discussion.
 
 ## How to Claim an Issue
 
-1. Find an issue in the [GitHub issue tracker](https://github.com/ikaruscareer/SafeAI/issues) labeled `good first issue`
+1. Find an issue in the [GitHub issue tracker](https://github.com/IkarusAILabs/SafeAI/issues?q=is%3Aissue+label%3A%22good+first+issue%22) labeled `good first issue`
 2. Comment to let others know you're working on it
 3. Ask questions if anything is unclear
 4. Submit a draft PR early for feedback
