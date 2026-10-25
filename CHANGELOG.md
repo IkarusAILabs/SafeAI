@@ -39,6 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stderr naming the gates that cannot fail this run. Exit codes are
   unchanged. `--unknown-authority pass` and `review` cannot fail a run,
   so they are not named.
+- That warning now decides the unknown-authority gate from the
+  *effective* policy — a policy file or profile setting
+  `authority.unknown: deny` is the same gate as
+  `--unknown-authority block`, and only the merged policy says which is
+  in force. The check moved from baseline loading to policy evaluation,
+  so a `deny` set through `.safeai/policy.yml` or a profile is named
+  alongside the flag gates, an explicit `allow`/`require_review` setting
+  wins over the flag and is not named, and the warning is labelled by
+  whichever source put `deny` in force. Exit codes are unchanged.
 
 ## [2.7.0] - 2026-10-22
 
