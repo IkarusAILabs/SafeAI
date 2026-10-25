@@ -255,3 +255,29 @@ def test_html_omits_absent_sections(tmp_path):
     assert "--baseline" in content
     assert "Security Brief" in content
     assert "Recommended Review Actions" in content
+
+
+def test_brief_shows_evidence_metrics_from_manifest(monkeypatch):
+    """v2.7 evidence metrics appear in the HTML brief when the manifest has them."""
+    import safeai.report.html as html_mod
+
+    metrics = {
+        "rates": {
+            "evidence_backed_authority_rate": {"status": "measured", "value": 0.8, "numerator": 8, "denominator": 10},
+            "inferred_authority_rate": {"status": "measured", "value": 0.2, "numerator": 2, "denominator": 10},
+            "unattributed_authority_rate": {"status": "measured", "value": 0.0, "numerator": 0, "denominator": 10},
+        }
+    }
+    report = {"manifest": {"summary": {"evidence_metrics": metrics}}, "findings": [], "files_scanned": 1}
+    section = html_mod._brief_section(report)
+    assert "Evidence metrics" in section
+    assert "Evidence-backed authority: 80% (8/10)" in section
+    assert "Inferred authority: 20% (2/10)" in section
+
+
+def test_brief_hides_evidence_metrics_when_absent():
+    import safeai.report.html as html_mod
+
+    report = {"findings": [], "files_scanned": 1}
+    section = html_mod._brief_section(report)
+    assert "Evidence metrics" not in section
