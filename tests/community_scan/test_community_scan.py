@@ -37,7 +37,7 @@ def _sample_report(findings):
 def test_target_entries_in_manifest():
     import yaml
 
-    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "targets.yml")) as fh:
+    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "targets.yml"), encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
     ids = [t["id"] for t in data["targets"]]
     assert len(ids) >= 25, f"Expected at least 25 targets, got {len(ids)}"
@@ -207,7 +207,7 @@ def test_target_name_special_characters():
 def test_manifest_schema_valid():
     import jsonschema
 
-    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "report-schema.json")) as fh:
+    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "report-schema.json"), encoding="utf-8") as fh:
         schema = json.load(fh)
     manifest = build_manifest(
         target_id="n8n", repository="n8n-io/n8n",
@@ -224,7 +224,7 @@ def test_manifest_schema_valid():
 def test_manifest_records_security_policy_url():
     import jsonschema
 
-    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "report-schema.json")) as fh:
+    with open(os.path.join(FIXTURE_DIR, "..", "..", "..", "community-scans", "report-schema.json"), encoding="utf-8") as fh:
         schema = json.load(fh)
     manifest = build_manifest(
         target_id="crewai", repository="crewAIInc/crewAI",
