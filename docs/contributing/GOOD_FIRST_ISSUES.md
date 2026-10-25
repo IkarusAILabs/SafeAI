@@ -35,6 +35,7 @@ contributors. See the [Completed Issues](#-completed-issues) section at the bott
 - **Difficulty:** Easy | **Effort:** 2–3 hours
 - **Suggested files:** `safeai/analyzers/capability/analyzer.py`, `safeai/analysis/capabilities.py`
 - **Description:** Add a regex pattern to detect Microsoft Teams SDK usage (`import teams`, `from teams import`, `TeamsClient`, etc.). Follow the same pattern as the existing Docker, Slack, and Jira detectors.
+- **Status:** ✅ Complete — `CAP_ms_teams` rule, detector and tests (@therealestbenji, PR #219)
 
 ### 4. Detect SharePoint access
 - **Difficulty:** Easy | **Effort:** 2 hours
@@ -195,12 +196,14 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 - **Labels:** good first issue, security
 - **Suggested files:** `safeai/kya/exceptions.py`, `tests/test_exceptions.py`
 - **Description:** Verify traversal-style `target_id` values (`../`, absolute paths, Windows `..\\`), legacy-key ambiguity, and cross-project exceptions can never resolve to `active`. Fail-closed: unknown scope = not applied.
+- **Status:** ✅ Complete — scope-escape boundaries pinned, unverified scope gated (@ARAVIND281, PR #220)
 
 ### 55. Security review: authority gate fail-closed guarantees (#197)
 - **Difficulty:** Easy-Medium | **Effort:** 2–3 hours
 - **Labels:** good first issue, security
 - **Suggested files:** `safeai/analysis/capability_diff.py`, `safeai/cmd/postprocess.py`, `tests/test_authority_change.py`, `tests/test_unknown_authority.py`
 - **Description:** Lock non-zero exit for: confirmed authority change with `--fail-on-authority-change`, UNKNOWN authority under `block`, and mixed inferred/confirmed additions (`inferred_only` must not mask confirmed tools).
+- **Status:** In progress — per-side access-mode provenance and the diff-gate blind warning landed (@tyza66, PRs #257, #258, #260); `--unknown-authority block` without `--baseline` and removed-tool UNKNOWN handling remain open on #197
 
 ### 56. Security test: HTML report injection fixtures (#198)
 - **Difficulty:** Easy | **Effort:** 2 hours
@@ -262,6 +265,7 @@ These issues have been implemented by community contributors and are now part of
 | 18 | Detect Jira integration | @yugaaank (PR #2) |
 | 19 | Detect browser automation capability | @yugaaank (PR #2) |
 | — | Detect hidden instructions in MCP tool descriptions | @Solarthis (PR #107) |
+| #182 | Detect Microsoft Teams integration | @therealestbenji (PR #219) |
 
 ### Reports, Output & Scoring
 
@@ -303,6 +307,7 @@ These issues have been implemented by community contributors and are now part of
 
 | # | Issue | Contributor |
 |---|-------|-------------|
+| #196 | Exception scope-escape paths | @ARAVIND281 (PR #220) |
 | #199 | Terminal escape-sequence sanitization | @chenzeyan54-commits (PR #203) |
 | #200 | PR comment markdown injection sanitization | @HarshRajSinghania (PR #204) |
 | #201 | Release workflow supply-chain posture tests | @thadidaniel-ctrl (PR #206) |
