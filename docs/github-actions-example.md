@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install SafeAI
-        run: pip install safeai==<reviewed-version>
+        run: pip install SafeAI-Static-Analyzer==<reviewed-version>
       - name: Scan manifest
-        run: safeai scan path/to/manifest --format sarif --output safeai.sarif
+        run: safeai scan path/to/manifest --sarif safeai.sarif
       - uses: actions/upload-artifact@v4
         with:
           name: safeai-report
