@@ -8,6 +8,7 @@ validate; unknown fields are ignored; serialization is byte-identical.
 import copy
 import json
 import os
+from pathlib import Path
 
 from safeai.cmd.cli import main
 from safeai.cmd.manifest_cli import run_manifest_command
@@ -16,6 +17,8 @@ from safeai.kya.contract import (
     CONTRACT_NAME,
     CONTRACT_VERSION,
     CORRELATION_VERDICTS,
+    GATEABILITY_VALUES,
+    PROVENANCE_CLASSES,
     validate_manifest,
 )
 from safeai.kya.manifest import serialize_manifest
@@ -276,3 +279,20 @@ def test_scan_with_terraform_emits_valid_iac_manifest(tmp_path):
     assert manifest["summary"]["iac_grant_count"] == 1
     errors, _ = validate_manifest(manifest)
     assert errors == []
+
+SCHEMA_PATH = (
+    Path(__file__).resolve().parents[1] / "schemas" / "safeai-manifest" / "v1.0.0.json"
+)
+
+
+def _finding_enum(field: str) -> list[str]:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    return schema["properties"]["findings"]["items"]["properties"][field]["enum"]
+
+
+def test_provenance_classes_match_the_schema():
+    assert set(PROVENANCE_CLASSES) == set(_finding_enum("provenance_class"))
+
+
+def test_gateability_values_match_the_schema():
+    assert set(GATEABILITY_VALUES) == set(_finding_enum("gateability"))

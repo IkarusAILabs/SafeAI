@@ -71,9 +71,8 @@ _DECLARED_ANALYZERS = frozenset({
 GATEABILITY_DETERMINISTIC = "deterministic"
 GATEABILITY_REVIEW_ONLY = "review-only"
 
-PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown",
-                      "repo-iac-observed")
-GATEABILITY_VALUES = (GATEABILITY_DETERMINISTIC, GATEABILITY_REVIEW_ONLY)
+#: Defined by the contract; re-exported here so existing imports keep working.
+from safeai.kya.contract import GATEABILITY_VALUES, PROVENANCE_CLASSES  # noqa: F401
 
 
 def provenance_class_for(finding, analyzer, heuristic):
