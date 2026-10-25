@@ -37,7 +37,7 @@ def _ruleset_version(rules_dir: str | None) -> dict[str, Any]:
     count = 0
     try:
         import yaml
-        with open(rules_path) as f:
+        with open(rules_path, encoding="utf-8") as f:
             rules = yaml.safe_load(f)
         count = len(rules) if isinstance(rules, list) else 0
     except Exception:

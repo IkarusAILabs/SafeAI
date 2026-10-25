@@ -8,5 +8,5 @@ import json
 
 
 def write_json(report, path):
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
