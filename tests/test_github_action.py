@@ -430,6 +430,10 @@ def test_pyproject_requires_python_3_11():
 def test_wheel_contains_package_data(tmp_path):
     """Built wheel must carry the rules YAML and entry points."""
     build = pytest.importorskip("build")
+    pytest.importorskip(
+        "setuptools",
+        reason="the wheel build needs the 'setuptools.build_meta' backend",
+    )
     out = tmp_path / "dist"
     out.mkdir()
     builder = build.ProjectBuilder(REPO_ROOT)
