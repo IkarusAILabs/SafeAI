@@ -615,3 +615,119 @@ class TestDiffDependentGatesAreNeverSilent:
         main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
               "--sarif", str(tmp_path / "o.sarif")])
         assert "cannot fail this run" not in capsys.readouterr().err
+
+    @staticmethod
+    def _policy_file(tmp_path, unknown):
+        policy = tmp_path / "policy.yml"
+        policy.write_text(
+            "version: \"1\"\n"
+            "default_action: warn\n"
+            "policies: []\n"
+            f"authority:\n  unknown: {unknown}\n",
+            encoding="utf-8")
+        return policy
+
+    def test_policy_file_deny_is_named(self, tmp_path, capsys):
+        # #258 follow-up: a policy file setting the same gate directly is
+        # covered, not only the CLI flag.
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "deny")
+        rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+                   "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy)])
+        # Exit semantics are unchanged: the gate simply cannot fire.
+        assert rc == 0
+        assert "authority.unknown: deny cannot fail this run" in capsys.readouterr().err
+
+    def test_policy_file_deny_fires_for_a_diff_capable_baseline(self, tmp_path, capsys):
+        # The follow-up repro, first row: with a diff the gate really fires
+        # (exit 1), so there is no blind spot to warn about.
+        project = self._project(tmp_path)
+        baseline = tmp_path / "baseline.json"
+        baseline.write_text(
+            json.dumps({"findings": [], "normalized_capabilities": []}),
+            encoding="utf-8")
+        policy = self._policy_file(tmp_path, "deny")
+        rc = main(["scan", str(project), "--baseline", str(baseline), "--no-registry",
+                   "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy)])
+        assert rc == 1
+        assert "cannot fail this run" not in capsys.readouterr().err
+
+    def test_policy_file_require_review_is_not_named(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "require_review")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy)])
+        assert "authority.unknown" not in capsys.readouterr().err
+
+    def test_policy_file_allow_is_not_named(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "allow")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy)])
+        assert "authority.unknown" not in capsys.readouterr().err
+
+    def test_policy_deny_is_named_alongside_the_flag_gates(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "deny")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy),
+              "--fail-on-authority-change", "material",
+              "--fail-on-escalation", "high"])
+        err = capsys.readouterr().err
+        assert ("--fail-on-authority-change and --fail-on-escalation and "
+                "authority.unknown: deny cannot fail this run") in err
+
+    def test_policy_deny_wins_the_label_over_the_flag(self, tmp_path, capsys):
+        # The policy file is the source of record for the gate, so it is
+        # what gets named even though the flag asks for the same thing.
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "deny")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy),
+              "--unknown-authority", "block"])
+        err = capsys.readouterr().err
+        assert "authority.unknown: deny cannot fail this run" in err
+        assert "--unknown-authority block" not in err
+
+    def test_policy_deny_is_named_even_when_the_flag_relaxes(self, tmp_path, capsys):
+        # review alone cannot fail a run, but the policy's deny is the
+        # effective gate and must be named.
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "deny")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy),
+              "--unknown-authority", "review"])
+        assert "authority.unknown: deny cannot fail this run" in capsys.readouterr().err
+
+    def test_policy_allow_overrides_the_flag(self, tmp_path, capsys):
+        # An explicit policy setting always wins: with allow in force the
+        # deny gate cannot fire, so there is nothing to name.
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        policy = self._policy_file(tmp_path, "allow")
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy),
+              "--unknown-authority", "block"])
+        assert "cannot fail this run" not in capsys.readouterr().err
+
+    def test_profile_deny_is_named(self, tmp_path, capsys, monkeypatch):
+        # The gate decided by a profile merge is the same gate; no built-in
+        # profile sets authority today, so the profile is stubbed in.
+        from safeai.kya import policy as kya_policy
+        monkeypatch.setattr(kya_policy, "load_profile", lambda name: {
+            "version": "1",
+            "default_action": "warn",
+            "policies": [],
+            "authority": {"unknown": "deny"},
+        })
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+              "--sarif", str(tmp_path / "o.sarif"), "--policy-profile", "strict-ci"])
+        assert "authority.unknown: deny cannot fail this run" in capsys.readouterr().err

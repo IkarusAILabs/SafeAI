@@ -79,6 +79,7 @@ class ScanPostProcessor:
         self.completed_at = None
         self.baseline_fps = None
         self.baseline_report = None
+        self.baseline_diff_blind = False
         self.report = {}
         self.policy_decision = {}
         self.project_id = None
@@ -145,9 +146,15 @@ class ScanPostProcessor:
         ):
             self.baseline_report = baseline_doc
         else:
-            self._warn_diff_gates_blind()
+            # No diff will be computed, so diff-dependent gates pass
+            # vacuously. The warning is emitted from ``_evaluate_policy``
+            # once the effective policy is known: ``--unknown-authority
+            # block`` and a policy file or profile setting
+            # ``authority.unknown: deny`` are the same gate, and only the
+            # merged policy says which one is in force (#258 follow-up).
+            self.baseline_diff_blind = True
 
-    def _warn_diff_gates_blind(self):
+    def _warn_diff_gates_blind(self, policy_doc, unknown_from_cli):
         """Warn when a diff-dependent gate was asked for but cannot fire.
 
         Without ``tool_surface`` or ``normalized_capabilities`` in the
@@ -156,18 +163,27 @@ class ScanPostProcessor:
         same reason: the ``authority:unknown`` policy match is built from
         ``capability_diff["tools"]`` filtered on ``change_class ==
         "UNKNOWN"``, so with no diff there are no UNKNOWN tools for it to
-        act on. ``pass`` and ``review`` cannot fail a run, so only
-        ``block`` is named. Exit codes are unchanged; the point is that a
-        requested gate which silently passes is itself a fail-open, and a
-        gate-affecting condition is never silent.
+        act on. ``allow`` and ``require_review`` cannot fail a run, so
+        only a ``deny`` outcome is named. Exit codes are unchanged; the
+        point is that a requested gate which silently passes is itself a
+        fail-open, and a gate-affecting condition is never silent.
+
+        The gate is decided from the *effective* policy — a policy file or
+        profile setting ``authority.unknown: deny`` is the same gate as
+        ``--unknown-authority block`` — so this runs from
+        ``_evaluate_policy`` after profile merge and the CLI fallback, and
+        names whichever source put ``deny`` in force.
         """
         gates = []
         if getattr(self.args, "fail_on_authority_change", None):
             gates.append("--fail-on-authority-change")
         if getattr(self.args, "fail_on_escalation", None):
             gates.append("--fail-on-escalation")
-        if getattr(self.args, "unknown_authority", None) == "block":
-            gates.append("--unknown-authority block")
+        if (policy_doc.get("authority") or {}).get("unknown") == "deny":
+            gates.append(
+                "--unknown-authority block" if unknown_from_cli
+                else "authority.unknown: deny"
+            )
         if not gates:
             return
         print(
@@ -274,10 +290,18 @@ class ScanPostProcessor:
                 "unknown": {"pass": "allow", "review": "require_review",
                             "block": "deny"}[unknown_cli],
             }
+            unknown_from_cli = True
+        else:
+            unknown_from_cli = False
         self.policy_decision = kya_policy.evaluate_policy(policy_doc, self.report)
         self.report["policy_decision"] = self.policy_decision
         self.report["policy_profile"] = profile_name
         self.policy_profile_name = profile_name
+        # Diff-dependent gates are warned about here rather than in
+        # ``_load_baseline``: the unknown-authority gate is decided by the
+        # effective policy resolved above, not by the CLI flag alone.
+        if self.baseline_diff_blind:
+            self._warn_diff_gates_blind(policy_doc, unknown_from_cli)
 
     def _evaluate_exceptions(self):
         from safeai.kya import exceptions as kya_exceptions
