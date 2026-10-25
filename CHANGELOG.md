@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is still reported, as its own signal rather than as a change, through
   the `authority` block per-capability `provenance_class`. Gate outcomes,
   severity capping, and exit codes are unchanged.
+  Thanks to [@tyza66](https://github.com/tyza66) (PR #257).
+- `docs/github-actions-example.md` documents the workflow trust boundary:
+  `contents: read` for the minimal scan, the extra `pull-requests: write`
+  needed only for `pr-comment-post`, and keeping broad tokens out of
+  `extra-args` and the environment.
+  Thanks to [@HectorGuerilla](https://github.com/HectorGuerilla) (PR #259).
 
 ### Fixed
 
@@ -39,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stderr naming the gates that cannot fail this run. Exit codes are
   unchanged. `--unknown-authority pass` and `review` cannot fail a run,
   so they are not named.
+  Thanks to [@tyza66](https://github.com/tyza66) (PR #258).
 - That warning now decides the unknown-authority gate from the
   *effective* policy — a policy file or profile setting
   `authority.unknown: deny` is the same gate as
@@ -48,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   alongside the flag gates, an explicit `allow`/`require_review` setting
   wins over the flag and is not named, and the warning is labelled by
   whichever source put `deny` in force. Exit codes are unchanged.
+  Thanks to [@tyza66](https://github.com/tyza66) (PR #260).
 
 ## [2.7.0] - 2026-10-22
 

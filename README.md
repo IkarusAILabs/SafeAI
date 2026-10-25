@@ -557,7 +557,7 @@ contributors who have helped make AI safer:
 | Contributor | Key Contributions |
 |-------------|-------------------|
 | [@i-safonoff](https://github.com/i-safonoff) | `.cursorrules` framework adapter, `rule_coverage_summary()`, RULES_REFERENCE.md, dataflow casing fix |
-| [@ARAVIND281](https://github.com/ARAVIND281) | Claude Code permission evaluation order, interprocedural data-flow tracking |
+| [@ARAVIND281](https://github.com/ARAVIND281) | Claude Code permission evaluation order, interprocedural data-flow tracking, exception scope-escape boundary tests (PR #220) |
 | [@Solarthis](https://github.com/Solarthis) | MCP tool description injection detection |
 | [@Aming9303](https://github.com/Aming9303) | `safeai registry components` CLI, `safeai init` command, GitHub Actions example |
 | [@adnqcr7-code](https://github.com/adnqcr7-code) | Framework detection tests (LangGraph, CrewAI, LlamaIndex, n8n, Claude Code), CI/SARIF docs |
@@ -577,6 +577,9 @@ contributors who have helped make AI safer:
 | [@HarshRajSinghania](https://github.com/HarshRajSinghania) | PR comment markdown injection sanitization (PR #204) |
 | [@thadidaniel-ctrl](https://github.com/thadidaniel-ctrl) | Release workflow supply-chain posture tests (PR #206) |
 | [@Golden007-prog](https://github.com/Golden007-prog) | Authority Evidence Benchmark HTML presentation, history limit (PRs #239, #240) |
+| [@therealestbenji](https://github.com/therealestbenji) | Microsoft Teams integration capability detector `CAP_ms_teams` (PR #219) |
+| [@tyza66](https://github.com/tyza66) | Authority-gate fail-closed audit: per-side access-mode provenance, diff-gate blind warning covering flag and policy-file gates (PRs #257, #258, #260) |
+| [@HectorGuerilla](https://github.com/HectorGuerilla) | GitHub Actions trust-boundary and permissions guidance (PR #259) |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get involved.
 
