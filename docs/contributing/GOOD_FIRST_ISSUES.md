@@ -234,6 +234,46 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 
 ---
 
+## Quality & Evidence Reporting
+
+October 2026 batch, drawn from the ROADMAP (Layers 2, 4 and 8) and from problems contributors hit while validating PRs. Each issue lists exact files and acceptance criteria.
+
+### 60. Fix the install and scan commands in the GitHub Actions example (#262)
+- **Difficulty:** Easy | **Effort:** 30–60 minutes
+- **Labels:** good first issue, documentation
+- **Suggested files:** `docs/github-actions-example.md`
+- **Description:** The example installs the wrong PyPI package and passes `scan` flags that don't exist; make it run verbatim.
+
+### 61. Read and write text files as UTF-8 (#263)
+- **Difficulty:** Easy | **Effort:** 1–2 hours
+- **Labels:** good first issue, bug
+- **Suggested files:** `safeai/engine/metadata.py`, `safeai/report/json_report.py`, `safeai/report/sarif.py`
+- **Description:** Under a non-UTF-8 locale (e.g. GBK) the scanner metadata silently reports `rule_count: 0`; pass `encoding="utf-8"` and add a regression test.
+
+### 62. Skip the wheel-build test cleanly when the setuptools backend is missing (#264)
+- **Difficulty:** Easy | **Effort:** 30–60 minutes
+- **Labels:** good first issue, test-coverage
+- **Suggested files:** `tests/test_github_action.py`
+- **Description:** `test_wheel_contains_package_data` errors instead of skipping when `build` is installed without `setuptools`.
+
+### 63. Single source for manifest provenance and gateability enums (#265)
+- **Difficulty:** Easy | **Effort:** 1 hour
+- **Labels:** good first issue, test-coverage
+- **Suggested files:** `safeai/kya/enrich.py`, `safeai/kya/contract.py`, `tests/test_manifest_contract.py`
+- **Description:** The enums are defined in both `contract.py` and `enrich.py`; import them from one place and test parity with the JSON Schema.
+
+### 64. Show v2.7 evidence metrics in the HTML report (#266)
+- **Difficulty:** Easy–Medium | **Effort:** 2–3 hours
+- **Labels:** good first issue, enhancement
+- **Suggested files:** `safeai/report/html.py`, `tests/test_html_report.py`
+- **Description:** Evidence metrics are in the JSON report, manifest and brief but not in `--html`; render them as an informational block.
+
+### 65. Refresh this index against the tracker (#267)
+- **Difficulty:** Easy | **Effort:** 1 hour
+- **Labels:** good first issue, documentation
+- **Suggested files:** `docs/contributing/GOOD_FIRST_ISSUES.md`
+- **Description:** Recount open/completed issues, drop references to templates and a workflow that don't exist, and fix tracker links.
+
 ## ✅ Completed Issues
 
 These issues have been implemented by community contributors and are now part of the main codebase.
