@@ -3,12 +3,10 @@
 Welcome, and thank you for considering contributing to SafeAI!
 
 This document indexes **59 beginner-friendly issues** designed for first-time
-contributors (25 currently open). Each issue includes the files you'll need to modify, the tests you should write, and
+contributors (23 currently open). Each issue includes the files you'll need to modify, the tests you should write, and
 the acceptance criteria.
 
-> **For maintainers:** These issues are defined in `.github/good-first-issues/` as YAML templates. Run the [create-good-first-issues workflow](../../actions/workflows/create-good-first-issues.yml) to create them in the GitHub issue tracker with the `good first issue` label. Once created, this file serves as a curated index.
-
-> **34 issues have already been completed** by community and internal
+> **46 issues have already been completed** by community and internal
 contributors. See the [Completed Issues](#-completed-issues) section at the bottom.
 
 ---
@@ -165,7 +163,7 @@ contributors. See the [Completed Issues](#-completed-issues) section at the bott
 ### 30. Add Windsurf config-file adapter
 - **Difficulty:** Easy-Medium | **Effort:** 3–4 hours
 - **Suggested files:** `safeai/frameworks/windsurf/__init__.py` (new), `safeai/frameworks/windsurf/parser.py` (new), `safeai/frameworks/__init__.py` (register), `safeai/engine/orchestrator.py` (add `.windsurfrules` to `_is_scannable_file`), `tests/test_windsurf_framework.py` (new), `tests/fixtures/windsurf/representative/.windsurfrules` (new)
-- **Description:** Add a framework adapter for the Windsurf IDE config file (`.windsurfrules`). Follow the exact pattern of the `.cursorrules` adapter (PR [#113](https://github.com/ikaruscareer/SafeAI/pull/113)): filename-based detection, JSON/YAML/free-text structured-first parsing, capability keyword scanning (`shell`, `filesystem`, `external_apis`, `databases`), tool/model extraction, unrestricted grant detection, MCP reference detection. Register via `@register_parser`. Write tests covering JSON parsing, YAML parsing, free-text fallback, detection by filename, and integration with `run_scan()`. Maps to v2.0.0 config-file coverage in `ROADMAP.md`.
+- **Description:** Add a framework adapter for the Windsurf IDE config file (`.windsurfrules`). Follow the exact pattern of the `.cursorrules` adapter (PR [#113](https://github.com/IkarusAILabs/SafeAI/pull/113)): filename-based detection, JSON/YAML/free-text structured-first parsing, capability keyword scanning (`shell`, `filesystem`, `external_apis`, `databases`), tool/model extraction, unrestricted grant detection, MCP reference detection. Register via `@register_parser`. Write tests covering JSON parsing, YAML parsing, free-text fallback, detection by filename, and integration with `run_scan()`. Maps to v2.0.0 config-file coverage in `ROADMAP.md`.
 
 ---
 
@@ -282,12 +280,12 @@ These issues have been implemented by community contributors and are now part of
 
 | # | Issue | Contributor |
 |---|-------|-------------|
-| 1 | Add Google ADK detector | ikaruscareer |
-| 2 | Add Mastra detector | ikaruscareer |
-| 3 | Add Haystack detector | ikaruscareer |
-| 5 | Add n8n workflow detector | ikaruscareer |
-| 6 | Improve CrewAI parser — extract tool definitions | ikaruscareer |
-| 8 | Add Dify detector | ikaruscareer |
+| 1 | Add Google ADK detector | IkarusAILabs |
+| 2 | Add Mastra detector | IkarusAILabs |
+| 3 | Add Haystack detector | IkarusAILabs |
+| 5 | Add n8n workflow detector | IkarusAILabs |
+| 6 | Improve CrewAI parser — extract tool definitions | IkarusAILabs |
+| 8 | Add Dify detector | IkarusAILabs |
 | — | Add `.cursorrules` config-file adapter | @i-safonoff (PR #113) |
 | #155 | Add OpenClaw and GitHub Copilot config-file adapters | @YaoSong808 (PR #159) |
 | #224 | Improve HTML presentation of Authority Evidence Benchmark results | @Golden007-prog (PR #239, #240) |
@@ -653,7 +651,7 @@ Each issue above has a corresponding YAML template in `.github/good-first-issues
 
 ## How to Claim an Issue
 
-1. Find an issue in the [GitHub issue tracker](https://github.com/ikaruscareer/SafeAI/issues) labeled `good first issue`
+1. Find an issue in the [GitHub issue tracker](https://github.com/IkarusAILabs/SafeAI/issues) labeled `good first issue`
 2. Comment to let others know you're working on it
 3. Ask questions if anything is unclear
 4. Submit a draft PR early for feedback
