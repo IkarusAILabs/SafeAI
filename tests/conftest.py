@@ -6,6 +6,16 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
+def _telemetry_state_in_tmp(monkeypatch, tmp_path):
+    """Keep telemetry preference and install-ID tests out of user state."""
+    from safeai.telemetry import config
+
+    state_dir = tmp_path / "telemetry"
+    monkeypatch.setattr(config, "_STATE_DIR", state_dir)
+    monkeypatch.setattr(config, "_STATE_FILE", state_dir / "telemetry.json")
+
+
+@pytest.fixture(autouse=True)
 def _shared_registry_in_tmp(monkeypatch, tmp_path):
     """Point the shared registry at a per-test temp database.
 
