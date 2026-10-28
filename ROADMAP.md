@@ -508,6 +508,64 @@ offline, static-evidence commitments and the runtime boundary.
 
 ---
 
+## External developments review (2026-10-28)
+
+Checked against recent research and open-source agent scanners.
+Adopted only where static authority evidence is the right instrument;
+nothing here reopens the REMOVE list or the runtime boundary.
+
+**Context.** A 2026 study of 117,062 dependency changes found coding
+agents selected known-vulnerable versions more often than humans
+(2.46% vs 1.64%; [Singla et al.](https://arxiv.org/abs/2601.00205)).
+Judging the package belongs to OpenPulse's plane. Whether an agent
+*can* change dependencies at all is agent authority, which is SafeAI's.
+Open-source scanners with overlapping scope now exist: [Agentic
+Radar](https://github.com/splx-ai/agentic-radar), [Cisco MCP
+Scanner](https://github.com/cisco-ai-defense/mcp-scanner), Snyk Agent
+Scan (formerly Invariant MCP-Scan) and
+[Aguara](https://github.com/garagon/aguara), all Apache-2.0. None
+publishes authority attribution measured against human-reviewed truth,
+which is where SafeAI should compete.
+
+### Work items
+
+- **E1 — Package-manager authority (Layer 1/3, P1, PLANNED).**
+  Recognise agent authority to add, upgrade, remove or publish
+  dependencies: shell allowlist entries for package managers
+  (`npm install`, `pip install`, `cargo add`, `go get`, publish
+  commands), registry credential names via the existing name-only
+  secret inventory, and write access to manifests and lockfiles. Map
+  widening onto the existing `dependency`, `authority` and
+  `credential_dependency` change dimensions; add no new dimension.
+  Benchmark cases come before any gating. SafeAI states *that* the
+  agent can change dependencies, never *whether* a chosen package is
+  safe.
+- **E2 — Comparative measurement against open-source agent scanners
+  (Layer 8, P5, RESEARCH ITEM).** Run the scanners above, at pinned
+  versions, on the corpus cases they can parse. Score every tool on
+  SafeAI's authority rubric (entity discovery, attribution, change
+  detection, unknown preservation) rather than on each tool's own
+  finding labels. LLM-backed analysers are disabled or reported
+  separately because their output varies between runs. Publish as a
+  technical report with the cases each tool misses, SafeAI included.
+  No superiority claim before results.
+- **E3 — External malicious-skill corpus (Layer 8, P5, RESEARCH
+  ITEM).** Evaluate MCP and skill poisoning detection on
+  [MalSkillBench](https://arxiv.org/abs/2606.07131) (3,944 malicious
+  and 4,000 benign coding-agent skills, malicious behaviour verified in
+  a sandbox) once its dataset location and licence are confirmed. Its
+  runtime labels also measure the static boundary: behaviour that only
+  shows at runtime is expected as `unknown`, and is counted separately
+  from a miss.
+
+**Not adopted:** runtime enforcement (AgentSpec, guardrail frameworks)
+and kill switches, which stay outside the runtime boundary (HaltAI's
+plane); dependency vulnerability or lifecycle intelligence
+(OpenPulse's plane); LLM analysis in the scan path; dynamic MCP
+probing.
+
+---
+
 ## Priority sequence
 
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
@@ -518,7 +576,8 @@ offline, static-evidence commitments and the runtime boundary.
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
   explainable decisions (core shipped; measure + deepen; delegation
-  and SoD change types, B2; SPIFFE identity change types, S2).
+  and SoD change types, B2; SPIFFE identity change types, S2;
+  package-manager authority, E1).
 - **P2 — Authority Depth:** MCP depth, delegated authority model,
   tool→implementation mapping precision, destination/resource
   modelling, dataflow precision (scaffolding shipped).
@@ -532,7 +591,8 @@ offline, static-evidence commitments and the runtime boundary.
 - **P5 — Research Benchmark:** fixture corpus, expected-truth
   annotations, evaluation harness, reproducibility; Blueprint
   scenario fixtures + coverage report, B5; SPIFFE identity cases,
-  S5 (research).
+  S5 (research); comparative scanner measurement and external
+  malicious-skill corpus, E2/E3 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
   expiry, escalation records.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
