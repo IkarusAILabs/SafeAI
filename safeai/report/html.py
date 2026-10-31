@@ -49,8 +49,7 @@ def _brief_section(report):
     """Security Brief: 30-second risk signal, evidence confidence, scope."""
     posture = build_posture(report)
     evidence = build_evidence(report)
-    evidence_metrics_lines = summary_lines(
-        ((report.get("manifest") or {}).get("summary") or {}).get("evidence_metrics"))
+    evidence_metrics_lines = summary_lines(report.get("evidence_metrics"))
     brief_changes = build_changes(report)
     authority = build_authority(report)
     total_findings = sum(evidence.values())
