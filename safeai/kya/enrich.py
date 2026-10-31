@@ -7,9 +7,19 @@ All additions are additive keys — existing consumers of the report dict
 are unaffected.
 """
 
+from safeai.kya.contract import GATEABILITY_VALUES, PROVENANCE_CLASSES
 from safeai.kya.fingerprints import fingerprint_finding, normalize_path
 from safeai.kya.identity import derive_agent_id
 from safeai.kya.util import confidence_label, redact_secrets
+
+__all__ = [
+    "GATEABILITY_VALUES",
+    "PROVENANCE_CLASSES",
+    "build_agent_records",
+    "gateability_for",
+    "normalize_findings",
+    "provenance_class_for",
+]
 
 # Concise, actionable remediation guidance for the highest-value rules.
 # Analyzers that already emit remediation keep their own text.
@@ -71,9 +81,7 @@ _DECLARED_ANALYZERS = frozenset({
 GATEABILITY_DETERMINISTIC = "deterministic"
 GATEABILITY_REVIEW_ONLY = "review-only"
 
-PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown",
-                      "repo-iac-observed")
-GATEABILITY_VALUES = (GATEABILITY_DETERMINISTIC, GATEABILITY_REVIEW_ONLY)
+# Enums are imported from safeai.kya.contract (single source of truth).
 
 
 def provenance_class_for(finding, analyzer, heuristic):
