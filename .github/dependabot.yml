@@ -9,3 +9,9 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    groups:
+      # init, autobuild, analyze and upload-sarif must run the same
+      # version; separate bumps fail the CodeQL job.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
