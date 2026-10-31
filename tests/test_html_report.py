@@ -255,3 +255,69 @@ def test_html_omits_absent_sections(tmp_path):
     assert "--baseline" in content
     assert "Security Brief" in content
     assert "Recommended Review Actions" in content
+
+
+def test_html_shows_evidence_metrics(tmp_path):
+    """v2.7 evidence metrics render from the report's top-level key."""
+    report = _brief_report()
+    report["evidence_metrics"] = {"rates": {
+        "evidence_backed_authority_rate": {"status": "measured", "value": 0.8, "numerator": 8, "denominator": 10},
+        "inferred_authority_rate": {"status": "measured", "value": 0.2, "numerator": 2, "denominator": 10},
+        "unattributed_authority_rate": {"status": "measured", "value": 0.0, "numerator": 0, "denominator": 10},
+    }}
+    out = tmp_path / "metrics.html"
+    write_html(report, str(out))
+    content = out.read_text(encoding="utf-8")
+    assert "Evidence metrics" in content
+    assert "Evidence-backed authority: 80% (8/10)" in content
+    assert "Inferred authority: 20% (2/10)" in content
+    assert "Unattributed authority: 0% (0/10)" in content
+
+
+def test_html_evidence_metrics_insufficient_evidence(tmp_path):
+    """An unmeasured rate reads as insufficient evidence, never 0% or 100%."""
+    report = _brief_report()
+    unmeasured = {"value": None, "status": "insufficient_evidence",
+                  "reason": "no authority statements"}
+    report["evidence_metrics"] = {"rates": {
+        "evidence_backed_authority_rate": unmeasured,
+        "inferred_authority_rate": unmeasured,
+        "unattributed_authority_rate": unmeasured,
+    }}
+    out = tmp_path / "insufficient.html"
+    write_html(report, str(out))
+    content = out.read_text(encoding="utf-8")
+    assert "Evidence-backed authority: insufficient evidence" in content
+    assert "Inferred authority: insufficient evidence" in content
+    assert "Unattributed authority: insufficient evidence" in content
+
+
+def test_html_omits_evidence_metrics_when_absent(tmp_path):
+    """Reports from before v2.7 have no evidence_metrics key and still render."""
+    report = _brief_report()
+    report.pop("evidence_metrics", None)
+    out = tmp_path / "legacy.html"
+    write_html(report, str(out))
+    content = out.read_text(encoding="utf-8")
+    assert "Security Brief" in content
+    assert "Evidence metrics" not in content
+
+
+def test_scan_html_includes_evidence_metrics(tmp_path):
+    """End to end: a real scan's HTML report carries the metrics card."""
+    from safeai.cmd.cli import main
+
+    project = tmp_path / "proj"
+    project.mkdir()
+    (project / "agent.py").write_text(
+        "import subprocess\n\n"
+        "def run(cmd):\n"
+        "    return subprocess.run(cmd, shell=True)\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "scan.html"
+    main(["scan", str(project), "--no-registry",
+          "--sarif", str(tmp_path / "scan.sarif"), "--html", str(out)])
+    content = out.read_text(encoding="utf-8")
+    assert "Evidence metrics" in content
+    assert "Evidence-backed authority:" in content

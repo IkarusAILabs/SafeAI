@@ -10,6 +10,7 @@ agent records, per-tool capability surface, and the assurance boundary.
 from datetime import UTC, datetime
 from html import escape
 
+from safeai.analysis.evidence_metrics import summary_lines
 from safeai.report import html_kit
 from safeai.report.security_brief import (
     build_actions,
@@ -48,6 +49,7 @@ def _brief_section(report):
     """Security Brief: 30-second risk signal, evidence confidence, scope."""
     posture = build_posture(report)
     evidence = build_evidence(report)
+    evidence_metrics_lines = summary_lines(report.get("evidence_metrics"))
     brief_changes = build_changes(report)
     authority = build_authority(report)
     total_findings = sum(evidence.values())
@@ -83,9 +85,14 @@ def _brief_section(report):
     for line in brief_changes.get("summary") or []:
         baseline_line = escape(line)
         break
+    metrics_html = ""
+    if evidence_metrics_lines:
+        items = "".join(f"<li>{escape(line)}</li>" for line in evidence_metrics_lines)
+        metrics_html = f"<div class='card'><h3>Evidence metrics</h3><ul>{items}</ul></div>"
     return f"""
     <h2>Security Brief</h2>
     <div class='hero'>{cards}</div>
+    {metrics_html}
     {("<p>" + baseline_line + "</p>") if baseline_line else ""}
     <p class='muted'>Risk and evidence confidence are different dimensions: a high
     risk signal with inferred evidence needs verification before action.</p>"""
