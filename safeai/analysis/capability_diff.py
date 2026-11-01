@@ -25,6 +25,7 @@ from safeai.analysis.escalation import (
 )
 from safeai.analysis.tool_identity import UNATTRIBUTED_KEY
 from safeai.analysis.tool_surface import build_tool_surface, surface_index
+from safeai.kya.contract import AUTHORITY_DIMENSIONS
 from safeai.severity import ESCALATION_SEVERITIES
 
 CAPABILITY_DIFF_SCHEMA_VERSION = 2
@@ -302,18 +303,19 @@ def authority_for(after_caps, escalations):
     }
 
 
+#: Dimensions whose block lists values; the others carry a state.
+_LIST_DIMENSIONS = ("destinations", "data_scope")
+
+
 def authority_unknown():
     """All-unknown authority block for removed tools (no after-state)."""
-    return {
-        "capabilities": [],
-        "destinations": {"values": [], "provenance_class": "unknown"},
-        "data_scope": {"values": [], "provenance_class": "unknown"},
-        "approval": {"state": "unknown", "provenance_class": "unknown"},
-        "autonomy": {"state": "unknown", "provenance_class": "unknown"},
-        "delegation": {"state": "unknown", "provenance_class": "unknown"},
-        "credential": {"state": "unknown", "provenance_class": "unknown"},
-        "identity": {"state": "unknown", "provenance_class": "unknown"},
-    }
+    block = {"capabilities": []}
+    for dim in AUTHORITY_DIMENSIONS:
+        if dim in _LIST_DIMENSIONS:
+            block[dim] = {"values": [], "provenance_class": "unknown"}
+        else:
+            block[dim] = {"state": "unknown", "provenance_class": "unknown"}
+    return block
 
 
 def authority_gate_tripped(tools, threshold):

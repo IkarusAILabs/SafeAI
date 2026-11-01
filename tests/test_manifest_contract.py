@@ -296,3 +296,16 @@ def test_enrich_reexports_contract_enums():
 
     assert enrich.PROVENANCE_CLASSES is PROVENANCE_CLASSES or set(enrich.PROVENANCE_CLASSES) == set(PROVENANCE_CLASSES)
     assert enrich.GATEABILITY_VALUES is GATEABILITY_VALUES or set(enrich.GATEABILITY_VALUES) == set(GATEABILITY_VALUES)
+
+
+def test_authority_dimensions_single_source():
+    """Contract, capability diff, evidence metrics and ROADMAP.md name the same dimensions."""
+    from safeai.analysis import capability_diff, evidence_metrics
+    from safeai.kya.contract import AUTHORITY_DIMENSIONS
+
+    assert evidence_metrics.AUTHORITY_DIMENSIONS is AUTHORITY_DIMENSIONS
+    for block in (capability_diff.authority_for([], []), capability_diff.authority_unknown()):
+        assert set(block) - {"capabilities"} == set(AUTHORITY_DIMENSIONS)
+    with open("ROADMAP.md", encoding="utf-8") as fh:
+        roadmap = " ".join(fh.read().split())
+    assert "`" + " | ".join(AUTHORITY_DIMENSIONS) + "`" in roadmap

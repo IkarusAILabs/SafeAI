@@ -504,13 +504,23 @@ class ScanPostProcessor:
                 write_digest_sidecar(self.manifest, self.args.manifest_path,
                                      self.args.digest_file)
 
+        # Control mappings (taxonomy only) go into the JSON and SARIF files.
+        # They are added to a copy, so the manifest, its digest and the
+        # registry record are unchanged.
+        if self.args.sarif or self.args.json_path:
+            from safeai.controls.mappings import map_rule_to_controls
+            mapped_report = dict(self.report, findings=[
+                dict(f, control_mappings=map_rule_to_controls(f.get("rule_id", "")))
+                for f in self.report.get("findings") or []
+            ])
+
         if self.args.sarif:
             from safeai.report.sarif import write_sarif
-            write_sarif(self.report, self.args.sarif)
+            write_sarif(mapped_report, self.args.sarif)
 
         if self.args.json_path:
             from safeai.report.json_report import write_json
-            write_json(self.report, self.args.json_path)
+            write_json(mapped_report, self.args.json_path)
 
         if self.args.html_path:
             from safeai.report.html import write_html

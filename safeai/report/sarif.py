@@ -23,6 +23,9 @@ def write_sarif(report, path):
                 entry["help"] = {"text": finding["remediation"]}
             if finding.get("message"):
                 entry["shortDescription"] = {"text": str(finding["message"]).split("\n")[0][:160]}
+            controls = [m["control_id"] for m in finding.get("control_mappings") or []]
+            if controls:
+                entry["properties"] = {"tags": ["security", *controls]}
             rules_meta[rule_id] = entry
 
     results = []
@@ -80,6 +83,11 @@ def write_sarif(report, path):
             props["reason"] = finding.get("reason")
         if finding.get("remediation"):
             props["remediation"] = finding.get("remediation")
+        controls = [
+            f"{m['framework']}:{m['control_id']}" for m in finding.get("control_mappings") or []
+        ]
+        if controls:
+            props["controls"] = controls
 
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(sarif, fh, indent=2)

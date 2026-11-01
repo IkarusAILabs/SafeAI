@@ -1,4 +1,4 @@
-"""Tests for WS4: Control Mappings — OWASP LLM, OWASP Agentic, NIST AI RMF."""
+"""Tests for WS4: Control Mappings — OWASP LLM, OWASP Agentic, NIST AI RMF, Blueprint."""
 
 
 class TestControlCatalogs:
@@ -42,9 +42,9 @@ class TestControlCatalogs:
     def test_list_frameworks(self):
         from safeai.controls.catalogs import list_frameworks
         frameworks = list_frameworks()
-        assert len(frameworks) == 3
+        assert len(frameworks) == 4
         ids = {f["id"] for f in frameworks}
-        assert ids == {"owasp_llm", "owasp_agentic", "nist_ai_rmf"}
+        assert ids == {"owasp_llm", "owasp_agentic", "nist_ai_rmf", "blueprint"}
 
 
 class TestControlMappings:
@@ -112,7 +112,7 @@ class TestControlMappings:
     def test_get_framework_summary(self):
         from safeai.controls.mappings import get_framework_summary
         summary = get_framework_summary()
-        assert len(summary) == 3
+        assert len(summary) == 4
         for fw in summary:
             assert "id" in fw
             assert "name" in fw
@@ -123,7 +123,7 @@ class TestControlMappings:
         for rule_id, mappings in RULE_MAPPINGS.items():
             assert len(mappings) >= 1, f"Rule {rule_id} has no mappings"
             for framework, control_id in mappings:
-                assert framework in {"owasp_llm", "owasp_agentic", "nist_ai_rmf"}
+                assert framework in {"owasp_llm", "owasp_agentic", "nist_ai_rmf", "blueprint"}
                 assert isinstance(control_id, str)
 
 
@@ -168,3 +168,63 @@ class TestRuleCoverageSummary:
             assert entry["unmapped_rules"] == sorted(entry["unmapped_rules"])
         # Calling it twice must produce identical output.
         assert rule_coverage_summary() == summary
+
+
+class TestBlueprintMappings:
+    """v2.8 (ROADMAP B1): Blueprint components are taxonomy, not conformance."""
+
+    def test_every_mapped_component_is_in_the_catalog(self):
+        from safeai.controls.catalogs import BLUEPRINT
+        from safeai.controls.mappings import BLUEPRINT_MAPPINGS
+        for rule_id, components in BLUEPRINT_MAPPINGS.items():
+            for component in components:
+                assert component in BLUEPRINT, f"{rule_id} maps to unknown {component}"
+
+    def test_catalog_holds_only_static_evidence_components(self):
+        """Runtime components (P3 authorization, P4 response) stay out of scope."""
+        from safeai.controls.catalogs import BLUEPRINT
+        for control_id, control in BLUEPRINT.items():
+            assert control_id.startswith(("BP-P1-", "BP-P2-", "BP-P4-RECOVERY"))
+            assert control["framework"] == "blueprint"
+
+    def test_framework_name_claims_no_membership(self):
+        from safeai.controls.catalogs import FRAMEWORKS
+        name = FRAMEWORKS["blueprint"]["name"].lower()
+        assert "publicly available" in name
+        for word in ("member", "certified", "compliant", "conformant"):
+            assert word not in name
+
+    def test_blueprint_mappings_join_existing_rule_mappings(self):
+        from safeai.controls.mappings import map_rule_to_controls
+        controls = {(m["framework"], m["control_id"]) for m in map_rule_to_controls("GOV_APPROVAL_MISSING")}
+        assert ("owasp_agentic", "AGENTIC05") in controls
+        assert ("blueprint", "BP-P2-GOVERNANCE") in controls
+
+
+def test_scan_writes_control_mappings_to_json_and_sarif_only(kya_project, tmp_path):
+    """JSON and SARIF carry mappings; the manifest (and its digest) does not."""
+    import json
+
+    from safeai.cmd.cli import main
+
+    json_path = tmp_path / "report.json"
+    sarif_path = tmp_path / "report.sarif"
+    manifest_path = tmp_path / "manifest.json"
+    main(["scan", kya_project["root"], "--json", str(json_path), "--sarif", str(sarif_path),
+          "--manifest", str(manifest_path), "--no-registry"])
+
+    report = json.loads(json_path.read_text(encoding="utf-8"))
+    mapped = [f for f in report["findings"] if f.get("control_mappings")]
+    assert mapped, "no finding carries control mappings"
+    assert all("control_mappings" in f for f in report["findings"])
+
+    sarif = json.loads(sarif_path.read_text(encoding="utf-8"))
+    run = sarif["runs"][0]
+    with_controls = [r for r in run["results"] if r.get("properties", {}).get("controls")]
+    assert with_controls
+    assert all(":" in ref for r in with_controls for ref in r["properties"]["controls"])
+    tagged = [r for r in run["tool"]["driver"]["rules"] if r.get("properties", {}).get("tags")]
+    assert tagged and all(r["properties"]["tags"][0] == "security" for r in tagged)
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert not any("control_mappings" in f for f in manifest["findings"])

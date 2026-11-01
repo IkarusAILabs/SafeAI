@@ -1,7 +1,8 @@
 """Control mappings — maps SafeAI rule IDs to control framework entries.
 
 Provides a structured mapping layer between SafeAI's internal rule taxonomy
-and external control frameworks (OWASP LLM, OWASP Agentic, NIST AI RMF).
+and external control frameworks (OWASP LLM, OWASP Agentic, NIST AI RMF,
+and the publicly available Blueprint Alliance reference architecture).
 
 This is a taxonomy-only layer — never a compliance or coverage claim.
 """
@@ -215,6 +216,36 @@ RULE_MAPPINGS = {
         ("owasp_agentic", "AGENTIC02"),
     ],
 }
+
+
+# Blueprint reference-architecture components (v2.8, ROADMAP B1). Kept as
+# its own table so the crosswalk can be reviewed in one place; merged into
+# RULE_MAPPINGS below. Authority changes (ESC_*) are configuration drift
+# after review and the re-attestation baseline; MCP and skill imports are
+# untrusted input; IaC grants and approval gates are permission ceilings.
+BLUEPRINT_MAPPINGS = {
+    "MCP_UNTRUSTED_CONFIG": ["BP-P1-IMPORT", "BP-P1-POSTURE"],
+    "MCP_TOOL_DESCRIPTION_INJECTION": ["BP-P1-IMPORT", "BP-P1-POSTURE"],
+    "MCP_TOOL_OVERLY_BROAD": ["BP-P1-POSTURE", "BP-P2-GOVERNANCE"],
+    "MCP_RESOURCE_SENSITIVE": ["BP-P1-POSTURE"],
+    "MCP_TRANSPORT_INSECURE": ["BP-P1-POSTURE"],
+    "SKILL_RISKY_TOOL": ["BP-P1-IMPORT", "BP-P1-POSTURE"],
+    "SKILL_IMPLICIT_DEPENDENCY": ["BP-P1-IMPORT"],
+    "IAC_EXCESS_AUTHORITY": ["BP-P2-GOVERNANCE"],
+    "IAC_AUTHORITY_MISMATCH": ["BP-P2-GOVERNANCE"],
+    "IAC_UNVERIFIED_LINK": ["BP-P1-DIRECTORY"],
+    "GOV_APPROVAL_MISSING": ["BP-P2-GOVERNANCE"],
+    "GOV_AUDIT_MISSING": ["BP-P4-RECOVERY"],
+    "ESC_NEW_CAPABILITY": ["BP-P1-POSTURE", "BP-P4-RECOVERY"],
+    "ESC_SEVERITY_INCREASE": ["BP-P1-POSTURE", "BP-P4-RECOVERY"],
+    "ESC_ACCESS_MODE_INCREASED": ["BP-P1-POSTURE", "BP-P2-GOVERNANCE"],
+    "ESC_APPROVAL_GATE_REMOVED": ["BP-P2-GOVERNANCE", "BP-P4-RECOVERY"],
+    "ESC_AUTONOMY_INCREASED": ["BP-P1-POSTURE", "BP-P2-GOVERNANCE"],
+    "ESC_MCP_SERVER_ADDED": ["BP-P1-IMPORT", "BP-P1-POSTURE"],
+    "ESC_COMBO_DELEGATION_EXTERNAL_SIDE_EFFECT": ["BP-P2-DELEGATION"],
+}
+for _rule_id, _components in BLUEPRINT_MAPPINGS.items():
+    RULE_MAPPINGS.setdefault(_rule_id, []).extend(("blueprint", c) for c in _components)
 
 
 def map_rule_to_controls(rule_id, severity=None):

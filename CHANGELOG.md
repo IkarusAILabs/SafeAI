@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Control mappings in the JSON and SARIF output (plan item 2.8-2). Every
+  JSON finding carries `control_mappings` (framework, control ID, family,
+  title, description); every SARIF result carries `properties.controls`
+  as `framework:control_id`, and each SARIF rule tags its control IDs.
+  The mappings existed in `safeai/controls/` but reached no output. They
+  are added to a copy of the report, so the KYA manifest, its digest and
+  the registry record are unchanged. Taxonomy only: no compliance,
+  coverage or conformance claim.
+- A `blueprint` control framework (plan item 2.8-3, ROADMAP B1): the six
+  components of the publicly available Blueprint Alliance reference
+  architecture that static authority evidence speaks to (posture
+  management, agent directory, agent import, delegation and inheritance,
+  permission ceilings and approval, re-attestation against a baseline),
+  mapped from MCP, skill, IaC, approval and authority-change rules.
+  Runtime components are deliberately absent. Ikarus AI Labs is not an
+  Alliance member, and the mapping implies no membership, endorsement or
+  conformance.
+- A provenance audit over the authority corpus (plan item 2.8-1,
+  `tests/test_provenance_audit.py`): every finding, capability and
+  per-tool authority statement that a scan of any of the 58 cases emits
+  must carry an enum-valid provenance class, an enum-valid gateability
+  and a well-formed evidence reference (path and non-negative line). All
+  58 cases pass; no detection changed.
+- The HTML report's Security Brief shows the v2.7 evidence metrics as an
+  *Evidence metrics* card under the KPI row. It reads
+  `manifest.summary.evidence_metrics` through the same `summary_lines()`
+  the terminal brief uses, so the two cannot word them differently; a
+  manifest without metrics shows no card.
+  Thanks to [@LetMeSleep8h](https://github.com/LetMeSleep8h) (PR #274).
+
 ### Changed
 
 - Access-mode transitions now record their provenance per side. Every
@@ -34,8 +66,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   needed only for `pr-comment-post`, and keeping broad tokens out of
   `extra-args` and the environment.
   Thanks to [@HectorGuerilla](https://github.com/HectorGuerilla) (PR #259).
+- `PROVENANCE_CLASSES` and `GATEABILITY_VALUES` are defined once, in
+  `safeai/kya/contract.py`; `safeai/kya/enrich.py` re-exports them, so
+  existing imports keep working. A test asserts the manifest JSON Schema
+  enums equal the contract constants.
+  Thanks to [@chiragjangiir](https://github.com/chiragjangiir) (PR #277).
+- The per-tool authority dimensions are defined once, as
+  `AUTHORITY_DIMENSIONS` in `safeai/kya/contract.py` (plan item 2.8-4);
+  `capability_diff` and `evidence_metrics` use it, and a test checks that
+  ROADMAP.md names the same list. ROADMAP.md previously listed
+  roadmap-only names (`data_reach`, `governance_control`,
+  `credential_dependency`, `dependency`) that no output carried. Output
+  is unchanged. A `dependency` dimension is deferred to the
+  package-manager authority work (E1), when it first carries evidence.
+- `docs/github-actions-example.md` installs the published package
+  (`SafeAI-Static-Analyzer`) and uses the scan flags the CLI has
+  (`--sarif <path>`).
+  Thanks to [@yoreva-01](https://github.com/yoreva-01) (PR #270).
 
 ### Fixed
+
+- Text files are read and written as UTF-8 regardless of the locale. On
+  a non-UTF-8 default locale (for example Windows with a Chinese locale)
+  the rule pack failed to decode, the error was swallowed, and scanner
+  metadata reported `rule_count: 0`; the JSON and SARIF writers had the
+  same latent problem.
+  Thanks to [@bfs2021](https://github.com/bfs2021) (PR #269).
 
 - `scan --fail-on-authority-change` / `--fail-on-escalation` /
   `--unknown-authority block` are no longer silent when they cannot fire.
@@ -56,6 +112,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wins over the flag and is not named, and the warning is labelled by
   whichever source put `deny` in force. Exit codes are unchanged.
   Thanks to [@tyza66](https://github.com/tyza66) (PR #260).
+
+### Tests and documentation
+
+- Every test runs with its own telemetry state directory, so the suite no
+  longer reads, writes or removes the real `~/.safeai`.
+  Thanks to [@MarioZhang420](https://github.com/MarioZhang420) (PR #287).
+- The wheel-build test skips with a named reason when the setuptools
+  build backend is unavailable.
+  Thanks to [@MarioZhang420](https://github.com/MarioZhang420) (PR #272).
+- The good-first-issues index matches the tracker's counts and links.
+  Thanks to [@chiragjangiir](https://github.com/chiragjangiir) (PR #276).
+- `ROADMAP.md` gains the external developments review (E1–E3, #288);
+  `docs/releases/IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md` supersedes the
+  v2.7–v2.11 plan (#292).
 
 ## [2.7.0] - 2026-10-22
 
