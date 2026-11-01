@@ -6,6 +6,7 @@ Extracts agents, tools, models, and capabilities from AutoGen configurations.
 
 import re
 
+from safeai.analysis import package_managers
 from safeai.analysis.capabilities import dedupe_capabilities, make_capability
 from safeai.analysis.semantic import (
     build_semantic_document,
@@ -90,6 +91,12 @@ class AutoGenParser:
                     confidence=0.9, risk_weight=1.6,
                     resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
                 ))
+                package_manager = package_managers.call_capability(
+                    call, self.name,
+                    resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
+                )
+                if package_manager:
+                    capabilities.append(package_manager)
 
             if any(s in lname for s in ["open", "pathlib", "os.remove", "os.write"]):
                 capabilities.append(make_capability(

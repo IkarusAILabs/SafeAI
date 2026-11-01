@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Package-manager authority from two more sources (E1 follow-up).
+  Literal `subprocess` / `os.system` commands in LangGraph, CrewAI and
+  AutoGen source (`subprocess.run(["npm", "install", pkg])`,
+  `os.system("npm publish")`) add a detected `package_manager` capability
+  and fire `CAP_package_manager`; a command held in a variable adds
+  nothing. Like other Python-source capabilities it is unattributed.
+  MCP tools whose *name* names a package operation (`npm_install`,
+  `add_dependency`, `publish_package`) add an *inferred* `package_manager`
+  capability to the server, with no finding. Three more pending
+  benchmark cases cover them (nine in all, review in #296); the 58
+  reviewed cases keep their outcomes and digests.
+
+### Changed
+
+- The MCP tool-name access-mode heuristic counts `install` as a write, so
+  `npm_install` is no longer read as a read-only tool.
+
 - Package-manager authority (ROADMAP E1, plan items 2.9-1 to 2.9-5). A
   Claude Code `Bash(...)` allow grant whose command runs a package
   manager (settings, slash-command `allowed-tools`, subagent tools) adds a

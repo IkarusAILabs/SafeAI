@@ -25,6 +25,8 @@ and reading dependency authority into it would be a guess.
 import fnmatch
 import re
 
+from safeai.analysis.capabilities import make_capability
+
 #: Subcommands per manager, by route. ``None`` as a manager-level wildcard
 #: (``npm:*``) grants every listed route.
 _ROUTES = {
@@ -170,3 +172,81 @@ def manifest_targets(path_pattern):
 def registry_credentials(names):
     """The registry credential names among ``names``, sorted."""
     return sorted({str(n) for n in names or [] if str(n) in REGISTRY_CREDENTIAL_NAMES})
+
+
+def call_targets(args):
+    """Targets of a subprocess-style call from its literal arguments.
+
+    ``args`` is the semantic layer's literal view of the call's positional
+    arguments: a command string (``"pip install requests"``) or a list of
+    tokens (``["npm", "install", ("ref", "pkg")]``). Only the leading
+    literal tokens are read; a command held in a variable (``("ref",
+    "cmd")``) yields nothing, because its route is decided at run time.
+    """
+    if not args:
+        return []
+    command = args[0]
+    if isinstance(command, str):
+        return command_targets(command)
+    if isinstance(command, (list, tuple)):
+        tokens = []
+        for token in command:
+            if not isinstance(token, str):
+                break
+            tokens.append(token)
+        return command_targets(" ".join(tokens)) if tokens else []
+    return []
+
+
+_NAME_SPLIT_RE = re.compile(r"[^A-Za-z0-9]+|(?<=[a-z0-9])(?=[A-Z])")
+#: Verbs per route for tool *names* (descriptions are never read).
+_NAME_VERBS = {
+    "install": {"install", "add", "uninstall", "remove", "upgrade", "update"},
+    "publish": {"publish"},
+}
+#: Nouns that make a verb about dependencies rather than something else.
+_NAME_OBJECTS = {"package", "packages", "dependency", "dependencies", "deps",
+                 "library", "libraries", "crate", "crates", "module", "modules"}
+
+
+def tool_name_targets(name):
+    """Targets suggested by an MCP tool's *name* alone (inferred evidence).
+
+    ``npm_install`` → ``["npm:install"]``; ``publish_package`` →
+    ``["package:publish"]``; ``install_app`` or ``update_issue`` → ``[]``.
+    A verb counts only next to a package manager or a dependency noun, so
+    ordinary install/update tools are not read as dependency authority.
+    Callers must record the result as inferred: a name is not a command.
+    """
+    tokens = {t.lower() for t in _NAME_SPLIT_RE.split(str(name or "")) if t}
+    managers = {_ALIASES.get(t, t) for t in tokens} & set(_ROUTES)
+    targets = set()
+    for route, verbs in _NAME_VERBS.items():
+        if not tokens & verbs:
+            continue
+        for manager in managers:
+            if route in _ROUTES[manager]:
+                targets.add(f"{manager}:{route}")
+        if not managers and tokens & _NAME_OBJECTS:
+            targets.add(f"package:{route}")
+    return sorted(targets)
+
+
+def call_capability(call, framework, resolved_definition=None):
+    """A ``package_manager`` capability for a subprocess-style call, or ``None``.
+
+    Used by the AST framework parsers next to their shell capability. The
+    evidence is a literal command in source, so the access mode is
+    explicit rather than inferred.
+    """
+    targets = call_targets(call.get("args"))
+    if not targets:
+        return None
+    return make_capability(
+        "package_manager", "Package Manager", framework, call.get("name"),
+        confidence=0.85, risk_weight=1.4, source="ast",
+        resolved_definition=resolved_definition,
+        access_mode=access_mode_for(targets),
+        line=call.get("line"),
+        targets=targets,
+    )

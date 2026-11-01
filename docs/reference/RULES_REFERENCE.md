@@ -225,11 +225,11 @@ conn = sqlite3.connect("customer_data.db")
 | **OWASP LLM** | LLM03 (Supply Chain) |
 | **Risk Category** | Capability |
 | **Gateability** | Review-only (Lane B) until its precision is published; never fails a gate |
-| **Detection** | Claude Code `Bash(...)` allow grants (settings, slash-command `allowed-tools`, subagent tools) whose command runs a package manager: install routes (`npm`/`pnpm`/`yarn` install/add/remove, `pip install`, `uv add`, `poetry add`, `cargo add`, `go get`) at `write`, publish routes (`npm publish`, `twine upload`, `cargo publish`, `uv publish`, `poetry publish`) at `execute` |
+| **Detection** | Literal `subprocess` / `os.system` commands in LangGraph, CrewAI and AutoGen source (`subprocess.run(["npm", "install", pkg])`), and Claude Code `Bash(...)` allow grants (settings, slash-command `allowed-tools`, subagent tools) whose command runs a package manager: install routes (`npm`/`pnpm`/`yarn` install/add/remove, `pip install`, `uv add`, `poetry add`, `cargo add`, `go get`) at `write`, publish routes (`npm publish`, `twine upload`, `cargo publish`, `uv publish`, `poetry publish`) at `execute` |
 
 **Why it matters:** An agent that can change dependencies can pull new code into the project, and one that can publish can ship code to everyone who depends on the package. SafeAI reports *that* the agent holds this authority, never *whether* a chosen package is safe.
 
-**Not detected (by design):** broad `Bash` or `Bash(*)` grants (already reported as shell authority), commands that change no dependency (`npm run`, `npm test`, `pip list`), and subcommands supplied at run time (the dependency route stays unknown). Writes that name a manifest or lockfile (`Edit(package.json)`) are filesystem authority and appear in the per-tool `dependency` dimension, not as this rule.
+**Not detected (by design):** broad `Bash` or `Bash(*)` grants (already reported as shell authority), commands that change no dependency (`npm run`, `npm test`, `pip list`), and commands or subcommands chosen at run time, such as `subprocess.run(cmd)` (the dependency route stays unknown). MCP tools named for package operations (`npm_install`, `publish_package`) add an *inferred* `package_manager` capability to the server's surface and `dependency` dimension, but no finding. Writes that name a manifest or lockfile (`Edit(package.json)`) are filesystem authority and appear in the per-tool `dependency` dimension, not as this rule.
 
 ---
 

@@ -1,0 +1,6 @@
+{
+ "case": "capabilities/package_manager_python_literal",
+ "category": "capabilities",
+ "description": "A literal npm install in a LangGraph tool function is package-manager authority.",
+ "version": "v2.9"
+}

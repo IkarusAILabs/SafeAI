@@ -236,3 +236,97 @@ def test_pending_corpus_holds_and_stays_labelled_unreviewed(tmp_path):
     result = runner.run_corpus(PENDING_CORPUS, str(tmp_path), determinism=False)
     failed = {r["id"]: r.get("failures") for r in result["cases"] if not r.get("passed")}
     assert failed == {}
+
+
+# --- v2.9 follow-up: Python source and MCP tool names ---------------------
+
+
+@pytest.mark.parametrize(
+    ("args", "targets"),
+    [
+        ([["npm", "install", ("ref", "pkg")]], ["npm:install"]),
+        (["pip install requests"], ["pip:install"]),
+        (["npm publish"], ["npm:publish"]),
+        ([("ref", "cmd")], []),
+        ([["npm", ("ref", "subcommand")]], []),
+        ([["git", "status"]], []),
+        ([], []),
+    ],
+)
+def test_call_targets_read_only_literal_commands(args, targets):
+    assert pm.call_targets(args) == targets
+
+
+@pytest.mark.parametrize(
+    ("name", "targets"),
+    [
+        ("npm_install", ["npm:install"]),
+        ("yarnAdd", ["yarn:install"]),
+        ("cargo_publish", ["cargo:publish"]),
+        ("add_dependency", ["package:install"]),
+        ("publish_package", ["package:publish"]),
+        ("install_app", []),
+        ("update_issue", []),
+        ("list_packages", []),
+        ("remove_user", []),
+    ],
+)
+def test_tool_name_targets(name, targets):
+    assert pm.tool_name_targets(name) == targets
+
+
+LANGGRAPH_AGENT = '''import subprocess
+from langgraph.graph import StateGraph
+
+
+def install_dependency(pkg: str) -> str:
+    subprocess.run(["npm", "install", pkg], check=True)
+    return "ok"
+
+
+def run_anything(cmd: str) -> str:
+    subprocess.run(cmd, shell=True)
+    return "ok"
+
+
+graph = StateGraph(dict)
+graph.add_node("install", install_dependency)
+'''
+
+
+def _surface(report):
+    return {t["tool_key"]: {c["name"]: c for c in t["capabilities"]} for t in report["tool_surface"]}
+
+
+def test_literal_package_command_in_python_source(tmp_path):
+    root = tmp_path / "lg"
+    root.mkdir()
+    (root / "agent.py").write_text(LANGGRAPH_AGENT, encoding="utf-8")
+    _, report = _scan(root, tmp_path / "r.json")
+    package_manager = _surface(report)["unknown:unattributed"]["package_manager"]
+    assert package_manager["access_mode"] == "write"
+    assert package_manager["inferred"] is False
+    assert package_manager["targets"] == ["npm:install"]
+
+
+def test_variable_command_in_python_source_claims_nothing(tmp_path):
+    root = tmp_path / "dyn"
+    root.mkdir()
+    source = LANGGRAPH_AGENT.replace('["npm", "install", pkg]', "pkg")
+    (root / "agent.py").write_text(source, encoding="utf-8")
+    _, report = _scan(root, tmp_path / "r.json")
+    for caps in _surface(report).values():
+        assert "package_manager" not in caps
+
+
+def test_mcp_tool_names_give_inferred_package_manager(tmp_path):
+    root = tmp_path / "mcp"
+    root.mkdir()
+    (root / ".mcp.json").write_text(json.dumps({"mcpServers": {"deps": {
+        "command": "node", "args": ["server.js"],
+        "tools": ["npm_install", "publish_package", "update_issue"]}}}), encoding="utf-8")
+    _, report = _scan(root, tmp_path / "r.json")
+    package_manager = _surface(report)["mcp_server:deps"]["package_manager"]
+    assert package_manager["inferred"] is True
+    assert package_manager["access_mode"] == "execute"
+    assert package_manager["targets"] == ["npm:install", "package:publish"]

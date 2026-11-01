@@ -1,0 +1,56 @@
+{
+ "case": "unknown/python_variable_command",
+ "notes": "subprocess.run(command, shell=True) runs whatever the caller passes. It may install or publish, but static analysis cannot tell, so only shell authority is reported and the dependency route stays unknown.",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "unknown:unattributed",
+   "capabilities": [
+    {
+     "name": "shell_execution",
+     "access_mode": "execute"
+    }
+   ]
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "CAP_package_manager"
+ ],
+ "evidence_refs": [
+  "agent.py"
+ ],
+ "uncertainty": [
+  {
+   "kind": "inferred",
+   "match": "shell_execution"
+  }
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is (see issue #296).",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [
+   {
+    "tool": null,
+    "capability": "shell_execution",
+    "access_mode": "execute",
+    "attribution": "unresolved"
+   }
+  ],
+  "relationships": [],
+  "unknown_expectations": [
+   {
+    "area": "inferred",
+    "expected": "INFERRED",
+    "match": "shell_execution"
+   }
+  ]
+ }
+}

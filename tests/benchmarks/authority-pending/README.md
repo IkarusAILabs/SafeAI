@@ -38,3 +38,6 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `access_modes/manifest_write` | v2.9 (E1) | Writes naming a manifest are filesystem writes, not package-manager runs |
 | `baseline_changes/install_to_publish` | v2.9 (E1) | Install → publish widens `package_manager` from write to execute: a material change |
 | `unknown/caller_supplied_package_command` | v2.9 (E1) | A package-manager subcommand supplied at run time claims no dependency authority |
+| `capabilities/package_manager_python_literal` | v2.9 (E1) | A literal `npm install` in a LangGraph tool is `package_manager` at write (detected, unattributed) |
+| `unknown/python_variable_command` | v2.9 (E1) | A command held in a variable claims no dependency authority |
+| `mcp/package_tool_names` | v2.9 (E1) | MCP tools named `npm_install` / `publish_package` give an inferred `package_manager`; `update_issue` does not |
