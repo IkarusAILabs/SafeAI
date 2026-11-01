@@ -1,0 +1,11 @@
+{
+  "env": {
+    "NPM_TOKEN": "${NPM_TOKEN}"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm publish)",
+      "Bash(twine upload:*)"
+    ]
+  }
+}

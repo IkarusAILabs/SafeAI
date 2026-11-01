@@ -1,0 +1,6 @@
+{
+ "case": "capabilities/package_manager_publish",
+ "category": "capabilities",
+ "description": "Allowlisted publish commands give package-manager authority at execute.",
+ "version": "v2.9"
+}

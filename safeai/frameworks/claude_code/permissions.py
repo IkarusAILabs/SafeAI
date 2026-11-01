@@ -14,6 +14,7 @@ opened, and no path outside the scanned repository is consulted.
 
 import re
 
+from safeai.analysis import package_managers
 from safeai.analysis.capabilities import make_capability
 from safeai.analysis.tool_identity import make_tool_identity
 from safeai.kya.util import redact_secrets
@@ -203,6 +204,48 @@ def capability_for(record, evidence_prefix="claude code permission"):
         access_mode=record["access_mode"],
         line=record.get("line", 0),
     )
+
+
+#: Built-in tools whose argument is a file path pattern that writes.
+_FILE_WRITE_TOOLS = {"write", "edit", "multiedit"}
+
+
+def capabilities_for(record, evidence_prefix="claude code permission", credentials=()):
+    """All capabilities an ``allow`` grant confers, as a list (v2.9).
+
+    The first is :func:`capability_for`'s, unchanged except that a write
+    grant naming a dependency manifest carries that manifest as a target.
+    A ``Bash`` grant whose command runs a package manager adds a
+    ``package_manager`` capability on the same tool, carrying its routes
+    as targets and the registry ``credentials`` names given (from the same
+    settings file). A broad ``Bash`` or ``Write(*)`` grant adds nothing:
+    its shell or filesystem authority is already reported, and reading a
+    dependency route into it would be a guess.
+    """
+    primary = capability_for(record, evidence_prefix=evidence_prefix)
+    if primary is None:
+        return []
+    tool = str(record.get("tool") or "").lower()
+    argument = record.get("argument")
+    if tool in _FILE_WRITE_TOOLS and not record.get("wildcard"):
+        targets = package_managers.manifest_targets(argument)
+        if targets:
+            primary["targets"] = targets
+    capabilities = [primary]
+    if tool == "bash" and not record.get("wildcard"):
+        targets = package_managers.command_targets(argument)
+        if targets:
+            capabilities.append(make_capability(
+                "package_manager", "Package Manager", "claude_code",
+                f"{evidence_prefix}: {record['entry']}",
+                confidence=0.9, source="config",
+                tool_identity=record["identity"],
+                access_mode=package_managers.access_mode_for(targets),
+                line=record.get("line", 0),
+                targets=targets,
+                credentials=package_managers.registry_credentials(credentials),
+            ))
+    return capabilities
 
 
 def argument_covers(broad, narrow):

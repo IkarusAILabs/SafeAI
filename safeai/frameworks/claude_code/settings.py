@@ -142,6 +142,18 @@ def extract_mcp_servers(data):
     return []
 
 
+def extract_env_names(data):
+    """Names of the environment variables a settings file sets for the session.
+
+    Only the names are returned. Values can be credentials and never leave
+    this function.
+    """
+    env = data.get("env") if isinstance(data, dict) else None
+    if not isinstance(env, dict):
+        return []
+    return sorted(str(name) for name in env if isinstance(name, str) and name)
+
+
 def extract_hooks(data):
     """Flatten the ``hooks`` block into ``(event, command)`` pairs.
 

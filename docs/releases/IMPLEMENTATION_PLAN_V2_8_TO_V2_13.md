@@ -102,7 +102,7 @@ v2.6 → v2.7 two and a half) and are indicative only.
 properties; one dimension list in code, schema and ROADMAP.md; the
 benchmark digest is unchanged (mappings are output-only).
 
-## v2.9.0 — Package-Manager Authority  *(P1, E1)* — target 2026-12-05
+## v2.9.0 — Package-Manager Authority  *(P1, E1)* — **implemented, unreleased** (Claude Code scope)
 
 | # | Item | Roadmap | Size |
 |---|---|---|---|
@@ -115,6 +115,19 @@ benchmark digest is unchanged (mappings are output-only).
 **Exit criteria:** Lane B only; precision and recall on the new cases
 published; reports state *that* the agent can change dependencies, never
 *whether* a package is safe (OpenPulse's plane).
+
+**Status.** Implemented for Claude Code grants (settings, slash-command
+`allowed-tools`, subagent tools):
+
+| # | Done | Not yet |
+|---|---|---|
+| 2.9-1 | Six cases (install, publish, lookalikes, manifest write, install → publish, caller-supplied subcommand), all holding, in `tests/benchmarks/authority-pending/` | Human review of their truth, then promotion into the corpus; MCP and CrewAI / LangGraph cases |
+| 2.9-2 | `CAP_package_manager` from `Bash(...)` grants; review-only | MCP shell tools; package-manager commands in Python source |
+| 2.9-3 | Registry credential names from the same settings file's `env` block (names only) populate `credential` | Repository-wide inventory linking (a per-tool link from it would be inferred) |
+| 2.9-4 | `Write`/`Edit` grants naming a manifest or lockfile carry it as a `dependency` target | — |
+| 2.9-5 | `dependency` dimension; install → publish is a `write` → `execute` widening; Lane-B capabilities are excluded from `--fail-on-authority-change` and `--fail-on-escalation` | — |
+
+The precision exit criterion waits for the human review of 2.9-1.
 
 ## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — target 2027-01-15
 

@@ -96,15 +96,23 @@ def provenance_class_for(finding, analyzer, heuristic):
     return "detected"
 
 
+#: Rules that ship in Lane B (review-only) until their precision is
+#: published (ADR-0008): v2.9 package-manager authority.
+LANE_B_RULES = frozenset({"CAP_package_manager"})
+
+
 def gateability_for(finding, provenance_class):
     """Return the gateability for a normalized finding.
 
     Heuristic or unknown-provenance findings are review-only: no heuristic
     may fail a Lane-A deterministic gate on its own. Repository-IaC
     evidence is review-only by construction (ADR-0008): grants observed
-    in IaC can inform human review but never fail a gate.
+    in IaC can inform human review but never fail a gate. So are rules in
+    ``LANE_B_RULES``, whatever their provenance.
     """
     if provenance_class in ("inferred", "unknown", "repo-iac-observed"):
+        return GATEABILITY_REVIEW_ONLY
+    if finding.get("rule_id") in LANE_B_RULES:
         return GATEABILITY_REVIEW_ONLY
     return GATEABILITY_DETERMINISTIC
 

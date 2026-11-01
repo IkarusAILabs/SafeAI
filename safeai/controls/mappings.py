@@ -23,6 +23,10 @@ RULE_MAPPINGS = {
         ("owasp_llm", "LLM06"),
         ("owasp_agentic", "AGENTIC02"),
     ],
+    "CAP_package_manager": [
+        ("owasp_llm", "LLM03"),
+        ("owasp_agentic", "AGENTIC03"),
+    ],
     "CAP_code_exec": [
         ("owasp_llm", "LLM06"),
         ("owasp_agentic", "AGENTIC02"),
@@ -231,6 +235,7 @@ BLUEPRINT_MAPPINGS = {
     "MCP_TRANSPORT_INSECURE": ["BP-P1-POSTURE"],
     "SKILL_RISKY_TOOL": ["BP-P1-IMPORT", "BP-P1-POSTURE"],
     "SKILL_IMPLICIT_DEPENDENCY": ["BP-P1-IMPORT"],
+    "CAP_package_manager": ["BP-P1-POSTURE", "BP-P2-GOVERNANCE"],
     "IAC_EXCESS_AUTHORITY": ["BP-P2-GOVERNANCE"],
     "IAC_AUTHORITY_MISMATCH": ["BP-P2-GOVERNANCE"],
     "IAC_UNVERIFIED_LINK": ["BP-P1-DIRECTORY"],

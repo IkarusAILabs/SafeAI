@@ -88,7 +88,8 @@ class _ToolAccumulator:
         self.key = tool_key(identity)
         self.capabilities = {}
 
-    def add(self, name, category, access_mode, confidence, evidence, inferred=False):
+    def add(self, name, category, access_mode, confidence, evidence, inferred=False,
+            targets=None, credentials=None):
         cap_name = str(name or "capability").strip().lower()
         entry = self.capabilities.get(cap_name)
         mode = normalize_access_mode(access_mode)
@@ -100,6 +101,8 @@ class _ToolAccumulator:
                 "confidence": round(float(confidence or 0.6), 4),
                 "inferred": bool(inferred),
                 "evidence": list(evidence or []),
+                "targets": set(targets or ()),
+                "credentials": set(credentials or ()),
             }
             return
         # Keep the strongest observed authority and the highest confidence;
@@ -110,12 +113,20 @@ class _ToolAccumulator:
         entry["confidence"] = round(max(entry["confidence"], float(confidence or 0.6)), 4)
         entry["inferred"] = bool(entry["inferred"] and inferred)
         entry["evidence"].extend(evidence or [])
+        entry["targets"].update(targets or ())
+        entry["credentials"].update(credentials or ())
 
     def finalize(self):
         capabilities = []
         for cap in self.capabilities.values():
             cap = dict(cap)
             cap["evidence"] = _sorted_evidence(cap["evidence"])[:5]
+            # v2.9: present only when non-empty, so existing surfaces are unchanged.
+            for key in ("targets", "credentials"):
+                if cap[key]:
+                    cap[key] = sorted(cap[key])
+                else:
+                    del cap[key]
             capabilities.append(cap)
         capabilities.sort(key=lambda c: (c["name"], c["access_mode"]))
         return {
@@ -151,6 +162,8 @@ def _collect_from_agent_models(report, accumulators):
                 capability.get("confidence", 0.7),
                 [_evidence_entry(path, capability.get("line"))],
                 inferred=bool(capability.get("access_mode_inferred")),
+                targets=capability.get("targets"),
+                credentials=capability.get("credentials"),
             )
 
 

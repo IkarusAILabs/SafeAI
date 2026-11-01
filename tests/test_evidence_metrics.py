@@ -108,7 +108,10 @@ def test_dimensions_counted_from_diff_authority():
     assert dims["destinations"] == {"total": 3, "unknown": 1}
     assert dims["identity"] == {"total": 3, "unknown": 3}
     entry = _rate(metrics, "unknown_authority_dimension_rate")
-    assert (entry["numerator"], entry["denominator"]) == (17, 21)
+    # Three counted tools carry every dimension; tool:a and the unattributed
+    # entry know two of them each.
+    total = 3 * len(AUTHORITY_DIMENSIONS)
+    assert (entry["numerator"], entry["denominator"]) == (total - 4, total)
 
 
 def test_deterministic_and_declares_what_it_does_not_measure():

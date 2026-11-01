@@ -1,0 +1,6 @@
+{
+ "case": "adversarial/package_manager_lookalikes",
+ "category": "adversarial",
+ "description": "Package-manager commands that change no dependency must not be read as authority.",
+ "version": "v2.9"
+}

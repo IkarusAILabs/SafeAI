@@ -1,0 +1,6 @@
+{
+ "case": "access_modes/manifest_write",
+ "category": "access_modes",
+ "description": "Write grants that name dependency manifests are filesystem writes, not package-manager runs.",
+ "version": "v2.9"
+}

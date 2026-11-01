@@ -107,6 +107,7 @@ RULE_BY_CAP = {
     "browser_selenium": "CAP_browser_selenium",
     "browser_use": "CAP_browser_use",
     "gcp": "CAP_gcp",
+    "package_manager": "CAP_package_manager",
 }
 
 CATEGORY_BY_CAP = {
@@ -126,6 +127,7 @@ CATEGORY_BY_CAP = {
     "browser_selenium": "Browser",
     "browser_use": "Browser",
     "gcp": "Cloud",
+    "package_manager": "Package Manager",
 }
 
 

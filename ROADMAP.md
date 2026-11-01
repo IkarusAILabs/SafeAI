@@ -97,14 +97,14 @@ Formal change taxonomy (machine-readable, `contract.py: CHANGE_CLASSES`):
 
 Authority dimensions (machine-readable, `contract.py:
 AUTHORITY_DIMENSIONS`): `destinations | data_scope | approval |
-autonomy | delegation | credential | identity`. Each tool's `authority`
-block in the capability diff carries these next to its `capabilities`
-list (name, access mode, provenance), which is where authority itself
-changes. A dimension with no observable signal is `unknown`; today
-`credential` and `identity` are `unknown` for every tool, until E1 and S1
-give them evidence. A `dependency` dimension is added with E1, when it
-first carries evidence; adding it earlier would only raise the unknown
-rate. (Until v2.8 this list named roadmap-only terms; `data_reach` is
+autonomy | delegation | credential | identity | dependency`. Each tool's
+`authority` block in the capability diff carries these next to its
+`capabilities` list (name, access mode, provenance), which is where
+authority itself changes. A dimension with no observable signal is
+`unknown`. Since v2.9 (E1), `dependency` lists the dependency routes a
+tool holds (`<manager>:install`, `<manager>:publish`,
+`manifest:<file>`) and `credential` the registry credential names bound
+to them; `identity` stays `unknown` until S1. (Until v2.8 this list named roadmap-only terms; `data_reach` is
 `data_scope`, `governance_control` is `approval`, `credential_dependency`
 is `credential`.)
 
@@ -541,7 +541,7 @@ which is where SafeAI should compete.
 
 ### Work items
 
-- **E1 — Package-manager authority (Layer 1/3, P1, PLANNED).**
+- **E1 — Package-manager authority (Layer 1/3, P1, IMPLEMENTED for Claude Code grants in v2.9, Lane B).**
   Recognise agent authority to add, upgrade, remove or publish
   dependencies: shell allowlist entries for package managers
   (`npm install`, `pip install`, `cargo add`, `go get`, publish
@@ -552,7 +552,14 @@ which is where SafeAI should compete.
   (see *Authority dimensions* above).
   Benchmark cases come before any gating. SafeAI states *that* the
   agent can change dependencies, never *whether* a chosen package is
-  safe.
+  safe. *v2.9:* `CAP_package_manager` from Claude Code `Bash(...)`
+  grants, manifest targets on `Write`/`Edit` grants, registry
+  credential names from the same settings file's `env` block, and the
+  `dependency` dimension; review-only, and excluded from both diff
+  gates. Six benchmark cases await human review in
+  `tests/benchmarks/authority-pending/`. Still open: MCP and
+  Python-source shell commands, and repository-wide credential
+  inventory linking.
 - **E2 — Comparative measurement against open-source agent scanners
   (Layer 8, P5, RESEARCH ITEM).** Run the scanners above, at pinned
   versions, on the corpus cases they can parse. Score every tool on

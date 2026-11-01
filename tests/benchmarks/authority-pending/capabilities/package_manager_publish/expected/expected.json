@@ -1,0 +1,77 @@
+{
+ "case": "capabilities/package_manager_publish",
+ "notes": "Bash(npm publish) and Bash(twine upload:*) let the agent publish packages: package_manager at execute. The env block names NPM_TOKEN (value never read), which binds a registry credential to the capability.",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "tool:bash",
+   "capabilities": [
+    {
+     "name": "package_manager",
+     "access_mode": "execute"
+    },
+    {
+     "name": "shell",
+     "access_mode": "execute"
+    }
+   ]
+  }
+ ],
+ "must_fire": [
+  "CAP_package_manager"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "settings.json"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs, which are configuration only, so the expected authority follows from the grants as written. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [
+   {
+    "id": "bash",
+    "name": "bash",
+    "kind": "tool",
+    "attributable": true
+   }
+  ],
+  "capabilities": [
+   {
+    "tool": "bash",
+    "capability": "package_manager",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "bash",
+    "capability": "shell",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   }
+  ],
+  "relationships": [
+   {
+    "type": "tool_has_capability",
+    "tool": "bash",
+    "capability": "package_manager",
+    "access_mode": "execute",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "bash",
+    "capability": "shell",
+    "access_mode": "execute",
+    "resolvable": true
+   }
+  ],
+  "unknown_expectations": []
+ }
+}
