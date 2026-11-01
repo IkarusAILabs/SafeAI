@@ -3,6 +3,63 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.9.0 (2026-11-01)
+
+**Package-Manager Authority.** SafeAI now reports whether an agent can
+change the project's dependencies — install, upgrade, remove or publish —
+and which registry credentials it holds for that. It reports *that* the
+agent can, never whether a chosen package is safe.
+
+### What's New
+
+- **`CAP_package_manager`** (medium, LLM03) from three sources:
+  - Claude Code `Bash(...)` allow grants (settings, slash-command
+    `allowed-tools`, subagent tools): `Bash(npm install:*)` is `write`,
+    `Bash(npm publish)` is `execute`;
+  - literal commands in LangGraph, CrewAI and AutoGen tool code
+    (`subprocess.run(["npm", "install", pkg])`), as detected evidence;
+  - MCP tools named for a package operation (`npm_install`,
+    `publish_package`), as *inferred* evidence, with no finding.
+- **`dependency` authority dimension** per tool: `npm:install`,
+  `npm:publish`, `manifest:package.json`, … `Edit(package.json)` and
+  similar grants show up here as manifest writes.
+- **`credential` dimension**, populated for the first time: registry
+  credential *names* set in the same Claude Code settings file's `env`
+  block (`NPM_TOKEN`, `TWINE_PASSWORD`, …). Values are never read into
+  any output.
+- Nothing is guessed: a bare `Bash`, `Write(*)`, `npm run build`, or a
+  command chosen at run time adds no dependency authority.
+
+### Lane B: reported, not gating
+
+`CAP_package_manager` findings are review-only, and a tool change made
+only of package-manager (or inferred) evidence never fails
+`--fail-on-authority-change` or `--fail-on-escalation`. Escalations are
+still reported; `--fail-on-escalation` acts on the new
+`highest_gating_escalation`. Its precision is **not yet published**: the
+nine benchmark cases await human review (#296).
+
+### Upgrade notes
+
+- No breaking changes. Upgrading fails neither diff gate against a
+  baseline taken with v2.8, even though `package_manager` is new on
+  existing tools; a genuine Lane-A change still fails them.
+- New report fields: `targets` and `credentials` on tool-surface
+  capabilities, `dependency` (and `credential.values`) in each diff
+  tool's `authority` block, `review_only` per diff tool, and
+  `highest_gating_escalation` on the diff. `evidence_metrics` counts one
+  more authority dimension.
+- Manifest Contract stays `1.0.0`. The 58-case authority benchmark holds
+  with unchanged digests.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#290---2026-11-01)
+- [Rule reference: CAP_package_manager](../reference/RULES_REFERENCE.md#cap_package_manager)
+- [Pending benchmark cases](../../tests/benchmarks/authority-pending/README.md)
+
+---
+
 ## v2.8.0 (2026-11-01)
 
 **Evidence Hygiene & Mapping.** Findings now name the control-framework

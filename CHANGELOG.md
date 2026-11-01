@@ -7,24 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-11-01
+
+**Package-Manager Authority.**
+
 ### Added
-
-- Package-manager authority from two more sources (E1 follow-up).
-  Literal `subprocess` / `os.system` commands in LangGraph, CrewAI and
-  AutoGen source (`subprocess.run(["npm", "install", pkg])`,
-  `os.system("npm publish")`) add a detected `package_manager` capability
-  and fire `CAP_package_manager`; a command held in a variable adds
-  nothing. Like other Python-source capabilities it is unattributed.
-  MCP tools whose *name* names a package operation (`npm_install`,
-  `add_dependency`, `publish_package`) add an *inferred* `package_manager`
-  capability to the server, with no finding. Three more pending
-  benchmark cases cover them (nine in all, review in #296); the 58
-  reviewed cases keep their outcomes and digests.
-
-### Changed
-
-- The MCP tool-name access-mode heuristic counts `install` as a write, so
-  `npm_install` is no longer read as a read-only tool.
 
 - Package-manager authority (ROADMAP E1, plan items 2.9-1 to 2.9-5). A
   Claude Code `Bash(...)` allow grant whose command runs a package
@@ -55,6 +42,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the human-reviewed corpus, its measurements and its digests; a test runs
   them on every job, and all hold. `tests/benchmarks/authority-pending/README.md`
   says how to promote them.
+- Package-manager authority from two more sources (E1 follow-up).
+  Literal `subprocess` / `os.system` commands in LangGraph, CrewAI and
+  AutoGen source (`subprocess.run(["npm", "install", pkg])`,
+  `os.system("npm publish")`) add a detected `package_manager` capability
+  and fire `CAP_package_manager`; a command held in a variable adds
+  nothing. Like other Python-source capabilities it is unattributed.
+  MCP tools whose *name* names a package operation (`npm_install`,
+  `add_dependency`, `publish_package`) add an *inferred* `package_manager`
+  capability to the server, with no finding. Three more pending
+  benchmark cases cover them (nine in all, review in #296); the 58
+  reviewed cases keep their outcomes and digests.
 
 ### Changed
 
@@ -70,6 +68,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `evidence_metrics.authority_dimensions` gains a `dependency` entry, so
   the unknown authority-dimension rate has one more dimension per tool;
   the existing dimensions' counts are unchanged.
+- The MCP tool-name access-mode heuristic counts `install` as a write, so
+  `npm_install` is no longer read as a read-only tool.
+
+### Not yet measured
+
+- The precision of `CAP_package_manager` is not published. Its nine
+  benchmark cases await human review of their truth (#296); until then
+  the rule stays review-only and outside both diff gates.
 
 ## [2.8.0] - 2026-11-01
 
