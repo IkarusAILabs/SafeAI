@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "deps": {
+      "command": "node",
+      "args": [
+        "server.js"
+      ],
+      "tools": [
+        "npm_install",
+        "publish_package",
+        "update_issue"
+      ]
+    }
+  }
+}

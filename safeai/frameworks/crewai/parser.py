@@ -8,6 +8,7 @@ resolved call expressions.
 
 import re
 
+from safeai.analysis import package_managers
 from safeai.analysis.capabilities import dedupe_capabilities, make_capability
 from safeai.analysis.semantic import (
     build_semantic_document,
@@ -72,6 +73,9 @@ class CrewAIParser:
                 capabilities.append(make_capability("external_model_api", "External APIs", self.name, call["name"], confidence=0.8, resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}"))
             if any(s in lname for s in ["subprocess", "os.system", "popen"]):
                 capabilities.append(make_capability("shell_execution", "Shell", self.name, call["name"], confidence=0.9, risk_weight=1.6, resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}"))
+                package_manager = package_managers.call_capability(call, self.name, resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}")
+                if package_manager:
+                    capabilities.append(package_manager)
 
         if not agents or not tasks:
             for line in content.splitlines():

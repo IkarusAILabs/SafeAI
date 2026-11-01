@@ -1,0 +1,156 @@
+{
+ "case": "mcp/package_tool_names",
+ "notes": "The deps server lists npm_install and publish_package. A tool name is not a command, so package_manager is inferred, at execute because publish is among the routes; update_issue is not a dependency operation. Each listed tool is a write; the server launch command is shell. No finding: MCP tool capabilities are surface and authority evidence only.",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "mcp_server:deps",
+   "capabilities": [
+    {
+     "name": "mcp",
+     "access_mode": "write"
+    },
+    {
+     "name": "mcp_tool:npm_install",
+     "access_mode": "write"
+    },
+    {
+     "name": "mcp_tool:publish_package",
+     "access_mode": "write"
+    },
+    {
+     "name": "mcp_tool:update_issue",
+     "access_mode": "write"
+    },
+    {
+     "name": "package_manager",
+     "access_mode": "execute"
+    },
+    {
+     "name": "shell",
+     "access_mode": "execute"
+    }
+   ]
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "CAP_package_manager"
+ ],
+ "evidence_refs": [
+  ".mcp.json"
+ ],
+ "uncertainty": [
+  {
+   "kind": "inferred",
+   "match": "package_manager"
+  }
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is (see issue #296).",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [
+   {
+    "id": "deps",
+    "name": "deps",
+    "kind": "mcp_server",
+    "attributable": true
+   }
+  ],
+  "capabilities": [
+   {
+    "tool": "deps",
+    "capability": "mcp",
+    "access_mode": "write",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "deps",
+    "capability": "mcp_tool:npm_install",
+    "access_mode": "write",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "deps",
+    "capability": "mcp_tool:publish_package",
+    "access_mode": "write",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "deps",
+    "capability": "mcp_tool:update_issue",
+    "access_mode": "write",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "deps",
+    "capability": "package_manager",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "deps",
+    "capability": "shell",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   }
+  ],
+  "relationships": [
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "mcp",
+    "access_mode": "write",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "mcp_tool:npm_install",
+    "access_mode": "write",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "mcp_tool:publish_package",
+    "access_mode": "write",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "mcp_tool:update_issue",
+    "access_mode": "write",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "package_manager",
+    "access_mode": "execute",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "deps",
+    "capability": "shell",
+    "access_mode": "execute",
+    "resolvable": true
+   }
+  ],
+  "unknown_expectations": [
+   {
+    "area": "inferred",
+    "expected": "INFERRED",
+    "match": "package_manager"
+   }
+  ]
+ }
+}

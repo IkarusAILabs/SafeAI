@@ -102,7 +102,7 @@ v2.6 → v2.7 two and a half) and are indicative only.
 properties; one dimension list in code, schema and ROADMAP.md; the
 benchmark digest is unchanged (mappings are output-only).
 
-## v2.9.0 — Package-Manager Authority  *(P1, E1)* — **implemented, unreleased** (Claude Code scope)
+## v2.9.0 — Package-Manager Authority  *(P1, E1)* — **implemented, unreleased**
 
 | # | Item | Roadmap | Size |
 |---|---|---|---|
@@ -117,12 +117,13 @@ published; reports state *that* the agent can change dependencies, never
 *whether* a package is safe (OpenPulse's plane).
 
 **Status.** Implemented for Claude Code grants (settings, slash-command
-`allowed-tools`, subagent tools):
+`allowed-tools`, subagent tools), literal commands in LangGraph, CrewAI
+and AutoGen source, and MCP tool names:
 
 | # | Done | Not yet |
 |---|---|---|
-| 2.9-1 | Six cases (install, publish, lookalikes, manifest write, install → publish, caller-supplied subcommand), all holding, in `tests/benchmarks/authority-pending/` | Human review of their truth, then promotion into the corpus; MCP and CrewAI / LangGraph cases |
-| 2.9-2 | `CAP_package_manager` from `Bash(...)` grants; review-only | MCP shell tools; package-manager commands in Python source |
+| 2.9-1 | Nine cases (Claude Code grants, Python source literal and variable commands, MCP tool names), all holding, in `tests/benchmarks/authority-pending/` | Human review of their truth (#296), then promotion into the corpus |
+| 2.9-2 | `CAP_package_manager` from `Bash(...)` grants and from literal `subprocess` / `os.system` commands in LangGraph, CrewAI and AutoGen source (detected); MCP tool names such as `npm_install` (inferred, surface only); all review-only | LangChain and other parsers that do not model subprocess calls; attributing Python-source capabilities to their tool function (existing gap) |
 | 2.9-3 | Registry credential names from the same settings file's `env` block (names only) populate `credential` | Repository-wide inventory linking (a per-tool link from it would be inferred) |
 | 2.9-4 | `Write`/`Edit` grants naming a manifest or lockfile carry it as a `dependency` target | — |
 | 2.9-5 | `dependency` dimension; install → publish is a `write` → `execute` widening; Lane-B capabilities are excluded from `--fail-on-authority-change` and `--fail-on-escalation` | — |

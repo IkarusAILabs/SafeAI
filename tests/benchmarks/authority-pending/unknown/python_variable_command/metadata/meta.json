@@ -1,0 +1,6 @@
+{
+ "case": "unknown/python_variable_command",
+ "category": "unknown",
+ "description": "A command chosen at run time claims no package-manager authority.",
+ "version": "v2.9"
+}

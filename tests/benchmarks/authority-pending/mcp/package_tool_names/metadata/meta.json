@@ -1,0 +1,6 @@
+{
+ "case": "mcp/package_tool_names",
+ "category": "mcp",
+ "description": "MCP tools named for package operations suggest dependency authority, inferred.",
+ "version": "v2.9"
+}

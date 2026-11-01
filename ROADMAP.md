@@ -541,7 +541,7 @@ which is where SafeAI should compete.
 
 ### Work items
 
-- **E1 — Package-manager authority (Layer 1/3, P1, IMPLEMENTED for Claude Code grants in v2.9, Lane B).**
+- **E1 — Package-manager authority (Layer 1/3, P1, IMPLEMENTED in v2.9, Lane B).**
   Recognise agent authority to add, upgrade, remove or publish
   dependencies: shell allowlist entries for package managers
   (`npm install`, `pip install`, `cargo add`, `go get`, publish
@@ -557,8 +557,11 @@ which is where SafeAI should compete.
   credential names from the same settings file's `env` block, and the
   `dependency` dimension; review-only, and excluded from both diff
   gates. Six benchmark cases await human review in
-  `tests/benchmarks/authority-pending/`. Still open: MCP and
-  Python-source shell commands, and repository-wide credential
+  `tests/benchmarks/authority-pending/`. Follow-up in v2.9: literal
+  `subprocess` / `os.system` commands in LangGraph, CrewAI and AutoGen
+  source (detected), and MCP tool names (inferred); nine pending cases
+  in all, review tracked in #296. Still open: parsers that do not model
+  subprocess calls (LangChain), and repository-wide credential
   inventory linking.
 - **E2 — Comparative measurement against open-source agent scanners
   (Layer 8, P5, RESEARCH ITEM).** Run the scanners above, at pinned

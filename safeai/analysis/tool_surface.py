@@ -13,6 +13,7 @@ serialising it is byte-deterministic.
 
 import json
 
+from safeai.analysis import package_managers
 from safeai.analysis.capabilities import (
     access_mode_rank,
     max_access_mode,
@@ -45,7 +46,7 @@ _DOMAIN_TERMS = (
     ("human_approval", "Human Approval", ("approval", "approve", "confirm")),
 )
 
-_WRITE_VERBS = ("create", "write", "update", "insert", "upsert", "add", "send", "post", "put", "patch", "upload", "publish", "set")
+_WRITE_VERBS = ("create", "write", "update", "insert", "upsert", "add", "send", "post", "put", "patch", "upload", "publish", "set", "install")
 _MUTATE_VERBS = ("delete", "remove", "drop", "destroy", "purge", "revoke", "truncate", "overwrite", "cancel", "terminate")
 _EXECUTE_VERBS = ("exec", "run", "shell", "command", "invoke", "eval", "spawn")
 
@@ -233,6 +234,13 @@ def _collect_from_mcp_assets(report, accumulators):
                     0.85,
                     [_evidence_entry(path, 0)],
                 )
+                # v2.9 (E1): a tool *name* such as npm_install suggests
+                # dependency authority; a name is not a command, so inferred.
+                targets = package_managers.tool_name_targets(tool_name)
+                if targets:
+                    acc.add("package_manager", "Package Manager",
+                            package_managers.access_mode_for(targets), 0.6,
+                            [_evidence_entry(path, 0)], inferred=True, targets=targets)
             acc.add("mcp", "MCP", max_access_mode(modes) if modes else "read", 0.85,
                     [_evidence_entry(path, 0)])
 

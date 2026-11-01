@@ -1,0 +1,66 @@
+{
+ "case": "capabilities/package_manager_python_literal",
+ "notes": "subprocess.run([\"npm\", \"install\", pkg]) names the command literally: package_manager at write, detected (not inferred). Like every Python-source capability today it is unattributed: the call is not yet tied to its tool function (known attribution gap).",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "unknown:unattributed",
+   "capabilities": [
+    {
+     "name": "package_manager",
+     "access_mode": "write"
+    },
+    {
+     "name": "shell_execution",
+     "access_mode": "execute"
+    }
+   ]
+  }
+ ],
+ "must_fire": [
+  "CAP_package_manager"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "agent.py"
+ ],
+ "uncertainty": [
+  {
+   "kind": "inferred",
+   "match": "shell_execution"
+  }
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is (see issue #296).",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [
+   {
+    "tool": null,
+    "capability": "package_manager",
+    "access_mode": "write",
+    "attribution": "unresolved"
+   },
+   {
+    "tool": null,
+    "capability": "shell_execution",
+    "access_mode": "execute",
+    "attribution": "unresolved"
+   }
+  ],
+  "relationships": [],
+  "unknown_expectations": [
+   {
+    "area": "inferred",
+    "expected": "INFERRED",
+    "match": "shell_execution"
+   }
+  ]
+ }
+}
