@@ -4,6 +4,7 @@
 > Blueprint Alliance items B1–B6, the SPIFFE / SPIRE items S1–S6 and the
 > external developments review items E1–E3 (2026-10-28).
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
+> Status: v2.8.0 shipped 2026-11-01; next: v2.9.0 (package-manager authority, E1).
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -86,7 +87,7 @@ v2.6 → v2.7 two and a half) and are indicative only.
 
 ---
 
-## v2.8.0 — Evidence Hygiene & Mapping  *(P0, B1)* — target 2026-11-14
+## v2.8.0 — Evidence Hygiene & Mapping  *(P0, B1)* — **SHIPPED 2026-11-01** (#293)
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|

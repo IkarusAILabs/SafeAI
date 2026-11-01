@@ -3,6 +3,58 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.8.0 (2026-11-01)
+
+**Evidence Hygiene & Mapping.** Findings now name the control-framework
+entries they map to, every statement a scan emits is audited for
+provenance, and the roadmap's authority dimensions match the code.
+
+### What's New
+
+- **Control mappings in JSON and SARIF.** Each JSON finding carries
+  `control_mappings`, each SARIF result `properties.controls`
+  (`framework:control_id`), and each SARIF rule tags its control IDs, so
+  code-scanning views can filter by them. Taxonomy only, never a
+  compliance, coverage or conformance claim.
+- **Blueprint reference-architecture mapping.** A `blueprint` framework
+  with the six components of the publicly available Blueprint Alliance
+  architecture that static authority evidence speaks to, mapped from
+  MCP, skill, IaC, approval and authority-change rules. Ikarus AI Labs is
+  not an Alliance member; nothing here implies membership or
+  endorsement.
+- **Provenance audit.** A test scans all 58 authority corpus cases and
+  requires an enum-valid provenance class, gateability and evidence
+  reference on every finding, capability and authority statement.
+- **Per-side provenance on access-mode transitions** (`before_inferred`,
+  `after_inferred`) and **evidence metrics in the HTML Security Brief**,
+  both merged after v2.7.0.
+
+### Fixed
+
+- Text files are read and written as UTF-8 regardless of the locale; on
+  some non-UTF-8 Windows locales scanner metadata reported 0 rules.
+- The diff-gate blind warning names `--unknown-authority block` and a
+  policy-file `authority.unknown: deny`.
+
+### Upgrade notes
+
+- No breaking changes, no detection changes and no gate or exit-code
+  changes. Baselines and suppressions from v2.7 keep matching.
+- JSON and SARIF gain fields; consumers that reject unknown keys need to
+  allow `control_mappings` (JSON) and `properties.controls` /
+  `properties.tags` (SARIF).
+- The KYA manifest, its schema, contract version (`1.0.0`) and digest are
+  unchanged: mappings go to JSON and SARIF only.
+- The authority benchmark holds 58/58 with unchanged digests.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#280---2026-11-01)
+- [Implementation plan v2.8 → v2.13](../releases/IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md)
+- [SARIF review guidance: control references](../sarif-review-guidance.md#control-references)
+
+---
+
 ## v2.7.0 (2026-10-22)
 
 **Evidence Metrology.** Every scan now says how much of its authority
