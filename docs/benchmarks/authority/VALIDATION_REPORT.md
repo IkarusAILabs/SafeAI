@@ -238,3 +238,8 @@ accuracy without coverage does not graduate.
   files, #254), no truth changed, and the committed records above
   reproduce byte-for-byte again. No test ran the full corpus at the
   time; the CI `authority-benchmark` job now does.
+- v2.8.0: no truth changed and no case changed outcome. Both digests
+  above reproduce at 2.8.0 (Windows, Python 3.14). The release added
+  output-only control mappings and a provenance audit
+  (`tests/test_provenance_audit.py`) that scans every case and found no
+  out-of-contract provenance, gateability or evidence reference.

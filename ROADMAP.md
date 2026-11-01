@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked against `main` on 2026-11-01 for the v2.8 plan; see
+re-checked at v2.8.0 on 2026-11-01; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -666,6 +666,9 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.8.0** — Control mappings in JSON/SARIF, Blueprint reference
+  architecture mapping (B1), provenance audit over the authority corpus,
+  one authority-dimension list in code and roadmap, UTF-8 I/O fix.
 - **v2.7.0** — Evidence metrics on every scan (manifest + JSON +
   brief), `CAP_subprocess_shell` multi-line false negative fixed, full
   authority corpus gated in CI, Blueprint / SPIFFE roadmap alignment.
