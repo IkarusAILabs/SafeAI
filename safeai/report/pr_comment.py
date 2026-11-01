@@ -325,6 +325,24 @@ def _iac_authority(report, budget=9):
     return lines[:budget]
 
 
+def _delegation_changes(diff, budget=7):
+    """Delegation changes (v2.11) as review-only lines; empty when none."""
+    block = (diff or {}).get("delegation_changes") or {}
+    changes = [c for c in block.get("changes") or [] if isinstance(c, dict)]
+    if not changes or budget < 3:
+        return []
+    lines = ["**Delegation changes** (Lane B / review-only, never a gate):", ""]
+    shown = changes[: budget - 3]
+    for change in shown:
+        kind = sanitize_pr_text(str(change.get("type") or ""))
+        detail = sanitize_pr_text(str(change.get("detail") or ""))
+        lines.append(f"- `{kind}` {detail}")
+    hidden = len(changes) - len(shown)
+    if hidden > 0:
+        lines.append(f"- +{hidden} more delegation {_plural(hidden, 'change')}")
+    return lines[:budget]
+
+
 def _identity_changes(diff, budget=7):
     """Workload-identity changes (v2.11) as review-only lines.
 
@@ -465,7 +483,10 @@ def render_pr_comment(report, ci_context=None):
     blocks = _tool_blocks(diff)
     if not blocks:
         lines.append("### SafeAI — no capability escalations in this change")
-        identity_lines = _identity_changes(diff, budget=MAX_LINES - 6)
+        delegation_lines = _delegation_changes(diff, budget=(MAX_LINES - 6) // 2)
+        if delegation_lines:
+            lines.extend([""] + delegation_lines)
+        identity_lines = _identity_changes(diff, budget=(MAX_LINES - 6) // 2)
         if identity_lines:
             lines.extend([""] + identity_lines)
         lines.extend(["", _footer(report)])
@@ -506,6 +527,11 @@ def render_pr_comment(report, ci_context=None):
         if questions and iac_lines:
             sections.append("")
         sections.extend(iac_lines)
+        delegation_lines = _delegation_changes(
+            diff, budget=max(0, remaining - len(sections) - 1))
+        if sections and delegation_lines:
+            sections.append("")
+        sections.extend(delegation_lines)
         identity_lines = _identity_changes(
             diff, budget=max(0, remaining - len(sections) - 1))
         if sections and identity_lines:

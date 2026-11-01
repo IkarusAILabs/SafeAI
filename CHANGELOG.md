@@ -39,6 +39,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Evidence metrics: `unknown_workload_identity_rate`, the share of
   workloads whose SPIFFE identity stays unknown (insufficient evidence
   when a scan has no workload manifests).
+- Static delegation graph (ROADMAP B2, plan item 2.11-1) in
+  `report.delegation_graph` and the manifest: the Claude Code session
+  delegates to each subagent; OpenAI Agents SDK `handoffs=[...]`
+  (including `handoff(agent)` and inline `Agent(...)`); CrewAI agents
+  with `allow_delegation=True` and hierarchical crew managers. A handoff
+  target built at run time is recorded as unresolved, not guessed.
+  Delegation change types under `capability_diff.delegation_changes`:
+  `DELEGATE_ADDED`, `DELEGATION_BREADTH_INCREASED`,
+  `DELEGATION_DEPTH_INCREASED`, `DELEGATE_EXCEEDS_DELEGATOR` (a delegate
+  holds a tool its delegator does not, compared by tool name) and
+  `SUBAGENT_TOOLS_WIDENED`. All review-only and shown in the PR comment;
+  they never trip a gate. Claude Code subagents are never said to exceed
+  the session: their tools restrict the session's.
+- Seven pending benchmark cases for delegation, with
+  `delegation_edges`, `delegation_unresolved` and `delegation_changes`
+  truth sections in the harness.
 - Workload-identity change types between a baseline and the current scan
   (ROADMAP S2, plan items 2.11-3 and 2.11-4), under
   `capability_diff.workload_identity_changes`: `IDENTITY_ADDED`,

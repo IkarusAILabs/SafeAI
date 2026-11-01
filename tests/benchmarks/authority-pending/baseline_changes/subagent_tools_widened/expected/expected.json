@@ -1,0 +1,47 @@
+{
+ "case": "baseline_changes/subagent_tools_widened",
+ "notes": "reviewer's tools grow from Read, Grep to Read, Grep, Bash. fixer's tools field is removed, so it now has every session tool. Both are widenings of a delegate; no new delegate appears. reviewer gaining Bash is also a high-risk shell change on its own tool surface.",
+ "agents": [],
+ "delegation_changes": [
+  {
+   "type": "SUBAGENT_TOOLS_WIDENED",
+   "subject": "claude_code:reviewer"
+  },
+  {
+   "type": "SUBAGENT_TOOLS_WIDENED",
+   "subject": "claude_code:fixer"
+  }
+ ],
+ "changes": [
+  {
+   "tool": "agent:reviewer",
+   "status": "changed",
+   "materiality": "AUTHORITY_ESCALATION",
+   "channels": [],
+   "new_findings": []
+  }
+ ],
+ "canonical": {
+  "changes": [
+   {
+    "subject": "agent:reviewer",
+    "kind": "AUTHORITY_ESCALATION",
+    "status": "changed",
+    "domain": "tool-surface",
+    "evidence": [],
+    "surface_expected": true
+   }
+  ]
+ },
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

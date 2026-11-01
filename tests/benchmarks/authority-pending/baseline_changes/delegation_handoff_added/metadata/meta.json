@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/delegation_handoff_added",
+ "category": "baseline_changes",
+ "description": "triage gains a handoff to refunds, which holds a tool triage lacks.",
+ "version": "v2.11"
+}

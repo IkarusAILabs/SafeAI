@@ -1,0 +1,6 @@
+{
+ "case": "delegation/crewai_delegation",
+ "category": "delegation",
+ "description": "CrewAI: allow_delegation and a hierarchical manager create delegation edges.",
+ "version": "v2.11"
+}

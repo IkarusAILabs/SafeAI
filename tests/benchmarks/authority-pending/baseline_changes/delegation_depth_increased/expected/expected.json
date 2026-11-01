@@ -1,0 +1,35 @@
+{
+ "case": "baseline_changes/delegation_depth_increased",
+ "notes": "New edge billing -> refunds makes triage -> billing -> refunds a two-hop chain, and refunds holds issue_refund which billing does not. billing had no delegates before, so this is a new delegate, not a breadth increase.",
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "delegation_changes": [
+  {
+   "type": "DELEGATE_ADDED",
+   "subject": "openai_agents:billing -> openai_agents:refunds"
+  },
+  {
+   "type": "DELEGATION_DEPTH_INCREASED",
+   "subject": "max_depth"
+  },
+  {
+   "type": "DELEGATE_EXCEEDS_DELEGATOR",
+   "subject": "openai_agents:billing -> openai_agents:refunds: issue_refund"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

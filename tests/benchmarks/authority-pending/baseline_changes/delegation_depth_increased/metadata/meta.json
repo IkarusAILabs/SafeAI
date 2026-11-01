@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/delegation_depth_increased",
+ "category": "baseline_changes",
+ "description": "billing starts handing off to refunds: the chain grows from one hop to two.",
+ "version": "v2.11"
+}

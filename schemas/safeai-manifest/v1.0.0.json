@@ -205,6 +205,19 @@
         }
       }
     },
+    "delegation_graph": {
+      "description": "Optional (v2.11). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation. Lane B; never consumed by a gate.",
+      "type": ["object", "null"],
+      "properties": {
+        "lane": {"const": "B"},
+        "nodes": {"type": "array", "items": {"type": "object", "required": ["id", "framework", "name"]}},
+        "edges": {"type": "array", "items": {"type": "object", "required": ["from", "to"]}},
+        "unresolved": {"type": "array"},
+        "cycles": {"type": "boolean"},
+        "counts": {"type": "object"},
+        "notes": {"type": "array"}
+      }
+    },
     "iac_correlations": {
       "description": "IaC authority correlation evidence (v2.5, Lane B review-only; schema_version 2 authority graph).",
       "type": "object",

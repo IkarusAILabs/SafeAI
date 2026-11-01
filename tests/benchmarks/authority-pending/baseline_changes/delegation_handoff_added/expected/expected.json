@@ -1,0 +1,35 @@
+{
+ "case": "baseline_changes/delegation_handoff_added",
+ "notes": "One new edge (triage -> refunds), triage's breadth grows from 1 to 2, and refunds holds issue_refund which triage does not. The chain stays one hop deep.",
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "delegation_changes": [
+  {
+   "type": "DELEGATE_ADDED",
+   "subject": "openai_agents:triage -> openai_agents:refunds"
+  },
+  {
+   "type": "DELEGATION_BREADTH_INCREASED",
+   "subject": "openai_agents:triage"
+  },
+  {
+   "type": "DELEGATE_EXCEEDS_DELEGATOR",
+   "subject": "openai_agents:triage -> openai_agents:refunds: issue_refund"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

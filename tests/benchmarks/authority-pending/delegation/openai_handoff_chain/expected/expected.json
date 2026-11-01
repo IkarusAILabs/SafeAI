@@ -1,0 +1,43 @@
+{
+ "case": "delegation/openai_handoff_chain",
+ "notes": "triage hands off to billing and refunds; billing hands off to refunds through the handoff() wrapper. refunds holds issue_refund, which neither triage nor billing holds, so both edges into refunds exceed their delegator (compared by tool name). The third triage handoff is a factory call: unresolved, not guessed.",
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "delegation_edges": [
+  {
+   "from": "openai_agents:triage",
+   "to": "openai_agents:billing",
+   "exceeds": []
+  },
+  {
+   "from": "openai_agents:triage",
+   "to": "openai_agents:refunds",
+   "exceeds": [
+    "issue_refund"
+   ]
+  },
+  {
+   "from": "openai_agents:billing",
+   "to": "openai_agents:refunds",
+   "exceeds": [
+    "issue_refund"
+   ]
+  }
+ ],
+ "delegation_unresolved": 1,
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}
