@@ -9,6 +9,12 @@ on:
 
 permissions: read-all
 
+# A newer push to the same PR makes the older run obsolete: cancel it.
+# Pushes to main are never cancelled, so every main commit is checked.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   lint:
     name: Lint
@@ -24,10 +30,12 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - name: Install dependencies
         run: pip install --require-hashes -r requirements-dev.txt
       - name: Ruff
-        run: ruff check safeai/ tests/
+        run: ruff check safeai/ tests/ scripts/
 
   dco:
     name: DCO sign-off
@@ -47,6 +55,8 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - name: Check DCO sign-off (see DCO.md)
         # Run the checker from origin/main so policy updates (e.g. bot
         # exemptions) apply to already-open PRs without a rebase.
@@ -58,7 +68,6 @@ jobs:
 
   test:
     name: Tests (Python ${{ matrix.python-version }})
-    needs: lint
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -77,12 +86,16 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install dependencies
         run: pip install --require-hashes -r requirements-dev.txt
 
       - name: Test
-        run: PYTHONPATH=. python -m pytest tests/ -v --tb=short
+        # pytest-xdist: one worker per runner CPU. The suite is
+        # order-independent (each test uses its own tmp_path).
+        run: PYTHONPATH=. python -m pytest tests/ -n auto -q --tb=short
 
   authority-benchmark:
     # Every case in tests/benchmarks/authority must hold. `safeai benchmark`
@@ -90,7 +103,6 @@ jobs:
     # truth (2 on harness error), so a detection regression against the
     # corpus fails here instead of going unnoticed until release.
     name: Authority benchmark (Python ${{ matrix.python-version }})
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -110,6 +122,8 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install dependencies
         run: pip install --require-hashes -r requirements-dev.txt

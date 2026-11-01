@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# The full test suite and lint run in ci.yml; this workflow only checks the
+# composite action itself. Older runs of the same PR are cancelled.
+concurrency:
+  group: action-test-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   action:
     name: Validate the SafeAI GitHub Action
@@ -180,28 +186,3 @@ jobs:
           assert sc["summary"]["blocking_findings"] > 0, "expected blocking findings"
           print(f"risky scorecard survives failure with status={sc['summary']['status']}")
           PY
-
-  suite:
-    name: Existing SafeAI test suite
-    runs-on: ubuntu-latest
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
-        with:
-          egress-policy: audit
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install --require-hashes -r requirements-dev.txt
-
-      - name: Ruff
-        run: ruff check safeai/ tests/ scripts/
-
-      - name: Test
-        run: python -m pytest tests/ -v --tb=short
