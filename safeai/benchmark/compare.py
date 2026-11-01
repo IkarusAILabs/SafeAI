@@ -425,6 +425,20 @@ def compare_case(expected, current, baseline=None):
             ),
         }
 
+    if "identity_changes" in expected:
+        diff = current.get("capability_diff") or {}
+        block = diff.get("workload_identity_changes") or {}
+        obs = {(str(c.get("type")), str(c.get("workload")), str(c.get("subject")))
+               for c in block.get("changes") or [] if isinstance(c, dict)}
+        exp = {(str(c.get("type")), str(c.get("workload") or ""), str(c.get("subject")))
+               for c in expected.get("identity_changes") or []}
+        if exp != obs:
+            failures.append(
+                f"identity_changes: missing {sorted(exp - obs)}, "
+                f"unexpected {sorted(obs - exp)}")
+        parts["identity_changes"] = {"expected": len(exp), "matched": len(exp & obs),
+                                     "observed": len(obs)}
+
     if "workload_identity" in expected:
         parts["workload_identity"] = _compare_workload_identity(
             expected.get("workload_identity") or {},

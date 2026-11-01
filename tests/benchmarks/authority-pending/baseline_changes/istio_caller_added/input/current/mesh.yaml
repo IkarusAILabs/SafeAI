@@ -1,0 +1,16 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: payments-callers
+  namespace: finance
+spec:
+  selector:
+    matchLabels:
+      app: payments
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - corp.example/ns/finance/sa/reporter-sa
+              - corp.example/ns/agents/sa/planner-sa

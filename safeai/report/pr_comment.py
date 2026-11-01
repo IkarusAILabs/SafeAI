@@ -325,6 +325,29 @@ def _iac_authority(report, budget=9):
     return lines[:budget]
 
 
+def _identity_changes(diff, budget=7):
+    """Workload-identity changes (v2.11) as review-only lines.
+
+    Lane B: these never gate. Every interpolated value is sanitized;
+    credential *names* appear, never values. Empty when there are none.
+    """
+    block = (diff or {}).get("workload_identity_changes") or {}
+    changes = [c for c in block.get("changes") or [] if isinstance(c, dict)]
+    if not changes or budget < 3:
+        return []
+    lines = ["**Workload identity changes** (Lane B / review-only, never a gate):", ""]
+    shown = changes[: budget - 3]
+    for change in shown:
+        kind = sanitize_pr_text(str(change.get("type") or ""))
+        who = sanitize_pr_text(str(change.get("workload") or change.get("subject") or ""))
+        detail = sanitize_pr_text(str(change.get("detail") or ""))
+        lines.append(f"- `{kind}` {who}: {detail}")
+    hidden = len(changes) - len(shown)
+    if hidden > 0:
+        lines.append(f"- +{hidden} more identity {_plural(hidden, 'change')}")
+    return lines[:budget]
+
+
 def _iac_verdict_detail(item, grants):
     """One-line authority substance for a verdict (sanitized)."""
     refs = set(item.get("grant_evidence_refs") or [])
@@ -442,6 +465,9 @@ def render_pr_comment(report, ci_context=None):
     blocks = _tool_blocks(diff)
     if not blocks:
         lines.append("### SafeAI — no capability escalations in this change")
+        identity_lines = _identity_changes(diff, budget=MAX_LINES - 6)
+        if identity_lines:
+            lines.extend([""] + identity_lines)
         lines.extend(["", _footer(report)])
         return "\n".join(lines) + "\n"
 
@@ -480,6 +506,11 @@ def render_pr_comment(report, ci_context=None):
         if questions and iac_lines:
             sections.append("")
         sections.extend(iac_lines)
+        identity_lines = _identity_changes(
+            diff, budget=max(0, remaining - len(sections) - 1))
+        if sections and identity_lines:
+            sections.append("")
+        sections.extend(identity_lines)
         if sections:
             lines.extend(sections)
             lines.append("")

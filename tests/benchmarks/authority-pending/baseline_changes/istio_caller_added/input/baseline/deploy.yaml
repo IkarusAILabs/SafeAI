@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planner
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: planner-sa
+      containers:
+        - name: planner
+          image: planner:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments
+  namespace: finance
+spec:
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      serviceAccountName: payments-sa
+      containers:
+        - name: payments
+          image: payments:1

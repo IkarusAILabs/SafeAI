@@ -1,0 +1,33 @@
+{
+ "case": "baseline_changes/istio_caller_added",
+ "notes": "The baseline policy admits only the finance reporter's principal; the current one also admits planner's SPIFFE ID. planner gains a declared caller path to payments.",
+ "agents": [],
+ "tools": [],
+ "identity_changes": [
+  {
+   "type": "CALLER_ADDED",
+   "workload": "Deployment/agents/planner",
+   "subject": "finance/payments-callers"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-3) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

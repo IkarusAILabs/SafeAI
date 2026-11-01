@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The manifest's `iac_correlations` block is now present for every scan
+  that collects IaC evidence, carrying `workload_identity` even when it
+  is empty. A manifest used as `--baseline` then tells "no workload
+  identities" from "not collected".
+
 ### Added
 
 - Static SPIFFE workload identity (ROADMAP S1, plan items 2.10-1 to
@@ -32,6 +39,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Evidence metrics: `unknown_workload_identity_rate`, the share of
   workloads whose SPIFFE identity stays unknown (insufficient evidence
   when a scan has no workload manifests).
+- Workload-identity change types between a baseline and the current scan
+  (ROADMAP S2, plan items 2.11-3 and 2.11-4), under
+  `capability_diff.workload_identity_changes`: `IDENTITY_ADDED`,
+  `IDENTITY_REMOVED`, `IDENTITY_BROADENED`, `CALLER_ADDED` (dimension
+  `identity`), `FEDERATION_ADDED` (`destinations`) and
+  `STATIC_CREDENTIAL_ADDED` (`credential`). All are review-only: they
+  appear in the PR comment and never trip `--fail-on-authority-change` or
+  `--fail-on-escalation`. A baseline from before v2.10 is reported as
+  not assessed rather than as everything added.
+- Six pending baseline-pair benchmark cases for the identity change
+  types, with an `identity_changes` truth section in the harness.
 - Five pending benchmark cases for S5 (template resolution, ambiguous
   selectors, federation widening, principal-based authorization,
   static credential), with a `workload_identity` truth section in the
