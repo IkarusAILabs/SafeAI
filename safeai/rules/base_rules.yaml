@@ -336,6 +336,11 @@
   description: Declared capability and IaC grant coexist without a static link (review-only)
   severity: low
 
+- id: SOD_CONFLICTING_AUTHORITY
+  description: One holder can do both halves of a Separation-of-Duties pair (review-only)
+  severity: low
+  owasp_llm: LLM06
+
 - id: IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY
   description: Workload issued a SPIFFE ID is also handed a static credential (review-only)
   severity: low

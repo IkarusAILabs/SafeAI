@@ -180,3 +180,14 @@ def test_cli_baseline_pr_comment_and_no_gate(tmp_path, baseline_kind):
     assert "DELEGATE_ADDED" in block["counts"]
     assert rc == 0
     assert "Delegation changes" in render_pr_comment(report)
+
+
+def test_secrets_in_claude_rules_never_reach_the_graph(tmp_path):
+    secret = "supersecretvalue123"
+    root = _repo(tmp_path, {
+        ".claude/settings.json": json.dumps(
+            {"permissions": {"allow": [f"Bash(API_KEY={secret} deploy)"]}}),
+        ".claude/agents/a.md": f"---\nname: a\ntools: Read, Bash(TOKEN={secret} x)\n---\nx\n"})
+    graph = build_delegation_graph(root)
+    assert secret not in json.dumps(graph)
+    assert graph["nodes"][0]["authority"]

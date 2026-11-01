@@ -1,0 +1,19 @@
+{
+ "case": "adversarial/sod_lookalikes",
+ "notes": "Bash, Write(*) and Edit with no argument can do anything, but they name no specific duty; their breadth is reported by other rules. create_issue and approve_refund concern different objects. An IAM role with Action \"*\" is admin, reported as such, not as a named pair.",
+ "sod_conflicts": [],
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-2) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "case": "separation_of_duties/claude_code_self_grant",
+ "notes": "Edit(.claude/settings.json) lets the agent add any allow rule to its own policy: a self-grant whatever else it holds. Edit(docs/**) is an ordinary write.",
+ "sod_conflicts": [
+  {
+   "holder": "claude_code:session",
+   "pair": "SOD-SELF-GRANT"
+  }
+ ],
+ "agents": [],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "settings.json"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-2) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

@@ -28,6 +28,7 @@ import os
 
 from safeai.frameworks.claude_code import commands as cc_commands
 from safeai.frameworks.claude_code import settings as cc_settings
+from safeai.kya.util import redact_secrets
 
 _MAX_FILE_BYTES = 512 * 1024
 _MAX_FILES = 2000
@@ -103,7 +104,10 @@ def _claude_code(root, files):
         if error is not None or not isinstance(data, dict):
             continue
         settings_files.append(rel)
-        allow.extend(entry for decision, entry in cc_settings.extract_permission_entries(data)
+        # Entries are redacted as the permissions parser redacts them: a
+        # secret inside a rule (``Bash(API_KEY=...)``) never reaches a report.
+        allow.extend(redact_secrets(str(entry), full_mask=True)
+                     for decision, entry in cc_settings.extract_permission_entries(data)
                      if decision == "allow")
     subagents = []
     for rel in sorted(f for f in files if f.startswith(cc_commands.AGENTS_PREFIX)):
@@ -111,8 +115,11 @@ def _claude_code(root, files):
         if text is None:
             continue
         subagents.append(cc_commands.parse_subagent(rel, text))
-    if not subagents:
+    if not subagents and not settings_files:
         return nodes, edges
+    # The session is a node whenever its permissions are configured, so other
+    # analyses (Separation of Duties) can read its authority; it is a
+    # delegator only when subagents exist.
     session = {
         "id": "claude_code:session", "framework": "claude_code", "kind": "session",
         "name": "session", "source_file": settings_files[0] if settings_files else "",
@@ -126,7 +133,8 @@ def _claude_code(root, files):
         nodes.append({
             "id": node_id, "framework": "claude_code", "kind": "subagent",
             "name": sub["name"], "source_file": sub["path"], "line": 1,
-            "authority": sorted(set(sub["tools"])), "authority_basis": "subagent-tools",
+            "authority": sorted({redact_secrets(str(t), full_mask=True) for t in sub["tools"]}),
+            "authority_basis": "subagent-tools",
             "inherits": inherits,
         })
         edges.append({

@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/aws_act_and_erase_audit",
+ "category": "separation_of_duties",
+ "description": "An IAM role can write data and stop CloudTrail logging.",
+ "version": "v2.11"
+}

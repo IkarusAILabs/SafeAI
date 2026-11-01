@@ -444,6 +444,17 @@ def compare_case(expected, current, baseline=None):
             ),
         }
 
+    if "sod_conflicts" in expected:
+        block = current.get("separation_of_duties") or {}
+        obs = {(str(c.get("holder")), str(c.get("pair")))
+               for c in block.get("conflicts") or [] if isinstance(c, dict)}
+        exp = {(str(c.get("holder")), str(c.get("pair")))
+               for c in expected.get("sod_conflicts") or []}
+        if exp != obs:
+            failures.append(f"sod_conflicts: missing {sorted(exp - obs)}, "
+                            f"unexpected {sorted(obs - exp)}")
+        parts["sod_conflicts"] = {"expected": len(exp), "matched": len(exp & obs),
+                                  "observed": len(obs)}
     if "delegation_edges" in expected:
         parts["delegation_edges"] = _compare_delegation_edges(
             expected.get("delegation_edges") or [], current.get("delegation_graph") or {},

@@ -1,0 +1,31 @@
+{
+ "case": "separation_of_duties/split_duties_joined_by_handoff",
+ "notes": "drafter holds create_payment and hands off to approver, which holds approve_payment: through delegation drafter can do both. approver alone cannot create. requester and signer split the same pair with no handoff between them, so they stay separate.",
+ "sod_conflicts": [
+  {
+   "holder": "openai_agents:drafter",
+   "pair": "SOD-REQUEST-APPROVE"
+  }
+ ],
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "payments.py"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-2) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

@@ -259,6 +259,9 @@ accuracy without coverage does not graduate.
 - v2.11 identity change types (unreleased) also leave both digests
   unchanged; six baseline-pair cases for them are pending review (twenty
   pending in all).
+- v2.11 Separation of Duties (unreleased) and the Terraform `.id` fix
+  leave both digests unchanged (no reviewed case attaches a policy by
+  `.id`); six SoD cases are pending review (thirty-three pending in all).
 - v2.11 delegation change types (unreleased) leave both digests
   unchanged; seven delegation cases are pending review (twenty-seven
   pending in all).

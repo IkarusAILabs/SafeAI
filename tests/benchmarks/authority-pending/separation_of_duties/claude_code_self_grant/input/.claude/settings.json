@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit(docs/**)",
+      "Edit(.claude/settings.json)"
+    ]
+  }
+}

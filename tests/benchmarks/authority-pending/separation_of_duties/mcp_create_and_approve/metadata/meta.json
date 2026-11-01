@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/mcp_create_and_approve",
+ "category": "separation_of_duties",
+ "description": "One MCP server exposes both creating and approving invoices.",
+ "version": "v2.11"
+}

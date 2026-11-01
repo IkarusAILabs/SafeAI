@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/claude_code_self_grant",
+ "category": "separation_of_duties",
+ "description": "The session may edit its own permission settings.",
+ "version": "v2.11"
+}

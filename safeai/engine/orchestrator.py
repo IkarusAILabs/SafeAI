@@ -643,6 +643,26 @@ class ScanOrchestrator:
         from safeai.analysis.target_taxonomy import build_target_taxonomy
 
         self.report["target_taxonomy"] = build_target_taxonomy(self.report)
+        # Static delegation graph (v2.11, B2): which agent can hand work to
+        # which. Lane B; feeds Separation of Duties and the delegation change
+        # types in the capability diff.
+        from safeai.analysis.delegation import build_delegation_graph, empty_graph
+        from safeai.analysis.sod import analyze_separation_of_duties
+
+        try:
+            self.report["delegation_graph"] = build_delegation_graph(
+                self.directory, self.excluded_paths)
+        except Exception:
+            self.report["delegation_graph"] = empty_graph()
+        # Separation of Duties (v2.11, B2): one holder able to do both halves
+        # of a conflicting pair. Review-only findings (Lane B).
+        try:
+            sod_findings, self.report["separation_of_duties"] = (
+                analyze_separation_of_duties(self.report))
+        except Exception:
+            sod_findings, self.report["separation_of_duties"] = [], {
+                "lane": "B", "pairs": [], "conflicts": [], "holders_checked": 0}
+        self.findings.extend(sod_findings)
         # Single pass: counts, trust score, and relative paths, all over the
         # complete finding set (core + component + correlation).
         # Sort once after all findings are appended.
@@ -660,15 +680,6 @@ class ScanOrchestrator:
         # Assurance boundary (v1.4): what this scan did and did not verify.
         # Derived from the run itself, never a fixed disclaimer string.
         self.report["assurance_boundary"] = build_assurance_boundary(self.report)
-        # Static delegation graph (v2.11, B2): which agent can hand work to
-        # which. Lane B; feeds the delegation change types below.
-        from safeai.analysis.delegation import build_delegation_graph, empty_graph
-
-        try:
-            self.report["delegation_graph"] = build_delegation_graph(
-                self.directory, self.excluded_paths)
-        except Exception:
-            self.report["delegation_graph"] = empty_graph()
         if self.baseline_report is not None:
             from safeai.analysis.capability_diff import compute_capability_diff
 

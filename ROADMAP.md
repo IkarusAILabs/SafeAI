@@ -401,7 +401,7 @@ cross-plane work and are not duplicated here.
   rule mappings for MCP, skill, IaC, approval and authority-change rules;
   every JSON finding carries `control_mappings`, every SARIF result
   `properties.controls`.
-- **B2 — Delegation & SoD change types (P1/P2, delegation IMPLEMENTED in v2.11, SoD PLANNED).** Promote
+- **B2 — Delegation & SoD change types (P1/P2, IMPLEMENTED in v2.11, Lane B).** Promote
   delegation from combo-rule proxies to explicit change types aligned
   with Blueprint "delegation & inheritance": new sub-agent, delegation
   depth/breadth increase, sub-agent capability not held by its
@@ -416,6 +416,11 @@ cross-plane work and are not duplicated here.
   `SUBAGENT_TOOLS_WIDENED` under `capability_diff.delegation_changes`,
   all review-only. `ESC_COMBO_DELEGATION_EXTERNAL_SIDE_EFFECT` keeps its
   current behaviour until the new types have published precision.
+  Separation of Duties (`safeai/analysis/sod.py`): one holder able to do
+  both halves of a pair (create + approve the same transaction, change +
+  merge code, act + erase the audit trail, rewrite its own permission
+  policy) fires `SOD_CONFLICTING_AUTHORITY` (low, review-only). Only
+  authority that names the operation counts; broad grants do not.
 - **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM).**
   Shape the Agent Authority Attestation as a signed in-toto-style
   predicate; map fields to Blueprint agent governance metadata and

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "billing": {
+      "command": "node",
+      "args": [
+        "billing.js"
+      ],
+      "tools": [
+        "create_invoice",
+        "approve_invoice",
+        "list_invoices"
+      ]
+    },
+    "tracker": {
+      "command": "node",
+      "args": [
+        "tracker.js"
+      ],
+      "tools": [
+        "create_issue",
+        "approve_refund"
+      ]
+    }
+  }
+}
