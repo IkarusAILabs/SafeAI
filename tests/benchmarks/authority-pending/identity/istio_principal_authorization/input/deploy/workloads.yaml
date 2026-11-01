@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: orchestrator-sa
+      containers:
+        - name: orchestrator
+          image: orchestrator:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments
+  namespace: finance
+spec:
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      serviceAccountName: payments-sa
+      containers:
+        - name: payments
+          image: payments:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporter
+  namespace: finance
+spec:
+  template:
+    metadata:
+      labels:
+        app: reporter
+    spec:
+      serviceAccountName: reporter-sa
+      containers:
+        - name: reporter
+          image: reporter:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  namespace: tools
+spec:
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      serviceAccountName: search-sa
+      containers:
+        - name: search
+          image: search:1

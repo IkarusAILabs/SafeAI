@@ -104,7 +104,7 @@ authority itself changes. A dimension with no observable signal is
 `unknown`. Since v2.9 (E1), `dependency` lists the dependency routes a
 tool holds (`<manager>:install`, `<manager>:publish`,
 `manifest:<file>`) and `credential` the registry credential names bound
-to them; `identity` stays `unknown` until S1. (Until v2.8 this list named roadmap-only terms; `data_reach` is
+to them; `identity` stays `unknown` per tool: the v2.10 SPIFFE collector (S1) ties an identity to a *workload*, and nothing yet ties a workload to an individual tool. (Until v2.8 this list named roadmap-only terms; `data_reach` is
 `data_scope`, `governance_control` is `approval`, `credential_dependency`
 is `credential`.)
 
@@ -476,7 +476,7 @@ concrete static evidence source.
 
 ### Alignment work items
 
-- **S1 — Static SPIFFE identity collector (P3, PLANNED, Lane B only).**
+- **S1 — Static SPIFFE identity collector (P3, IMPLEMENTED in v2.10 except SPIRE server configuration, Lane B only).**
   Parse repository-committed SPIFFE configuration: SPIRE controller
   manager `ClusterSPIFFEID` (ID templates, pod/namespace selectors,
   `federatesWith`), `ClusterFederatedTrustDomain`, SPIRE server
@@ -485,6 +485,12 @@ concrete static evidence source.
   → ServiceAccount → SPIFFE ID. Templates or selectors that cannot be
   resolved statically stay `unknown` — never guessed, never widened
   into a match.
+  *v2.10:* `safeai/iac/spiffe.py` reads `ClusterSPIFFEID`,
+  `ClusterFederatedTrustDomain`, the controller manager's
+  `ControllerManagerConfig` (trust domain, ignored namespaces),
+  `Namespace` labels and Istio `AuthorizationPolicy` principals, and
+  reports them under `iac_correlations.workload_identity`. SPIRE
+  server configuration (HCL) is not read yet.
 - **S2 — Identity change types (P1, PLANNED).** Map onto the existing
   authority dimensions rather than adding new ones: new or broadened
   SPIFFE ID template → `identity`; new federated trust domain or new
@@ -493,10 +499,15 @@ concrete static evidence source.
   removed workload identity or regression to static credentials →
   `credential`. Benchmark cases precede any gating.
 - **S3 — Static-credential-where-workload-identity-exists signal
-  (Layer 1/5, PLANNED).** Using the existing name-only secret
+  (Layer 1/5, IMPLEMENTED in v2.10).** Using the existing name-only secret
   inventory, flag an agent relying on a long-lived API key in a
   repository that also configures SPIFFE identity. Review-lane signal,
   not a block; cite WIMSE/AIMS only against the draft text itself.
+  *v2.10:* `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY` reads the
+  credential names from the pod spec of a workload that is issued a
+  SPIFFE ID (Secret-sourced env, `envFrom`, Secret volumes, literal
+  env values with credential names), which ties the credential to the
+  workload rather than only to the repository.
 - **S4 — Identity in the manifest and attestation (P4, RESEARCH
   ITEM).** Add the agent's SPIFFE / WIMSE identifier as an evidence
   field with provenance (`declared` | `repo-iac-observed`;
@@ -506,6 +517,9 @@ concrete static evidence source.
   template resolution, ambiguous selectors, federation widening, and
   principal-based authorization; publish agent → identity attribution
   precision and unknown rate for SPIFFE cases (RQ2, RQ3).
+  *v2.10:* five cases in `tests/benchmarks/authority-pending/identity/`,
+  awaiting human review; the unknown rate is in the evidence metrics as
+  `unknown_workload_identity_rate`.
 - **S6 — Community engagement (no membership required).** SPIFFE
   Community Day 2026 (27 October 2026, London + online) has passed; join
   the SPIFFE Slack, and once S1 exists, present it in SIG-SPIRE or SIG-Community as

@@ -1,0 +1,33 @@
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: partner-facing
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      exposure: partner
+  federatesWith:
+    - partner.example
+    - vendor.example
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: internal
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      exposure: internal
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterFederatedTrustDomain
+metadata:
+  name: partner
+spec:
+  trustDomain: partner.example
+  bundleEndpointURL: https://spire.partner.example/bundle
+  bundleEndpointProfile:
+    type: https_spiffe
+    endpointSPIFFEID: spiffe://partner.example/spire/server

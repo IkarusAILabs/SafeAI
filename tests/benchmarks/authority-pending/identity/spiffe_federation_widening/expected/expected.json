@@ -1,0 +1,51 @@
+{
+ "case": "identity/spiffe_federation_widening",
+ "notes": "broker's registration federates with partner.example and vendor.example; only partner.example has a ClusterFederatedTrustDomain in the repository (the other is noted, not dropped). memory's registration does not federate. Identities are resolved for both.",
+ "agents": [],
+ "tools": [],
+ "workload_identity": {
+  "assignments": [
+   {
+    "workload": "Deployment/agents/broker",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/broker-sa",
+    "resolution": "resolved"
+   },
+   {
+    "workload": "Deployment/agents/memory",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/memory-sa",
+    "resolution": "resolved"
+   }
+  ],
+  "federations": [
+   {
+    "workload": "Deployment/agents/broker",
+    "trust_domain": "partner.example"
+   },
+   {
+    "workload": "Deployment/agents/broker",
+    "trust_domain": "vendor.example"
+   }
+  ],
+  "unknown": []
+ },
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.10 (S5) from the case inputs and the SPIRE controller manager and Istio AuthorizationPolicy documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

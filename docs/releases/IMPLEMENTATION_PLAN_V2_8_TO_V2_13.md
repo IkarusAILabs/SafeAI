@@ -4,7 +4,7 @@
 > Blueprint Alliance items B1–B6, the SPIFFE / SPIRE items S1–S6 and the
 > external developments review items E1–E3 (2026-10-28).
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
-> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; next: v2.10.0 (workload identity, S1/S3/S5).
+> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; v2.10.0 (workload identity, S1/S3/S5) implemented, not yet released.
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -132,7 +132,7 @@ Released before the precision exit criterion was met, at the author's
 decision: the rule stays review-only and outside both gates until the
 human review of 2.9-1 (#296) lets its precision be published.
 
-## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — target 2027-01-15
+## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — target 2027-01-15, **implemented on `main`, not released**
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|
@@ -144,6 +144,24 @@ human review of 2.9-1 (#296) lets its precision be published.
 
 **Exit criteria:** Lane B only; the v2.7 evidence metrics show the
 agent → identity unknown rate before and after on the corpus.
+
+**Status.**
+
+| # | Done | Not yet |
+|---|---|---|
+| 2.10-1 | `safeai/iac/spiffe.py`: `ClusterSPIFFEID` (template, pod and namespace selectors, `federatesWith`), `ClusterFederatedTrustDomain`, `ControllerManagerConfig` (own document or inside a ConfigMap); identity kind `spiffe_id` | SPIRE server configuration (HCL); `ClusterStaticEntry` |
+| 2.10-2 | Workload → ServiceAccount → SPIFFE ID, template rendered per workload; undecidable selectors and workloads with no namespace stay `unknown` with the reason; links (`workload-spiffe-id`) kept out of grant correlation | Linking a workload to an individual tool, so the per-tool `identity` dimension stays `unknown` |
+| 2.10-3 | Istio `AuthorizationPolicy`: targets by selector, `principals` and `notPrincipals` matched to SPIFFE assignments or by Istio's ns/sa convention; any-caller and mesh-wide policies flagged | `requestPrincipals` (end-user JWTs) are noted, not mapped |
+| 2.10-4 | `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY` (low, review-only) from the workload's own pod spec, names only | — |
+| 2.10-5 | Five cases in `tests/benchmarks/authority-pending/identity/`, all holding; harness truth section `workload_identity`; `unknown_workload_identity_rate` in the evidence metrics | Human review of the five cases' truth |
+
+Measured on the five pending cases (truth not yet human-reviewed): 15
+workloads; before v2.10 every one had an unknown identity (no
+collector), after it 6 resolve, 1 partially resolves and 8 stay unknown
+(2 undecidable selectors, 6 with no matching registration). All 7 expected
+SPIFFE assignments and all 3 expected callers are found, with none extra.
+On the 58 reviewed cases, the 2 workload manifests stay unknown (no
+registration in those repositories) and both digests are unchanged.
 
 ## v2.11.0 — Delegation & Identity Change Semantics  *(P1/P2, B2, S2)* — target 2027-02
 

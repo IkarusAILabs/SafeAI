@@ -1,0 +1,6 @@
+{
+ "case": "identity/spiffe_ambiguous_selector",
+ "category": "identity",
+ "description": "Namespace selectors that cannot be evaluated from the repository leave identity unknown.",
+ "version": "v2.10"
+}

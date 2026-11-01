@@ -14,6 +14,68 @@ Two layers run on every case:
 import os
 
 
+def _workload_identity_sets(block):
+    """Observed workload-identity facts as comparable sets (v2.10)."""
+    assignments = {
+        (str(a.get("workload")), str(a.get("spiffe_id")), str(a.get("resolution")))
+        for a in block.get("assignments") or [] if isinstance(a, dict)}
+    unknown = {
+        str(w.get("workload")) for w in block.get("workloads") or []
+        if isinstance(w, dict) and w.get("identity_state") == "unknown"}
+    callers = set()
+    for policy in block.get("authorization_policies") or []:
+        if not isinstance(policy, dict):
+            continue
+        label = f"{policy.get('namespace')}/{policy.get('name')}"
+        for principal in policy.get("principals") or []:
+            if principal.get("negated"):
+                continue
+            for caller in principal.get("callers") or []:
+                callers.add((label, str(principal.get("principal")),
+                             str(caller.get("workload")), str(caller.get("basis"))))
+    static = {str(s.get("workload")) for s in block.get("static_credentials") or []
+              if isinstance(s, dict)}
+    federations = {
+        (str(a.get("workload")), str(domain))
+        for a in block.get("assignments") or [] if isinstance(a, dict)
+        for domain in a.get("federates_with") or []}
+    return {"assignments": assignments, "unknown": unknown, "callers": callers,
+            "static_credentials": static, "federations": federations}
+
+
+def _compare_workload_identity(truth, block, failures):
+    """Exact-set comparison of the ``workload_identity`` truth section.
+
+    Each listed key is compared as a set; a key absent from the truth is
+    not checked. Returns the part record (expected / matched per key).
+    """
+    observed = _workload_identity_sets(block if isinstance(block, dict) else {})
+    expected = {
+        "assignments": {(str(a.get("workload")), str(a.get("spiffe_id")),
+                         str(a.get("resolution") or "resolved"))
+                        for a in truth.get("assignments") or []},
+        "unknown": {str(w) for w in truth.get("unknown") or []},
+        "callers": {(str(c.get("policy")), str(c.get("principal")),
+                     str(c.get("workload")), str(c.get("basis") or "spiffe-assignment"))
+                    for c in truth.get("callers") or []},
+        "static_credentials": {str(w) for w in truth.get("static_credentials") or []},
+        "federations": {(str(f.get("workload")), str(f.get("trust_domain")))
+                        for f in truth.get("federations") or []},
+    }
+    part = {}
+    for key, exp in expected.items():
+        if key not in truth:
+            continue
+        obs = observed[key]
+        if exp != obs:
+            failures.append(
+                f"workload_identity {key}: missing {sorted(exp - obs)}, "
+                f"unexpected {sorted(obs - exp)}")
+        part[key] = {"expected": len(exp), "matched": len(exp & obs),
+                     "observed": len(obs)}
+    return part
+
+
 def _surface_index(report):
     index = {}
     for tool in report.get("tool_surface") or []:
@@ -362,6 +424,11 @@ def compare_case(expected, current, baseline=None):
                 if obs_verdicts.get(d) == v
             ),
         }
+
+    if "workload_identity" in expected:
+        parts["workload_identity"] = _compare_workload_identity(
+            expected.get("workload_identity") or {},
+            iac.get("workload_identity") or {}, failures)
 
     # --- changes ---
     # Entries carry no tool_key by design (descriptive label only): the

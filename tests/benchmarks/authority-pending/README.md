@@ -9,6 +9,11 @@ They are not part of the published measurements or digests.
 They still run on every test job: `tests/test_package_manager_authority.py`
 runs this corpus through the same harness, and every case must hold.
 
+The identity cases use the harness's `workload_identity` truth section:
+each listed key (`assignments`, `unknown`, `callers`, `federations`,
+`static_credentials`) is compared as an exact set; a key left out is
+not checked.
+
 To run them by hand:
 
 ```bash
@@ -41,3 +46,8 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `capabilities/package_manager_python_literal` | v2.9 (E1) | A literal `npm install` in a LangGraph tool is `package_manager` at write (detected, unattributed) |
 | `unknown/python_variable_command` | v2.9 (E1) | A command held in a variable claims no dependency authority |
 | `mcp/package_tool_names` | v2.9 (E1) | MCP tools named `npm_install` / `publish_package` give an inferred `package_manager`; `update_issue` does not |
+| `identity/spiffe_template_resolution` | v2.10 (S5) | SPIFFE ID templates render per workload; a generated pod name leaves the ID partially resolved; an unmatched workload stays unknown |
+| `identity/spiffe_ambiguous_selector` | v2.10 (S5) | Namespace selectors needing labels not in the repository, or a workload with no namespace, create no identity |
+| `identity/spiffe_federation_widening` | v2.10 (S5) | `federatesWith` trust domains are recorded per workload, declared or not |
+| `identity/istio_principal_authorization` | v2.10 (S5) | Istio principals become declared callers (SPIFFE assignment or ns/sa convention); `*` is flagged |
+| `identity/static_credential_with_spiffe` | v2.10 (S3/S5) | A Secret-sourced token beside a SPIFFE ID fires `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY`; no ID, no finding |

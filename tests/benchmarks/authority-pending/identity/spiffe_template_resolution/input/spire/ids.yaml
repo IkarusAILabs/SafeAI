@@ -1,0 +1,19 @@
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: agent-sa-ids
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      role: agent
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: per-pod-ids
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/pod/{{ .PodMeta.Name }}"
+  podSelector:
+    matchLabels:
+      tier: batch

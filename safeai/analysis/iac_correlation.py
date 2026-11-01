@@ -29,6 +29,7 @@ from safeai.iac.model import (
     UNRESOLVED,
     verdict,
 )
+from safeai.iac.spiffe import static_credential_findings
 
 #: Correlation finding rule ids (stable public vocabulary).
 RULE_EXCESS = "IAC_EXCESS_AUTHORITY"
@@ -243,6 +244,10 @@ def correlate_iac_authority(report, graph):
         if finding is not None:
             findings.append(finding)
 
+    workload_identity = graph.get("workload_identity")
+    if isinstance(workload_identity, dict):
+        findings.extend(static_credential_findings(workload_identity))
+
     findings.sort(key=lambda f: (f.get("file", ""), int(f.get("line") or 0),
                                  f.get("rule_id", "")))
     counts = {"grants": len(grants), "verdicts": len(verdicts),
@@ -265,6 +270,8 @@ def correlate_iac_authority(report, graph):
         "verdicts": verdicts,
         "counts": counts,
     }
+    if isinstance(workload_identity, dict):
+        summary["workload_identity"] = workload_identity
     return findings, summary
 
 

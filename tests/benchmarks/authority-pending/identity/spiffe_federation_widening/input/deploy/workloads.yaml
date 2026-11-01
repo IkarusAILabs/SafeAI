@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        exposure: partner
+    spec:
+      serviceAccountName: broker-sa
+      containers:
+        - name: broker
+          image: broker:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        exposure: internal
+    spec:
+      serviceAccountName: memory-sa
+      containers:
+        - name: memory
+          image: memory:1

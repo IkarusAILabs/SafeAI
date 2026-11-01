@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triage
+  namespace: support
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: triage-sa
+      containers:
+        - name: triage
+          image: triage:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: scout-sa
+      containers:
+        - name: scout
+          image: scout:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyst
+  namespace: research
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: analyst-sa
+      containers:
+        - name: analyst
+          image: analyst:1

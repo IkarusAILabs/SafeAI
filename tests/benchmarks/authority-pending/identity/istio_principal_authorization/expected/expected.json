@@ -1,0 +1,60 @@
+{
+ "case": "identity/istio_principal_authorization",
+ "notes": "payments-callers allows orchestrator by its SPIFFE ID (matched to the SPIRE assignment) and reporter by Istio's cluster.local ns/sa principal (matched by the ns/sa convention, no SPIRE assignment). search-open allows any authenticated principal: every workload with a resolved SPIFFE ID is a declared caller, and the policy is flagged as broad.",
+ "agents": [],
+ "tools": [],
+ "workload_identity": {
+  "assignments": [
+   {
+    "workload": "Deployment/agents/orchestrator",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/orchestrator-sa",
+    "resolution": "resolved"
+   }
+  ],
+  "callers": [
+   {
+    "policy": "finance/payments-callers",
+    "principal": "corp.example/ns/agents/sa/orchestrator-sa",
+    "workload": "Deployment/agents/orchestrator",
+    "basis": "spiffe-assignment"
+   },
+   {
+    "policy": "finance/payments-callers",
+    "principal": "cluster.local/ns/finance/sa/reporter-sa",
+    "workload": "Deployment/finance/reporter",
+    "basis": "istio-ns-sa-convention"
+   },
+   {
+    "policy": "tools/search-open",
+    "principal": "*",
+    "workload": "Deployment/agents/orchestrator",
+    "basis": "spiffe-assignment"
+   }
+  ],
+  "unknown": [
+   "Deployment/finance/payments",
+   "Deployment/finance/reporter",
+   "Deployment/tools/search"
+  ]
+ },
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.10 (S5) from the case inputs and the SPIRE controller manager and Istio AuthorizationPolicy documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

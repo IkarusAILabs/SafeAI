@@ -1,0 +1,6 @@
+{
+ "case": "identity/spiffe_template_resolution",
+ "category": "identity",
+ "description": "SPIFFE ID templates rendered per workload from the controller manager's trust domain.",
+ "version": "v2.10"
+}

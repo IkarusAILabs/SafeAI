@@ -1,0 +1,31 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: payments-callers
+  namespace: finance
+spec:
+  selector:
+    matchLabels:
+      app: payments
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - corp.example/ns/agents/sa/orchestrator-sa
+              - cluster.local/ns/finance/sa/reporter-sa
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: search-open
+  namespace: tools
+spec:
+  selector:
+    matchLabels:
+      app: search
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["*"]

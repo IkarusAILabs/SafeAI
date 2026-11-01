@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coder
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: coder-sa
+      containers:
+        - name: coder
+          image: coder:1
+          env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github
+                  key: value
+            - name: LOG_LEVEL
+              value: info
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summariser
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: summariser-sa
+      containers:
+        - name: summariser
+          image: summariser:1
+          env:
+            - name: LOG_LEVEL
+              value: info
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-sync
+  namespace: ops
+spec:
+  template:
+    metadata:
+      labels:
+        app: legacy-sync
+    spec:
+      serviceAccountName: sync-sa
+      containers:
+        - name: legacy-sync
+          image: legacy-sync:1
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: value

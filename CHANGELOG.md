@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Static SPIFFE workload identity (ROADMAP S1, plan items 2.10-1 to
+  2.10-3). Repository YAML is read for SPIRE controller manager
+  `ClusterSPIFFEID` registrations, `ClusterFederatedTrustDomain`, the
+  `ControllerManagerConfig` (as a document or inside a ConfigMap) and
+  `Namespace` labels. Each workload matched by a registration's pod and
+  namespace selectors gets its SPIFFE ID rendered from the template:
+  `resolved`, or `partially-resolved` with the placeholder kept when a
+  field such as a generated pod name or an out-of-repository trust
+  domain is not static. A selector that cannot be decided from the
+  repository creates no identity; the workload stays `unknown` with the
+  reason. Istio `AuthorizationPolicy` principals are reported as
+  declared callers of the workloads they select. All of it is under
+  `iac_correlations.workload_identity` (new identity kind `spiffe_id`,
+  link type `workload-spiffe-id`), Lane B. SPIFFE links are kept out of
+  grant correlation: a SPIFFE ID holds no RBAC or IAM grant.
+- `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY` (low, review-only; S3,
+  plan item 2.10-4): a workload that is issued a SPIFFE ID is also
+  handed a static credential (Secret-sourced env, `envFrom`, Secret
+  volume, or a literal env value with a credential name). Names only;
+  no value is read into any output. 85 rules in all.
+- Evidence metrics: `unknown_workload_identity_rate`, the share of
+  workloads whose SPIFFE identity stays unknown (insufficient evidence
+  when a scan has no workload manifests).
+- Five pending benchmark cases for S5 (template resolution, ambiguous
+  selectors, federation widening, principal-based authorization,
+  static credential), with a `workload_identity` truth section in the
+  harness. Their truth awaits human review.
+
+### Not yet measured
+
+- Attribution precision for SPIFFE identities is measured only on the
+  five unreviewed cases; it is not a published measurement until their
+  truth is reviewed.
+
 ## [2.9.0] - 2026-11-01
 
 **Package-Manager Authority.**

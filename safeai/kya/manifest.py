@@ -283,6 +283,7 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
                 report.get("tool_surface"),
                 findings,
                 report.get("capability_diff"),
+                (report.get("iac_correlations") or {}).get("workload_identity"),
             ),
         },
         # v1.2: the assurance boundary states what this scan verified and
