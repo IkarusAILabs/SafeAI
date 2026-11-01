@@ -1,0 +1,6 @@
+{
+ "case": "identity/istio_principal_authorization",
+ "category": "identity",
+ "description": "Istio AuthorizationPolicy principals as declared callers of a workload.",
+ "version": "v2.10"
+}

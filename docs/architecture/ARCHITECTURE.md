@@ -217,6 +217,9 @@ provenance. See "Plugin Architecture" below.
 - `iac_correlation.py` (v2.5) — matches IaC Grant triples (Terraform, K8s
   RBAC) against the declared tool surface, producing `IAC_EXCESS_AUTHORITY`,
   `IAC_AUTHORITY_MISMATCH`, `IAC_UNVERIFIED_LINK` (all review-only, Lane B).
+  Since v2.10 it also carries the static SPIFFE workload-identity block
+  from `safeai/iac/spiffe.py` and its review-only
+  `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY` findings.
 - `capability_diff.py` change classification (`NO/LOW/MATERIAL/HIGH_RISK/
   UNKNOWN` × semantic `change_types`) feeds `--fail-on-authority-change`
   and the policy lanes (`safeai/kya/policy.py`: Lane A deterministic

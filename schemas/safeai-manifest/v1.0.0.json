@@ -274,6 +274,49 @@
             }
           }
         },
+        "workload_identity": {
+          "description": "Optional (v2.10). Static SPIFFE workload identity: ClusterSPIFFEID registrations rendered per workload, federated trust domains, Istio AuthorizationPolicy callers, and static credentials (names only) beside a workload identity. Lane B; never consumed by a gate.",
+          "type": "object",
+          "properties": {
+            "lane": {"const": "B"},
+            "trust_domain": {"type": "object"},
+            "ignore_namespaces": {"type": "array", "items": {"type": "string"}},
+            "registrations": {"type": "array"},
+            "federations": {"type": "array"},
+            "identities": {"type": "array"},
+            "workloads": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["workload", "identity_state"],
+                "properties": {
+                  "workload": {"type": "string"},
+                  "service_account": {"type": "string"},
+                  "identity_state": {"enum": ["resolved", "partially-resolved", "unknown"]},
+                  "unknown_reason": {"enum": ["", "undecidable-selector", "no-matching-registration"]}
+                }
+              }
+            },
+            "assignments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["workload", "spiffe_id", "resolution"],
+                "properties": {
+                  "workload": {"type": "string"},
+                  "spiffe_id": {"type": "string"},
+                  "resolution": {"enum": ["resolved", "partially-resolved", "unresolved"]}
+                }
+              }
+            },
+            "links": {"type": "array"},
+            "unresolved": {"type": "array"},
+            "authorization_policies": {"type": "array"},
+            "static_credentials": {"type": "array"},
+            "counts": {"type": "object"},
+            "notes": {"type": "array", "items": {"type": "string"}}
+          }
+        },
         "verdicts": {
           "type": "array",
           "items": {

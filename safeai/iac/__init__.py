@@ -16,6 +16,12 @@ import os
 from safeai.iac.k8s import parse_k8s_file
 from safeai.iac.linking import resolve_links
 from safeai.iac.model import identity_key
+from safeai.iac.spiffe import (
+    collect_file,
+    empty_collection,
+    empty_workload_identity,
+    resolve_workload_identity,
+)
 from safeai.iac.terraform import parse_terraform_file
 
 #: Per-file read cap for IaC sources (pathological files are skipped).
@@ -89,7 +95,10 @@ def scan_iac(root, excluded_paths=None):
 
     Returns ``(graph, meta)`` where ``graph`` holds ``identities``,
     ``grants``, ``grant_bindings``, ``workload_refs``, and
-    ``agent_links``, and ``meta`` holds ``files`` (terraform,
+    ``agent_links``, plus the SPIFFE ``workload_identity`` block (v2.10,
+    kept apart from ``agent_links``: a SPIFFE ID holds no RBAC or IAM
+    grant, so it must not count as a link in grant correlation), and
+    ``meta`` holds ``files`` (terraform,
     kubernetes_rbac, unparsed lists), ``has_modules``, and link
     metadata. Never raises; deterministic ordering.
     """
@@ -103,6 +112,7 @@ def scan_iac(root, excluded_paths=None):
         return empty_graph(), meta
     meta["files"]["terraform"] = tf_files
     seen_identities = set()
+    spiffe_docs = empty_collection()
     for rel in tf_files:
         text = _read_capped(root, rel)
         if text is None:
@@ -130,6 +140,7 @@ def scan_iac(root, excluded_paths=None):
         text = _read_capped(root, rel)
         if text is None:
             continue
+        collect_file(spiffe_docs, rel, text)
         try:
             (file_idents, file_grants, file_bindings, file_workloads,
              file_meta) = parse_k8s_file(rel, text)
@@ -155,15 +166,20 @@ def scan_iac(root, excluded_paths=None):
     except Exception:
         links, link_meta = [], {"workload_files": [], "config_files": [],
                                 "links": 0}
+    try:
+        workload_identity = resolve_workload_identity(spiffe_docs)
+    except Exception:
+        workload_identity = empty_workload_identity()
     meta["files"]["unparsed"] = sorted(set(meta["files"]["unparsed"]))
     meta["link_meta"] = link_meta
     graph = {"identities": identities, "grants": grants,
              "grant_bindings": bindings, "workload_refs": workloads,
-             "agent_links": links}
+             "agent_links": links, "workload_identity": workload_identity}
     return graph, meta
 
 
 def empty_graph():
     """Return an empty authority graph (no IaC evidence)."""
     return {"identities": [], "grants": [], "grant_bindings": [],
-            "workload_refs": [], "agent_links": []}
+            "workload_refs": [], "agent_links": [],
+            "workload_identity": empty_workload_identity()}

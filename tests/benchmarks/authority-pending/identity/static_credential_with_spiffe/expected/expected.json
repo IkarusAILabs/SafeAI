@@ -1,0 +1,48 @@
+{
+ "case": "identity/static_credential_with_spiffe",
+ "notes": "coder is issued a SPIFFE ID and also gets GITHUB_TOKEN from a Secret: review signal. summariser has an ID and only a non-credential literal (LOG_LEVEL). legacy-sync has a Secret-sourced DB_PASSWORD but no SPIFFE ID, so there is no workload identity to prefer and nothing fires for it.",
+ "agents": [],
+ "tools": [],
+ "workload_identity": {
+  "assignments": [
+   {
+    "workload": "Deployment/agents/coder",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/coder-sa",
+    "resolution": "resolved"
+   },
+   {
+    "workload": "Deployment/agents/summariser",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/summariser-sa",
+    "resolution": "resolved"
+   }
+  ],
+  "static_credentials": [
+   "Deployment/agents/coder"
+  ],
+  "unknown": [
+   "Deployment/ops/legacy-sync"
+  ]
+ },
+ "must_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "workloads.yaml"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.10 (S5) from the case inputs and the SPIRE controller manager and Istio AuthorizationPolicy documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

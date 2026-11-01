@@ -1,0 +1,34 @@
+{
+ "case": "identity/spiffe_ambiguous_selector",
+ "notes": "trusted-agents selects namespaces labelled trust=high. support has no Namespace document, so its labels are unknown and triage gets no SPIFFE ID (undecidable, not unmatched). scout has no namespace in its manifest, so no namespace selector can be decided. research is declared with trust=low, so analyst is decided: not matched. All three stay unknown; none is guessed into an identity.",
+ "agents": [],
+ "tools": [],
+ "workload_identity": {
+  "assignments": [],
+  "unknown": [
+   "Deployment/support/triage",
+   "Deployment/?/scout",
+   "Deployment/research/analyst"
+  ]
+ },
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.10 (S5) from the case inputs and the SPIRE controller manager and Istio AuthorizationPolicy documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

@@ -251,3 +251,8 @@ accuracy without coverage does not graduate.
   measurements. The v2.9 follow-up (Python source, MCP tool names) adds
   three more pending cases (nine in all, review in #296) and also leaves
   both digests unchanged.
+- v2.10 (unreleased): the SPIFFE workload-identity collector changes no
+  outcome and no digest of the 58 cases (`ee76875d…`, `de9cb451…`). Two
+  of them have a workload manifest and no SPIFFE registration, so their
+  workload identity is `unknown`. Five new identity cases are pending
+  review (fourteen pending in all).

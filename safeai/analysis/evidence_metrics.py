@@ -112,7 +112,8 @@ def _diffed_tools(capability_diff):
     return tools
 
 
-def compute_evidence_metrics(tool_surface, findings, capability_diff=None):
+def compute_evidence_metrics(tool_surface, findings, capability_diff=None,
+                             workload_identity=None):
     """Return the evidence-metrics block for one scan.
 
     Parameters
@@ -123,6 +124,9 @@ def compute_evidence_metrics(tool_surface, findings, capability_diff=None):
         Findings carrying ``provenance_class`` (report or manifest).
     capability_diff : dict, optional
         The report's ``capability_diff`` from a baseline comparison.
+    workload_identity : dict, optional
+        The report's ``iac_correlations.workload_identity`` block (v2.10):
+        the share of workloads whose SPIFFE ID stays unknown.
     """
     statements = _statement_counts(tool_surface)
     provenance = _finding_provenance(findings)
@@ -151,6 +155,12 @@ def compute_evidence_metrics(tool_surface, findings, capability_diff=None):
             sum(d["unknown"] for d in dimensions.values()),
             sum(d["total"] for d in dimensions.values()),
             "no diffed tools carry authority dimensions")
+
+    identity_counts = (workload_identity or {}).get("counts") or {}
+    rates["unknown_workload_identity_rate"] = _ratio(
+        int(identity_counts.get("unknown") or 0),
+        int(identity_counts.get("workloads") or 0),
+        "no workload manifests in this scan")
 
     return {
         "metrics_version": METRICS_VERSION,
@@ -183,4 +193,7 @@ def summary_lines(metrics):
     if (rates.get("unknown_authority_dimension_rate") or {}).get("status") == "measured":
         lines.append("Unknown authority dimensions: "
                      + fmt("unknown_authority_dimension_rate"))
+    if (rates.get("unknown_workload_identity_rate") or {}).get("status") == "measured":
+        lines.append("Workloads with unknown SPIFFE identity: "
+                     + fmt("unknown_workload_identity_rate"))
     return lines

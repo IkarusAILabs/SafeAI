@@ -1,0 +1,6 @@
+{
+ "case": "identity/static_credential_with_spiffe",
+ "category": "identity",
+ "description": "A static credential handed to a workload that SPIRE also issues an SVID.",
+ "version": "v2.10"
+}

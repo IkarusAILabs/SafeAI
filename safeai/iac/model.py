@@ -39,18 +39,20 @@ PARTIALLY_RESOLVED = "partially-resolved"
 UNRESOLVED = "unresolved"
 RESOLUTIONS = (RESOLVED, PARTIALLY_RESOLVED, UNRESOLVED)
 
-#: Identity kinds with IaC collectors in v2.5.
+#: Identity kinds with IaC collectors (``spiffe_id`` since v2.10).
 IDENTITY_KINDS = (
     "aws_iam_role",
     "kubernetes_service_account",
     "kubernetes_user",
     "kubernetes_group",
+    "spiffe_id",
 )
 
 #: Agent→Identity link types (explicit evidence only).
 LINK_TYPES = (
     "workload-service-account",
     "explicit-config-reference",
+    "workload-spiffe-id",
 )
 
 #: Correlation verdict vocabulary (public, stable).

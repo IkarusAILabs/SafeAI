@@ -1,0 +1,6 @@
+{
+ "case": "identity/spiffe_federation_widening",
+ "category": "identity",
+ "description": "federatesWith widens who can verify a workload's SVID; only one domain is declared.",
+ "version": "v2.10"
+}

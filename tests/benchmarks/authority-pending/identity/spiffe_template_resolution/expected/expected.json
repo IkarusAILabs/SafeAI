@@ -1,0 +1,43 @@
+{
+ "case": "identity/spiffe_template_resolution",
+ "notes": "agent-sa-ids renders fully for planner: trust domain from the ControllerManagerConfig in a ConfigMap, namespace and service account from the manifest. per-pod-ids uses .PodMeta.Name, which a Deployment's pods get only at run time, so indexer's ID is partially resolved with the placeholder kept. web matches no registration: its identity is unknown, not absent (SPIRE may register it outside this repository).",
+ "agents": [],
+ "tools": [],
+ "workload_identity": {
+  "assignments": [
+   {
+    "workload": "Deployment/agents/planner",
+    "spiffe_id": "spiffe://corp.example/ns/agents/sa/planner-sa",
+    "resolution": "resolved"
+   },
+   {
+    "workload": "Deployment/agents/indexer",
+    "spiffe_id": "spiffe://corp.example/pod/{{ .PodMeta.Name }}",
+    "resolution": "partially-resolved"
+   }
+  ],
+  "unknown": [
+   "Deployment/frontend/web"
+  ]
+ },
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.10 (S5) from the case inputs and the SPIRE controller manager and Istio AuthorizationPolicy documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}
