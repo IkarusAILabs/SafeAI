@@ -579,10 +579,10 @@ def compute_capability_diff(current_report, baseline_report):
         # v2.9: what --fail-on-escalation acts on; excludes Lane-B capabilities.
         "highest_gating_escalation": highest_severity(gating_escalations),
         "highest_change_class": highest_change,
-        # v2.11: SPIFFE workload-identity changes (Lane B, never gating).
+        # v2.10: SPIFFE workload-identity changes (Lane B, never gating).
         "workload_identity_changes": compute_identity_changes(
             current_report, baseline_report),
-        # v2.11: delegation changes (Lane B, never gating).
+        # v2.10: delegation changes (Lane B, never gating).
         "delegation_changes": compute_delegation_changes(current_report, baseline_report),
         "legacy": legacy,
         # v1 fields kept at the top level for backward compatibility.

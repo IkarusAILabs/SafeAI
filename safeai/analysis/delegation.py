@@ -1,4 +1,4 @@
-"""Static delegation graph (v2.11, ROADMAP B2, plan item 2.11-1).
+"""Static delegation graph (v2.10, ROADMAP B2, plan item 2.11-1).
 
 Which agent can hand work to which other agent, read from configuration
 and literal source structure only. Three sources have explicit edges:
@@ -483,7 +483,7 @@ def compute_delegation_changes(current_report, baseline_report):
     if after is None or before is None:
         return {"lane": "B", "baseline_available": False, "changes": [], "counts": {},
                 "notes": [("baseline report has no delegation_graph (scanned before "
-                           "v2.11): delegation changes not assessed")]}
+                           "v2.10): delegation changes not assessed")]}
     old_edges, old_exceeds, old_breadth, old_subs = _views(before)
     new_edges, new_exceeds, new_breadth, new_subs = _views(after)
     changes = []

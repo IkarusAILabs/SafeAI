@@ -1,4 +1,4 @@
-"""Static delegation graph and delegation change types (v2.11, plan 2.11-1)."""
+"""Static delegation graph and delegation change types (v2.10, plan 2.11-1)."""
 
 import json
 

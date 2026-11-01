@@ -21,7 +21,7 @@ def _edge_key(source, target, exceeds):
 
 
 def _compare_delegation_edges(truth, graph, failures):
-    """Exact-set comparison of delegation edges by ``framework:name`` (v2.11)."""
+    """Exact-set comparison of delegation edges by ``framework:name`` (v2.10)."""
     names = {n.get("id"): f"{n.get('framework')}:{n.get('name')}"
              for n in graph.get("nodes") or [] if isinstance(n, dict)}
     obs = {_edge_key(names.get(e.get("from")), names.get(e.get("to")), e.get("exceeds"))

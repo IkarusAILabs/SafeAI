@@ -643,7 +643,7 @@ class ScanOrchestrator:
         from safeai.analysis.target_taxonomy import build_target_taxonomy
 
         self.report["target_taxonomy"] = build_target_taxonomy(self.report)
-        # Static delegation graph (v2.11, B2): which agent can hand work to
+        # Static delegation graph (v2.10, B2): which agent can hand work to
         # which. Lane B; feeds Separation of Duties and the delegation change
         # types in the capability diff.
         from safeai.analysis.delegation import build_delegation_graph, empty_graph
@@ -654,7 +654,7 @@ class ScanOrchestrator:
                 self.directory, self.excluded_paths)
         except Exception:
             self.report["delegation_graph"] = empty_graph()
-        # Separation of Duties (v2.11, B2): one holder able to do both halves
+        # Separation of Duties (v2.10, B2): one holder able to do both halves
         # of a conflicting pair. Review-only findings (Lane B).
         try:
             sod_findings, self.report["separation_of_duties"] = (

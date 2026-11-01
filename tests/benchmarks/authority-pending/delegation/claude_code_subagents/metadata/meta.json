@@ -2,5 +2,5 @@
  "case": "delegation/claude_code_subagents",
  "category": "delegation",
  "description": "The Claude Code session delegates to each subagent; exceeds is not evaluated.",
- "version": "v2.11"
+ "version": "v2.10"
 }
