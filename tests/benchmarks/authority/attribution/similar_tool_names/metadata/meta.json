@@ -1,0 +1,7 @@
+{
+  "case": "attribution/similar_tool_names",
+  "category": "attribution",
+  "description": "Similar document tool names expose different filesystem authority: read-only versus write.",
+  "version": "v2.7",
+  "annotation_status": "AI-assisted candidate; independent human review required before acceptance."
+}
