@@ -9,11 +9,16 @@ References:
 - OWASP Top 10 for LLM Applications (2025): https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - OWASP Top 10 for Agentic Applications (2025): https://owasp.org/www-project-top-10-for-agentic-applications/
 - NIST AI Risk Management Framework 1.0 (NIST AI 100-1): https://www.nist.gov/itl/ai-risk-management-framework
+- Blueprint Alliance, "Governing Agentic Execution" reference architecture
+  (publicly available, 2026): https://blueprintalliance.ai/
+  Ikarus AI Labs is not an Alliance member; the mapping implies no
+  membership, endorsement, certification or conformance.
 """
 
 OWASP_LLM_VERSION = "2025"
 OWASP_AGENTIC_VERSION = "2025"
 NIST_AI_RMF_VERSION = "1.0"
+BLUEPRINT_VERSION = "2026"
 
 # OWASP Top 10 for LLM Applications (2025)
 OWASP_LLM = {
@@ -272,8 +277,60 @@ NIST_AI_RMF = {
     },
 }
 
+# Blueprint Alliance reference architecture: only the components that
+# static, pre-deployment authority evidence speaks to (ROADMAP.md, Blueprint
+# crosswalk). Runtime components (gateways, monitoring, response) are out of
+# scope and deliberately absent. Descriptions are SafeAI's paraphrase.
+BLUEPRINT = {
+    "BP-P1-POSTURE": {
+        "framework": "blueprint",
+        "id": "BP-P1-POSTURE",
+        "family": "P1 Discover",
+        "title": "Agent Security Posture Management",
+        "description": "Scan agent tools and skills for supply-chain risk and "
+                       "misconfiguration, including drift after an agent was reviewed.",
+    },
+    "BP-P1-DIRECTORY": {
+        "framework": "blueprint",
+        "id": "BP-P1-DIRECTORY",
+        "family": "P1 Discover",
+        "title": "Agent Directory",
+        "description": "Record each agent's governance metadata and identity profile.",
+    },
+    "BP-P1-IMPORT": {
+        "framework": "blueprint",
+        "id": "BP-P1-IMPORT",
+        "family": "P1 Discover",
+        "title": "Agent Import",
+        "description": "Treat MCP servers and skills from registries as untrusted input.",
+    },
+    "BP-P2-DELEGATION": {
+        "framework": "blueprint",
+        "id": "BP-P2-DELEGATION",
+        "family": "P2 Govern",
+        "title": "Delegation and Inheritance",
+        "description": "Limit delegated authority to what the delegator holds, "
+                       "with bounded delegation depth and breadth.",
+    },
+    "BP-P2-GOVERNANCE": {
+        "framework": "blueprint",
+        "id": "BP-P2-GOVERNANCE",
+        "family": "P2 Govern",
+        "title": "Permission Ceilings and Approval",
+        "description": "Check agent authority against static permission ceilings, "
+                       "with human approval and separation of duties.",
+    },
+    "BP-P4-RECOVERY": {
+        "framework": "blueprint",
+        "id": "BP-P4-RECOVERY",
+        "family": "P4 Recover",
+        "title": "Re-attestation Against a Baseline",
+        "description": "Re-attest agent authority against a known-good baseline.",
+    },
+}
+
 # Combined catalog lookup
-ALL_CATALOGS = {**OWASP_LLM, **OWASP_AGENTIC, **NIST_AI_RMF}
+ALL_CATALOGS = {**OWASP_LLM, **OWASP_AGENTIC, **NIST_AI_RMF, **BLUEPRINT}
 
 # Framework summaries
 FRAMEWORKS = {
@@ -292,6 +349,11 @@ FRAMEWORKS = {
         "version": "1.0",
         "controls": NIST_AI_RMF,
     },
+    "blueprint": {
+        "name": "Blueprint Alliance reference architecture (publicly available)",
+        "version": BLUEPRINT_VERSION,
+        "controls": BLUEPRINT,
+    },
 }
 
 
@@ -301,6 +363,7 @@ def get_control(framework, control_id):
         "owasp_llm": OWASP_LLM,
         "owasp_agentic": OWASP_AGENTIC,
         "nist_ai_rmf": NIST_AI_RMF,
+        "blueprint": BLUEPRINT,
     }.get(framework)
     if catalog:
         return catalog.get(control_id)

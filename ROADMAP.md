@@ -31,9 +31,9 @@ machine-readable evidence for policy and human review.
 
 ## How to read this roadmap
 
-Status labels reflect the actual repository at v2.5.0 (verified during
-the re-baseline; see *Repository status* below), not earlier milestone
-claims:
+Status labels reflect the actual repository (re-baselined at v2.5.0,
+re-checked against `main` on 2026-11-01 for the v2.8 plan; see
+*Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
 - **PARTIALLY SHIPPED** — core exists; stated scope is incomplete.
@@ -95,9 +95,18 @@ Agent source/configuration changes
 Formal change taxonomy (machine-readable, `contract.py: CHANGE_CLASSES`):
 `NO_CHANGE | LOW_CHANGE | MATERIAL_CHANGE | HIGH_RISK_CHANGE | UNKNOWN`.
 
-Change dimensions: `authority | destination | data_reach |
-governance_control | delegation | autonomy | credential_dependency |
-dependency | unknown`.
+Authority dimensions (machine-readable, `contract.py:
+AUTHORITY_DIMENSIONS`): `destinations | data_scope | approval |
+autonomy | delegation | credential | identity`. Each tool's `authority`
+block in the capability diff carries these next to its `capabilities`
+list (name, access mode, provenance), which is where authority itself
+changes. A dimension with no observable signal is `unknown`; today
+`credential` and `identity` are `unknown` for every tool, until E1 and S1
+give them evidence. A `dependency` dimension is added with E1, when it
+first carries evidence; adding it earlier would only raise the unknown
+rate. (Until v2.8 this list named roadmap-only terms; `data_reach` is
+`data_scope`, `governance_control` is `approval`, `credential_dependency`
+is `credential`.)
 
 ## Agent Authority Model (core research contribution)
 
@@ -154,7 +163,7 @@ authority → REVIEW, with all of the above attached.
 
 ---
 
-## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate)
+## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate; v2.8 provenance audit + control mappings in JSON/SARIF)
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -373,7 +382,7 @@ never imply membership, endorsement or certification.
 | P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
 | P4 · Response / kill switch | — | OUT OF SCOPE |
 | §3.5 Execution context & risk signals (SSF/CAEP) · telemetry (OCSF) | SARIF / JSON / manifest exports | PLANNED — file-only OCSF and SSF/CAEP exports (B4) |
-| §4.2 Risk tiering inputs — read-only vs transactional, autonomy, blast radius | Access modes, `autonomy` / `destination` / `data_reach` change dimensions | SHIPPED AND VERIFIED as *inputs*; SafeAI emits no tier or score |
+| §4.2 Risk tiering inputs — read-only vs transactional, autonomy, blast radius | Access modes, `autonomy` / `destinations` / `data_scope` authority dimensions | SHIPPED AND VERIFIED as *inputs*; SafeAI emits no tier or score |
 | §4.4 Audit-ready evidence packages, tamper-evident provenance | Evidence chain, signed release, deterministic manifest digests | SHIPPED AND VERIFIED |
 
 Dependency CVEs and execution-environment drift in the Blueprint's
@@ -383,11 +392,15 @@ cross-plane work and are not duplicated here.
 
 ### Alignment work items
 
-- **B1 — Crosswalk + Blueprint control mapping (P0, PLANNED).** Publish
+- **B1 — Crosswalk + Blueprint control mapping (P0, SHIPPED in v2.8).** Publish
   this crosswalk; add a Blueprint component mapping alongside the
   existing OWASP/NIST mappings (`safeai/controls/mappings.py`) so
   findings and authority changes cite Blueprint components. Mapping is
-  taxonomy, not a conformance claim.
+  taxonomy, not a conformance claim. *v2.8:* a `blueprint` catalog of
+  the six static-evidence components (`safeai/controls/catalogs.py`) and
+  rule mappings for MCP, skill, IaC, approval and authority-change rules;
+  every JSON finding carries `control_mappings`, every SARIF result
+  `properties.controls`.
 - **B2 — Delegation & SoD change types (P1/P2, PLANNED).** Promote
   delegation from combo-rule proxies to explicit change types aligned
   with Blueprint "delegation & inheritance": new sub-agent, delegation
@@ -473,12 +486,12 @@ concrete static evidence source.
   resolved statically stay `unknown` — never guessed, never widened
   into a match.
 - **S2 — Identity change types (P1, PLANNED).** Map onto the existing
-  change dimensions rather than adding new ones: new or broadened
-  SPIFFE ID template → `authority`; new federated trust domain or new
-  JWT-SVID audience → `destination`; new authorization-policy rule
-  admitting the agent's SPIFFE ID to another service → `authority`;
+  authority dimensions rather than adding new ones: new or broadened
+  SPIFFE ID template → `identity`; new federated trust domain or new
+  JWT-SVID audience → `destinations`; new authorization-policy rule
+  admitting the agent's SPIFFE ID to another service → `identity`;
   removed workload identity or regression to static credentials →
-  `credential_dependency`. Benchmark cases precede any gating.
+  `credential`. Benchmark cases precede any gating.
 - **S3 — Static-credential-where-workload-identity-exists signal
   (Layer 1/5, PLANNED).** Using the existing name-only secret
   inventory, flag an agent relying on a long-lived API key in a
@@ -493,10 +506,9 @@ concrete static evidence source.
   template resolution, ambiguous selectors, federation widening, and
   principal-based authorization; publish agent → identity attribution
   precision and unknown rate for SPIFFE cases (RQ2, RQ3).
-- **S6 — Community engagement (no membership required).** Attend
-  SPIFFE Community Day 2026 (27 October 2026, London + online; agenda
-  includes SPIFFE for agents under the AIMS model) and the SPIFFE
-  Slack; once S1 exists, present it in SIG-SPIRE or SIG-Community as
+- **S6 — Community engagement (no membership required).** SPIFFE
+  Community Day 2026 (27 October 2026, London + online) has passed; join
+  the SPIFFE Slack, and once S1 exists, present it in SIG-SPIRE or SIG-Community as
   pre-deployment detection of identity and federation drift for
   agents; offer evidence-boundary feedback to IETF WIMSE on the AIMS
   draft; request an integrations listing only after S1 ships.
@@ -535,8 +547,9 @@ which is where SafeAI should compete.
   (`npm install`, `pip install`, `cargo add`, `go get`, publish
   commands), registry credential names via the existing name-only
   secret inventory, and write access to manifests and lockfiles. Map
-  widening onto the existing `dependency`, `authority` and
-  `credential_dependency` change dimensions; add no new dimension.
+  widening onto capability access modes and the `credential`
+  dimension, plus a new `dependency` dimension, the one addition
+  (see *Authority dimensions* above).
   Benchmark cases come before any gating. SafeAI states *that* the
   agent can change dependencies, never *whether* a chosen package is
   safe.
@@ -571,8 +584,9 @@ probing.
 - **P0 — Research Evidence Foundation:** schema hardening, provenance
   completeness, deterministic manifests, assurance boundary honesty,
   unknown handling, evidence verification (mostly shipped; manifest
-  unknown-rate surfacing shipped v2.7; remaining gaps: provenance
-  audits; Blueprint crosswalk + control mapping, B1).
+  unknown-rate surfacing shipped v2.7; provenance audit over the
+  authority corpus, control mappings in JSON/SARIF, Blueprint mapping
+  (B1) and a single authority-dimension list shipped v2.8).
 - **P1 — ChangeGuard:** material-change precision measurement,
   delegation-change types, review-lane UX, portable exceptions,
   explainable decisions (core shipped; measure + deepen; delegation

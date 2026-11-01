@@ -38,6 +38,11 @@ EXCEPTION_STATES = ("active", "expired", "stale", "scope-mismatch", "invalid")
 #: IaC authority correlation verdicts (v2.5, ADR-0007).
 CORRELATION_VERDICTS = ("MATCH", "EXCESS_AUTHORITY", "AUTHORITY_MISMATCH",
                         "UNVERIFIED_LINK", "UNKNOWN")
+#: Per-tool authority dimensions of a capability-diff tool's ``authority``
+#: block, besides its ``capabilities`` list (v2.8; the only list — ROADMAP.md
+#: names these). A dimension with no observable signal is ``unknown``.
+AUTHORITY_DIMENSIONS = ("destinations", "data_scope", "approval", "autonomy",
+                        "delegation", "credential", "identity")
 
 
 def contract_block():

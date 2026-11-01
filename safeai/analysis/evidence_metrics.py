@@ -20,16 +20,14 @@ Rules:
 """
 
 from safeai.analysis.tool_identity import UNATTRIBUTED_KEY
-from safeai.kya.contract import PROVENANCE_CLASSES
+from safeai.kya.contract import AUTHORITY_DIMENSIONS, PROVENANCE_CLASSES
 
 METRICS_VERSION = 1
 
-#: Per-tool authority dimensions carried by ``capability_diff`` tools
-#: (``authority_for`` in ``safeai/analysis/capability_diff.py``).
-AUTHORITY_DIMENSIONS = (
-    "destinations", "data_scope", "approval", "autonomy",
-    "delegation", "credential", "identity",
-)
+# AUTHORITY_DIMENSIONS (imported above, re-exported) are the per-tool
+# dimensions carried by ``capability_diff`` tools (``authority_for`` in
+# ``safeai/analysis/capability_diff.py``); the contract defines them once.
+__all__ = ["AUTHORITY_DIMENSIONS"]
 
 #: Measurements this block deliberately does not make, with the reason.
 NOT_MEASURED = (
