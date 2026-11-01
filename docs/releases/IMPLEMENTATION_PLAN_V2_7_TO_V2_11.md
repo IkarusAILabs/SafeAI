@@ -1,5 +1,9 @@
 # Implementation Plan — v2.7 → v2.11
 
+> **Superseded 2026-11-01 by
+> [IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md](IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md).**
+> Kept for history; its item IDs appear in the new plan's *Was* column.
+
 > Derived from `ROADMAP.md` (priority sequence P0–P8) including the
 > external framework alignment items B1–B6 (Blueprint Alliance) and
 > S1–S6 (SPIFFE / SPIRE). Baseline: **v2.6.0** (2026-10-04).
