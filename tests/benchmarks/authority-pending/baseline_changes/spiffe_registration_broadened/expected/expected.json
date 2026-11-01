@@ -1,0 +1,38 @@
+{
+ "case": "baseline_changes/spiffe_registration_broadened",
+ "notes": "The baseline registration selects role=agent (planner only). The current one has no podSelector, so it matches every pod: the registration is broadened and web, which had no identity, is now issued one. planner's identity is unchanged.",
+ "agents": [],
+ "tools": [],
+ "identity_changes": [
+  {
+   "type": "IDENTITY_BROADENED",
+   "workload": "",
+   "subject": "agents"
+  },
+  {
+   "type": "IDENTITY_ADDED",
+   "workload": "Deployment/frontend/web",
+   "subject": "spiffe://corp.example/ns/frontend/sa/web-sa"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-3) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

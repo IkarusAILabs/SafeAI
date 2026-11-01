@@ -1,0 +1,33 @@
+{
+ "case": "baseline_changes/spiffe_identity_removed",
+ "notes": "planner still runs but no registration matches it any more: its SPIFFE ID is removed and its identity becomes unknown. Not an escalation, but a change a reviewer should see (static credentials often follow).",
+ "agents": [],
+ "tools": [],
+ "identity_changes": [
+  {
+   "type": "IDENTITY_REMOVED",
+   "workload": "Deployment/agents/planner",
+   "subject": "spiffe://corp.example/ns/agents/sa/planner-sa"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-3) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

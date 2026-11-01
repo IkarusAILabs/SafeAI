@@ -93,17 +93,20 @@ def _authority_change_counts(report):
 def _iac_correlations_entry(report):
     """Compact IaC authority correlation evidence (v2.5, Lane B).
 
-    Returns None when the scan carries no IaC correlation (no IaC
-    sources, or a pre-v2.5 report) so the block stays absent rather
-    than empty. Schema v2: identities, agent_identity_links, grants,
+    Returns None when the scan carries no IaC correlation (a pre-v2.5
+    report, or a pre-v2.10 report with no grants or verdicts) so the
+    block stays absent rather than empty. Since v2.10 a scan always has
+    a ``workload_identity`` block, so the entry is always present. Schema v2: identities, agent_identity_links, grants,
     grant_bindings, verdicts with full evidence refs.
     """
     iac = report.get("iac_correlations")
     if not isinstance(iac, dict):
         return None
-    if not (iac.get("grants") or iac.get("verdicts")):
+    workload_identity = iac.get("workload_identity")
+    if not (iac.get("grants") or iac.get("verdicts")
+            or isinstance(workload_identity, dict)):
         return None
-    return {
+    entry = {
         "schema_version": int(iac.get("schema_version") or 2),
         "correlation_model": iac.get("correlation_model"),
         "lane": "B",
@@ -115,6 +118,12 @@ def _iac_correlations_entry(report):
         "verdicts": iac.get("verdicts") or [],
         "counts": iac.get("counts") or {},
     }
+    # v2.10: kept even when empty, so a later scan using this manifest as
+    # its baseline can tell "no identities" from "not collected" (v2.11
+    # identity change types).
+    if isinstance(workload_identity, dict):
+        entry["workload_identity"] = workload_identity
+    return entry
 
 
 def _capability_counts(agents, report):

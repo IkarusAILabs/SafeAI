@@ -12,7 +12,9 @@ runs this corpus through the same harness, and every case must hold.
 The identity cases use the harness's `workload_identity` truth section:
 each listed key (`assignments`, `unknown`, `callers`, `federations`,
 `static_credentials`) is compared as an exact set; a key left out is
-not checked.
+not checked. Baseline-pair identity cases use `identity_changes`: the
+exact set of `(type, workload, subject)` in
+`capability_diff.workload_identity_changes`.
 
 To run them by hand:
 
@@ -51,3 +53,9 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `identity/spiffe_federation_widening` | v2.10 (S5) | `federatesWith` trust domains are recorded per workload, declared or not |
 | `identity/istio_principal_authorization` | v2.10 (S5) | Istio principals become declared callers (SPIFFE assignment or ns/sa convention); `*` is flagged |
 | `identity/static_credential_with_spiffe` | v2.10 (S3/S5) | A Secret-sourced token beside a SPIFFE ID fires `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY`; no ID, no finding |
+| `baseline_changes/spiffe_registration_broadened` | v2.11 (S2) | Dropping a podSelector broadens the registration and issues a new identity |
+| `baseline_changes/spiffe_federation_added` | v2.11 (S2) | New `federatesWith` domain → `FEDERATION_ADDED` (destinations) |
+| `baseline_changes/istio_caller_added` | v2.11 (S2) | A policy newly admits the agent's SPIFFE ID → `CALLER_ADDED` |
+| `baseline_changes/static_credential_regression` | v2.11 (S2) | A workload with an ID gains a Secret token → `STATIC_CREDENTIAL_ADDED` (credential) |
+| `baseline_changes/spiffe_identity_removed` | v2.11 (S2) | Deleting the registration → `IDENTITY_REMOVED` |
+| `baseline_changes/identity_unchanged_reordered` | v2.11 (S2) | Moving and reordering the same configuration reports no change |

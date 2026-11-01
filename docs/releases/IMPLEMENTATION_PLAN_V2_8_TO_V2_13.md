@@ -4,7 +4,7 @@
 > Blueprint Alliance items B1–B6, the SPIFFE / SPIRE items S1–S6 and the
 > external developments review items E1–E3 (2026-10-28).
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
-> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; v2.10.0 (workload identity, S1/S3/S5) implemented, not yet released.
+> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; v2.10.0 (workload identity, S1/S3/S5) and v2.11 item 2.11-3 (identity change types) implemented, not yet released.
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -174,6 +174,19 @@ registration in those repositories) and both digests are unchanged.
 
 **Exit criteria:** each new type has benchmark cases with P/R/F1
 published before any `--fail-on-authority-change` path consumes it.
+
+**Status.** 2.11-3 is implemented on `main` (not released); 2.11-1 and
+2.11-2 are not started.
+
+| # | Done | Not yet |
+|---|---|---|
+| 2.11-3 | `IDENTITY_ADDED`, `IDENTITY_REMOVED`, `IDENTITY_BROADENED`, `CALLER_ADDED` → `identity`; `FEDERATION_ADDED` → `destinations`; `STATIC_CREDENTIAL_ADDED` → `credential`; under `capability_diff.workload_identity_changes`, shown in the PR comment, never gating. A baseline from before v2.10 is reported as not assessed. The manifest now always carries the workload-identity block, so it works as a baseline | JWT-SVID audience changes (not statically visible) |
+| 2.11-4 | Six pending baseline-pair cases (one per positive type, plus a reordering case with no change), harness truth section `identity_changes` | Human review of the cases; P/R/F1 published from reviewed truth |
+
+On the six pending cases every expected change is found and nothing
+extra (6/6, plus no change on the reordering case). With one case per
+type that is not yet a precision estimate; it becomes one once the
+truth is reviewed and more cases exist.
 
 ## v2.12.0 — Attestation & Accountability  *(P4, P6, B3, S4)* — target 2027-03
 

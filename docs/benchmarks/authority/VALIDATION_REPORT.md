@@ -256,3 +256,6 @@ accuracy without coverage does not graduate.
   of them have a workload manifest and no SPIFFE registration, so their
   workload identity is `unknown`. Five new identity cases are pending
   review (fourteen pending in all).
+- v2.11 identity change types (unreleased) also leave both digests
+  unchanged; six baseline-pair cases for them are pending review (twenty
+  pending in all).

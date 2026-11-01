@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planner
+  namespace: agents
+spec:
+  template:
+    metadata:
+      labels:
+        role: agent
+    spec:
+      serviceAccountName: planner-sa
+      containers:
+        - name: planner
+          image: planner:1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: frontend
+spec:
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      serviceAccountName: web-sa
+      containers:
+        - name: web
+          image: web:1

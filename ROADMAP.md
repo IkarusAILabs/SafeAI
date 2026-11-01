@@ -491,13 +491,20 @@ concrete static evidence source.
   `Namespace` labels and Istio `AuthorizationPolicy` principals, and
   reports them under `iac_correlations.workload_identity`. SPIRE
   server configuration (HCL) is not read yet.
-- **S2 — Identity change types (P1, PLANNED).** Map onto the existing
+- **S2 — Identity change types (P1, IMPLEMENTED in v2.11 except JWT-SVID audiences, Lane B).** Map onto the existing
   authority dimensions rather than adding new ones: new or broadened
   SPIFFE ID template → `identity`; new federated trust domain or new
   JWT-SVID audience → `destinations`; new authorization-policy rule
   admitting the agent's SPIFFE ID to another service → `identity`;
   removed workload identity or regression to static credentials →
   `credential`. Benchmark cases precede any gating.
+  *v2.11:* `safeai/analysis/identity_diff.py` reports `IDENTITY_ADDED`,
+  `IDENTITY_REMOVED`, `IDENTITY_BROADENED`, `CALLER_ADDED` (`identity`),
+  `FEDERATION_ADDED` (`destinations`) and `STATIC_CREDENTIAL_ADDED`
+  (`credential`) under `capability_diff.workload_identity_changes`, all
+  review-only. JWT-SVID audiences are requested by the workload at run
+  time and are not in a `ClusterSPIFFEID`, so they have no static change
+  type.
 - **S3 — Static-credential-where-workload-identity-exists signal
   (Layer 1/5, IMPLEMENTED in v2.10).** Using the existing name-only secret
   inventory, flag an agent relying on a long-lived API key in a

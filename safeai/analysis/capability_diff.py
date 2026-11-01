@@ -23,6 +23,7 @@ from safeai.analysis.escalation import (
     classify_escalations,
     highest_severity,
 )
+from safeai.analysis.identity_diff import compute_identity_changes
 from safeai.analysis.tool_identity import UNATTRIBUTED_KEY
 from safeai.analysis.tool_surface import build_tool_surface, surface_index
 from safeai.kya.contract import AUTHORITY_DIMENSIONS
@@ -577,6 +578,9 @@ def compute_capability_diff(current_report, baseline_report):
         # v2.9: what --fail-on-escalation acts on; excludes Lane-B capabilities.
         "highest_gating_escalation": highest_severity(gating_escalations),
         "highest_change_class": highest_change,
+        # v2.11: SPIFFE workload-identity changes (Lane B, never gating).
+        "workload_identity_changes": compute_identity_changes(
+            current_report, baseline_report),
         "legacy": legacy,
         # v1 fields kept at the top level for backward compatibility.
         "added": legacy["added"],

@@ -1,0 +1,33 @@
+{
+ "case": "baseline_changes/spiffe_federation_added",
+ "notes": "Only federatesWith changes: planner's SVID becomes verifiable by partner.example. That widens who can authenticate the agent, mapped to the destinations dimension.",
+ "agents": [],
+ "tools": [],
+ "identity_changes": [
+  {
+   "type": "FEDERATION_ADDED",
+   "workload": "Deployment/agents/planner",
+   "subject": "partner.example"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [
+  "IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY"
+ ],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-3) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [],
+  "capabilities": [],
+  "relationships": [],
+  "unknown_expectations": []
+ }
+}

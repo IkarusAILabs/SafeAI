@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/spiffe_registration_broadened",
+ "category": "baseline_changes",
+ "description": "Dropping a ClusterSPIFFEID podSelector issues identities to every pod.",
+ "version": "v2.11"
+}
