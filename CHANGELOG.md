@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The delegation graph copied Claude Code allow rules and subagent tools
+  verbatim, so a secret inside a rule (`Bash(API_KEY=...)`) could reach
+  the report when subagents existed. They are now redacted as the
+  permissions parser redacts them.
+- Terraform: an inline policy attached with `role = aws_iam_role.X.id`
+  now resolves to the role's name, as `.name` already did (for a role,
+  `id` is the name in the AWS provider).
+
 ### Changed
 
 - The manifest's `iac_correlations` block is now present for every scan
@@ -39,6 +49,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Evidence metrics: `unknown_workload_identity_rate`, the share of
   workloads whose SPIFFE identity stays unknown (insufficient evidence
   when a scan has no workload manifests).
+- Separation of Duties (ROADMAP B2, plan item 2.11-2):
+  `SOD_CONFLICTING_AUTHORITY` (low, review-only) when one holder can do
+  both halves of a conflicting pair: create and approve the same kind of
+  transaction, change code and merge it, act and erase the audit trail
+  (IAM), or rewrite its own Claude Code permission settings. Holders are
+  the Claude Code session and subagents, MCP servers, OpenAI Agents SDK
+  and CrewAI agents (with the tools of agents they can hand work to) and
+  AWS IAM roles. Only authority that names the operation counts; broad
+  grants (`Bash`, `Write(*)`, IAM `*`) do not. Results in
+  `report.separation_of_duties` and the manifest. 86 rules in all.
+- Six pending Separation-of-Duties benchmark cases, with a
+  `sod_conflicts` truth section in the harness.
 - Static delegation graph (ROADMAP B2, plan item 2.11-1) in
   `report.delegation_graph` and the manifest: the Claude Code session
   delegates to each subagent; OpenAI Agents SDK `handoffs=[...]`

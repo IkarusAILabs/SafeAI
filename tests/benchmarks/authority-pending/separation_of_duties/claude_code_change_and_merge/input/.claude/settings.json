@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit(src/**)",
+      "Bash(npm test:*)",
+      "Bash(gh pr merge:*)"
+    ]
+  }
+}

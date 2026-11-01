@@ -409,8 +409,9 @@ def parse_terraform_file(rel_path, text):
 
 
 def _resolve_role_ref(ref, roles):
-    """Resolve ``aws_iam_role.<label>.name`` to a role identity, if known."""
-    match = re.fullmatch(r"aws_iam_role\.([A-Za-z0-9_-]+)\.name", ref or "")
+    """Resolve ``aws_iam_role.<label>.name`` (or ``.id``, which for a role is
+    its name in the AWS provider) to a role identity, if known."""
+    match = re.fullmatch(r"aws_iam_role\.([A-Za-z0-9_-]+)\.(?:name|id)", ref or "")
     if match and match.group(1) in roles:
         return {"kind": "aws_iam_role",
                 "name": roles[match.group(1)]["name"]}

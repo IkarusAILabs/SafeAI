@@ -277,6 +277,7 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # v2.11: kept whenever the scan built it, so a manifest baseline can
         # tell "no delegation" from "not collected".
         "delegation_graph": report.get("delegation_graph"),
+        "separation_of_duties": report.get("separation_of_duties"),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,

@@ -1,0 +1,6 @@
+{
+ "case": "adversarial/sod_lookalikes",
+ "category": "adversarial",
+ "description": "Broad grants and unrelated verb pairs are not Separation-of-Duties conflicts.",
+ "version": "v2.11"
+}

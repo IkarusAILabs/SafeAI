@@ -1,0 +1,26 @@
+{
+ "case": "separation_of_duties/aws_act_and_erase_audit",
+ "notes": "agent-role holds s3:PutObject and cloudtrail:StopLogging: it can act and switch off the record of acting. auditor-role reads CloudTrail and S3 only, so no conflict.",
+ "sod_conflicts": [
+  {
+   "holder": "aws_iam_role:agent-role",
+   "pair": "SOD-ACT-ERASE-AUDIT"
+  }
+ ],
+ "agents": [],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  "iam.tf"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-2) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

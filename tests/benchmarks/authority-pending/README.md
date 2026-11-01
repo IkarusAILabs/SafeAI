@@ -18,6 +18,8 @@ exact set of `(type, workload, subject)` in
 `delegation_edges` (exact set of `framework:name` edges with their
 `exceeds` tools, `null` where not evaluated), `delegation_unresolved` (a
 count) and `delegation_changes` (exact set of `(type, subject)`).
+Separation-of-Duties cases use `sod_conflicts`: the exact set of
+`(holder, pair)` in `report.separation_of_duties.conflicts`.
 
 To run them by hand:
 
@@ -69,3 +71,9 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `baseline_changes/delegation_depth_increased` | v2.11 (B2) | A second hop: depth 1 → 2 |
 | `baseline_changes/subagent_tools_widened` | v2.11 (B2) | Subagent gains Bash; another drops its tools restriction |
 | `baseline_changes/delegation_file_moved` | v2.11 (B2) | Moving the agents to another file reports no change |
+| `separation_of_duties/claude_code_change_and_merge` | v2.11 (B2) | `Edit(src/**)` + `Bash(gh pr merge:*)` on the session |
+| `separation_of_duties/mcp_create_and_approve` | v2.11 (B2) | `create_invoice` + `approve_invoice` on one server; different objects do not conflict |
+| `separation_of_duties/aws_act_and_erase_audit` | v2.11 (B2) | `s3:PutObject` + `cloudtrail:StopLogging` on one role |
+| `separation_of_duties/claude_code_self_grant` | v2.11 (B2) | `Edit(.claude/settings.json)` |
+| `separation_of_duties/split_duties_joined_by_handoff` | v2.11 (B2) | Split duties re-joined by a handoff; a split with no handoff stays clean |
+| `adversarial/sod_lookalikes` | v2.11 (B2) | Broad grants, unrelated verb pairs and IAM `*` are not SoD conflicts |

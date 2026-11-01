@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "tracker": {
+      "command": "node",
+      "args": [
+        "t.js"
+      ],
+      "tools": [
+        "create_issue",
+        "approve_refund"
+      ]
+    }
+  }
+}

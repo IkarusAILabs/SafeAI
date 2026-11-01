@@ -1,0 +1,26 @@
+{
+ "case": "separation_of_duties/mcp_create_and_approve",
+ "notes": "billing lists create_invoice and approve_invoice: the same transaction object on both sides (inferred from tool names). tracker lists create_issue and approve_refund, which are two duties over different things, so no conflict.",
+ "sod_conflicts": [
+  {
+   "holder": "mcp_server:billing",
+   "pair": "SOD-REQUEST-APPROVE"
+  }
+ ],
+ "agents": [],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "must_not_fire": [],
+ "evidence_refs": [
+  ".mcp.json"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-2) from the case inputs. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

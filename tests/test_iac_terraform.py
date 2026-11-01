@@ -250,3 +250,22 @@ def test_never_raises_on_pathological_input():
     assert _parse("\x00\x01\x02 {{{")[0] == []
     assert _parse("resource " * 10000)[0] == []
     assert _parse("")[0] == []
+
+
+def test_inline_policy_role_by_id_resolves_to_the_role_name():
+    """``aws_iam_role.X.id`` is the role name in the AWS provider (v2.11)."""
+    text = '''
+resource "aws_iam_role" "app" {
+  name = "app-role"
+}
+resource "aws_iam_role_policy" "inline" {
+  name = "inline"
+  role = aws_iam_role.app.id
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["*"]
+  }
+}
+'''
+    _, grants, _, _ = _parse(text)
+    assert grants[0]["identity"] == {"kind": "aws_iam_role", "name": "app-role"}
