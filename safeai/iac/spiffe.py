@@ -177,13 +177,15 @@ def collect_file(collection, rel_path, text):
         return collection
     for doc in docs:
         kind = doc.get("kind")
-        api = str(doc.get("apiVersion") or "")
+        # API group exactly ("spire.spiffe.io/v1alpha1" -> "spire.spiffe.io"),
+        # never a prefix: "spire.spiffe.io.example/v1" is another group.
+        group = str(doc.get("apiVersion") or "").split("/", 1)[0]
         meta = _meta(doc)
         name = str(meta.get("name") or "<unnamed>")
         namespace = str(meta.get("namespace") or "")
         line = _best_effort_line(text, name)
         spec = _dict(doc.get("spec"))
-        if kind == "ClusterSPIFFEID" and api.startswith("spire.spiffe.io"):
+        if kind == "ClusterSPIFFEID" and group == "spire.spiffe.io":
             collection["registrations"].append({
                 "name": name,
                 "template": str(spec.get("spiffeIDTemplate") or ""),
@@ -193,7 +195,7 @@ def collect_file(collection, rel_path, text):
                 "fallback": bool(spec.get("fallback")),
                 "source_file": rel_path, "line": line,
             })
-        elif kind == "ClusterFederatedTrustDomain" and api.startswith("spire.spiffe.io"):
+        elif kind == "ClusterFederatedTrustDomain" and group == "spire.spiffe.io":
             profile = _dict(spec.get("bundleEndpointProfile"))
             collection["federations"].append({
                 "name": name,
@@ -219,7 +221,7 @@ def collect_file(collection, rel_path, text):
                 "credentials": _credentials(pod_spec),
                 "source_file": rel_path, "line": line,
             })
-        elif kind == "AuthorizationPolicy" and api.startswith("security.istio.io"):
+        elif kind == "AuthorizationPolicy" and group == "security.istio.io":
             collection["policies"].append({
                 "name": name, "namespace": namespace,
                 "action": str(spec.get("action") or "ALLOW"),

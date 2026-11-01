@@ -394,3 +394,12 @@ def test_identity_rate_is_insufficient_without_workloads():
     assert not any("SPIFFE" in line for line in summary_lines(metrics))
     metrics = compute_evidence_metrics([], [], None, {"counts": {"workloads": 4, "unknown": 1}})
     assert "Workloads with unknown SPIFFE identity: 25% (1/4)" in summary_lines(metrics)
+
+
+def test_api_group_is_matched_exactly_not_by_prefix():
+    lookalike = _registration().replace("spire.spiffe.io/v1alpha1",
+                                        "spire.spiffe.io.example/v1")
+    policy = _policy(rules=[]).replace("security.istio.io/v1", "security.istio.io.example/v1")
+    block = _resolve(CONFIG, lookalike, policy, _deployment("planner"))
+    assert block["registrations"] == [] and block["assignments"] == []
+    assert block["authorization_policies"] == []
