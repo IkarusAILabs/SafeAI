@@ -4,7 +4,7 @@
 > Blueprint Alliance items B1–B6, the SPIFFE / SPIRE items S1–S6 and the
 > external developments review items E1–E3 (2026-10-28).
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
-> Status: v2.8.0 shipped 2026-11-01; next: v2.9.0 (package-manager authority, E1).
+> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; next: v2.10.0 (workload identity, S1/S3/S5).
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -102,7 +102,7 @@ v2.6 → v2.7 two and a half) and are indicative only.
 properties; one dimension list in code, schema and ROADMAP.md; the
 benchmark digest is unchanged (mappings are output-only).
 
-## v2.9.0 — Package-Manager Authority  *(P1, E1)* — **implemented, unreleased**
+## v2.9.0 — Package-Manager Authority  *(P1, E1)* — **SHIPPED 2026-11-01** (#295, #297)
 
 | # | Item | Roadmap | Size |
 |---|---|---|---|
@@ -128,7 +128,9 @@ and AutoGen source, and MCP tool names:
 | 2.9-4 | `Write`/`Edit` grants naming a manifest or lockfile carry it as a `dependency` target | — |
 | 2.9-5 | `dependency` dimension; install → publish is a `write` → `execute` widening; Lane-B capabilities are excluded from `--fail-on-authority-change` and `--fail-on-escalation` | — |
 
-The precision exit criterion waits for the human review of 2.9-1.
+Released before the precision exit criterion was met, at the author's
+decision: the rule stays review-only and outside both gates until the
+human review of 2.9-1 (#296) lets its precision be published.
 
 ## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — target 2027-01-15
 

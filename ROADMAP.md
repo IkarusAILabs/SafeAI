@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.8.0 on 2026-11-01; see
+re-checked at v2.9.0 on 2026-11-01; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -676,6 +676,10 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.9.0** — Package-manager authority (E1): `CAP_package_manager`
+  from Claude Code grants, Python source literals and MCP tool names;
+  `dependency` dimension; first `credential` evidence; Lane B, outside
+  both diff gates; precision pending human review (#296).
 - **v2.8.0** — Control mappings in JSON/SARIF, Blueprint reference
   architecture mapping (B1), provenance audit over the authority corpus,
   one authority-dimension list in code and roadmap, UTF-8 I/O fix.
