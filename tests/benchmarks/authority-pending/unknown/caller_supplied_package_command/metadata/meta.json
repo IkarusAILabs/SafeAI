@@ -1,0 +1,6 @@
+{
+ "case": "unknown/caller_supplied_package_command",
+ "category": "unknown",
+ "description": "A package-manager subcommand supplied at run time is unknown, never assumed.",
+ "version": "v2.9"
+}

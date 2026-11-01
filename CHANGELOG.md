@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Package-manager authority (ROADMAP E1, plan items 2.9-1 to 2.9-5). A
+  Claude Code `Bash(...)` allow grant whose command runs a package
+  manager (settings, slash-command `allowed-tools`, subagent tools) adds a
+  `package_manager` capability on the same tool: `write` for install
+  routes (`npm`/`pnpm`/`yarn` install, add or remove, `pip install`,
+  `uv add`, `poetry add`, `cargo add`, `go get`) and `execute` for publish
+  routes (`npm publish`, `twine upload`, `cargo publish`, `uv publish`,
+  `poetry publish`). It fires the new rule `CAP_package_manager`.
+  `Write`/`Edit` grants that name a dependency manifest or lockfile
+  (`package.json`, `requirements*.txt`, `go.mod`, `Cargo.lock`, …) carry
+  it as a target. Broad grants (`Bash`, `Write(*)`, `*.json`) add nothing:
+  their shell or filesystem authority is already reported, and reading a
+  dependency route into them would be a guess. SafeAI states *that* the
+  agent can change dependencies, never whether a package is safe.
+- A `dependency` authority dimension listing each tool's dependency routes
+  (`npm:install`, `npm:publish`, `manifest:package.json`, …). The
+  `credential` dimension is populated for the first time: registry
+  credential names (`NPM_TOKEN`, `TWINE_PASSWORD`, …) set in the same
+  settings file's `env` block are bound to the package-manager
+  capability. Only names are read; values never enter any output. Other
+  tools keep `credential: unknown`, now with `values` alongside `state`
+  when names are bound.
+- `capability_diff.highest_gating_escalation` and a per-tool
+  `review_only` flag: what the two diff gates act on.
+- Six benchmark cases for E1 in `tests/benchmarks/authority-pending/`.
+  Their truth is AI-assisted and awaits human review, so they stay out of
+  the human-reviewed corpus, its measurements and its digests; a test runs
+  them on every job, and all hold. `tests/benchmarks/authority-pending/README.md`
+  says how to promote them.
+
+### Changed
+
+- `CAP_package_manager` ships in Lane B (ADR-0008): its findings are
+  review-only, and a tool change made only of `package_manager` (or
+  inferred) evidence is `review_only`, so it never fails
+  `--fail-on-authority-change` or `--fail-on-escalation`. Escalations are
+  still reported in full; `--fail-on-escalation` now acts on
+  `highest_gating_escalation`, which is `highest_escalation` minus
+  Lane-B capabilities. This also keeps an upgrade from failing either
+  gate against a baseline taken before v2.9, when nothing in the
+  repository changed.
+- `evidence_metrics.authority_dimensions` gains a `dependency` entry, so
+  the unknown authority-dimension rate has one more dimension per tool;
+  the existing dimensions' counts are unchanged.
+
 ## [2.8.0] - 2026-11-01
 
 **Evidence Hygiene & Mapping.**

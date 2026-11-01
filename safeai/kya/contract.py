@@ -42,7 +42,7 @@ CORRELATION_VERDICTS = ("MATCH", "EXCESS_AUTHORITY", "AUTHORITY_MISMATCH",
 #: block, besides its ``capabilities`` list (v2.8; the only list — ROADMAP.md
 #: names these). A dimension with no observable signal is ``unknown``.
 AUTHORITY_DIMENSIONS = ("destinations", "data_scope", "approval", "autonomy",
-                        "delegation", "credential", "identity")
+                        "delegation", "credential", "identity", "dependency")
 
 
 def contract_block():

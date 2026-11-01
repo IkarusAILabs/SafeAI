@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm test)",
+      "Bash(pip list)",
+      "Bash(go test ./...)",
+      "Write(*.json)"
+    ]
+  }
+}

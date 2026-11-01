@@ -214,6 +214,25 @@ conn = sqlite3.connect("customer_data.db")
 
 ---
 
+### CAP_package_manager
+
+| Field | Value |
+|-------|-------|
+| **Rule ID** | `CAP_package_manager` |
+| **Name** | Package-Manager Authority |
+| **Description** | The agent can add, upgrade, remove or publish dependencies |
+| **Severity** | Medium |
+| **OWASP LLM** | LLM03 (Supply Chain) |
+| **Risk Category** | Capability |
+| **Gateability** | Review-only (Lane B) until its precision is published; never fails a gate |
+| **Detection** | Claude Code `Bash(...)` allow grants (settings, slash-command `allowed-tools`, subagent tools) whose command runs a package manager: install routes (`npm`/`pnpm`/`yarn` install/add/remove, `pip install`, `uv add`, `poetry add`, `cargo add`, `go get`) at `write`, publish routes (`npm publish`, `twine upload`, `cargo publish`, `uv publish`, `poetry publish`) at `execute` |
+
+**Why it matters:** An agent that can change dependencies can pull new code into the project, and one that can publish can ship code to everyone who depends on the package. SafeAI reports *that* the agent holds this authority, never *whether* a chosen package is safe.
+
+**Not detected (by design):** broad `Bash` or `Bash(*)` grants (already reported as shell authority), commands that change no dependency (`npm run`, `npm test`, `pip list`), and subcommands supplied at run time (the dependency route stays unknown). Writes that name a manifest or lockfile (`Edit(package.json)`) are filesystem authority and appear in the per-tool `dependency` dimension, not as this rule.
+
+---
+
 ### CAP_code_exec
 
 | Field | Value |

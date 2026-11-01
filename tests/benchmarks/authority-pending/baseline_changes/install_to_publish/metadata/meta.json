@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/install_to_publish",
+ "category": "baseline_changes",
+ "description": "An agent that could install dependencies gains publish: write to execute.",
+ "version": "v2.9"
+}

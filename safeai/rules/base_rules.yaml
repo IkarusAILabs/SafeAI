@@ -8,6 +8,11 @@
   severity: high
   owasp_llm: LLM06
 
+- id: CAP_package_manager
+  description: Package-manager authority (add, upgrade, remove or publish dependencies)
+  severity: medium
+  owasp_llm: LLM03
+
 - id: CAP_code_exec
   description: Code execution capability
   severity: high

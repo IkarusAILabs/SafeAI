@@ -243,3 +243,9 @@ accuracy without coverage does not graduate.
   output-only control mappings and a provenance audit
   (`tests/test_provenance_audit.py`) that scans every case and found no
   out-of-contract provenance, gateability or evidence reference.
+- v2.9 (unreleased): package-manager authority (E1) changes no outcome
+  and no digest of the 58 cases: with the new detection in place they
+  reproduce `ee76875d…` and `de9cb451…` exactly. Six new E1 cases are not
+  in this corpus: their truth awaits human review, so they live in
+  `tests/benchmarks/authority-pending/` and are not part of these
+  measurements.

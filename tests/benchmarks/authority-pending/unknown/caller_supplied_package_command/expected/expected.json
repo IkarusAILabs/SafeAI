@@ -1,0 +1,79 @@
+{
+ "case": "unknown/caller_supplied_package_command",
+ "notes": "The /deps command runs npm with caller-supplied arguments. Whether that installs or publishes is decided at run time, so no package_manager authority is claimed: shell and untrusted input only, with the dependency route left unknown.",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "tool:command-deps",
+   "capabilities": [
+    {
+     "name": "shell",
+     "access_mode": "execute"
+    },
+    {
+     "name": "untrusted_input",
+     "access_mode": "read"
+    }
+   ]
+  }
+ ],
+ "must_fire": [
+  "CC_SLASH_COMMAND_ARG_INJECTION"
+ ],
+ "must_not_fire": [
+  "CAP_package_manager"
+ ],
+ "evidence_refs": [
+  "deps.md"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs, which are configuration only, so the expected authority follows from the grants as written. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [
+   {
+    "id": "command-deps",
+    "name": "command-deps",
+    "kind": "tool",
+    "attributable": true
+   }
+  ],
+  "capabilities": [
+   {
+    "tool": "command-deps",
+    "capability": "shell",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "command-deps",
+    "capability": "untrusted_input",
+    "access_mode": "read",
+    "attribution": "attributed"
+   }
+  ],
+  "relationships": [
+   {
+    "type": "tool_has_capability",
+    "tool": "command-deps",
+    "capability": "shell",
+    "access_mode": "execute",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "command-deps",
+    "capability": "untrusted_input",
+    "access_mode": "read",
+    "resolvable": true
+   }
+  ],
+  "unknown_expectations": []
+ }
+}

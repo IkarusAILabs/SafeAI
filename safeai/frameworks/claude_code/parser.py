@@ -97,14 +97,15 @@ class ClaudeCodeParser:
             return
         data = data if isinstance(data, dict) else {}
 
+        env_names = cc_settings.extract_env_names(data)
         for decision, entry in cc_settings.extract_permission_entries(data):
             line = cc_settings.line_of(content, entry)
             record = cc_permissions.classify_entry(entry, decision, rel, line)
             if record["tool"]:
                 result["tools"].append(record["tool"])
-            capability = cc_permissions.capability_for(record)
-            if capability:
-                result["capabilities"].append(capability)
+            result["capabilities"].extend(
+                cc_permissions.capabilities_for(record, credentials=env_names)
+            )
 
         for server in cc_settings.extract_mcp_servers(data):
             result["mcp_assets"].append({"type": "server", "name": server, "source": rel})
@@ -140,11 +141,9 @@ class ClaudeCodeParser:
 
         for entry in command["allowed_tools"]:
             record = cc_permissions.classify_entry(entry, "allow", rel, 1)
-            capability = cc_permissions.capability_for(
+            result["capabilities"].extend(cc_permissions.capabilities_for(
                 record, evidence_prefix=f"/{command['name']} allowed-tools"
-            )
-            if capability:
-                result["capabilities"].append(capability)
+            ))
 
         for shell in command["shell_invocations"]:
             result["capabilities"].append(make_capability(
@@ -188,11 +187,9 @@ class ClaudeCodeParser:
         for entry in subagent["tools"]:
             record = cc_permissions.classify_entry(entry, "allow", rel, 1)
             record["identity"] = identity
-            capability = cc_permissions.capability_for(
+            result["capabilities"].extend(cc_permissions.capabilities_for(
                 record, evidence_prefix=f"subagent {subagent['name']} tool"
-            )
-            if capability:
-                result["capabilities"].append(capability)
+            ))
             if record["tool"]:
                 result["tools"].append(record["tool"])
         if subagent["tools"]:

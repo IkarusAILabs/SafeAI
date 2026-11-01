@@ -9,6 +9,8 @@ rather than silently landing in the ``unknown`` bucket of the evidence
 metrics.
 """
 
+import os
+
 import pytest
 
 from safeai.benchmark.runner import default_corpus, discover_cases, scan_case
@@ -19,6 +21,9 @@ from safeai.kya.contract import (
 )
 
 CASES = discover_cases(default_corpus())
+#: Cases awaiting human review of their truth are audited too: provenance
+#: does not depend on whether the expected values were reviewed.
+PENDING = discover_cases(os.path.join(os.path.dirname(default_corpus()), "authority-pending"))
 
 
 def _is_line(value):
@@ -100,9 +105,10 @@ def audit_report(report):
 
 def test_corpus_is_present():
     assert len(CASES) >= 58
+    assert PENDING, "the pending corpus is audited too"
 
 
-@pytest.mark.parametrize("case", CASES, ids=[c["id"] for c in CASES])
+@pytest.mark.parametrize("case", CASES + PENDING, ids=[c["id"] for c in CASES + PENDING])
 def test_every_emitted_statement_carries_valid_provenance(case, tmp_path, capsys):
     current, baseline = scan_case(case["dir"], str(tmp_path))
     capsys.readouterr()  # the scan's terminal summary is not under test

@@ -627,7 +627,9 @@ class ScanPostProcessor:
         if self.args.fail_on_escalation:
             if not self.args.baseline:
                 self.parser.error("--fail-on-escalation requires --baseline")
-            highest = (self.report.get("capability_diff") or {}).get("highest_escalation")
+            diff = self.report.get("capability_diff") or {}
+            # Lane-B capabilities are reported but never fail this gate (v2.9).
+            highest = diff.get("highest_gating_escalation", diff.get("highest_escalation"))
             if highest in LEVELS and LEVELS.index(highest) >= LEVELS.index(self.args.fail_on_escalation):
                 fail = True
 

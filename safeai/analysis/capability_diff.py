@@ -183,6 +183,56 @@ def _inferred_only(added, access_mode_changes):
     return all(bool(s.get("inferred")) for s in signals)
 
 
+#: Capabilities that ship in Lane B until their precision is published
+#: (ADR-0008). A change made only of these, or of inferred evidence, is a
+#: review question: it never trips ``--fail-on-authority-change``. This
+#: also keeps an upgrade from failing the gate against a baseline taken
+#: before the capability was detected (v2.9 package-manager authority).
+LANE_B_CAPABILITIES = frozenset({"package_manager"})
+
+
+def _without_lane_b(state):
+    """``state`` with Lane-B capabilities removed (``None`` stays ``None``)."""
+    if state is None:
+        return None
+    capabilities = [
+        c for c in state.get("capabilities") or [] if c.get("name") not in LANE_B_CAPABILITIES
+    ]
+    return {**state, "capabilities": capabilities}
+
+
+def _gating_escalations(before_state, after_state, escalations, evaluate_combinations):
+    """The escalations ``--fail-on-escalation`` may act on.
+
+    The same rules, evaluated with Lane-B capabilities removed from both
+    sides, so a Lane-B capability is reported but cannot fail the gate.
+    Tools holding no Lane-B capability reuse ``escalations`` as they are.
+    """
+    held = {
+        c.get("name")
+        for state in (before_state, after_state) if state
+        for c in state.get("capabilities") or []
+    }
+    if not held & LANE_B_CAPABILITIES:
+        return escalations
+    before, after = _without_lane_b(before_state), _without_lane_b(after_state)
+    return classify_escalations(
+        before, after, _status_for(before, after), evaluate_combinations=evaluate_combinations
+    )
+
+
+def _review_only(added, access_mode_changes):
+    """True when every structural change signal is inferred or Lane B."""
+    signals = list(added or []) + list(access_mode_changes or [])
+    if not signals:
+        return False
+    return all(
+        bool(s.get("inferred"))
+        or (s.get("name") or s.get("capability")) in LANE_B_CAPABILITIES
+        for s in signals
+    )
+
+
 #: Semantic authority change types, derived from tool status + escalation
 #: ids (never from severity). Only types with observable signals exist:
 #: infrastructure, credential-scope, and prompt/definition changes have no
@@ -255,9 +305,12 @@ def authority_for(after_caps, escalations):
     """Build the per-tool authority dimension block.
 
     Every dimension carries its own provenance; dimensions with no
-    observable signal are ``unknown`` — never guessed. In particular,
-    ``credential`` has no per-tool signal yet and ``identity`` is
-    unobservable to static analysis, so both are always unknown here.
+    observable signal are ``unknown`` — never guessed. ``identity`` is
+    unobservable to static analysis and always unknown here. Since v2.9,
+    ``dependency`` lists the dependency routes the tool's capabilities
+    confer (package-manager commands, manifest writes) and ``credential``
+    the credential names bound to them; both stay unknown without such
+    evidence.
     """
     after_caps = after_caps or []
     esc_ids = {str(e.get("id") or "") for e in escalations or []}
@@ -298,13 +351,43 @@ def authority_for(after_caps, escalations):
         "autonomy": _flag_dim("ESC_AUTONOMY_INCREASED" in esc_ids, "increased"),
         "delegation": _flag_dim(
             "ESC_COMBO_DELEGATION_EXTERNAL_SIDE_EFFECT" in esc_ids, "present"),
-        "credential": {"state": "unknown", "provenance_class": "unknown"},
+        "credential": _credential_dim(after_caps),
         "identity": {"state": "unknown", "provenance_class": "unknown"},
+        "dependency": _targets_dim(after_caps),
+    }
+
+
+def _evidence_provenance(caps):
+    return "inferred" if all(c.get("inferred") for c in caps) else "detected"
+
+
+def _targets_dim(caps):
+    """Dependency routes held through the tool's capabilities (v2.9)."""
+    holders = [c for c in caps if c.get("targets")]
+    if not holders:
+        return {"values": [], "provenance_class": "unknown"}
+    values = sorted({t for c in holders for t in c["targets"]})
+    return {"values": values, "provenance_class": _evidence_provenance(holders)}
+
+
+def _credential_dim(caps):
+    """Credential names bound to the tool's capabilities (v2.9).
+
+    Keeps the ``state`` shape of the unknown case and adds ``values`` when
+    names are bound, so earlier readers of ``state`` keep working.
+    """
+    holders = [c for c in caps if c.get("credentials")]
+    if not holders:
+        return {"state": "unknown", "provenance_class": "unknown"}
+    return {
+        "state": "present",
+        "values": sorted({n for c in holders for n in c["credentials"]}),
+        "provenance_class": _evidence_provenance(holders),
     }
 
 
 #: Dimensions whose block lists values; the others carry a state.
-_LIST_DIMENSIONS = ("destinations", "data_scope")
+_LIST_DIMENSIONS = ("destinations", "data_scope", "dependency")
 
 
 def authority_unknown():
@@ -330,7 +413,7 @@ def authority_gate_tripped(tools, threshold):
         cls = tool.get("change_class", "UNKNOWN")
         # UNKNOWN is unrankable by construction: it never trips a gate.
         rank = -1 if cls == "UNKNOWN" else _CHANGE_RANK.get(cls, -1)
-        if rank >= threshold_rank and not tool.get("inferred_only"):
+        if rank >= threshold_rank and not (tool.get("inferred_only") or tool.get("review_only")):
             return True
     return False
 
@@ -370,6 +453,7 @@ evaluate_combinations):
         "authority": authority_for(after_caps, escalations) if after_state is not None
         else authority_unknown(),
         "inferred_only": _inferred_only(added, access_mode_changes),
+        "review_only": _review_only(added, access_mode_changes),
         "access_summary": {
             "before": (before_state or {}).get("access_summary"),
             "after": (after_state or {}).get("access_summary"),
@@ -415,6 +499,7 @@ def compute_capability_diff(current_report, baseline_report):
         "escalations_by_severity": {sev: 0 for sev in _SEVERITIES},
     }
     all_escalations = []
+    gating_escalations = []
 
     for key in tool_keys:
         before_state = baseline_index.get(key) if baseline_attributed else None
@@ -423,6 +508,9 @@ def compute_capability_diff(current_report, baseline_report):
             continue
         evaluate_combinations = True
         entry = _tool_entry(key, before_state, after_state, evaluate_combinations)
+        gating = _gating_escalations(
+            before_state, after_state, entry["escalations"], evaluate_combinations
+        )
 
         if not baseline_attributed:
             # Structural status is unknowable; report the surface without
@@ -438,9 +526,12 @@ def compute_capability_diff(current_report, baseline_report):
             entry["change_types"] = change_types_for("unknown", entry["escalations"])
             entry["authority"] = authority_unknown()
             entry["inferred_only"] = False
+            entry["review_only"] = False
+            gating = [e for e in gating if e["id"].startswith("ESC_COMBO_")]
 
         if entry["status"] != "unchanged" or entry["escalations"]:
             all_escalations.extend(entry["escalations"])
+            gating_escalations.extend(gating)
             for escalation in entry["escalations"]:
                 severity = escalation["severity"]
                 counts["escalations_by_severity"][severity] = (
@@ -483,6 +574,8 @@ def compute_capability_diff(current_report, baseline_report):
         "unattributed": unattributed,
         "counts": {**counts, **legacy["counts"], "by_change_class": change_counts},
         "highest_escalation": highest_severity(all_escalations),
+        # v2.9: what --fail-on-escalation acts on; excludes Lane-B capabilities.
+        "highest_gating_escalation": highest_severity(gating_escalations),
         "highest_change_class": highest_change,
         "legacy": legacy,
         # v1 fields kept at the top level for backward compatibility.

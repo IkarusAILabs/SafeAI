@@ -1,0 +1,6 @@
+{
+ "case": "capabilities/package_manager_install",
+ "category": "capabilities",
+ "description": "Allowlisted install commands give the shell tool package-manager authority (write).",
+ "version": "v2.9"
+}

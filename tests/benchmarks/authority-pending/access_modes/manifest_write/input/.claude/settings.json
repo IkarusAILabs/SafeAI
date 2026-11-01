@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(package.json)",
+      "Write(requirements.txt)"
+    ]
+  }
+}

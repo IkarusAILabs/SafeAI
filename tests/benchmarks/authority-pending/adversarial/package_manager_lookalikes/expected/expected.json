@@ -1,0 +1,90 @@
+{
+ "case": "adversarial/package_manager_lookalikes",
+ "notes": "npm run build, npm test, pip list and go test name a package manager but change no dependency; Write(*.json) covers package.json but names no manifest. Shell and filesystem authority only.",
+ "agents": [],
+ "tools": [
+  {
+   "tool_key": "tool:bash",
+   "capabilities": [
+    {
+     "name": "shell",
+     "access_mode": "execute"
+    }
+   ]
+  },
+  {
+   "tool_key": "tool:write",
+   "capabilities": [
+    {
+     "name": "filesystem",
+     "access_mode": "write"
+    }
+   ]
+  }
+ ],
+ "must_fire": [
+  "CAP_shell"
+ ],
+ "must_not_fire": [
+  "CAP_package_manager"
+ ],
+ "evidence_refs": [
+  "settings.json"
+ ],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs, which are configuration only, so the expected authority follows from the grants as written. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ },
+ "canonical": {
+  "agents": [],
+  "tools": [
+   {
+    "id": "bash",
+    "name": "bash",
+    "kind": "tool",
+    "attributable": true
+   },
+   {
+    "id": "write",
+    "name": "write",
+    "kind": "tool",
+    "attributable": true
+   }
+  ],
+  "capabilities": [
+   {
+    "tool": "bash",
+    "capability": "shell",
+    "access_mode": "execute",
+    "attribution": "attributed"
+   },
+   {
+    "tool": "write",
+    "capability": "filesystem",
+    "access_mode": "write",
+    "attribution": "attributed"
+   }
+  ],
+  "relationships": [
+   {
+    "type": "tool_has_capability",
+    "tool": "bash",
+    "capability": "shell",
+    "access_mode": "execute",
+    "resolvable": true
+   },
+   {
+    "type": "tool_has_capability",
+    "tool": "write",
+    "capability": "filesystem",
+    "access_mode": "write",
+    "resolvable": true
+   }
+  ],
+  "unknown_expectations": []
+ }
+}

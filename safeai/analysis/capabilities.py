@@ -40,6 +40,7 @@ CAPABILITY_CATEGORIES = {
     "container": "Container",
     "collaboration": "Collaboration",
     "untrusted_input": "Untrusted Input",
+    "package_manager": "Package Manager",
 }
 
 #: Ordered by ascending severity of the authority granted.
@@ -109,12 +110,18 @@ def make_capability(
     tool_identity=None,
     access_mode=None,
     line=None,
+    targets=None,
+    credentials=None,
 ):
     """Create a standardized capability dict consumed by the aggregation pipeline.
 
     The positional signature is frozen for backward compatibility with the
     framework adapters shipped before v1.4. ``tool_identity``,
     ``access_mode`` and ``line`` are keyword-only and default to ``None``.
+    Since v2.9, ``targets`` lists the dependency routes the capability
+    confers (see :mod:`safeai.analysis.package_managers`) and
+    ``credentials`` the credential *names* bound to it; both are omitted
+    when empty.
     """
     capability = {
         "name": name,
@@ -135,6 +142,10 @@ def make_capability(
             capability["line"] = int(line)
         except (TypeError, ValueError):
             capability["line"] = 0
+    if targets:
+        capability["targets"] = sorted(set(targets))
+    if credentials:
+        capability["credentials"] = sorted(set(credentials))
     return capability
 
 
