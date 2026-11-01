@@ -14,7 +14,10 @@ each listed key (`assignments`, `unknown`, `callers`, `federations`,
 `static_credentials`) is compared as an exact set; a key left out is
 not checked. Baseline-pair identity cases use `identity_changes`: the
 exact set of `(type, workload, subject)` in
-`capability_diff.workload_identity_changes`.
+`capability_diff.workload_identity_changes`. Delegation cases use
+`delegation_edges` (exact set of `framework:name` edges with their
+`exceeds` tools, `null` where not evaluated), `delegation_unresolved` (a
+count) and `delegation_changes` (exact set of `(type, subject)`).
 
 To run them by hand:
 
@@ -59,3 +62,10 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `baseline_changes/static_credential_regression` | v2.11 (S2) | A workload with an ID gains a Secret token → `STATIC_CREDENTIAL_ADDED` (credential) |
 | `baseline_changes/spiffe_identity_removed` | v2.11 (S2) | Deleting the registration → `IDENTITY_REMOVED` |
 | `baseline_changes/identity_unchanged_reordered` | v2.11 (S2) | Moving and reordering the same configuration reports no change |
+| `delegation/openai_handoff_chain` | v2.11 (B2) | Handoffs incl. `handoff()`; a delegate holding a tool its delegator lacks; a factory target stays unresolved |
+| `delegation/crewai_delegation` | v2.11 (B2) | `allow_delegation` is one-way; a hierarchical manager delegates to every member |
+| `delegation/claude_code_subagents` | v2.11 (B2) | Session → subagents; `exceeds` not evaluated |
+| `baseline_changes/delegation_handoff_added` | v2.11 (B2) | New handoff: added, breadth increased, exceeds delegator |
+| `baseline_changes/delegation_depth_increased` | v2.11 (B2) | A second hop: depth 1 → 2 |
+| `baseline_changes/subagent_tools_widened` | v2.11 (B2) | Subagent gains Bash; another drops its tools restriction |
+| `baseline_changes/delegation_file_moved` | v2.11 (B2) | Moving the agents to another file reports no change |

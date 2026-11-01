@@ -660,6 +660,15 @@ class ScanOrchestrator:
         # Assurance boundary (v1.4): what this scan did and did not verify.
         # Derived from the run itself, never a fixed disclaimer string.
         self.report["assurance_boundary"] = build_assurance_boundary(self.report)
+        # Static delegation graph (v2.11, B2): which agent can hand work to
+        # which. Lane B; feeds the delegation change types below.
+        from safeai.analysis.delegation import build_delegation_graph, empty_graph
+
+        try:
+            self.report["delegation_graph"] = build_delegation_graph(
+                self.directory, self.excluded_paths)
+        except Exception:
+            self.report["delegation_graph"] = empty_graph()
         if self.baseline_report is not None:
             from safeai.analysis.capability_diff import compute_capability_diff
 

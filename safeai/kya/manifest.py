@@ -274,6 +274,9 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # Optional block: absent on scans without IaC sources or on
         # pre-v2.5 reports. Verdicts cite both sides or are UNKNOWN.
         "iac_correlations": _iac_correlations_entry(report),
+        # v2.11: kept whenever the scan built it, so a manifest baseline can
+        # tell "no delegation" from "not collected".
+        "delegation_graph": report.get("delegation_graph"),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,

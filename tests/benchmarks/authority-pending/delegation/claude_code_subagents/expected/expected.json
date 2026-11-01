@@ -1,0 +1,29 @@
+{
+ "case": "delegation/claude_code_subagents",
+ "notes": "reviewer lists Read and Grep; fixer has no tools field and so has every session tool. Both are delegates of the session. Subagent tools restrict the session's and permission rules apply to both, so no subagent is said to exceed the session.",
+ "agents": [],
+ "delegation_edges": [
+  {
+   "from": "claude_code:session",
+   "to": "claude_code:reviewer",
+   "exceeds": null
+  },
+  {
+   "from": "claude_code:session",
+   "to": "claude_code:fixer",
+   "exceeds": null
+  }
+ ],
+ "delegation_unresolved": 0,
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

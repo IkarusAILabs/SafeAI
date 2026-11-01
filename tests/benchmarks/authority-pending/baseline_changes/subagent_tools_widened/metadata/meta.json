@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/subagent_tools_widened",
+ "category": "baseline_changes",
+ "description": "A Claude Code subagent gains Bash, another loses its tools restriction.",
+ "version": "v2.11"
+}

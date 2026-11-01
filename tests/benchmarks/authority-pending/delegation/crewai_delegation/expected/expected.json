@@ -1,0 +1,45 @@
+{
+ "case": "delegation/crewai_delegation",
+ "notes": "In the research crew only the researcher has allow_delegation=True, so it can delegate to the writer (who holds FileWriterTool the researcher lacks) but not the reverse. The hierarchical ops crew's manager_agent delegates to both of its members.",
+ "agents": [
+  {
+   "framework": "crewai",
+   "name": "Agent"
+  }
+ ],
+ "delegation_edges": [
+  {
+   "from": "crewai:researcher",
+   "to": "crewai:writer",
+   "exceeds": [
+    "FileWriterTool"
+   ]
+  },
+  {
+   "from": "crewai:lead",
+   "to": "crewai:researcher",
+   "exceeds": [
+    "SerperDevTool"
+   ]
+  },
+  {
+   "from": "crewai:lead",
+   "to": "crewai:writer",
+   "exceeds": [
+    "FileWriterTool"
+   ]
+  }
+ ],
+ "delegation_unresolved": 0,
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.11 (plan 2.11-1) from the case inputs and the OpenAI Agents SDK, CrewAI and Claude Code subagent documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

@@ -14,6 +14,25 @@ Two layers run on every case:
 import os
 
 
+def _edge_key(source, target, exceeds):
+    """Comparable delegation edge: ``exceeds`` None means "not evaluated"."""
+    return (str(source), str(target),
+            None if exceeds is None else ",".join(sorted(exceeds)))
+
+
+def _compare_delegation_edges(truth, graph, failures):
+    """Exact-set comparison of delegation edges by ``framework:name`` (v2.11)."""
+    names = {n.get("id"): f"{n.get('framework')}:{n.get('name')}"
+             for n in graph.get("nodes") or [] if isinstance(n, dict)}
+    obs = {_edge_key(names.get(e.get("from")), names.get(e.get("to")), e.get("exceeds"))
+           for e in graph.get("edges") or [] if isinstance(e, dict)}
+    exp = {_edge_key(e.get("from"), e.get("to"), e.get("exceeds")) for e in truth}
+    if exp != obs:
+        failures.append(f"delegation_edges: missing {sorted(exp - obs, key=str)}, "
+                        f"unexpected {sorted(obs - exp, key=str)}")
+    return {"expected": len(exp), "matched": len(exp & obs), "observed": len(obs)}
+
+
 def _workload_identity_sets(block):
     """Observed workload-identity facts as comparable sets (v2.10)."""
     assignments = {
@@ -424,6 +443,28 @@ def compare_case(expected, current, baseline=None):
                 if obs_verdicts.get(d) == v
             ),
         }
+
+    if "delegation_edges" in expected:
+        parts["delegation_edges"] = _compare_delegation_edges(
+            expected.get("delegation_edges") or [], current.get("delegation_graph") or {},
+            failures)
+    if "delegation_unresolved" in expected:
+        graph = current.get("delegation_graph") or {}
+        observed = len(graph.get("unresolved") or [])
+        if observed != int(expected["delegation_unresolved"]):
+            failures.append(f"delegation_unresolved: expected "
+                            f"{expected['delegation_unresolved']}, got {observed}")
+    if "delegation_changes" in expected:
+        block = (current.get("capability_diff") or {}).get("delegation_changes") or {}
+        obs = {(str(c.get("type")), str(c.get("subject")))
+               for c in block.get("changes") or [] if isinstance(c, dict)}
+        exp = {(str(c.get("type")), str(c.get("subject")))
+               for c in expected.get("delegation_changes") or []}
+        if exp != obs:
+            failures.append(f"delegation_changes: missing {sorted(exp - obs)}, "
+                            f"unexpected {sorted(obs - exp)}")
+        parts["delegation_changes"] = {"expected": len(exp), "matched": len(exp & obs),
+                                       "observed": len(obs)}
 
     if "identity_changes" in expected:
         diff = current.get("capability_diff") or {}

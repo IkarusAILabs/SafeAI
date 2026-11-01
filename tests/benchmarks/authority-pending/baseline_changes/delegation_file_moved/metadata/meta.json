@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/delegation_file_moved",
+ "category": "baseline_changes",
+ "description": "Moving the agents to another file is not a delegation change.",
+ "version": "v2.11"
+}

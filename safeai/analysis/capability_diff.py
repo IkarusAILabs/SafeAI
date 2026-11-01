@@ -15,6 +15,7 @@ Backward compatibility: the returned document still carries the v1 flat
 """
 
 from safeai.analysis.capabilities import access_mode_rank
+from safeai.analysis.delegation import compute_delegation_changes
 from safeai.analysis.escalation import (
     DATA_NAMES,
     DESTINATION_NAMES,
@@ -581,6 +582,8 @@ def compute_capability_diff(current_report, baseline_report):
         # v2.11: SPIFFE workload-identity changes (Lane B, never gating).
         "workload_identity_changes": compute_identity_changes(
             current_report, baseline_report),
+        # v2.11: delegation changes (Lane B, never gating).
+        "delegation_changes": compute_delegation_changes(current_report, baseline_report),
         "legacy": legacy,
         # v1 fields kept at the top level for backward compatibility.
         "added": legacy["added"],
