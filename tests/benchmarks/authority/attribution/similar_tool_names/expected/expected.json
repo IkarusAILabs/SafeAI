@@ -1,0 +1,67 @@
+{
+  "case": "attribution/similar_tool_names",
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "ai_assisted_pending_review",
+    "confidence": "medium",
+    "rationale": "Candidate truth derived from the fixture source by AI assistance. The source clearly defines separate read-only and write-capable functions, but expected scanner attribution and capability vocabulary must be independently reviewed and confirmed before this fixture is accepted."
+  },
+  "notes": "Candidate fixture for similarly named tools with distinct authority. This expected truth is intentionally marked pending independent review; it must not be treated as human-reviewed benchmark gold.",
+  "agents": [
+    {
+      "framework": "langchain",
+      "name": "initialize_agent"
+    }
+  ],
+  "tools": [],
+  "must_fire": [
+    "CAP_filesystem",
+    "CAP_file_write"
+  ],
+  "must_not_fire": [
+    "CAP_shell",
+    "CAP_subprocess_shell"
+  ],
+  "evidence_refs": [
+    "agent.py"
+  ],
+  "uncertainty": [],
+  "canonical": {
+    "agents": [
+      {
+        "id": "langchain:initialize_agent",
+        "framework": "langchain",
+        "name": "initialize_agent"
+      }
+    ],
+    "tools": [
+      {
+        "id": "document-reader",
+        "name": "document_reader",
+        "kind": "tool",
+        "attributable": true
+      },
+      {
+        "id": "document-writer",
+        "name": "document_writer",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "document-reader",
+        "capability": "filesystem",
+        "access_mode": "read",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "document-writer",
+        "capability": "file_write",
+        "access_mode": "write",
+        "attribution": "attributed"
+      }
+    ],
+    "unknown_expectations": []
+  }
+}
