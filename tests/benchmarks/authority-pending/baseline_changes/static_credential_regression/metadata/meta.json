@@ -2,5 +2,5 @@
  "case": "baseline_changes/static_credential_regression",
  "category": "baseline_changes",
  "description": "A workload with a SPIFFE ID is newly handed a static token.",
- "version": "v2.11"
+ "version": "v2.10"
 }

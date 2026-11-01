@@ -326,7 +326,7 @@ def _iac_authority(report, budget=9):
 
 
 def _delegation_changes(diff, budget=7):
-    """Delegation changes (v2.11) as review-only lines; empty when none."""
+    """Delegation changes (v2.10) as review-only lines; empty when none."""
     block = (diff or {}).get("delegation_changes") or {}
     changes = [c for c in block.get("changes") or [] if isinstance(c, dict)]
     if not changes or budget < 3:
@@ -344,7 +344,7 @@ def _delegation_changes(diff, budget=7):
 
 
 def _identity_changes(diff, budget=7):
-    """Workload-identity changes (v2.11) as review-only lines.
+    """Workload-identity changes (v2.10) as review-only lines.
 
     Lane B: these never gate. Every interpolated value is sanitized;
     credential *names* appear, never values. Empty when there are none.

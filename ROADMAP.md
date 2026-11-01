@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.9.0 on 2026-11-01; see
+re-checked at v2.10.0 on 2026-11-01; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -401,14 +401,14 @@ cross-plane work and are not duplicated here.
   rule mappings for MCP, skill, IaC, approval and authority-change rules;
   every JSON finding carries `control_mappings`, every SARIF result
   `properties.controls`.
-- **B2 — Delegation & SoD change types (P1/P2, IMPLEMENTED in v2.11, Lane B).** Promote
+- **B2 — Delegation & SoD change types (P1/P2, IMPLEMENTED in v2.10, Lane B).** Promote
   delegation from combo-rule proxies to explicit change types aligned
   with Blueprint "delegation & inheritance": new sub-agent, delegation
   depth/breadth increase, sub-agent capability not held by its
   delegator (confused-deputy shape). Add a Separation-of-Duties rule
   class for conflicting capability pairs (e.g. create + approve the
   same transaction). Each needs benchmark cases before any gating.
-  *v2.11:* `safeai/analysis/delegation.py` builds a static delegation
+  *v2.10:* `safeai/analysis/delegation.py` builds a static delegation
   graph (Claude Code session → subagents, OpenAI Agents SDK handoffs,
   CrewAI `allow_delegation` and hierarchical managers) and reports
   `DELEGATE_ADDED`, `DELEGATION_BREADTH_INCREASED`,
@@ -504,14 +504,14 @@ concrete static evidence source.
   `Namespace` labels and Istio `AuthorizationPolicy` principals, and
   reports them under `iac_correlations.workload_identity`. SPIRE
   server configuration (HCL) is not read yet.
-- **S2 — Identity change types (P1, IMPLEMENTED in v2.11 except JWT-SVID audiences, Lane B).** Map onto the existing
+- **S2 — Identity change types (P1, IMPLEMENTED in v2.10 except JWT-SVID audiences, Lane B).** Map onto the existing
   authority dimensions rather than adding new ones: new or broadened
   SPIFFE ID template → `identity`; new federated trust domain or new
   JWT-SVID audience → `destinations`; new authorization-policy rule
   admitting the agent's SPIFFE ID to another service → `identity`;
   removed workload identity or regression to static credentials →
   `credential`. Benchmark cases precede any gating.
-  *v2.11:* `safeai/analysis/identity_diff.py` reports `IDENTITY_ADDED`,
+  *v2.10:* `safeai/analysis/identity_diff.py` reports `IDENTITY_ADDED`,
   `IDENTITY_REMOVED`, `IDENTITY_BROADENED`, `CALLER_ADDED` (`identity`),
   `FEDERATION_ADDED` (`destinations`) and `STATIC_CREDENTIAL_ADDED`
   (`credential`) under `capability_diff.workload_identity_changes`, all
@@ -710,6 +710,11 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.10.0** — Workload identity, delegation and Separation of Duties:
+  static SPIFFE collector with Istio callers (S1), static-credential
+  signal (S3), identity change types (S2), delegation graph and change
+  types (B2), `SOD_CONFLICTING_AUTHORITY` (B2); all Lane B; precision
+  pending human review (#300).
 - **v2.9.0** — Package-manager authority (E1): `CAP_package_manager`
   from Claude Code grants, Python source literals and MCP tool names;
   `dependency` dimension; first `credential` evidence; Lane B, outside

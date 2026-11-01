@@ -2,5 +2,5 @@
  "case": "baseline_changes/istio_caller_added",
  "category": "baseline_changes",
  "description": "An AuthorizationPolicy newly admits the agent as a caller of payments.",
- "version": "v2.11"
+ "version": "v2.10"
 }

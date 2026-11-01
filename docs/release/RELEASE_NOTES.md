@@ -3,6 +3,69 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.10.0 (2026-11-01)
+
+**Workload Identity, Delegation & Separation of Duties.** SafeAI now
+answers three new questions from repository evidence: *which SPIFFE
+identity is each workload issued*, *which agent can hand work to which*,
+and *can one holder both perform and approve the same thing*. Every new
+signal is Lane B: reported for review, never failing a gate.
+
+### What's New
+
+- **Static SPIFFE workload identity.** `ClusterSPIFFEID`,
+  `ClusterFederatedTrustDomain`, the SPIRE controller manager config and
+  `Namespace` labels give each workload its SPIFFE ID
+  (workload → ServiceAccount → SPIFFE ID). Undecidable selectors leave
+  the identity `unknown`, with the reason. Istio `AuthorizationPolicy`
+  principals become declared callers. See
+  `iac_correlations.workload_identity`.
+- **`IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY`** (low): a workload
+  with a SPIFFE ID is also handed a static credential. Names only.
+- **Delegation graph**: Claude Code session → subagents, OpenAI Agents
+  SDK handoffs, CrewAI delegation (`report.delegation_graph`).
+- **Change types against a baseline**, in the PR comment:
+  - identity: `IDENTITY_ADDED`, `IDENTITY_REMOVED`,
+    `IDENTITY_BROADENED`, `CALLER_ADDED`, `FEDERATION_ADDED`,
+    `STATIC_CREDENTIAL_ADDED`;
+  - delegation: `DELEGATE_ADDED`, `DELEGATION_BREADTH_INCREASED`,
+    `DELEGATION_DEPTH_INCREASED`, `DELEGATE_EXCEEDS_DELEGATOR`,
+    `SUBAGENT_TOOLS_WIDENED`.
+- **`SOD_CONFLICTING_AUTHORITY`** (low): one holder can create and
+  approve the same transaction, change and merge code, act and erase the
+  audit trail, or rewrite its own permission settings.
+- **Evidence metric** `unknown_workload_identity_rate`.
+
+### Lane B: reported, not gating
+
+None of the new change types is read by `--fail-on-authority-change` or
+`--fail-on-escalation`, and both new rules are low severity, below the
+lowest `--fail-on` threshold. Their precision is **not yet published**:
+the twenty-four benchmark cases behind them hold, but await human review
+(#300).
+
+### Upgrade notes
+
+- No breaking changes. A baseline taken with v2.9 or earlier carries no
+  workload-identity block or delegation graph: the new change types then
+  report `baseline_available: false` instead of reporting everything as
+  added. Re-baseline with v2.10 to start comparing.
+- New report fields: `iac_correlations.workload_identity`,
+  `delegation_graph`, `separation_of_duties`, and
+  `capability_diff.workload_identity_changes` / `delegation_changes`.
+  Manifest Contract stays `1.0.0`; the new manifest fields are optional.
+- The 58-case authority benchmark holds with unchanged digests
+  (`ee76875d…`, `de9cb451…`).
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#2100---2026-11-01)
+- [Rule reference: SOD_CONFLICTING_AUTHORITY](../reference/RULES_REFERENCE.md#sod_conflicting_authority)
+- [Rule reference: IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY](../reference/RULES_REFERENCE.md#iac_static_credential_with_workload_identity)
+- [Pending benchmark cases](../../tests/benchmarks/authority-pending/README.md)
+
+---
+
 ## v2.9.0 (2026-11-01)
 
 **Package-Manager Authority.** SafeAI now reports whether an agent can

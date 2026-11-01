@@ -251,17 +251,17 @@ accuracy without coverage does not graduate.
   measurements. The v2.9 follow-up (Python source, MCP tool names) adds
   three more pending cases (nine in all, review in #296) and also leaves
   both digests unchanged.
-- v2.10 (unreleased): the SPIFFE workload-identity collector changes no
+- v2.10.0: the SPIFFE workload-identity collector changes no
   outcome and no digest of the 58 cases (`ee76875d…`, `de9cb451…`). Two
   of them have a workload manifest and no SPIFFE registration, so their
   workload identity is `unknown`. Five new identity cases are pending
   review (fourteen pending in all).
-- v2.11 identity change types (unreleased) also leave both digests
+- v2.10.0 identity change types also leave both digests
   unchanged; six baseline-pair cases for them are pending review (twenty
   pending in all).
-- v2.11 Separation of Duties (unreleased) and the Terraform `.id` fix
+- v2.10.0 Separation of Duties and the Terraform `.id` fix
   leave both digests unchanged (no reviewed case attaches a policy by
   `.id`); six SoD cases are pending review (thirty-three pending in all).
-- v2.11 delegation change types (unreleased) leave both digests
+- v2.10.0 delegation change types leave both digests
   unchanged; seven delegation cases are pending review (twenty-seven
   pending in all).

@@ -2,5 +2,5 @@
  "case": "baseline_changes/identity_unchanged_reordered",
  "category": "baseline_changes",
  "description": "Moving and reordering the same identity configuration is not a change.",
- "version": "v2.11"
+ "version": "v2.10"
 }

@@ -206,7 +206,7 @@
       }
     },
     "separation_of_duties": {
-      "description": "Optional (v2.11). Separation-of-Duties conflicts: one holder (Claude Code session or subagent, MCP server, agent, IaC identity) able to do both halves of a conflicting pair. Lane B; never consumed by a gate.",
+      "description": "Optional (v2.10). Separation-of-Duties conflicts: one holder (Claude Code session or subagent, MCP server, agent, IaC identity) able to do both halves of a conflicting pair. Lane B; never consumed by a gate.",
       "type": ["object", "null"],
       "properties": {
         "lane": {"const": "B"},
@@ -216,7 +216,7 @@
       }
     },
     "delegation_graph": {
-      "description": "Optional (v2.11). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation. Lane B; never consumed by a gate.",
+      "description": "Optional (v2.10). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation. Lane B; never consumed by a gate.",
       "type": ["object", "null"],
       "properties": {
         "lane": {"const": "B"},

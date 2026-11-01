@@ -4,7 +4,9 @@
 > Blueprint Alliance items B1–B6, the SPIFFE / SPIRE items S1–S6 and the
 > external developments review items E1–E3 (2026-10-28).
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
-> Status: v2.8.0 and v2.9.0 shipped 2026-11-01; v2.10.0 (workload identity, S1/S3/S5) and v2.11 items 2.11-1 to 2.11-3 (delegation, Separation of Duties, identity change types) implemented, not yet released.
+> Status: v2.8.0, v2.9.0 and v2.10.0 shipped 2026-11-01. v2.10.0 also
+> carries v2.11 items 2.11-1 to 2.11-3; 2.11-4 (published precision)
+> waits on human review (#300). Next: v2.12.0 (attestation).
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -132,7 +134,7 @@ Released before the precision exit criterion was met, at the author's
 decision: the rule stays review-only and outside both gates until the
 human review of 2.9-1 (#296) lets its precision be published.
 
-## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — target 2027-01-15, **implemented on `main`, not released**
+## v2.10.0 — Workload Identity  *(P3, S1, S3, S5)* — **SHIPPED 2026-11-01** (v2.10.0: #299)
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|
@@ -163,7 +165,7 @@ SPIFFE assignments and all 3 expected callers are found, with none extra.
 On the 58 reviewed cases, the 2 workload manifests stay unknown (no
 registration in those repositories) and both digests are unchanged.
 
-## v2.11.0 — Delegation & Identity Change Semantics  *(P1/P2, B2, S2)* — target 2027-02
+## v2.11.0 — Delegation & Identity Change Semantics  *(P1/P2, B2, S2)* — **2.11-1 to 2.11-3 SHIPPED in v2.10.0** (#301, #303, #304)
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|
@@ -175,8 +177,10 @@ registration in those repositories) and both digests are unchanged.
 **Exit criteria:** each new type has benchmark cases with P/R/F1
 published before any `--fail-on-authority-change` path consumes it.
 
-**Status.** 2.11-1, 2.11-2 and 2.11-3 are implemented on `main` (not
-released); 2.11-4 waits on human review of the pending cases.
+**Status.** 2.11-1, 2.11-2 and 2.11-3 shipped in v2.10.0 (released
+together with the v2.10 items, at the author's decision); 2.11-4 waits
+on human review of the pending cases (#300). There will be no
+separate v2.11.0 feature release.
 
 | # | Done | Not yet |
 |---|---|---|

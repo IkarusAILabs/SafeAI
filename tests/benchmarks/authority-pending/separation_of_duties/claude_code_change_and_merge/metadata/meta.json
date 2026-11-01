@@ -2,5 +2,5 @@
  "case": "separation_of_duties/claude_code_change_and_merge",
  "category": "separation_of_duties",
  "description": "The Claude Code session can edit source and merge pull requests.",
- "version": "v2.11"
+ "version": "v2.10"
 }

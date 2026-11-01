@@ -1,4 +1,4 @@
-"""Separation of Duties (v2.11, plan item 2.11-2)."""
+"""Separation of Duties (v2.10, plan item 2.11-2)."""
 
 import json
 

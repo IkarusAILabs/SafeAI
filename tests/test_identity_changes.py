@@ -1,4 +1,4 @@
-"""Workload-identity change types (v2.11, plan items 2.11-3 and 2.11-4)."""
+"""Workload-identity change types (v2.10, plan items 2.11-3 and 2.11-4)."""
 
 import json
 import os

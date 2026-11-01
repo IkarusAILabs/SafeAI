@@ -2,5 +2,5 @@
  "case": "separation_of_duties/split_duties_joined_by_handoff",
  "category": "separation_of_duties",
  "description": "Create and approve are split across agents, but a handoff joins them.",
- "version": "v2.11"
+ "version": "v2.10"
 }

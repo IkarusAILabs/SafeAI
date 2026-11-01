@@ -253,7 +253,7 @@ def test_never_raises_on_pathological_input():
 
 
 def test_inline_policy_role_by_id_resolves_to_the_role_name():
-    """``aws_iam_role.X.id`` is the role name in the AWS provider (v2.11)."""
+    """``aws_iam_role.X.id`` is the role name in the AWS provider (v2.10)."""
     text = '''
 resource "aws_iam_role" "app" {
   name = "app-role"

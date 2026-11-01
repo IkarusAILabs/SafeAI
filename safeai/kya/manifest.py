@@ -119,7 +119,7 @@ def _iac_correlations_entry(report):
         "counts": iac.get("counts") or {},
     }
     # v2.10: kept even when empty, so a later scan using this manifest as
-    # its baseline can tell "no identities" from "not collected" (v2.11
+    # its baseline can tell "no identities" from "not collected" (v2.10
     # identity change types).
     if isinstance(workload_identity, dict):
         entry["workload_identity"] = workload_identity
@@ -274,7 +274,7 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # Optional block: absent on scans without IaC sources or on
         # pre-v2.5 reports. Verdicts cite both sides or are UNKNOWN.
         "iac_correlations": _iac_correlations_entry(report),
-        # v2.11: kept whenever the scan built it, so a manifest baseline can
+        # v2.10: kept whenever the scan built it, so a manifest baseline can
         # tell "no delegation" from "not collected".
         "delegation_graph": report.get("delegation_graph"),
         "separation_of_duties": report.get("separation_of_duties"),

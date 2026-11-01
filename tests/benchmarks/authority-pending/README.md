@@ -58,22 +58,22 @@ python -m safeai benchmark --corpus tests/benchmarks/authority-pending
 | `identity/spiffe_federation_widening` | v2.10 (S5) | `federatesWith` trust domains are recorded per workload, declared or not |
 | `identity/istio_principal_authorization` | v2.10 (S5) | Istio principals become declared callers (SPIFFE assignment or ns/sa convention); `*` is flagged |
 | `identity/static_credential_with_spiffe` | v2.10 (S3/S5) | A Secret-sourced token beside a SPIFFE ID fires `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY`; no ID, no finding |
-| `baseline_changes/spiffe_registration_broadened` | v2.11 (S2) | Dropping a podSelector broadens the registration and issues a new identity |
-| `baseline_changes/spiffe_federation_added` | v2.11 (S2) | New `federatesWith` domain → `FEDERATION_ADDED` (destinations) |
-| `baseline_changes/istio_caller_added` | v2.11 (S2) | A policy newly admits the agent's SPIFFE ID → `CALLER_ADDED` |
-| `baseline_changes/static_credential_regression` | v2.11 (S2) | A workload with an ID gains a Secret token → `STATIC_CREDENTIAL_ADDED` (credential) |
-| `baseline_changes/spiffe_identity_removed` | v2.11 (S2) | Deleting the registration → `IDENTITY_REMOVED` |
-| `baseline_changes/identity_unchanged_reordered` | v2.11 (S2) | Moving and reordering the same configuration reports no change |
-| `delegation/openai_handoff_chain` | v2.11 (B2) | Handoffs incl. `handoff()`; a delegate holding a tool its delegator lacks; a factory target stays unresolved |
-| `delegation/crewai_delegation` | v2.11 (B2) | `allow_delegation` is one-way; a hierarchical manager delegates to every member |
-| `delegation/claude_code_subagents` | v2.11 (B2) | Session → subagents; `exceeds` not evaluated |
-| `baseline_changes/delegation_handoff_added` | v2.11 (B2) | New handoff: added, breadth increased, exceeds delegator |
-| `baseline_changes/delegation_depth_increased` | v2.11 (B2) | A second hop: depth 1 → 2 |
-| `baseline_changes/subagent_tools_widened` | v2.11 (B2) | Subagent gains Bash; another drops its tools restriction |
-| `baseline_changes/delegation_file_moved` | v2.11 (B2) | Moving the agents to another file reports no change |
-| `separation_of_duties/claude_code_change_and_merge` | v2.11 (B2) | `Edit(src/**)` + `Bash(gh pr merge:*)` on the session |
-| `separation_of_duties/mcp_create_and_approve` | v2.11 (B2) | `create_invoice` + `approve_invoice` on one server; different objects do not conflict |
-| `separation_of_duties/aws_act_and_erase_audit` | v2.11 (B2) | `s3:PutObject` + `cloudtrail:StopLogging` on one role |
-| `separation_of_duties/claude_code_self_grant` | v2.11 (B2) | `Edit(.claude/settings.json)` |
-| `separation_of_duties/split_duties_joined_by_handoff` | v2.11 (B2) | Split duties re-joined by a handoff; a split with no handoff stays clean |
-| `adversarial/sod_lookalikes` | v2.11 (B2) | Broad grants, unrelated verb pairs and IAM `*` are not SoD conflicts |
+| `baseline_changes/spiffe_registration_broadened` | v2.10 (S2) | Dropping a podSelector broadens the registration and issues a new identity |
+| `baseline_changes/spiffe_federation_added` | v2.10 (S2) | New `federatesWith` domain → `FEDERATION_ADDED` (destinations) |
+| `baseline_changes/istio_caller_added` | v2.10 (S2) | A policy newly admits the agent's SPIFFE ID → `CALLER_ADDED` |
+| `baseline_changes/static_credential_regression` | v2.10 (S2) | A workload with an ID gains a Secret token → `STATIC_CREDENTIAL_ADDED` (credential) |
+| `baseline_changes/spiffe_identity_removed` | v2.10 (S2) | Deleting the registration → `IDENTITY_REMOVED` |
+| `baseline_changes/identity_unchanged_reordered` | v2.10 (S2) | Moving and reordering the same configuration reports no change |
+| `delegation/openai_handoff_chain` | v2.10 (B2) | Handoffs incl. `handoff()`; a delegate holding a tool its delegator lacks; a factory target stays unresolved |
+| `delegation/crewai_delegation` | v2.10 (B2) | `allow_delegation` is one-way; a hierarchical manager delegates to every member |
+| `delegation/claude_code_subagents` | v2.10 (B2) | Session → subagents; `exceeds` not evaluated |
+| `baseline_changes/delegation_handoff_added` | v2.10 (B2) | New handoff: added, breadth increased, exceeds delegator |
+| `baseline_changes/delegation_depth_increased` | v2.10 (B2) | A second hop: depth 1 → 2 |
+| `baseline_changes/subagent_tools_widened` | v2.10 (B2) | Subagent gains Bash; another drops its tools restriction |
+| `baseline_changes/delegation_file_moved` | v2.10 (B2) | Moving the agents to another file reports no change |
+| `separation_of_duties/claude_code_change_and_merge` | v2.10 (B2) | `Edit(src/**)` + `Bash(gh pr merge:*)` on the session |
+| `separation_of_duties/mcp_create_and_approve` | v2.10 (B2) | `create_invoice` + `approve_invoice` on one server; different objects do not conflict |
+| `separation_of_duties/aws_act_and_erase_audit` | v2.10 (B2) | `s3:PutObject` + `cloudtrail:StopLogging` on one role |
+| `separation_of_duties/claude_code_self_grant` | v2.10 (B2) | `Edit(.claude/settings.json)` |
+| `separation_of_duties/split_duties_joined_by_handoff` | v2.10 (B2) | Split duties re-joined by a handoff; a split with no handoff stays clean |
+| `adversarial/sod_lookalikes` | v2.10 (B2) | Broad grants, unrelated verb pairs and IAM `*` are not SoD conflicts |

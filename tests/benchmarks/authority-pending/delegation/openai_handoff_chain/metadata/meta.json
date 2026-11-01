@@ -2,5 +2,5 @@
  "case": "delegation/openai_handoff_chain",
  "category": "delegation",
  "description": "OpenAI Agents SDK handoffs form a two-hop chain; one target is built at run time.",
- "version": "v2.11"
+ "version": "v2.10"
 }

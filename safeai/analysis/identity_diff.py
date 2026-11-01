@@ -1,4 +1,4 @@
-"""Workload-identity change types between two scans (v2.11, ROADMAP S2).
+"""Workload-identity change types between two scans (v2.10, ROADMAP S2).
 
 Compares the ``iac_correlations.workload_identity`` blocks (v2.10) of a
 baseline and a current report. Each change is mapped onto an existing

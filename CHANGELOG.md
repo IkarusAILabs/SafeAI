@@ -7,22 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+## [2.10.0] - 2026-11-01
 
-- The delegation graph copied Claude Code allow rules and subagent tools
-  verbatim, so a secret inside a rule (`Bash(API_KEY=...)`) could reach
-  the report when subagents existed. They are now redacted as the
-  permissions parser redacts them.
-- Terraform: an inline policy attached with `role = aws_iam_role.X.id`
-  now resolves to the role's name, as `.name` already did (for a role,
-  `id` is the name in the AWS provider).
-
-### Changed
-
-- The manifest's `iac_correlations` block is now present for every scan
-  that collects IaC evidence, carrying `workload_identity` even when it
-  is empty. A manifest used as `--baseline` then tells "no workload
-  identities" from "not collected".
+**Workload Identity, Delegation & Separation of Duties.** Ships plan
+items 2.10-1 to 2.10-5 and 2.11-1 to 2.11-3 together. Everything new is
+Lane B: reported for review, never failing a gate.
 
 ### Added
 
@@ -38,29 +27,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   repository creates no identity; the workload stays `unknown` with the
   reason. Istio `AuthorizationPolicy` principals are reported as
   declared callers of the workloads they select. All of it is under
-  `iac_correlations.workload_identity` (new identity kind `spiffe_id`,
-  link type `workload-spiffe-id`), Lane B. SPIFFE links are kept out of
-  grant correlation: a SPIFFE ID holds no RBAC or IAM grant.
+  `iac_correlations.workload_identity` (identity kind `spiffe_id`, link
+  type `workload-spiffe-id`). SPIFFE links are kept out of grant
+  correlation: a SPIFFE ID holds no RBAC or IAM grant.
 - `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY` (low, review-only; S3,
   plan item 2.10-4): a workload that is issued a SPIFFE ID is also
   handed a static credential (Secret-sourced env, `envFrom`, Secret
   volume, or a literal env value with a credential name). Names only;
-  no value is read into any output. 85 rules in all.
-- Evidence metrics: `unknown_workload_identity_rate`, the share of
+  no value is read into any output.
+- Evidence metric `unknown_workload_identity_rate`, the share of
   workloads whose SPIFFE identity stays unknown (insufficient evidence
   when a scan has no workload manifests).
-- Separation of Duties (ROADMAP B2, plan item 2.11-2):
-  `SOD_CONFLICTING_AUTHORITY` (low, review-only) when one holder can do
-  both halves of a conflicting pair: create and approve the same kind of
-  transaction, change code and merge it, act and erase the audit trail
-  (IAM), or rewrite its own Claude Code permission settings. Holders are
-  the Claude Code session and subagents, MCP servers, OpenAI Agents SDK
-  and CrewAI agents (with the tools of agents they can hand work to) and
-  AWS IAM roles. Only authority that names the operation counts; broad
-  grants (`Bash`, `Write(*)`, IAM `*`) do not. Results in
-  `report.separation_of_duties` and the manifest. 86 rules in all.
-- Six pending Separation-of-Duties benchmark cases, with a
-  `sod_conflicts` truth section in the harness.
+- Workload-identity change types against a baseline (ROADMAP S2, plan
+  item 2.11-3), under `capability_diff.workload_identity_changes`:
+  `IDENTITY_ADDED`, `IDENTITY_REMOVED`, `IDENTITY_BROADENED`,
+  `CALLER_ADDED` (dimension `identity`), `FEDERATION_ADDED`
+  (`destinations`) and `STATIC_CREDENTIAL_ADDED` (`credential`).
 - Static delegation graph (ROADMAP B2, plan item 2.11-1) in
   `report.delegation_graph` and the manifest: the Claude Code session
   delegates to each subagent; OpenAI Agents SDK `handoffs=[...]`
@@ -71,33 +53,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DELEGATE_ADDED`, `DELEGATION_BREADTH_INCREASED`,
   `DELEGATION_DEPTH_INCREASED`, `DELEGATE_EXCEEDS_DELEGATOR` (a delegate
   holds a tool its delegator does not, compared by tool name) and
-  `SUBAGENT_TOOLS_WIDENED`. All review-only and shown in the PR comment;
-  they never trip a gate. Claude Code subagents are never said to exceed
-  the session: their tools restrict the session's.
-- Seven pending benchmark cases for delegation, with
-  `delegation_edges`, `delegation_unresolved` and `delegation_changes`
-  truth sections in the harness.
-- Workload-identity change types between a baseline and the current scan
-  (ROADMAP S2, plan items 2.11-3 and 2.11-4), under
-  `capability_diff.workload_identity_changes`: `IDENTITY_ADDED`,
-  `IDENTITY_REMOVED`, `IDENTITY_BROADENED`, `CALLER_ADDED` (dimension
-  `identity`), `FEDERATION_ADDED` (`destinations`) and
-  `STATIC_CREDENTIAL_ADDED` (`credential`). All are review-only: they
-  appear in the PR comment and never trip `--fail-on-authority-change` or
-  `--fail-on-escalation`. A baseline from before v2.10 is reported as
-  not assessed rather than as everything added.
-- Six pending baseline-pair benchmark cases for the identity change
-  types, with an `identity_changes` truth section in the harness.
-- Five pending benchmark cases for S5 (template resolution, ambiguous
-  selectors, federation widening, principal-based authorization,
-  static credential), with a `workload_identity` truth section in the
-  harness. Their truth awaits human review.
+  `SUBAGENT_TOOLS_WIDENED`. Claude Code subagents are never said to
+  exceed the session: their tools restrict the session's.
+- Separation of Duties (ROADMAP B2, plan item 2.11-2):
+  `SOD_CONFLICTING_AUTHORITY` (low, review-only) when one holder can do
+  both halves of a conflicting pair: create and approve the same kind of
+  transaction, change code and merge it, act and erase the audit trail
+  (IAM), or rewrite its own Claude Code permission settings. Holders are
+  the Claude Code session and subagents, MCP servers, OpenAI Agents SDK
+  and CrewAI agents (with the tools of agents they can hand work to) and
+  AWS IAM roles. Only authority that names the operation counts; broad
+  grants (`Bash`, `Write(*)`, IAM `*`) do not. Results in
+  `report.separation_of_duties` and the manifest.
+- The PR comment has "Workload identity changes" and "Delegation
+  changes" sections (review-only).
+- 86 rules in all (two new: `IAC_STATIC_CREDENTIAL_WITH_WORKLOAD_IDENTITY`,
+  `SOD_CONFLICTING_AUTHORITY`).
+- Twenty-four pending benchmark cases (five workload identity, six
+  identity change, seven delegation, six Separation of Duties) and harness
+  truth sections `workload_identity`, `identity_changes`,
+  `delegation_edges`, `delegation_unresolved`, `delegation_changes` and
+  `sod_conflicts`. Their truth awaits human review (#300).
+
+### Changed
+
+- The manifest's `iac_correlations` block is present for every scan that
+  collects IaC evidence and carries `workload_identity` even when empty;
+  `delegation_graph` and `separation_of_duties` are new top-level fields.
+  A manifest used as `--baseline` then tells "nothing found" from "not
+  collected". All additions are optional fields of Manifest Contract
+  1.0.0.
+- CI runs the test and benchmark jobs in parallel with lint, runs pytest
+  with `pytest-xdist`, caches pip and cancels superseded PR runs; the
+  duplicate test job in `action-test.yml` is gone (#302).
+
+### Fixed
+
+- Terraform: an inline policy attached with `role = aws_iam_role.X.id`
+  now resolves to the role's name, as `.name` already did (for a role,
+  `id` is the name in the AWS provider).
 
 ### Not yet measured
 
-- Attribution precision for SPIFFE identities is measured only on the
-  five unreviewed cases; it is not a published measurement until their
-  truth is reviewed.
+- Precision for SPIFFE attribution, the identity and delegation change
+  types and `SOD_CONFLICTING_AUTHORITY` is measured only on unreviewed
+  pending cases (all holding). It is not a published measurement until
+  that truth is reviewed (#300); until then every one of them stays
+  review-only.
 
 ## [2.9.0] - 2026-11-01
 

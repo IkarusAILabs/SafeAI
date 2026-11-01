@@ -97,7 +97,7 @@ def provenance_class_for(finding, analyzer, heuristic):
 
 
 #: Rules that ship in Lane B (review-only) until their precision is
-#: published (ADR-0008): v2.9 package-manager authority, v2.11 Separation
+#: published (ADR-0008): v2.9 package-manager authority, v2.10 Separation
 #: of Duties.
 LANE_B_RULES = frozenset({"CAP_package_manager", "SOD_CONFLICTING_AUTHORITY"})
 

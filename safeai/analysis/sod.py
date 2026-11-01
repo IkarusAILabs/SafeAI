@@ -1,4 +1,4 @@
-"""Separation of Duties (v2.11, ROADMAP B2, plan item 2.11-2).
+"""Separation of Duties (v2.10, ROADMAP B2, plan item 2.11-2).
 
 A Separation-of-Duties conflict is one holder of authority able to do
 both halves of a pair that an organisation normally splits between two
