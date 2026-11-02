@@ -8,7 +8,7 @@ Validation here is intentionally standard-library only: it enforces the
 structural guarantees SafeAI itself relies on (required keys, value domains,
 compatibility semantics) rather than executing a full JSON-Schema draft
 engine. The published schema file
-(``schemas/safeai-manifest/v1.0.0.json``) is the normative reference for
+(``schemas/safeai-manifest/v1.1.0.json``) is the normative reference for
 third-party consumers with their own validators; this module's verdicts
 agree with it on every required-field and enum rule.
 
@@ -22,7 +22,7 @@ per ``docs/manifest/COMPATIBILITY.md``.
 from __future__ import annotations
 
 CONTRACT_NAME = "safeai-manifest"
-CONTRACT_VERSION = "1.0.0"
+CONTRACT_VERSION = "1.1.0"
 CONTRACT_MIN_READER = "1.0.0"
 
 #: Legacy document versions this contract accepts (purely additive history).
@@ -35,6 +35,13 @@ PROVENANCE_CLASSES = ("declared", "detected", "inferred", "unknown",
 GATEABILITY_VALUES = ("deterministic", "review-only")
 CHANGE_CLASSES = ("NO_CHANGE", "LOW_CHANGE", "MATERIAL_CHANGE", "HIGH_RISK_CHANGE", "UNKNOWN")
 EXCEPTION_STATES = ("active", "expired", "stale", "scope-mismatch", "invalid")
+#: Approval metadata state of an exception or suppression (v2.12).
+APPROVAL_STATES = ("approved", "self-approved", "unrecorded")
+#: Provenance of an agent's SPIFFE / WIMSE identifier (v2.12, ROADMAP S4).
+#: ``runtime-unverified`` is reserved for externally supplied issuance
+#: evidence: readers accept it, a static scan never emits it.
+IDENTITY_PROVENANCE_CLASSES = ("declared", "repo-iac-observed", "runtime-unverified")
+IDENTITY_STATES = ("corroborated", "declared", "unknown")
 #: IaC authority correlation verdicts (v2.5, ADR-0007).
 CORRELATION_VERDICTS = ("MATCH", "EXCESS_AUTHORITY", "AUTHORITY_MISMATCH",
                         "UNVERIFIED_LINK", "UNKNOWN")
@@ -127,6 +134,25 @@ def validate_manifest(document):
         for i, agent in enumerate(agents):
             if not isinstance(agent, dict) or not agent.get("agent_id"):
                 _err(errors, f"$.agents[{i}].agent_id", "must be a non-empty string")
+                continue
+            identity = agent.get("workload_identity")
+            if identity is None:
+                continue
+            base = f"$.agents[{i}].workload_identity"
+            if not isinstance(identity, dict):
+                _err(errors, base, "must be an object")
+                continue
+            if identity.get("state") not in IDENTITY_STATES:
+                _err(errors, f"{base}.state",
+                     f"must be one of {', '.join(IDENTITY_STATES)}, "
+                     f"got {identity.get('state')!r}")
+            for j, item in enumerate(identity.get("identifiers") or []):
+                if not isinstance(item, dict) or not item.get("id"):
+                    _err(errors, f"{base}.identifiers[{j}].id", "must be a non-empty string")
+                elif item.get("provenance_class") not in IDENTITY_PROVENANCE_CLASSES:
+                    _err(errors, f"{base}.identifiers[{j}].provenance_class",
+                         f"must be one of {', '.join(IDENTITY_PROVENANCE_CLASSES)}, "
+                         f"got {item.get('provenance_class')!r}")
 
     # --- findings ---------------------------------------------------------
     findings = document.get("findings")
@@ -219,6 +245,10 @@ def validate_manifest(document):
                     _err(errors, f"{base}.state",
                          f"must be one of {', '.join(EXCEPTION_STATES)}, "
                          f"got {evaluation.get('state')!r}")
+                if "approval_state" in evaluation and                         evaluation["approval_state"] not in APPROVAL_STATES:
+                    _err(errors, f"{base}.approval_state",
+                         f"must be one of {', '.join(APPROVAL_STATES)}, "
+                         f"got {evaluation['approval_state']!r}")
 
     # --- iac_correlations (optional; v2.5 IaC authority evidence) --------
     iac = document.get("iac_correlations")
@@ -254,6 +284,21 @@ def validate_manifest(document):
                 if not grant.get("source_file"):
                     _err(errors, f"{base}.source_file",
                          "must be a non-empty string")
+
+    # --- authority_attestation (optional; v2.12, contract 1.1, experimental) --
+    attestation = document.get("authority_attestation")
+    if attestation is not None:
+        if not isinstance(attestation, dict):
+            _err(errors, "$.authority_attestation", "must be an object")
+        else:
+            digest = attestation.get("predicate_sha256") or ""
+            if not (isinstance(digest, str) and len(digest) == 64
+                    and all(c in "0123456789abcdef" for c in digest)):
+                _err(errors, "$.authority_attestation.predicate_sha256",
+                     "must be 64 lowercase hex characters")
+            if not attestation.get("predicate_type"):
+                _err(errors, "$.authority_attestation.predicate_type",
+                     "must be a non-empty string")
 
     # --- assurance boundary / limitations ---------------------------------
     if "assurance_boundary" not in document:

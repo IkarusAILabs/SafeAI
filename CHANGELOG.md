@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Attestation & Accountability (plan v2.12).** The manifest contract
+moves to 1.1.0: one new optional section and new optional fields, so a
+1.0 reader is unaffected.
+
+### Added
+
+- Experimental Agent Authority Attestation (plan 2.12-1; ROADMAP B3,
+  Layer 7). `safeai scan --manifest M --experimental-attestation A`
+  writes an unsigned in-toto Statement v1 whose subject is the manifest
+  file and whose predicate restates each agent's and the repository's
+  authority evidence in three separate groups: `machine_derived`,
+  `declared` and `unknown` (each unknown field with its reason). The
+  manifest records the predicate digest in a new optional
+  `authority_attestation` block covered by its integrity digest, and
+  `safeai manifest verify M --attestation A` checks manifest integrity,
+  the subject digest and the predicate digest. No schema-stability
+  promise; see `docs/attestation/agent-authority-v0.1-experimental.md`.
+- SPIFFE / WIMSE identity field on agents (plan 2.12-2; ROADMAP S4).
+  `agents[].workload_identity` carries identifiers with provenance:
+  `declared` (new `agent_identities` list in `.safeai/config.yml`) and,
+  beside a declared one, `repo-iac-observed` when the repository's own
+  `ClusterSPIFFEID` issues the same ID. States `corroborated`,
+  `declared` and `unknown`; an observed ID is never attached to an
+  agent that declared nothing. `runtime-unverified` is reserved for
+  externally supplied issuance evidence and never emitted.
+- Approval metadata on exceptions and suppressions (plan 2.12-3;
+  ROADMAP P6). An optional `approval` block (`approved_by`,
+  `approved_at`, `escalation_owner`) is validated on load (no future
+  date, not after the expiry) and reported with an `approval_state`
+  (`approved`, `self-approved`, `unrecorded`) in the JSON report and the
+  manifest. New `--require-approval` fails the scan when an active
+  exception or an applied suppression has no approval by someone other
+  than its owner.
+- Manifest schema `schemas/safeai-manifest/v1.1.0.json`; `v1.0.0.json`
+  is kept unchanged.
+
 ## [2.10.0] - 2026-11-01
 
 **Workload Identity, Delegation & Separation of Duties.** Ships plan

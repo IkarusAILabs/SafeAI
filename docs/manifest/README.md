@@ -6,8 +6,8 @@ artifacts, portable import/export, and future evidence aggregation. The
 SQLite registry is an implementation detail; integrations consume the
 manifest.
 
-- Normative schema: `schemas/safeai-manifest/v1.0.0.json`
-  (JSON Schema draft 2020-12).
+- Normative schema: `schemas/safeai-manifest/v1.1.0.json`
+  (JSON Schema draft 2020-12; `v1.0.0.json` is kept for older readers).
 - Compatibility policy: `docs/manifest/COMPATIBILITY.md`.
 - Worked examples: `docs/manifest/EXAMPLES.md`.
 - Legacy field reference: `docs/reference/KYA_MANIFEST.md`.
@@ -20,13 +20,15 @@ Every manifest carries three independent versions — do not conflate them:
 |---|---|---|
 | `safeai.version` | `"2.2.0"` | Scanner package that produced the scan |
 | `schema_version` | `"1.2"` | Legacy document shape (`1.0`/`1.1`/`1.2`, additive) |
-| `contract.version` | `"1.0.0"` | Public contract version (semver; this document) |
+| `contract.version` | `"1.1.0"` | Public contract version (semver; this document) |
 
 ## Validate locally (offline, no dependencies beyond PyYAML/stdlib)
 
 ```bash
 safeai manifest validate safeai-manifest.json
 safeai manifest verify safeai-manifest.json
+# experimental (v2.12): also check an Agent Authority Attestation
+safeai manifest verify safeai-manifest.json --attestation safeai-attestation.json
 ```
 
 `validate` checks structure, value domains, and compatibility semantics and

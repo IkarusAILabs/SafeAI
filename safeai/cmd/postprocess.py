@@ -101,6 +101,8 @@ class ScanPostProcessor:
         self._configure_logging()
         if getattr(self.args, "digest_file", None) and not self.args.manifest_path:
             self.parser.error("--digest-file requires --manifest")
+        if getattr(self.args, "attestation_path", None) and not self.args.manifest_path:
+            self.parser.error("--experimental-attestation requires --manifest")
         self._load_baseline()
         self._run_scan()
         self._normalize()
@@ -111,6 +113,9 @@ class ScanPostProcessor:
         self._evaluate_policy()
         self._resolve_identity()
         early = self._evaluate_exceptions()
+        if early is not None:
+            return early
+        early = self._check_approvals()
         if early is not None:
             return early
         self._build_manifest()
@@ -352,6 +357,30 @@ class ScanPostProcessor:
             return 1
         return None
 
+    def _check_approvals(self):
+        """``--require-approval``: refuse active decisions nobody else approved (v2.12)."""
+        missing = [
+            f"exception {e['exception_id']} ({e.get('approval_state', 'unrecorded')})"
+            for e in self.report.get("exception_evaluations") or []
+            if e.get("state") == "active" and e.get("approval_state") != "approved"
+        ]
+        seen = set()
+        for applied in (self.report.get("suppressions") or {}).get("applied") or []:
+            label = applied.get("fingerprint") or applied.get("rule_id")
+            if applied.get("approval_state") != "approved" and label not in seen:
+                seen.add(label)
+                missing.append(f"suppression {label} "
+                               f"({applied.get('approval_state', 'unrecorded')})")
+        self.report["approval_check"] = {
+            "required": bool(getattr(self.args, "require_approval", False)),
+            "unapproved": missing,
+        }
+        if getattr(self.args, "require_approval", False) and missing:
+            print("error: --require-approval is set; decisions without an independent "
+                  "approval: " + "; ".join(missing), file=sys.stderr)
+            return 1
+        return None
+
     def _resolve_identity(self):
         from safeai.kya.enrich import build_agent_records
         from safeai.kya.identity import git_metadata, resolve_project_id
@@ -359,6 +388,21 @@ class ScanPostProcessor:
         self.project_id, self.remote_fp = resolve_project_id(self.directory)
         self.git_meta = git_metadata(self.directory)
         self.agents = build_agent_records(self.report, self.project_id)
+        # v2.12: declared / repository-observed SPIFFE or WIMSE identity.
+        from safeai.kya.agent_identity import (
+            AgentIdentityError,
+            attach_identities,
+            load_declared_identities,
+        )
+        try:
+            declared = load_declared_identities(self.directory)
+        except AgentIdentityError as exc:
+            self.parser.error(str(exc))
+        notes = attach_identities(
+            self.agents, declared,
+            (self.report.get("iac_correlations") or {}).get("workload_identity"))
+        for note in notes:
+            print(f"warning: {note}", file=sys.stderr)
         self.report["kya_agents"] = self.agents
 
     def _build_manifest(self):
@@ -436,6 +480,17 @@ class ScanPostProcessor:
                 "matches": self.policy_decision.get("matches") or [],
             },
         )
+        # v2.12 (experimental): the predicate is built from the manifest, and
+        # its digest is recorded in the manifest before integrity is stamped,
+        # so the manifest digest covers it.
+        self.attestation_predicate = None
+        if getattr(self.args, "attestation_path", None):
+            from safeai.kya.attestation import attestation_section, build_predicate
+            from safeai.kya.integrity import stamp_integrity
+            self.attestation_predicate = build_predicate(self.manifest)
+            self.manifest["authority_attestation"] = attestation_section(
+                self.attestation_predicate)
+            stamp_integrity(self.manifest)
         # v2.7: one computation, two surfaces (manifest summary + report).
         self.report["evidence_metrics"] = self.manifest["summary"]["evidence_metrics"]
 
@@ -503,6 +558,15 @@ class ScanPostProcessor:
             if getattr(self.args, "digest_file", None):
                 write_digest_sidecar(self.manifest, self.args.manifest_path,
                                      self.args.digest_file)
+            if getattr(self, "attestation_predicate", None) is not None:
+                from safeai.kya.attestation import build_statement, write_statement
+                with open(self.args.manifest_path, "rb") as fh:
+                    manifest_bytes = fh.read()
+                write_statement(build_statement(
+                    self.attestation_predicate,
+                    os.path.basename(self.args.manifest_path), manifest_bytes,
+                    (self.project_meta.get("repository") or {}).get("commit_sha")),
+                    self.args.attestation_path)
 
         # Control mappings (taxonomy only) go into the JSON and SARIF files.
         # They are added to a copy, so the manifest, its digest and the

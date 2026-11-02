@@ -11,6 +11,9 @@ Rules:
   * Suppressions are never silent: suppressed findings keep status
     ``suppressed`` and stay visible in JSON/HTML/SARIF/registry output.
   * Expired suppressions are surfaced as warnings (never dropped).
+  * An optional ``approval`` block (v2.12; ``safeai.kya.approval``)
+    records who approved the decision; it never changes whether the
+    suppression applies.
 """
 
 import fnmatch
@@ -18,6 +21,8 @@ import os
 from datetime import UTC, date, datetime
 
 import yaml
+
+from safeai.kya.approval import ApprovalError, approval_state, parse_approval
 
 DEFAULT_SUPPRESSIONS_PATH = os.path.join(".safeai", "suppressions.yml")
 
@@ -94,6 +99,12 @@ def load_suppressions(path):
             "expires": _parse_date(raw["expires"], "expires", index) if raw.get("expires") else None,
             "path": raw.get("path"),
         }
+        try:
+            entry["approval"] = parse_approval(raw.get("approval"),
+                                               expires=entry["expires"], today=today)
+        except ApprovalError as exc:
+            raise SuppressionError(f"Suppression #{index}: {exc}.") from exc
+        entry["approval_state"] = approval_state(entry["approval"], entry["owner"])
         if entry["expires"] and entry["expires"] < today:
             warnings.append(
                 f"Suppression #{index} ({entry.get('fingerprint') or entry.get('rule_id')}) "
@@ -142,6 +153,8 @@ def apply_suppressions(findings, entries):
                     "owner": entry["owner"],
                     "created": entry["created"].isoformat(),
                     "expires": entry["expires"].isoformat() if entry["expires"] else None,
+                    "approval": entry.get("approval"),
+                    "approval_state": entry.get("approval_state", "unrecorded"),
                 }
                 suppressed_count += 1
                 applied.append({
@@ -149,6 +162,7 @@ def apply_suppressions(findings, entries):
                     "rule_id": finding.get("rule_id"),
                     "owner": entry["owner"],
                     "reason": entry["reason"],
+                    "approval_state": entry.get("approval_state", "unrecorded"),
                 })
                 break
     return {"suppressed": suppressed_count, "applied": applied}
@@ -197,5 +211,9 @@ def suppression_template(finding):
         f"  created: \"{today}\"  # YYYY-MM-DD",
         "  # expires: \"YYYY-MM-DD\"  # optional",
         "  # path: \"src/**\"          # optional glob scope",
+        "  # approval:                   # optional: who approved, when, escalation",
+        "  #   approved_by: \"\"",
+        f"  #   approved_at: \"{today}\"",
+        "  #   escalation_owner: \"\"",
     ]
     return "\n".join(lines)

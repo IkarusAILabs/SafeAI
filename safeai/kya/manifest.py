@@ -267,6 +267,9 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
                 "state": e.get("state"),
                 "risk_owner": e.get("risk_owner"),
                 "expires_at": e.get("expires_at"),
+                # v2.12: approval metadata (who, when, escalation owner).
+                "approval": e.get("approval"),
+                "approval_state": e.get("approval_state", "unrecorded"),
             }
             for e in (report.get("exception_evaluations") or [])
         ],

@@ -62,6 +62,10 @@ def _build_parser():
                       help="With --baseline: fail only on NEW or REGRESSED findings at/above --fail-on severity")
     scan.add_argument("--manifest", dest="manifest_path",
                       help="Write the canonical KYA manifest (safeai-manifest.json) to this path")
+    scan.add_argument("--experimental-attestation", dest="attestation_path", metavar="PATH",
+                      help="EXPERIMENTAL (no schema-stability promise). With --manifest: also "
+                           "write an unsigned in-toto Statement (Agent Authority Attestation) "
+                           "for the manifest to PATH")
     scan.add_argument("--digest-file", dest="digest_file",
                       help="With --manifest: also write '<canonical-sha256>  <manifest-basename>' "
                            "to PATH (the digest `safeai manifest verify` reports; not a raw file hash)")
@@ -109,6 +113,10 @@ def _build_parser():
     scan.add_argument("--strict-exceptions", action="store_true",
                       help="Fail the scan (exit 1) when expired or stale exceptions are detected "
                            "(default: warn only)")
+    scan.add_argument("--require-approval", action="store_true",
+                      help="Fail the scan (exit 1) when an active exception or an applied "
+                           "suppression has no approval by someone other than its owner "
+                           "(approval block: approved_by, approved_at, escalation_owner)")
     # --- SafeAI Security Scorecard ---
     scan.add_argument("--scorecard", dest="scorecard_path",
                       help="Write the SafeAI Security Scorecard Markdown report to PATH")
@@ -232,6 +240,9 @@ def _build_parser():
     man_validate.add_argument("file", help="Path to safeai-manifest.json")
     man_verify = manifest_sub.add_parser("verify", help="Verify a manifest integrity digest (offline)")
     man_verify.add_argument("file", help="Path to safeai-manifest.json")
+    man_verify.add_argument("--attestation", metavar="PATH",
+                            help="Also check that this experimental attestation (in-toto "
+                                 "Statement) attests to the manifest")
 
     telemetry = sub.add_parser("telemetry", help="Manage opt-in usage telemetry")
     telemetry.add_argument(
