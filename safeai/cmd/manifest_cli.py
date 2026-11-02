@@ -18,10 +18,32 @@ def run_manifest_command(args):
     if sub == "validate":
         return _validate(args.file)
     if sub == "verify":
+        if getattr(args, "attestation", None):
+            return _verify_attestation(args.file, args.attestation)
         from safeai.kya.integrity import verify_manifest_file
         return verify_manifest_file(args.file)
     print("Usage: safeai manifest {validate|verify} <file>")
     return 2
+
+
+def _verify_attestation(manifest_path, statement_path):
+    from safeai.kya.attestation import ATTESTATION_OK, verify_attestation
+
+    try:
+        with open(manifest_path, "rb") as fh:
+            manifest_bytes = fh.read()
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
+        with open(statement_path, encoding="utf-8") as fh:
+            statement = json.load(fh)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        print(f"error: unable to read manifest or attestation: {exc}")
+        return 1
+    status, detail = verify_attestation(manifest_bytes, manifest, statement)
+    if status == ATTESTATION_OK:
+        print(f"verified: {manifest_path} with attestation {statement_path} ({detail})")
+        return 0
+    print(f"{status}: {statement_path} ({detail})")
+    return 1
 
 
 def _validate(path):

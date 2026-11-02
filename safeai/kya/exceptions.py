@@ -21,12 +21,19 @@ rejects malformed entries before evaluation).
 Metadata-only fields (recorded, never enforced): ``commit_range``,
 ``compensating_controls``, ``review_trigger``. They document intent;
 SafeAI does not watch the repository for trigger events.
+
+Approval metadata (v2.12): an optional ``approval`` block (approver,
+approval date, escalation owner; see ``safeai.kya.approval``). It never
+changes ``state``; each evaluation carries ``approval`` and
+``approval_state``, which ``--require-approval`` gates on.
 """
 
 import os
 from datetime import UTC, datetime
 
 import yaml
+
+from safeai.kya.approval import ApprovalError, approval_state, parse_approval
 
 DEFAULT_EXCEPTIONS_PATH = os.path.join(".safeai", "exceptions.yml")
 
@@ -136,6 +143,10 @@ def load_exceptions(path):
         expires_at = None
         if raw.get("expires_at"):
             expires_at = _parse_date(raw["expires_at"], "expires_at", exception_id)
+        try:
+            approval = parse_approval(raw.get("approval"), expires=expires_at, today=today)
+        except ApprovalError as exc:
+            raise ExceptionError(f"Exception {exception_id!r}: {exc}.") from exc
         entries.append({
             "exception_id": str(exception_id),
             "target_type": target_type,
@@ -150,6 +161,7 @@ def load_exceptions(path):
             "expires_at": expires_at.isoformat() if expires_at else None,
             "expired": bool(expires_at and expires_at < today),
             "review_trigger": [str(t) for t in triggers],
+            "approval": approval,
         })
 
     return entries, []
@@ -219,6 +231,9 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
                 "compensating_controls": entry.get("compensating_controls") or [],
                 "review_trigger": entry.get("review_trigger") or [],
                 "scope_verified": None,
+                "approval": entry.get("approval"),
+                "approval_state": approval_state(entry.get("approval"),
+                                                 entry.get("risk_owner")),
                 "warnings": [
                     (
                         f"Exception {entry.get('exception_id')} has unknown target_type "
@@ -285,6 +300,9 @@ def evaluate_exceptions(entries, findings, escalations, policy_ids=(),
             "compensating_controls": entry.get("compensating_controls") or [],
             "review_trigger": entry.get("review_trigger") or [],
             "scope_verified": scope_verified,
+            "approval": entry.get("approval"),
+            "approval_state": approval_state(entry.get("approval"),
+                                             entry.get("risk_owner")),
             "warnings": warnings,
         })
     return evaluations

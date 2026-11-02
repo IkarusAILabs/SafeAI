@@ -196,6 +196,7 @@ class TestManifestEvidence:
             "exception_id": "E1", "target_type": "finding",
             "target_id": "CAP_shell", "state": "active",
             "risk_owner": "o@example.com", "expires_at": None,
+            "approval": None, "approval_state": "unrecorded",
         }]
 
     def test_empty_by_default(self):

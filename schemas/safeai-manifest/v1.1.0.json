@@ -1,0 +1,1104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ikaruscareer/SafeAI/schemas/safeai-manifest/v1.1.0.json",
+  "title": "SafeAI KYA Manifest Contract v1.1.0",
+  "description": "Portable, offline, static-analysis KYA evidence document (safeai-manifest.json). Only fields genuinely emitted by safeai/kya/manifest.py build_manifest() are required; everything else is optional. Unknown optional fields MUST be ignored by 1.x readers. v1.1.0 (SafeAI 2.12) adds the optional authority_attestation section, agents[].workload_identity and approval metadata on exception evaluations.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_type",
+    "safeai",
+    "project",
+    "agents",
+    "findings",
+    "summary",
+    "assurance_boundary",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Legacy document version string. Contract v1.0.0 accepts 1.0, 1.1, 1.2 (additive).",
+      "type": "string",
+      "enum": [
+        "1.0",
+        "1.1",
+        "1.2"
+      ]
+    },
+    "contract": {
+      "description": "Machine-readable contract identity, distinct from package version. Optional on pre-2.2 manifests.",
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "const": "safeai-manifest"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+        },
+        "compatibility": {
+          "type": "object",
+          "properties": {
+            "minimum_reader_version": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "manifest_type": {
+      "const": "safeai.kya"
+    },
+    "generated_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "safeai": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "ruleset_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "config_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "custom_rules_dir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "custom_rules_count": {
+          "type": "integer"
+        },
+        "builtin_rules_count": {
+          "type": "integer"
+        },
+        "rule_pack_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analyzer_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "parser_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "policy_profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "project_id"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_root": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository": {
+          "type": "object"
+        }
+      }
+    },
+    "scan": {
+      "type": "object",
+      "properties": {
+        "scan_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "started_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "files_scanned": {
+          "type": "integer"
+        },
+        "analysis_coverage": {
+          "type": "object"
+        }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent_id"
+        ],
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "framework": {
+            "type": "string"
+          },
+          "workload_identity": {
+            "description": "SPIFFE / WIMSE identity with provenance (v2.12). runtime-unverified is reserved: accepted, never emitted by a static scan.",
+            "type": "object",
+            "required": [
+              "state",
+              "identifiers"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "corroborated",
+                  "declared",
+                  "unknown"
+                ]
+              },
+              "identifiers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "provenance_class"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "scheme": {
+                      "enum": [
+                        "spiffe",
+                        "wimse"
+                      ]
+                    },
+                    "provenance_class": {
+                      "enum": [
+                        "declared",
+                        "repo-iac-observed",
+                        "runtime-unverified"
+                      ]
+                    },
+                    "evidence": {
+                      "type": "array"
+                    }
+                  }
+                }
+              },
+              "unknown_reason": {
+                "type": "string"
+              },
+              "runtime_verified": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tool_surface": {
+      "type": "array"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "content_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "dependency_inventory": {
+      "type": "array"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "severity"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "confidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provenance": {
+            "type": "object"
+          },
+          "provenance_class": {
+            "enum": [
+              "declared",
+              "detected",
+              "inferred",
+              "unknown",
+              "repo-iac-observed"
+            ]
+          },
+          "gateability": {
+            "enum": [
+              "deterministic",
+              "review-only"
+            ]
+          },
+          "location": {
+            "type": "object"
+          },
+          "fingerprint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "policy_decision"
+      ],
+      "properties": {
+        "risk_score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "severity_counts": {
+          "type": "object"
+        },
+        "capability_counts": {
+          "type": "object"
+        },
+        "agent_count": {
+          "type": "integer"
+        },
+        "component_count": {
+          "type": "integer"
+        },
+        "dependency_count": {
+          "type": "integer"
+        },
+        "authority_change_counts": {
+          "type": "object"
+        },
+        "highest_change_class": {
+          "enum": [
+            "NO_CHANGE",
+            "LOW_CHANGE",
+            "MATERIAL_CHANGE",
+            "HIGH_RISK_CHANGE",
+            "UNKNOWN"
+          ]
+        },
+        "evidence_metrics": {
+          "description": "Optional (v2.7). Informational evidence-quality metrics: authority statement counts, finding provenance distribution, and rates. Rates with an empty denominator carry status insufficient_evidence and value null. Never consumed by a gate.",
+          "type": "object",
+          "properties": {
+            "metrics_version": {
+              "type": "integer"
+            },
+            "authority_statements": {
+              "type": "object"
+            },
+            "finding_provenance": {
+              "type": "object"
+            },
+            "authority_dimensions": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "rates": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "status"
+                ],
+                "properties": {
+                  "value": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "measured",
+                      "insufficient_evidence"
+                    ]
+                  }
+                }
+              }
+            },
+            "not_measured": {
+              "type": "array"
+            }
+          }
+        },
+        "policy_decision": {
+          "type": "object",
+          "required": [
+            "outcome"
+          ],
+          "properties": {
+            "outcome": {
+              "enum": [
+                "pass",
+                "warn",
+                "review-required",
+                "block",
+                "accepted-exception"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "assurance_boundary": {
+      "type": "object"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "escalations": {
+      "description": "Flattened capability-diff escalations with structured remediation (absent when no baseline).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "severity"
+        ],
+        "properties": {
+          "tool_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "before": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "after": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "confidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "remediation": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "authority_changes": {
+      "description": "Compact per-tool authority changes (v2.4 portable change evidence).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tool_key",
+          "change_class"
+        ],
+        "properties": {
+          "tool_key": {
+            "type": "string"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "change_class": {
+            "enum": [
+              "NO_CHANGE",
+              "LOW_CHANGE",
+              "MATERIAL_CHANGE",
+              "HIGH_RISK_CHANGE",
+              "UNKNOWN"
+            ]
+          },
+          "change_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "inferred_only": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "exception_evaluations": {
+      "description": "Policy exception evaluation records (v2.4 exception evidence).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "exception_id",
+          "state"
+        ],
+        "properties": {
+          "exception_id": {
+            "type": "string"
+          },
+          "target_type": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "enum": [
+              "active",
+              "expired",
+              "stale",
+              "scope-mismatch",
+              "invalid"
+            ]
+          },
+          "risk_owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approval": {
+            "description": "Approval metadata (v2.12): who approved, when, escalation owner.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "approved_by",
+              "approved_at"
+            ],
+            "properties": {
+              "approved_by": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approved_at": {
+                "type": "string"
+              },
+              "escalation_owner": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "approval_state": {
+            "enum": [
+              "approved",
+              "self-approved",
+              "unrecorded"
+            ]
+          }
+        }
+      }
+    },
+    "separation_of_duties": {
+      "description": "Optional (v2.10). Separation-of-Duties conflicts: one holder (Claude Code session or subagent, MCP server, agent, IaC identity) able to do both halves of a conflicting pair. Lane B; never consumed by a gate.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "lane": {
+          "const": "B"
+        },
+        "pairs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "holder",
+              "pair"
+            ]
+          }
+        },
+        "holders_checked": {
+          "type": "integer"
+        }
+      }
+    },
+    "delegation_graph": {
+      "description": "Optional (v2.10). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation. Lane B; never consumed by a gate.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "lane": {
+          "const": "B"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "framework",
+              "name"
+            ]
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to"
+            ]
+          }
+        },
+        "unresolved": {
+          "type": "array"
+        },
+        "cycles": {
+          "type": "boolean"
+        },
+        "counts": {
+          "type": "object"
+        },
+        "notes": {
+          "type": "array"
+        }
+      }
+    },
+    "iac_correlations": {
+      "description": "IaC authority correlation evidence (v2.5, Lane B review-only; schema_version 2 authority graph).",
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "integer"
+        },
+        "correlation_model": {
+          "type": "string"
+        },
+        "lane": {
+          "const": "B"
+        },
+        "counts": {
+          "type": "object"
+        },
+        "files": {
+          "type": "object"
+        },
+        "identities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "name"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "namespace": {
+                "type": "string"
+              },
+              "source_ref": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "agent_identity_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "agent",
+              "identity",
+              "link_type"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "identity": {
+                "type": "object"
+              },
+              "link_type": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array"
+              }
+            }
+          }
+        },
+        "grants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_file"
+            ],
+            "properties": {
+              "identity": {
+                "type": "object"
+              },
+              "actions": {
+                "type": "object"
+              },
+              "resources": {
+                "type": "object"
+              },
+              "scope": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_file": {
+                "type": "string"
+              },
+              "line": {
+                "type": "integer"
+              },
+              "provenance": {
+                "type": "string"
+              },
+              "fidelity": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "family": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "grant_bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "identity": {
+                "type": "object"
+              },
+              "binding_kind": {
+                "type": "string"
+              },
+              "binding_name": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "source_file": {
+                "type": "string"
+              },
+              "line": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "workload_identity": {
+          "description": "Optional (v2.10). Static SPIFFE workload identity: ClusterSPIFFEID registrations rendered per workload, federated trust domains, Istio AuthorizationPolicy callers, and static credentials (names only) beside a workload identity. Lane B; never consumed by a gate.",
+          "type": "object",
+          "properties": {
+            "lane": {
+              "const": "B"
+            },
+            "trust_domain": {
+              "type": "object"
+            },
+            "ignore_namespaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "registrations": {
+              "type": "array"
+            },
+            "federations": {
+              "type": "array"
+            },
+            "identities": {
+              "type": "array"
+            },
+            "workloads": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "workload",
+                  "identity_state"
+                ],
+                "properties": {
+                  "workload": {
+                    "type": "string"
+                  },
+                  "service_account": {
+                    "type": "string"
+                  },
+                  "identity_state": {
+                    "enum": [
+                      "resolved",
+                      "partially-resolved",
+                      "unknown"
+                    ]
+                  },
+                  "unknown_reason": {
+                    "enum": [
+                      "",
+                      "undecidable-selector",
+                      "no-matching-registration"
+                    ]
+                  }
+                }
+              }
+            },
+            "assignments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "workload",
+                  "spiffe_id",
+                  "resolution"
+                ],
+                "properties": {
+                  "workload": {
+                    "type": "string"
+                  },
+                  "spiffe_id": {
+                    "type": "string"
+                  },
+                  "resolution": {
+                    "enum": [
+                      "resolved",
+                      "partially-resolved",
+                      "unresolved"
+                    ]
+                  }
+                }
+              }
+            },
+            "links": {
+              "type": "array"
+            },
+            "unresolved": {
+              "type": "array"
+            },
+            "authorization_policies": {
+              "type": "array"
+            },
+            "static_credentials": {
+              "type": "array"
+            },
+            "counts": {
+              "type": "object"
+            },
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "verdict"
+            ],
+            "properties": {
+              "agent_ref": {
+                "type": "string"
+              },
+              "identity_ref": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "domain": {
+                "type": "string"
+              },
+              "family": {
+                "type": "string"
+              },
+              "verdict": {
+                "enum": [
+                  "MATCH",
+                  "EXCESS_AUTHORITY",
+                  "AUTHORITY_MISMATCH",
+                  "UNVERIFIED_LINK",
+                  "UNKNOWN"
+                ]
+              },
+              "declared_evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "grant_evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "link_evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "resolution": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "integrity": {
+      "description": "Offline integrity block (added in contract v1.0.0, Workstream 2). Absent on pre-2.2 manifests.",
+      "type": "object",
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_sha256"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "const": "safeai-manifest-v1"
+        },
+        "payload_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "authority_attestation": {
+      "description": "EXPERIMENTAL (v2.12, contract 1.1): digest of the Agent Authority Attestation predicate written beside this manifest. No schema-stability promise for the predicate itself.",
+      "type": "object",
+      "required": [
+        "predicate_type",
+        "predicate_sha256"
+      ],
+      "properties": {
+        "experimental": {
+          "const": true
+        },
+        "predicate_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "predicate_version": {
+          "type": "string"
+        },
+        "predicate_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

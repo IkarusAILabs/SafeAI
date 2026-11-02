@@ -427,6 +427,11 @@ cross-plane work and are not duplicated here.
   CIMD where declared; position it as the known-good baseline for
   Access Recovery re-attestation. Machine-derived, human-declared and
   unknown fields stay separate; nothing is fabricated to fill a field.
+  *v2.12 (experimental):* `--experimental-attestation` writes the
+  unsigned in-toto Statement (predicate `agent-authority
+  v0.1-experimental`), bound to the manifest both ways and checked by
+  `safeai manifest verify --attestation`; Blueprint and CIMD field
+  mapping not yet done.
 - **B4 — Standards exports, file-only (P7 / EE, PLANNED).** Export
   findings and authority changes as OCSF events, and MATERIAL /
   HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
@@ -533,6 +538,9 @@ concrete static evidence source.
   field with provenance (`declared` | `repo-iac-observed`;
   `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
   evidence). Feeds B3's re-attestation baseline.
+  *v2.12:* `agents[].workload_identity` with `declared` and
+  `repo-iac-observed` identifiers; the reserved class is spelled
+  `runtime-unverified` in the data.
 - **S5 — SPIFFE benchmark cases (P5, RESEARCH ITEM).** Fixtures for
   template resolution, ambiguous selectors, federation widening, and
   principal-based authorization; publish agent → identity attribution
@@ -652,7 +660,8 @@ probing.
   S5 (research); comparative scanner measurement and external
   malicious-skill corpus, E2/E3 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
-  expiry, escalation records.
+  expiry, escalation records. *v2.12:* approval metadata on exceptions
+  and suppressions, `--require-approval`.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
   dependency-context export, combined policy experiment; file-only
   OCSF / SSF-CAEP exports and open reference integration, B4/B6

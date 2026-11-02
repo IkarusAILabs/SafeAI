@@ -6,7 +6,8 @@
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
 > Status: v2.8.0, v2.9.0 and v2.10.0 shipped 2026-11-01. v2.10.0 also
 > carries v2.11 items 2.11-1 to 2.11-3; 2.11-4 (published precision)
-> waits on human review (#300). Next: v2.12.0 (attestation).
+> waits on human review (#300). v2.12 items implemented on `main`
+> (unreleased).
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -207,6 +208,18 @@ truth is reviewed and more cases exist.
 **Exit criteria:** attestation round-trips through `manifest verify`;
 manifest contract minor bump (new optional section) per
 `docs/manifest/COMPATIBILITY.md`.
+
+**Status.** All three items implemented on `main`, unreleased (manifest
+contract 1.1.0).
+
+| # | Done | Not yet |
+|---|---|---|
+| 2.12-1 | `--experimental-attestation PATH` (with `--manifest`): unsigned in-toto Statement v1, subject = manifest file SHA-256 (+ git commit), predicate `agent-authority v0.1-experimental` with `machine_derived` / `declared` / `unknown` per agent and for the repository; manifest `authority_attestation` block holds the predicate digest; `safeai manifest verify M --attestation A` checks integrity, subject and predicate (`subject-mismatch`, `predicate-mismatch`, `no-attestation-block`) | Signing stays external (documented Cosign example); Blueprint agent-governance and CIMD field mapping; agents reported under a generic parser name do not match delegation nodes |
+| 2.12-2 | `agents[].workload_identity`: `declared` (`.safeai/config.yml` `agent_identities`, SPIFFE or WIMSE) and `repo-iac-observed` beside a declared ID issued by an in-repository `ClusterSPIFFEID`; states `corroborated` / `declared` / `unknown`; `runtime-unverified` reserved, accepted by the validator and schema, never emitted | Attributing an observed SPIFFE ID to an agent without a declaration (needs workload → agent linking) |
+| 2.12-3 | Optional `approval` block (`approved_by`, `approved_at`, `escalation_owner`) on exceptions and suppressions, validated on load; `approval_state` `approved` / `self-approved` / `unrecorded` in report and manifest; `--require-approval` gate | Approval records for policy decisions other than exceptions and suppressions |
+
+Reviewed benchmark digests unchanged (`ee76875d…`, `de9cb451…`); the
+33 pending cases still hold. No new rule, so no new benchmark cases.
 
 ## v2.13.0 — Interoperability Exports  *(P7, B4, B6)* — target 2027-Q2
 
