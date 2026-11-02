@@ -8,7 +8,11 @@ are unaffected.
 """
 
 from safeai.kya.contract import GATEABILITY_VALUES, PROVENANCE_CLASSES
-from safeai.kya.fingerprints import fingerprint_finding, normalize_path
+from safeai.kya.fingerprints import (
+    fingerprint_finding,
+    fingerprint_path,
+    normalize_path,
+)
 from safeai.kya.identity import derive_agent_id
 from safeai.kya.util import confidence_label, redact_secrets
 
@@ -216,8 +220,10 @@ def build_agent_records(report, project_id, first_seen=None):
             named = [(None, "unknown", {})]
 
         for name, agent_type, item in named:
-            path = normalize_path(model.get("file"))
-            agent_id = derive_agent_id(project_id, framework, name, path, agent_type)
+            # The ID keeps the frozen pre-2.12 path form, so agent identities
+            # (and registry history) survive the path-display fix.
+            agent_id = derive_agent_id(project_id, framework, name,
+                                       fingerprint_path(model.get("file")), agent_type)
             record = records.get(agent_id)
             if record is None:
                 record = {

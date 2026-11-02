@@ -43,6 +43,19 @@ moves to 1.1.0: one new optional section and new optional fields, so a
 - Manifest schema `schemas/safeai-manifest/v1.1.0.json`; `v1.0.0.json`
   is kept unchanged.
 
+### Fixed
+
+- Reported paths keep the leading dot of dot-files and dot-directories.
+  Path normalization used `lstrip("./")`, which removed every leading
+  `.` and `/`, so findings, manifest locations, agent source locations
+  and SARIF results named `claude/settings.json` for
+  `.claude/settings.json`, `mcp.json` for `.mcp.json` and
+  `github/workflows/...` for `.github/workflows/...`. Only the display
+  changes: fingerprints and agent IDs still hash the old path form, so
+  baselines, suppressions and registry history keep matching. Path globs
+  in suppressions and policies match either form, so a glob written
+  against the old output (`claude/**`) still applies.
+
 ## [2.10.0] - 2026-11-01
 
 **Workload Identity, Delegation & Separation of Duties.** Ships plan
