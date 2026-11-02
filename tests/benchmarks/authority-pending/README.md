@@ -12,7 +12,13 @@ runs this corpus through the same harness, and every case must hold.
 The identity cases use the harness's `workload_identity` truth section:
 each listed key (`assignments`, `unknown`, `callers`, `federations`,
 `static_credentials`) is compared as an exact set; a key left out is
-not checked. Baseline-pair identity cases use `identity_changes`: the
+not checked.
+The optional `workload_states` key compares per-workload `identity_state`
+and `unknown_reason` values exactly. Use it when an aggregate `unknown`
+set would hide a meaningful distinction, such as a selector that cannot
+be evaluated versus a known non-matching registration. These labels are
+still AI-assisted pending review; the assertions verify scanner behavior
+against candidate truth, not independent human ground truth. Baseline-pair identity cases use `identity_changes`: the
 exact set of `(type, workload, subject)` in
 `capability_diff.workload_identity_changes`. Delegation cases use
 `delegation_edges` (exact set of `framework:name` edges with their
