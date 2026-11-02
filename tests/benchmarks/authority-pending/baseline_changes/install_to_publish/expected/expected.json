@@ -1,96 +1,96 @@
 {
- "case": "baseline_changes/install_to_publish",
- "notes": "Baseline allows Bash(npm install:*); current adds Bash(npm publish). The bash tool's package_manager capability widens from write to execute: a material change (the escalation is high, not critical). Lane B: reported, never gating. The change entry matches by tool name: the harness takes change evidence from added or removed capabilities, and an access-mode widening has neither.",
- "agents": [],
- "tools": [
-  {
-   "tool_key": "tool:bash",
-   "capabilities": [
-    {
-     "name": "package_manager",
-     "access_mode": "execute"
-    },
-    {
-     "name": "shell",
-     "access_mode": "execute"
-    }
-   ]
-  }
- ],
- "must_fire": [
-  "CAP_package_manager"
- ],
- "must_not_fire": [],
- "evidence_refs": [
-  "settings.json"
- ],
- "uncertainty": [],
- "truth_schema_version": "2.0",
- "annotation": {
-  "basis": "ai_assisted_draft",
-  "confidence": "medium",
-  "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs, which are configuration only, so the expected authority follows from the grants as written. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
-  "derivation": "pending_human_review"
- },
- "canonical": {
+  "case": "baseline_changes/install_to_publish",
+  "notes": "Baseline permits Bash(npm install:*); current additionally permits Bash(npm publish). The bash tool's package_manager capability widens from write to execute and should be reported as a material change (high, not critical). Package-manager authority is Lane B: reported for review, never used to fail the authority gate. The diff identifies this escalation through the explicit access_mode_changes signal, not through added or removed capabilities.",
   "agents": [],
   "tools": [
-   {
-    "id": "bash",
-    "name": "bash",
-    "kind": "tool",
-    "attributable": true
-   }
+    {
+      "tool_key": "tool:bash",
+      "capabilities": [
+        {
+          "name": "package_manager",
+          "access_mode": "execute"
+        },
+        {
+          "name": "shell",
+          "access_mode": "execute"
+        }
+      ]
+    }
   ],
-  "capabilities": [
-   {
-    "tool": "bash",
-    "capability": "package_manager",
-    "access_mode": "execute",
-    "attribution": "attributed"
-   },
-   {
-    "tool": "bash",
-    "capability": "shell",
-    "access_mode": "execute",
-    "attribution": "attributed"
-   }
+  "must_fire": [
+    "CAP_package_manager"
   ],
-  "relationships": [
-   {
-    "type": "tool_has_capability",
-    "tool": "bash",
-    "capability": "package_manager",
-    "access_mode": "execute",
-    "resolvable": true
-   },
-   {
-    "type": "tool_has_capability",
-    "tool": "bash",
-    "capability": "shell",
-    "access_mode": "execute",
-    "resolvable": true
-   }
+  "must_not_fire": [],
+  "evidence_refs": [
+    "settings.json"
   ],
-  "unknown_expectations": [],
+  "uncertainty": [],
+  "truth_schema_version": "2.0",
+  "annotation": {
+    "basis": "ai_assisted_draft",
+    "confidence": "medium",
+    "rationale": "Written with AI assistance for v2.9 (E1) from the case inputs, which are configuration only, so the expected authority follows from the grants as written. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+    "derivation": "pending_human_review"
+  },
+  "canonical": {
+    "agents": [],
+    "tools": [
+      {
+        "id": "bash",
+        "name": "bash",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
+    "capabilities": [
+      {
+        "tool": "bash",
+        "capability": "package_manager",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      },
+      {
+        "tool": "bash",
+        "capability": "shell",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "bash",
+        "capability": "package_manager",
+        "access_mode": "execute",
+        "resolvable": true
+      },
+      {
+        "type": "tool_has_capability",
+        "tool": "bash",
+        "capability": "shell",
+        "access_mode": "execute",
+        "resolvable": true
+      }
+    ],
+    "unknown_expectations": [],
+    "changes": [
+      {
+        "subject": "tool:bash (.claude/settings.json)",
+        "kind": "MATERIAL_CHANGE",
+        "status": "changed",
+        "domain": "tool-surface",
+        "evidence": [],
+        "surface_expected": true
+      }
+    ]
+  },
   "changes": [
-   {
-    "subject": "tool:bash (.claude/settings.json)",
-    "kind": "MATERIAL_CHANGE",
-    "status": "changed",
-    "domain": "tool-surface",
-    "evidence": [],
-    "surface_expected": true
-   }
+    {
+      "tool": "tool:bash (.claude/settings.json)",
+      "status": "changed",
+      "materiality": "MATERIAL_CHANGE",
+      "channels": [],
+      "new_findings": []
+    }
   ]
- },
- "changes": [
-  {
-   "tool": "tool:bash (.claude/settings.json)",
-   "status": "changed",
-   "materiality": "MATERIAL_CHANGE",
-   "channels": [],
-   "new_findings": []
-  }
- ]
 }
