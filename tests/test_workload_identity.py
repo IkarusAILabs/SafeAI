@@ -192,6 +192,30 @@ def test_undecidable_selectors_create_no_identity():
     assert (counts["unknown"], counts["unknown_undecidable_selector"],
             counts["unknown_rate"]) == (2, 2, 1.0)
 
+def test_known_selector_non_match_is_distinct_from_undecidable():
+    namespace = json.dumps({"apiVersion": "v1", "kind": "Namespace",
+                            "metadata": {"name": "research",
+                                         "labels": {"trust": "low"}}})
+    block = _resolve(
+        CONFIG,
+        namespace,
+        _registration(namespace_selector={"matchLabels": {"trust": "high"}}),
+        _deployment("analyst", namespace="research"),
+    )
+    assert block["assignments"] == []
+    state = next(
+        item for item in block["workloads"]
+        if item["workload"] == "Deployment/research/analyst"
+    )
+    assert state == {
+        "workload": "Deployment/research/analyst",
+        "service_account": "agent-sa",
+        "identity_state": "unknown",
+        "unknown_reason": "no-matching-registration",
+    }
+    assert block["counts"]["unknown_undecidable_selector"] == 0
+    assert block["counts"]["unknown_no_matching_registration"] == 1
+
 
 def test_declared_namespace_labels_decide_the_selector():
     namespace = json.dumps({"apiVersion": "v1", "kind": "Namespace",
