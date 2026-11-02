@@ -16,13 +16,13 @@ Rules:
     suppression applies.
 """
 
-import fnmatch
 import os
 from datetime import UTC, date, datetime
 
 import yaml
 
 from safeai.kya.approval import ApprovalError, approval_state, parse_approval
+from safeai.kya.fingerprints import path_glob_matches
 
 DEFAULT_SUPPRESSIONS_PATH = os.path.join(".safeai", "suppressions.yml")
 
@@ -127,7 +127,7 @@ def _matches(entry, finding):
     path_scope = entry.get("path")
     if path_scope:
         finding_path = str(finding.get("file") or "").replace("\\", "/")
-        if not fnmatch.fnmatch(finding_path, path_scope):
+        if not path_glob_matches(finding_path, path_scope):
             return False
     return True
 

@@ -13,11 +13,11 @@ never means "the application is safe or compliant". It is a statement
 about *static evidence matched against local policy* only.
 """
 
-import fnmatch
 import os
 
 import yaml
 
+from safeai.kya.fingerprints import path_glob_matches
 from safeai.severity import rank as _severity_rank
 
 DEFAULT_POLICY_PATH = os.path.join(".safeai", "policy.yml")
@@ -307,7 +307,7 @@ def _matches_when(when, finding, report):
     path_glob = when.get("path_glob")
     if path_glob:
         finding_path = str(finding.get("file") or "").replace("\\", "/")
-        if not fnmatch.fnmatch(finding_path, path_glob):
+        if not path_glob_matches(finding_path, path_glob):
             return []
         reasons.append(f"path={finding_path}")
 
