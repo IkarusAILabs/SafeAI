@@ -58,8 +58,16 @@ def _workload_identity_sets(block):
         (str(a.get("workload")), str(domain))
         for a in block.get("assignments") or [] if isinstance(a, dict)
         for domain in a.get("federates_with") or []}
+    workload_states = {
+        str(w.get("workload")): {
+            "identity_state": str(w.get("identity_state") or ""),
+            "unknown_reason": str(w.get("unknown_reason") or ""),
+        }
+        for w in block.get("workloads") or [] if isinstance(w, dict)
+    }
     return {"assignments": assignments, "unknown": unknown, "callers": callers,
-            "static_credentials": static, "federations": federations}
+            "static_credentials": static, "federations": federations,
+            "workload_states": workload_states}
 
 
 def _compare_workload_identity(truth, block, failures):
@@ -92,6 +100,40 @@ def _compare_workload_identity(truth, block, failures):
                 f"unexpected {sorted(obs - exp)}")
         part[key] = {"expected": len(exp), "matched": len(exp & obs),
                      "observed": len(obs)}
+
+    # Optional reason-level assertions. This is intentionally opt-in so
+    # existing pending identity fixtures retain their aggregate semantics.
+    if "workload_states" in truth:
+        exp_states = {
+            str(item.get("workload")): {
+                "identity_state": str(item.get("identity_state") or ""),
+                "unknown_reason": str(item.get("unknown_reason") or ""),
+            }
+            for item in truth.get("workload_states") or []
+            if isinstance(item, dict)
+        }
+        obs_states = observed["workload_states"]
+        if exp_states != {key: obs_states.get(key) for key in exp_states}:
+            missing = {
+                key: value for key, value in exp_states.items()
+                if key not in obs_states
+            }
+            mismatched = {
+                key: {"expected": value, "observed": obs_states.get(key)}
+                for key, value in exp_states.items()
+                if key in obs_states and obs_states[key] != value
+            }
+            failures.append(
+                f"workload_identity workload_states: missing {missing}, "
+                f"mismatched {mismatched}")
+        part["workload_states"] = {
+            "expected": len(exp_states),
+            "matched": sum(
+                1 for key, value in exp_states.items()
+                if obs_states.get(key) == value
+            ),
+            "observed": len(obs_states),
+        }
     return part
 
 
