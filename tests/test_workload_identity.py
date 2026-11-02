@@ -193,6 +193,59 @@ def test_undecidable_selectors_create_no_identity():
             counts["unknown_rate"]) == (2, 2, 1.0)
 
 
+def test_ambiguous_selector_fixture_preserves_each_unknown_reason():
+    root = os.path.join(
+        os.path.dirname(__file__), "benchmarks", "authority-pending", "identity",
+        "spiffe_ambiguous_selector", "input",
+    )
+    collection = spiffe.empty_collection()
+    for directory, dirnames, filenames in os.walk(root):
+        dirnames.sort()
+        for name in sorted(filenames):
+            path = os.path.join(directory, name)
+            rel = os.path.relpath(path, root)
+            with open(path, encoding="utf-8") as handle:
+                spiffe.collect_file(collection, rel, handle.read())
+    block = spiffe.resolve_workload_identity(collection)
+    expected = {
+        "Deployment/support/triage": "undecidable-selector",
+        "Deployment/?/scout": "undecidable-selector",
+        "Deployment/research/analyst": "no-matching-registration",
+    }
+    observed = {
+        item["workload"]: item["unknown_reason"]
+        for item in block["workloads"] if item["identity_state"] == "unknown"
+    }
+    assert observed == expected
+    assert block["counts"]["unknown_undecidable_selector"] == 2
+    assert block["counts"]["unknown_no_matching_registration"] == 1
+
+
+def test_known_selector_non_match_is_distinct_from_undecidable():
+    namespace = json.dumps({"apiVersion": "v1", "kind": "Namespace",
+                            "metadata": {"name": "research",
+                                         "labels": {"trust": "low"}}})
+    block = _resolve(
+        CONFIG,
+        namespace,
+        _registration(namespace_selector={"matchLabels": {"trust": "high"}}),
+        _deployment("analyst", namespace="research"),
+    )
+    assert block["assignments"] == []
+    state = next(
+        item for item in block["workloads"]
+        if item["workload"] == "Deployment/research/analyst"
+    )
+    assert state == {
+        "workload": "Deployment/research/analyst",
+        "service_account": "agent-sa",
+        "identity_state": "unknown",
+        "unknown_reason": "no-matching-registration",
+    }
+    assert block["counts"]["unknown_undecidable_selector"] == 0
+    assert block["counts"]["unknown_no_matching_registration"] == 1
+
+
 def test_declared_namespace_labels_decide_the_selector():
     namespace = json.dumps({"apiVersion": "v1", "kind": "Namespace",
                             "metadata": {"name": "agents", "labels": {"trust": "high"}}})
@@ -238,6 +291,34 @@ def _policy(name="allow", namespace="tools", selector=None, rules=None, action="
         metadata["namespace"] = namespace
     return json.dumps({"apiVersion": "security.istio.io/v1", "kind": "AuthorizationPolicy",
                        "metadata": metadata, "spec": spec})
+
+
+def test_ambiguous_fixture_retains_distinct_unknown_reasons():
+    root = os.path.join(
+        os.path.dirname(__file__), "benchmarks", "authority-pending", "identity",
+        "spiffe_ambiguous_selector", "input",
+    )
+    collection = spiffe.empty_collection()
+    for directory, dirnames, filenames in os.walk(root):
+        dirnames.sort()
+        for name in sorted(filenames):
+            path = os.path.join(directory, name)
+            rel = os.path.relpath(path, root)
+            with open(path, encoding="utf-8") as handle:
+                spiffe.collect_file(collection, rel, handle.read())
+    block = spiffe.resolve_workload_identity(collection)
+    expected = {
+        "Deployment/support/triage": "undecidable-selector",
+        "Deployment/?/scout": "undecidable-selector",
+        "Deployment/research/analyst": "no-matching-registration",
+    }
+    observed = {
+        item["workload"]: item["unknown_reason"]
+        for item in block["workloads"] if item["identity_state"] == "unknown"
+    }
+    assert observed == expected
+    assert block["counts"]["unknown_undecidable_selector"] == 2
+    assert block["counts"]["unknown_no_matching_registration"] == 1
 
 
 def test_principals_map_to_assignments_and_negations_are_kept():

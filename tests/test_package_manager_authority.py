@@ -223,6 +223,27 @@ PENDING_CORPUS = os.path.join(
 )
 
 
+def test_install_to_publish_pending_case_reports_access_mode_escalation(tmp_path):
+    """Install → publish must be visible as a widening, even though it is Lane B."""
+    from safeai.benchmark.runner import scan_case
+
+    case_dir = os.path.join(
+        PENDING_CORPUS, "baseline_changes", "install_to_publish"
+    )
+    current, _ = scan_case(case_dir, str(tmp_path / "install-to-publish"))
+    bash = next(
+        item for item in current["capability_diff"]["tools"]
+        if item["tool_key"] == "tool:bash"
+    )
+    change = next(
+        item for item in bash["access_mode_changes"]
+        if item["capability"] == "package_manager"
+    )
+    assert (change["before"], change["after"]) == ("write", "execute")
+    assert bash["change_class"] == "MATERIAL_CHANGE"
+    assert bash["review_only"] is True
+
+
 def test_pending_corpus_holds_and_stays_labelled_unreviewed(tmp_path):
     """2.9-1: the E1 cases hold, and say they await human review."""
     from safeai.benchmark import runner
