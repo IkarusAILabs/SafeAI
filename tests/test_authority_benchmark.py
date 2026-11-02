@@ -257,6 +257,39 @@ def test_workload_identity_reason_expectations_are_compared_exactly():
     assert not result["passed"]
     assert any("no-matching-registration" in failure for failure in result["failures"])
 
+def test_workload_identity_reason_expectations_are_compared_exactly():
+    expected = {
+        "workload_identity": {
+            "unknown": ["Deployment/a/one", "Deployment/b/two"],
+            "workload_states": [
+                {"workload": "Deployment/a/one", "identity_state": "unknown",
+                 "unknown_reason": "undecidable-selector"},
+                {"workload": "Deployment/b/two", "identity_state": "unknown",
+                 "unknown_reason": "no-matching-registration"},
+            ],
+        }
+    }
+    current = _report(iac_correlations={"workload_identity": {
+        "assignments": [],
+        "workloads": [
+            {"workload": "Deployment/a/one", "identity_state": "unknown",
+             "unknown_reason": "undecidable-selector"},
+            {"workload": "Deployment/b/two", "identity_state": "unknown",
+             "unknown_reason": "no-matching-registration"},
+        ],
+    }})
+    result = compare.compare_case(expected, current)
+    assert result["passed"], result["failures"]
+    assert result["parts"]["workload_identity"]["workload_states"] == {
+        "expected": 2, "matched": 2, "observed": 2,
+    }
+
+    current["iac_correlations"]["workload_identity"]["workloads"][1][
+        "unknown_reason"] = "undecidable-selector"
+    result = compare.compare_case(expected, current)
+    assert not result["passed"]
+    assert any("no-matching-registration" in failure for failure in result["failures"])
+
 
 def test_attribution_split_counts_unattributed_bucket():
     current = _report(
