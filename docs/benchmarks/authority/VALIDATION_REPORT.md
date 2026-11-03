@@ -265,3 +265,6 @@ accuracy without coverage does not graduate.
 - v2.10.0 delegation change types leave both digests
   unchanged; seven delegation cases are pending review (twenty-seven
   pending in all).
+- v2.12.0: attestation, the agent identity field, approval metadata
+  and the leading-dot path fix leave both digests unchanged; no new
+  rule, so no new cases (thirty-three pending in all).

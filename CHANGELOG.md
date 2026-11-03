@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**Attestation & Accountability (plan v2.12).** The manifest contract
+## [2.12.0] - 2026-11-03
+
+**Attestation & Accountability (plan v2.12).** There is no 2.11.0:
+the v2.11 items shipped in 2.10.0. The manifest contract
 moves to 1.1.0: one new optional section and new optional fields, so a
 1.0 reader is unaffected.
 
@@ -55,6 +58,14 @@ moves to 1.1.0: one new optional section and new optional fields, so a
   baselines, suppressions and registry history keep matching. Path globs
   in suppressions and policies match either form, so a glob written
   against the old output (`claude/**`) still applies.
+
+### Not yet done
+
+- The attestation is unsigned (sign it as an external step) and does
+  not map Blueprint agent-governance or CIMD fields yet.
+- An observed SPIFFE ID is attributed to an agent only when it was
+  declared for that agent; workload-to-agent linking does not exist yet.
+- Approval records cover exceptions and suppressions only.
 
 ## [2.10.0] - 2026-11-01
 
