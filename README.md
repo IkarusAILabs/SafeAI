@@ -402,6 +402,8 @@ python -m safeai registry <subcommand> [options]
 | `--json` | — | JSON output path |
 | `--html` | — | HTML report output path |
 | `--manifest` | — | Canonical KYA manifest output path (`safeai-manifest.json`) |
+| `--ocsf` | — | Write findings and authority changes as OCSF 1.9.0 events (JSON Lines). File only; see [docs/exports](docs/exports/README.md) |
+| `--ssf-set` | — | Write unsigned SSF Security Event Token payloads for MATERIAL / HIGH_RISK authority changes (JSON Lines). File only; `--ssf-issuer`, `--ssf-audience` set `iss` and `aud` |
 | `--digest-file` | — | With `--manifest`: write `<canonical-sha256>  <manifest-basename>` to this path. The digest is the one `safeai manifest verify` reports, not a raw file hash, so it is not `sha256sum -c` compatible |
 | `--baseline` | — | Prior manifest/report for new/existing comparison |
 | `--fail-on-new` | off | With `--baseline`: fail only on new/regressed findings |

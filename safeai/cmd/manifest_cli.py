@@ -22,7 +22,9 @@ def run_manifest_command(args):
             return _verify_attestation(args.file, args.attestation)
         from safeai.kya.integrity import verify_manifest_file
         return verify_manifest_file(args.file)
-    print("Usage: safeai manifest {validate|verify} <file>")
+    if sub == "export":
+        return _export(args)
+    print("Usage: safeai manifest {validate|verify|export} <file>")
     return 2
 
 
@@ -44,6 +46,27 @@ def _verify_attestation(manifest_path, statement_path):
         return 0
     print(f"{status}: {statement_path} ({detail})")
     return 1
+
+
+def _export(args):
+    """Write an export from a manifest whose integrity digest verifies."""
+    from safeai.kya.integrity import OK, verify_document
+    from safeai.report.exports import write_export
+
+    try:
+        with open(args.file, encoding="utf-8") as fh:
+            manifest = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"error: unable to read {args.file}: {exc}")
+        return 1
+    status, detail = verify_document(manifest)
+    if status != OK:
+        print(f"{status}: {args.file} ({detail}); not exported")
+        return 1
+    count = write_export(args.format, manifest, args.output,
+                         issuer=args.ssf_issuer, audience=args.ssf_audience)
+    print(f"exported: {count} {args.format} record(s) to {args.output}")
+    return 0
 
 
 def _validate(path):

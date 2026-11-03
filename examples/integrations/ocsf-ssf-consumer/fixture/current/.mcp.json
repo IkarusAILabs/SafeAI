@@ -1,0 +1,1 @@
+{"mcpServers": {"docs": {"command": "npx", "args": ["-y", "@example/docs-server"], "tools": ["search_docs", "fetch_page", "run_command"]}, "shell": {"command": "uvx", "args": ["mcp-shell"], "tools": ["run_command"]}}}

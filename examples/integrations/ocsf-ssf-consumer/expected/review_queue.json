@@ -1,0 +1,48 @@
+{
+  "finding_counts_by_ocsf_severity_id": {
+    "1": 2,
+    "3": 9,
+    "4": 2
+  },
+  "rejected": [],
+  "review_queue": [
+    {
+      "change_class": "HIGH_RISK_CHANGE",
+      "change_types": [
+        "AUTHORITY_ESCALATED"
+      ],
+      "escalations": [
+        "ESC_MCP_READ_TO_MUTATE (critical): MCP server gained mutating tools (mcp, mcp_tool:run_command)"
+      ],
+      "granted_privileges": [
+        "mcp:execute",
+        "mcp_tool:fetch_page:read",
+        "mcp_tool:run_command:execute",
+        "mcp_tool:search_docs:read",
+        "shell:execute"
+      ],
+      "inferred_only": false,
+      "tool": "mcp_server:docs"
+    },
+    {
+      "change_class": "HIGH_RISK_CHANGE",
+      "change_types": [
+        "AUTHORITY_ADDED",
+        "AUTHORITY_ESCALATED"
+      ],
+      "escalations": [
+        "ESC_ACCESS_MODE_INCREASED (high): Access mode widened to write/mutate/execute (mcp, mcp_tool:run_command, shell)",
+        "ESC_MCP_SERVER_ADDED (high): New MCP server bound: shell",
+        "ESC_SHELL_ADDED (critical): Gained shell/code-execution capability (shell)",
+        "ESC_WRITE_TOOL_ADDED (high): New tool with execute authority: shell"
+      ],
+      "granted_privileges": [
+        "mcp:execute",
+        "mcp_tool:run_command:execute",
+        "shell:execute"
+      ],
+      "inferred_only": false,
+      "tool": "mcp_server:shell"
+    }
+  ]
+}

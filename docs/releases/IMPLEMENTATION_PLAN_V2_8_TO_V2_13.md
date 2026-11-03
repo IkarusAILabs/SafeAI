@@ -235,6 +235,18 @@ Reviewed benchmark digests unchanged (`ee76875d…`, `de9cb451…`); the
 (`--pr-comment-post`); exports validated offline against the published
 schemas.
 
+**Status.** All three items implemented on `main`, unreleased.
+
+| # | Done | Not yet |
+|---|---|---|
+| 2.13-1 | `--ocsf PATH` and `safeai manifest export --format ocsf`: OCSF 1.9.0 JSON Lines, Application Security Posture Finding (2007) per finding, IAM Analysis Finding (2008) per authority change other than `NO_CHANGE` (granted privileges from `tool_surface`); built from the manifest, deterministic; validated in CI against the vendored published class schemas (`schemas/ocsf/1.9.0/`, digests pinned) | A registered OCSF extension for the `unmapped.safeai` fields; delegation, SoD and identity change types |
+| 2.13-2 | `--ssf-set PATH` and `--format ssf-set`: unsigned RFC 8417 claims sets for MATERIAL / HIGH_RISK changes, SSF 1.0 envelope (`opaque` `sub_id`, one event, no `sub` / `exp`), manifest digest as evidence, `--ssf-issuer` / `--ssf-audience`; SafeAI's experimental event type, because no CAEP 1.0 type fits; schema `schemas/safeai-ssf-set/v0.1.0.json` (SafeAI-authored: SSF publishes none) | Signing and delivery (by design outside CE) |
+| 2.13-3 | `examples/integrations/ocsf-ssf-consumer/`: Apache-2.0 receiver (validate, digest binding, review queue), fixture, `reproduce.py`; CI compares the queue with the committed result | Engagement with OpenID SSF / OCSF on the event type |
+
+A test runs the scan with both exports
+while `socket.connect` raises. No new rule, so the benchmark digests are
+unchanged.
+
 ---
 
 ## Research track (parallel; output is a report, not a release)

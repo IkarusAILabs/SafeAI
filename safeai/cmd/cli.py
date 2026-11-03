@@ -41,6 +41,13 @@ from safeai.cmd.postprocess import ScanPostProcessor
 _POLICY_PROFILES = ("developer", "strict-ci", "mcp", "rag", "production-agent")
 
 
+def _add_ssf_claim_options(parser):
+    parser.add_argument("--ssf-issuer", metavar="URI",
+                        help="SET 'iss' claim (default: urn:safeai:project:<project_id>)")
+    parser.add_argument("--ssf-audience", metavar="AUD", action="append",
+                        help="SET 'aud' claim; repeat for several audiences")
+
+
 def _build_parser():
     parser = argparse.ArgumentParser(prog="safeai")
     sub = parser.add_subparsers(dest="command")
@@ -66,6 +73,14 @@ def _build_parser():
                       help="EXPERIMENTAL (no schema-stability promise). With --manifest: also "
                            "write an unsigned in-toto Statement (Agent Authority Attestation) "
                            "for the manifest to PATH")
+    scan.add_argument("--ocsf", dest="ocsf_path", metavar="PATH",
+                      help="Write findings and authority changes as OCSF 1.9.0 events "
+                           "(JSON Lines) to PATH. File only: nothing is sent")
+    scan.add_argument("--ssf-set", dest="ssf_set_path", metavar="PATH",
+                      help="Write unsigned SSF Security Event Token payloads (JSON Lines) "
+                           "for MATERIAL / HIGH_RISK authority changes to PATH. File only: "
+                           "nothing is signed or sent")
+    _add_ssf_claim_options(scan)
     scan.add_argument("--digest-file", dest="digest_file",
                       help="With --manifest: also write '<canonical-sha256>  <manifest-basename>' "
                            "to PATH (the digest `safeai manifest verify` reports; not a raw file hash)")
@@ -243,6 +258,14 @@ def _build_parser():
     man_verify.add_argument("--attestation", metavar="PATH",
                             help="Also check that this experimental attestation (in-toto "
                                  "Statement) attests to the manifest")
+    man_export = manifest_sub.add_parser(
+        "export", help="Write OCSF events or SSF SET payloads from a verified manifest (offline)")
+    man_export.add_argument("file", help="Path to safeai-manifest.json")
+    man_export.add_argument("--format", required=True, choices=["ocsf", "ssf-set"],
+                            help="ocsf: OCSF 1.9.0 events; ssf-set: SSF SET payloads")
+    man_export.add_argument("--output", "-o", required=True, metavar="PATH",
+                            help="Output file (JSON Lines)")
+    _add_ssf_claim_options(man_export)
 
     telemetry = sub.add_parser("telemetry", help="Manage opt-in usage telemetry")
     telemetry.add_argument(
