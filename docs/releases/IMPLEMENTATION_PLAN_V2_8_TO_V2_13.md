@@ -6,8 +6,7 @@
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
 > Status: v2.8.0, v2.9.0 and v2.10.0 shipped 2026-11-01. v2.10.0 also
 > carries v2.11 items 2.11-1 to 2.11-3; 2.11-4 (published precision)
-> waits on human review (#300). v2.12 items implemented on `main`
-> (unreleased).
+> waits on human review (#300). v2.12.0 shipped 2026-11-03.
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -17,6 +16,9 @@
 > (ADR-0008), DCO sign-off.
 
 ## Status at 2026-11-01
+
+*Baseline snapshot from when this plan was written (before v2.8). The
+current state of each release is in its own **Status** section below.*
 
 | Area | State |
 |---|---|
@@ -197,7 +199,7 @@ extra (6/6, plus no change on the reordering case). With one case per
 type that is not yet a precision estimate; it becomes one once the
 truth is reviewed and more cases exist.
 
-## v2.12.0 — Attestation & Accountability  *(P4, P6, B3, S4)* — target 2027-03
+## v2.12.0 — Attestation & Accountability  *(P4, P6, B3, S4)* — **SHIPPED 2026-11-03** (#308, #309)
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|
@@ -209,8 +211,8 @@ truth is reviewed and more cases exist.
 manifest contract minor bump (new optional section) per
 `docs/manifest/COMPATIBILITY.md`.
 
-**Status.** All three items implemented on `main`, unreleased (manifest
-contract 1.1.0).
+**Status.** All three items shipped in v2.12.0 (manifest contract
+1.1.0), with the leading-dot path fix (#309).
 
 | # | Done | Not yet |
 |---|---|---|

@@ -3,6 +3,77 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.12.0 (2026-11-03)
+
+**Attestation & Accountability.** A scan can now hand its authority
+evidence to another system as an in-toto Statement, name each agent's
+SPIFFE or WIMSE identity with where that name came from, and record who
+approved each exception. There is no v2.11.0: its items shipped in
+v2.10.0.
+
+### What's New
+
+- **Experimental Agent Authority Attestation.**
+  `safeai scan . --manifest M --experimental-attestation A` writes an
+  unsigned in-toto Statement v1 about the manifest file. Its predicate
+  keeps `machine_derived`, `declared` and `unknown` fields apart, per
+  agent and for the repository; every unknown field says why.
+  `safeai manifest verify M --attestation A` checks that neither file
+  was edited apart from the other. Experimental: no schema-stability
+  promise.
+- **Agent identity field** `agents[].workload_identity`. Declare
+  identities in `.safeai/config.yml`:
+
+  ```yaml
+  agent_identities:
+    - agent: billing-agent
+      id: spiffe://example.org/ns/billing/sa/agent
+  ```
+
+  A declared ID that the repository's own `ClusterSPIFFEID` also issues
+  is `corroborated`. Nothing is attributed to an agent that declared
+  nothing, and `runtime_verified` is always `false`.
+- **Approval metadata** on exceptions and suppressions:
+
+  ```yaml
+  approval:
+    approved_by: security-lead@example.com
+    approved_at: 2026-11-02
+    escalation_owner: platform-team
+  ```
+
+  Reported as `approval_state` (`approved`, `self-approved`,
+  `unrecorded`). `--require-approval` fails the scan when an active
+  exception or applied suppression has no approval from someone other
+  than its owner.
+
+### Fixed
+
+- Paths of dot-files and dot-directories keep their leading dot in
+  findings, the manifest and SARIF (`.claude/settings.json`, not
+  `claude/settings.json`). Fingerprints and agent IDs are unchanged, and
+  suppression and policy globs match either form.
+
+### Upgrade notes
+
+- No breaking changes. Manifest Contract moves to **1.1.0** (new
+  optional section and fields; schema `v1.1.0.json`). Readers of 1.0.0
+  are unaffected, and `v1.0.0.json` is unchanged.
+- Existing baselines, suppressions and registry history keep matching:
+  fingerprints and agent IDs did not change.
+- `--require-approval` is off by default. Turning it on in CI fails
+  every active exception that has no `approval` block yet.
+- The 58-case authority benchmark holds with unchanged digests
+  (`ee76875d…`, `de9cb451…`); the 33 pending cases hold.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#2120---2026-11-03)
+- [Attestation predicate v0.1 (experimental)](../attestation/agent-authority-v0.1-experimental.md)
+- [Manifest compatibility](../manifest/COMPATIBILITY.md)
+
+---
+
 ## v2.10.0 (2026-11-01)
 
 **Workload Identity, Delegation & Separation of Duties.** SafeAI now

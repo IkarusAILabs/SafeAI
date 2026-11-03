@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.10.0 on 2026-11-01; see
+re-checked at v2.12.0 on 2026-11-03; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -163,23 +163,23 @@ authority → REVIEW, with all of the above attached.
 
 ---
 
-## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate; v2.8 provenance audit + control mappings in JSON/SARIF)
+## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate; v2.8 provenance audit + control mappings in JSON/SARIF; v2.10–v2.12 rows updated)
 
 | Area | Status | Evidence |
 |---|---|---|
 | Authority diff, ChangeGuard, ESC_* rules, access-mode transitions | SHIPPED AND VERIFIED | `capability_diff.py` schema v2, change classes, `--fail-on-authority-change` |
 | Review lanes, policy-as-code, exceptions + strict mode | SHIPPED AND VERIFIED | `policy.py` lanes, `exceptions.py` scope states, #220 scope-escape review |
 | Provenance/gateability per finding, assurance boundary | SHIPPED AND VERIFIED | Contract v1 enums, manifest + reports |
-| KYA manifest Contract v1, digests, verify | SHIPPED AND VERIFIED | `schemas/safeai-manifest/v1.0.0.json`, `manifest validate/verify` |
+| KYA manifest Contract v1, digests, verify | SHIPPED AND VERIFIED | `schemas/safeai-manifest/v1.0.0.json`, `v1.1.0.json` (v2.12), `manifest validate/verify` |
 | IaC authority evidence (TF + K8s RBAC, identities/grants/bindings, 5 verdicts) | SHIPPED AND VERIFIED | `safeai/iac/`, Lane-B only, benchmark corpus + harness |
 | security_brief reporting layer, decision-support HTML | SHIPPED AND VERIFIED | `safeai/report/security_brief.py`, PR Lane-B sections |
 | Plugin SDK, custom rules, control mappings (taxonomy) | SHIPPED AND VERIFIED | entry points, `rules check`, OWASP/NIST mappings |
 | Registry, suppressions, lifecycle, components, dependency inventory + DEP correlation | SHIPPED AND VERIFIED | SQLite registry, export/import, lockfile |
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
 | IaC precision/recall, attribution accuracy, escalation precision | **SHIPPED AND VERIFIED (v2.6 hardened)** | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (58/58 hold; digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.4851 with 69/134 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/identity LANE-A CANDIDATE, authority attribution/change/escalation LANE-B, overall NOT LANE-A READY + unknown veto; provenance: 21 independent / 37 migrated) |
-| Delegation depth (sub-agent scope, indirect authority) | PARTIALLY SHIPPED | ESC_COMBO + component graph cover proxies; no dedicated model |
+| Delegation depth (sub-agent scope, indirect authority) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.10) | static delegation graph and delegation change types, Lane B; precision pending review (#300); ESC_COMBO proxies kept |
 | CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
-| Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM | §§ below |
+| Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM (experimental attestation prototype in v2.12) | `--experimental-attestation`, `manifest verify --attestation`; §§ below |
 | Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6; CI-gated v2.7)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md`; `authority-benchmark` CI job fails on any case that stops holding |
 | Evidence metrics (evidence-backed / inferred / unattributed authority rates, evidence completeness, finding provenance, unknown authority-dimension rate) | **SHIPPED AND VERIFIED (v2.7)** | `safeai/analysis/evidence_metrics.py`, manifest `summary.evidence_metrics`, JSON report; informational, never gates |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
@@ -376,8 +376,8 @@ never imply membership, endorsement or certification.
 | P1 · AI Agent Security Posture Mgmt — tool & skill supply-chain scanning, misconfigurations, "configuration drift introduced after an agent's initial review passed" | Layer 1 discovery, MCP poisoning detection, ChangeGuard baseline diff | SHIPPED AND VERIFIED |
 | P1 · Agent Directory — agent governance metadata (owner, lifecycle, risk tier, scope), identity profile (CIMD) | KYA manifest Contract v1 (declared / detected / inferred / unknown) | PARTIALLY SHIPPED — no owner/lifecycle fields, no CIMD mapping |
 | P1 · Agent Import — MCP & skill registries as untrusted input | MCP/skill adapters, destination taxonomy | SHIPPED AND VERIFIED (static config only) |
-| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics | PLANNED (ESC_COMBO proxies today) |
-| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry | PARTIALLY SHIPPED — no SoD rule class, no approval metadata (P6) |
+| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics: static delegation graph and change types (v2.10) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED — Lane B, precision pending review |
+| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry and approval metadata (v2.12); `SOD_CONFLICTING_AUTHORITY` (v2.10) | PARTIALLY SHIPPED — SoD is Lane B with precision pending review; no joiner-mover-leaver |
 | P3 · Runtime authorization, gateways, monitoring | — | OUT OF SCOPE (runtime boundary kept) |
 | P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
 | P4 · Response / kill switch | — | OUT OF SCOPE |
@@ -421,7 +421,7 @@ cross-plane work and are not duplicated here.
   merge code, act + erase the audit trail, rewrite its own permission
   policy) fires `SOD_CONFLICTING_AUTHORITY` (low, review-only). Only
   authority that names the operation counts; broad grants do not.
-- **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM).**
+- **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM; experimental prototype in v2.12).**
   Shape the Agent Authority Attestation as a signed in-toto-style
   predicate; map fields to Blueprint agent governance metadata and
   CIMD where declared; position it as the known-good baseline for
@@ -534,7 +534,7 @@ concrete static evidence source.
   env values with credential names), which ties the credential to the
   workload rather than only to the repository.
 - **S4 — Identity in the manifest and attestation (P4, RESEARCH
-  ITEM).** Add the agent's SPIFFE / WIMSE identifier as an evidence
+  ITEM; field shipped in v2.12).** Add the agent's SPIFFE / WIMSE identifier as an evidence
   field with provenance (`declared` | `repo-iac-observed`;
   `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
   evidence). Feeds B3's re-attestation baseline.
@@ -719,6 +719,12 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.12.0** — Attestation and accountability: experimental unsigned
+  in-toto Agent Authority Attestation checked by `manifest verify
+  --attestation` (B3), agent SPIFFE / WIMSE identity field with
+  provenance (S4), approval metadata on exceptions and suppressions
+  with `--require-approval` (P6); manifest contract 1.1.0; leading-dot
+  path fix. No v2.11.0 (its items shipped in v2.10.0).
 - **v2.10.0** — Workload identity, delegation and Separation of Duties:
   static SPIFFE collector with Istio callers (S1), static-credential
   signal (S3), identity change types (S2), delegation graph and change
