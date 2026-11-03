@@ -29,7 +29,10 @@ def _absolute_fields(node, markers, path=""):
 
 
 @pytest.fixture
-def repo(tmp_path):
+def repo(tmp_path, monkeypatch):
+    # Scan from the parent directory, as a user would. project.source_root
+    # is the scan directory relative to where the scan runs, by design.
+    monkeypatch.chdir(tmp_path)
     root = tmp_path / "repo"
     root.mkdir()
     for fixture in FIXTURES:
@@ -46,8 +49,11 @@ def _scan(repo, out, *extra):
 
 def test_no_absolute_paths_in_manifest_or_report(repo, tmp_path):
     docs = _scan(repo, tmp_path)
-    markers = {str(tmp_path), str(tmp_path).replace("\\", "/")}
+    # The path without its drive or root also catches a "../../tmp/..." walk-up.
+    unanchored = tmp_path.relative_to(tmp_path.anchor).as_posix()
+    markers = {str(tmp_path), unanchored, unanchored.replace("/", "\\")}
     assert sorted(_absolute_fields(docs["manifest"], markers)) == []
+    assert docs["manifest"]["project"]["source_root"] == "repo"
     assert set(_absolute_fields(docs["report"], markers)) <= ALLOWED
 
 
