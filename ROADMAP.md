@@ -381,7 +381,7 @@ never imply membership, endorsement or certification.
 | P3 · Runtime authorization, gateways, monitoring | — | OUT OF SCOPE (runtime boundary kept) |
 | P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
 | P4 · Response / kill switch | — | OUT OF SCOPE |
-| §3.5 Execution context & risk signals (SSF/CAEP) · telemetry (OCSF) | SARIF / JSON / manifest exports | PLANNED — file-only OCSF and SSF/CAEP exports (B4) |
+| §3.5 Execution context & risk signals (SSF/CAEP) · telemetry (OCSF) | SARIF / JSON / manifest exports; file-only OCSF 1.9.0 and SSF SET payload exports (v2.13) | IMPLEMENTED — validated against the published OCSF schemas; SSF event type is SafeAI's own (no CAEP type fits) |
 | §4.2 Risk tiering inputs — read-only vs transactional, autonomy, blast radius | Access modes, `autonomy` / `destinations` / `data_scope` authority dimensions | SHIPPED AND VERIFIED as *inputs*; SafeAI emits no tier or score |
 | §4.4 Audit-ready evidence packages, tamper-evident provenance | Evidence chain, signed release, deterministic manifest digests | SHIPPED AND VERIFIED |
 
@@ -432,12 +432,19 @@ cross-plane work and are not duplicated here.
   v0.1-experimental`), bound to the manifest both ways and checked by
   `safeai manifest verify --attestation`; Blueprint and CIMD field
   mapping not yet done.
-- **B4 — Standards exports, file-only (P7 / EE, PLANNED).** Export
+- **B4 — Standards exports, file-only (P7 / EE, IMPLEMENTED in v2.13).** Export
   findings and authority changes as OCSF events, and MATERIAL /
   HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
   Community Edition writes files only — transmission belongs to the
   user's pipeline or the Corporate Edition, so the offline /
   single-network-path commitment is unchanged.
+  *v2.13:* `--ocsf` (Application Security Posture Finding 2007 per
+  finding, IAM Analysis Finding 2008 per authority change) and
+  `--ssf-set` (unsigned SET claims sets with SafeAI's experimental
+  agent-authority-change event type: CAEP 1.0 has no event for a static
+  authority change, and `risk-level-change` would need a risk score);
+  `safeai manifest export`. Delegation, SoD and identity change types
+  are not exported yet.
 - **B5 — Blueprint scenario fixtures (P5, RESEARCH ITEM).** Add
   benchmark cases derived from the whitepaper's "Blueprint in Action"
   composites where static evidence applies (read → transactional
@@ -445,12 +452,15 @@ cross-plane work and are not duplicated here.
   scenarios recorded as expected `unknown`. Publish a technical report:
   *which Blueprint questions can pre-deployment authority evidence
   answer, and with what measured precision and unknown rate?*
-- **B6 — Open reference integration (P7, PLANNED).** An Apache-2.0
+- **B6 — Open reference integration (P7, IMPLEMENTED in v2.13; standards engagement open).** An Apache-2.0
   reference integration (SafeAI manifest → OCSF / SSF consumer),
   published with reproducible results — the Alliance's stated
   publication form. Engage the open standards communities (OpenID
   Shared Signals, OCSF, IETF WIMSE, MCP) directly; Alliance membership
   is not a prerequisite and is not assumed.
+  *v2.13:* `examples/integrations/ocsf-ssf-consumer/` with a fixture and
+  `reproduce.py`, checked in CI. Proposing the event type or an OCSF
+  extension to the standards bodies has not started.
 
 **Not adopted from the Blueprint:** runtime gateways, monitoring,
 containment, kill switches, risk-scoring matrices, and the
@@ -665,7 +675,7 @@ probing.
 - **P7 — Cross-Plane Assurance Research:** integration contract,
   dependency-context export, combined policy experiment; file-only
   OCSF / SSF-CAEP exports and open reference integration, B4/B6
-  (research).
+  (research). *v2.13:* both exports and the reference integration.
 - **P8 — Enterprise Evidence Plane:** only after the evidence model
   is validated — aggregation, retention, SSO/RBAC, routing,
   integrations (EE0–EE4 sequencing unchanged).

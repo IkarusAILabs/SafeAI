@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Interoperability Exports (plan v2.13).** File only: nothing is signed
+or sent, and `--pr-comment-post` stays the one network path.
+
+### Added
+
+- OCSF export (plan 2.13-1; ROADMAP B4). `safeai scan --ocsf PATH`
+  writes OCSF 1.9.0 events as JSON Lines: one Application Security
+  Posture Finding (2007) per finding and one IAM Analysis Finding (2008)
+  per tool authority change other than `NO_CHANGE`, with the tool's
+  current capabilities as granted privileges. SafeAI-specific fields
+  (rule ID, provenance class, gateability, change types, escalations)
+  are under `unmapped.safeai`. The published OCSF 1.9.0 class schemas
+  are vendored in `schemas/ocsf/` and every event of a real scan is
+  validated against them in CI. See `docs/exports/OCSF.md`.
+- SSF Security Event Token payloads (plan 2.13-2; ROADMAP B4).
+  `safeai scan --ssf-set PATH` writes one unsigned SET claims set
+  (RFC 8417, OpenID SSF 1.0) per `MATERIAL_CHANGE` or `HIGH_RISK_CHANGE`
+  tool authority change: `opaque` `sub_id`, one event, no `sub` or
+  `exp`, the manifest integrity digest as evidence. `--ssf-issuer` and
+  `--ssf-audience` set `iss` and `aud`. The event type is SafeAI's own
+  and experimental (no CAEP 1.0 event type fits a static authority
+  change); see `docs/exports/ssf-agent-authority-change-v0.1-experimental.md`
+  and `schemas/safeai-ssf-set/v0.1.0.json`.
+- `safeai manifest export M --format ocsf|ssf-set -o PATH` writes either
+  export from an existing manifest, after checking its integrity digest.
+  Exports are built from the manifest, so the same manifest gives the
+  same bytes.
+- Apache-2.0 reference integration (plan 2.13-3; ROADMAP B6) in
+  `examples/integrations/ocsf-ssf-consumer/`: a receiver that validates
+  both exports against the published schemas, rejects SETs bound to
+  another manifest and prints a review queue, with a fixture and a
+  `reproduce.py` whose output CI compares with the committed result.
+
 ## [2.12.0] - 2026-11-03
 
 **Attestation & Accountability (plan v2.12).** There is no 2.11.0:

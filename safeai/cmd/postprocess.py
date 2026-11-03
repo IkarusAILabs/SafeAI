@@ -103,6 +103,9 @@ class ScanPostProcessor:
             self.parser.error("--digest-file requires --manifest")
         if getattr(self.args, "attestation_path", None) and not self.args.manifest_path:
             self.parser.error("--experimental-attestation requires --manifest")
+        if ((getattr(self.args, "ssf_issuer", None) or getattr(self.args, "ssf_audience", None))
+                and not getattr(self.args, "ssf_set_path", None)):
+            self.parser.error("--ssf-issuer and --ssf-audience require --ssf-set")
         self._load_baseline()
         self._run_scan()
         self._normalize()
@@ -567,6 +570,15 @@ class ScanPostProcessor:
                     os.path.basename(self.args.manifest_path), manifest_bytes,
                     (self.project_meta.get("repository") or {}).get("commit_sha")),
                     self.args.attestation_path)
+
+        # v2.13: file-only exports, built from the manifest (relative paths,
+        # integrity digest included). Nothing is signed or sent.
+        from safeai.report.exports import write_export
+        if getattr(self.args, "ocsf_path", None):
+            write_export("ocsf", self.manifest, self.args.ocsf_path)
+        if getattr(self.args, "ssf_set_path", None):
+            write_export("ssf-set", self.manifest, self.args.ssf_set_path,
+                         issuer=self.args.ssf_issuer, audience=self.args.ssf_audience)
 
         # Control mappings (taxonomy only) go into the JSON and SARIF files.
         # They are added to a copy, so the manifest, its digest and the

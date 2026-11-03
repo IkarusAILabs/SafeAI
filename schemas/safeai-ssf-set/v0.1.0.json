@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/IkarusAILabs/SafeAI/blob/main/schemas/safeai-ssf-set/v0.1.0.json",
+  "title": "SafeAI SSF Security Event Token payload (experimental v0.1)",
+  "description": "One SET claims set (the JWT payload, before signing) as written by `safeai scan --ssf-set` or `safeai manifest export --format ssf-set`. SafeAI-authored: neither RFC 8417 nor OpenID SSF 1.0 publishes a JSON Schema, so the envelope rules below are transcribed from them (RFC 8417 section 2.2: iss, iat, jti required, events an object of at least one member keyed by event-type URI; SSF 1.0: a top-level sub_id, no sub, no exp, one event per SET; RFC 9493 subject identifier formats). The event body is SafeAI's experimental agent-authority-change event; see docs/exports/ssf-agent-authority-change-v0.1-experimental.md.",
+  "type": "object",
+  "required": ["iss", "iat", "jti", "sub_id", "events"],
+  "not": {"anyOf": [{"required": ["sub"]}, {"required": ["exp"]}]},
+  "properties": {
+    "iss": {"type": "string", "minLength": 1},
+    "iat": {"type": "integer", "minimum": 0},
+    "jti": {"type": "string", "minLength": 1},
+    "txn": {"type": "string"},
+    "toe": {"type": "integer", "minimum": 0},
+    "aud": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      ]
+    },
+    "sub_id": {"$ref": "#/definitions/subject_identifier"},
+    "events": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "https://github.com/IkarusAILabs/SafeAI/blob/main/docs/exports/ssf-agent-authority-change-v0.1-experimental.md": {
+          "$ref": "#/definitions/agent_authority_change"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "subject_identifier": {
+      "type": "object",
+      "required": ["format"],
+      "properties": {"format": {"type": "string", "minLength": 1}},
+      "allOf": [
+        {"if": {"properties": {"format": {"const": "opaque"}}},
+         "then": {"required": ["id"], "properties": {"id": {"type": "string", "minLength": 1}}}},
+        {"if": {"properties": {"format": {"const": "uri"}}},
+         "then": {"required": ["uri"], "properties": {"uri": {"type": "string", "minLength": 1}}}},
+        {"if": {"properties": {"format": {"const": "account"}}},
+         "then": {"required": ["uri"], "properties": {"uri": {"type": "string", "pattern": "^acct:"}}}},
+        {"if": {"properties": {"format": {"const": "email"}}},
+         "then": {"required": ["email"], "properties": {"email": {"type": "string", "minLength": 1}}}},
+        {"if": {"properties": {"format": {"const": "iss_sub"}}},
+         "then": {"required": ["iss", "sub"]}},
+        {"if": {"properties": {"format": {"const": "phone_number"}}},
+         "then": {"required": ["phone_number"]}},
+        {"if": {"properties": {"format": {"const": "did"}}},
+         "then": {"required": ["url"]}},
+        {"if": {"properties": {"format": {"const": "aliases"}}},
+         "then": {"required": ["identifiers"],
+                  "properties": {"identifiers": {"type": "array", "minItems": 1}}}}
+      ]
+    },
+    "escalation": {
+      "type": "object",
+      "required": ["id", "severity", "summary"],
+      "properties": {
+        "id": {"type": "string"},
+        "severity": {"enum": ["critical", "high", "medium", "low", "info"]},
+        "before": {"type": ["string", "null"]},
+        "after": {"type": ["string", "null"]},
+        "summary": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "agent_authority_change": {
+      "type": "object",
+      "required": ["event_version", "event_timestamp", "change_class", "change_types",
+                   "tool", "inferred_only", "escalations", "evidence", "reason_admin"],
+      "properties": {
+        "event_version": {"const": "0.1-experimental"},
+        "event_timestamp": {"type": "integer", "minimum": 0},
+        "change_class": {"enum": ["MATERIAL_CHANGE", "HIGH_RISK_CHANGE"]},
+        "change_types": {"type": "array", "items": {"type": "string"}},
+        "status": {"type": ["string", "null"]},
+        "inferred_only": {"type": "boolean"},
+        "tool": {
+          "type": "object",
+          "required": ["key"],
+          "properties": {
+            "key": {"type": "string", "minLength": 1},
+            "kind": {"type": ["string", "null"]},
+            "name": {"type": ["string", "null"]},
+            "framework": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "escalations": {"type": "array", "items": {"$ref": "#/definitions/escalation"}},
+        "evidence": {
+          "type": "object",
+          "required": ["manifest_payload_sha256"],
+          "properties": {
+            "manifest_payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "commit_sha": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "reason_admin": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
