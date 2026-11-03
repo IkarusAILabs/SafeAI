@@ -40,6 +40,20 @@ or sent, and `--pr-comment-post` stays the one network path.
   another manifest and prints a review queue, with a fixture and a
   `reproduce.py` whose output CI compares with the committed result.
 
+### Fixed
+
+- Manifests no longer contain the scanning machine's paths. Tool-surface
+  evidence (`tool_surface[].capabilities[].evidence[].path`) held
+  absolute paths for MCP and Claude Code configuration files, so every
+  manifest exposed the local directory layout and differed between
+  checkouts. Models, MCP assets and components are now made
+  repository-relative before anything is derived from them, which also
+  fixes the JSON report's tool-implementation map and module paths.
+- The component diff no longer reports every component as added and
+  removed when the baseline is a manifest. Current components were
+  compared by absolute path against the relative paths the manifest
+  stores. Fingerprints, agent IDs and tool keys are unchanged.
+
 ## [2.12.0] - 2026-11-03
 
 **Attestation & Accountability (plan v2.12).** There is no 2.11.0:

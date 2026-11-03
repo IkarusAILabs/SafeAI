@@ -503,11 +503,19 @@ class ScanOrchestrator:
         return self.env_inventory
 
     def _relativize_report(self):
-        # Normalize all paths in the report to be relative to the scanned
-        # root so reports are portable and SARIF consumers (e.g. GitHub
-        # code scanning) can map results back to repository files.
+        # Normalize all finding paths to be relative to the scanned root so
+        # reports are portable and SARIF consumers (e.g. GitHub code
+        # scanning) can map results back to repository files.
         for finding in self.findings:
             finding["file"] = _relativize(finding.get("file"), self.directory)
+
+    def _relativize_sources(self):
+        # The models, assets and components every later stage derives from
+        # are relativized before anything is built from them, so derived
+        # structures (tool surface, component diff, tool-implementation map)
+        # carry repository-relative paths and match the relative paths a
+        # baseline manifest stores. Stages that re-read a file join the
+        # path onto the scan root, which works for relative paths.
         # Relativize inventory source locations (paths only, never values).
         for entry in self.env_inventory:
             for source in entry.get("sources") or []:
@@ -535,6 +543,7 @@ class ScanOrchestrator:
         """
         self._extract_mcp_assets()
         self._extract_env_inventory()
+        self._relativize_sources()
         self.project_graph = build_project_graph(
             self.agent_models, mcp_assets=self.mcp_assets, components=self.components
         )
@@ -554,7 +563,8 @@ class ScanOrchestrator:
             "normalized_capabilities": self.normalized_capabilities,
             "dependencies": sorted(self.dependencies),
             "import_graph": {
-                "modules": self.import_graph.module_to_file,
+                "modules": {module: _relativize(path, self.directory)
+                            for module, path in self.import_graph.module_to_file.items()},
                 "edges": {k: sorted(v) for k, v in self.import_graph.edges.items()},
             },
             "project_graph": self.project_graph,
