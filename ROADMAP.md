@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.12.0 on 2026-11-03; see
+re-checked at v2.13.0 on 2026-11-03; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -432,7 +432,7 @@ cross-plane work and are not duplicated here.
   v0.1-experimental`), bound to the manifest both ways and checked by
   `safeai manifest verify --attestation`; Blueprint and CIMD field
   mapping not yet done.
-- **B4 — Standards exports, file-only (P7 / EE, IMPLEMENTED in v2.13).** Export
+- **B4 — Standards exports, file-only (P7 / EE, SHIPPED in v2.13.0).** Export
   findings and authority changes as OCSF events, and MATERIAL /
   HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
   Community Edition writes files only — transmission belongs to the
@@ -452,7 +452,7 @@ cross-plane work and are not duplicated here.
   scenarios recorded as expected `unknown`. Publish a technical report:
   *which Blueprint questions can pre-deployment authority evidence
   answer, and with what measured precision and unknown rate?*
-- **B6 — Open reference integration (P7, IMPLEMENTED in v2.13; standards engagement open).** An Apache-2.0
+- **B6 — Open reference integration (P7, SHIPPED in v2.13.0; standards engagement open).** An Apache-2.0
   reference integration (SafeAI manifest → OCSF / SSF consumer),
   published with reproducible results — the Alliance's stated
   publication form. Engage the open standards communities (OpenID
@@ -729,6 +729,11 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.13.0** — Interoperability exports, file only: OCSF 1.9.0
+  events for findings and authority changes, unsigned SSF SET payloads
+  for MATERIAL / HIGH_RISK changes with SafeAI's experimental event
+  type (B4), `safeai manifest export`, and an Apache-2.0 reference
+  consumer (B6); repository-relative evidence paths in the manifest.
 - **v2.12.0** — Attestation and accountability: experimental unsigned
   in-toto Agent Authority Attestation checked by `manifest verify
   --attestation` (B3), agent SPIFFE / WIMSE identity field with

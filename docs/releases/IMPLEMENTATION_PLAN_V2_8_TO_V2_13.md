@@ -6,7 +6,7 @@
 > **Baseline: v2.7.0 (2026-10-22) plus `main` at `7941831` (2026-10-31).**
 > Status: v2.8.0, v2.9.0 and v2.10.0 shipped 2026-11-01. v2.10.0 also
 > carries v2.11 items 2.11-1 to 2.11-3; 2.11-4 (published precision)
-> waits on human review (#300). v2.12.0 shipped 2026-11-03.
+> waits on human review (#300). v2.12.0 and v2.13.0 shipped 2026-11-03.
 > Supersedes `IMPLEMENTATION_PLAN_V2_7_TO_V2_11.md`; item IDs from that
 > plan are kept in the *Was* column so nothing is lost in renumbering.
 >
@@ -223,7 +223,7 @@ manifest contract minor bump (new optional section) per
 Reviewed benchmark digests unchanged (`ee76875d…`, `de9cb451…`); the
 33 pending cases still hold. No new rule, so no new benchmark cases.
 
-## v2.13.0 — Interoperability Exports  *(P7, B4, B6)* — target 2027-Q2
+## v2.13.0 — Interoperability Exports  *(P7, B4, B6)* — **SHIPPED 2026-11-03** (#311, #312)
 
 | # | Item | Was | Roadmap | Size |
 |---|---|---|---|---|
@@ -235,7 +235,9 @@ Reviewed benchmark digests unchanged (`ee76875d…`, `de9cb451…`); the
 (`--pr-comment-post`); exports validated offline against the published
 schemas.
 
-**Status.** All three items implemented on `main`, unreleased.
+**Status.** All three items shipped in v2.13.0, with the
+repository-relative evidence path fix (#312). Manifest contract
+unchanged (1.1.0).
 
 | # | Done | Not yet |
 |---|---|---|

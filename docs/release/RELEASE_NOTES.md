@@ -3,6 +3,68 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.13.0 (2026-11-03)
+
+**Interoperability Exports.** A scan's findings and authority changes
+can now go to a SIEM or a Shared Signals receiver as standard formats,
+OCSF events and SSF Security Event Token payloads. SafeAI only writes
+the files: nothing is signed or sent, and `--pr-comment-post` is still
+the one network path.
+
+### What's New
+
+- **OCSF 1.9.0 export.** `safeai scan . --ocsf events.jsonl` writes one
+  Application Security Posture Finding (2007) per finding and one IAM
+  Analysis Finding (2008) per tool authority change other than
+  `NO_CHANGE`, as JSON Lines. SafeAI-specific fields are under
+  `unmapped.safeai`. CI validates every event of a real scan against
+  the published OCSF class schemas, vendored in `schemas/ocsf/1.9.0/`.
+- **SSF SET payloads.** `safeai scan . --baseline B --ssf-set sets.jsonl`
+  writes one unsigned RFC 8417 claims set per `MATERIAL_CHANGE` or
+  `HIGH_RISK_CHANGE` tool change, in the OpenID SSF 1.0 envelope, with
+  the manifest integrity digest as evidence. Set `iss` and `aud` with
+  `--ssf-issuer` and `--ssf-audience`. The event type is SafeAI's own
+  and experimental, because no CAEP 1.0 event type describes a static
+  authority change.
+- **Exports from a stored manifest.**
+  `safeai manifest export M --format ocsf|ssf-set -o PATH` checks the
+  manifest's integrity digest first; the same manifest always gives the
+  same bytes.
+- **Reference integration** (Apache-2.0) in
+  `examples/integrations/ocsf-ssf-consumer/`: a receiver that validates
+  both exports, rejects SETs bound to another manifest and prints a
+  review queue. `reproduce.py` rebuilds the committed result, and CI
+  checks it.
+
+### Fixed
+
+- Manifests no longer contain the scanning machine's paths:
+  tool-surface evidence for MCP and Claude Code configuration files was
+  absolute. The JSON report's tool-implementation map and module paths
+  are now repository-relative too.
+- With a manifest as the baseline, the component diff no longer reports
+  every component as both added and removed.
+
+### Upgrade notes
+
+- No breaking changes. The manifest contract stays at **1.1.0**.
+  Fingerprints, agent IDs and tool keys are unchanged, so baselines,
+  suppressions and registry history keep matching.
+- A manifest written by v2.12.0 or earlier still works as a baseline:
+  its absolute evidence paths do not show up as authority or component
+  changes.
+- The 58-case authority benchmark holds with unchanged digests
+  (`ee76875d…`, `de9cb451…`); the 33 pending cases hold.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#2130---2026-11-03)
+- [Exports overview](../exports/README.md)
+- [OCSF mapping](../exports/OCSF.md)
+- [SSF event type v0.1 (experimental)](../exports/ssf-agent-authority-change-v0.1-experimental.md)
+
+---
+
 ## v2.12.0 (2026-11-03)
 
 **Attestation & Accountability.** A scan can now hand its authority

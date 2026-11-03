@@ -268,3 +268,6 @@ accuracy without coverage does not graduate.
 - v2.12.0: attestation, the agent identity field, approval metadata
   and the leading-dot path fix leave both digests unchanged; no new
   rule, so no new cases (thirty-three pending in all).
+- v2.13.0: the OCSF and SSF exports and the repository-relative
+  evidence paths leave both digests unchanged; no new rule, so no new
+  cases (thirty-three pending in all).

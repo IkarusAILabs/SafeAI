@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.13.0] - 2026-11-03
+
 **Interoperability Exports (plan v2.13).** File only: nothing is signed
-or sent, and `--pr-comment-post` stays the one network path.
+or sent, and `--pr-comment-post` stays the one network path. The
+manifest contract stays at 1.1.0.
 
 ### Added
 
@@ -53,6 +56,16 @@ or sent, and `--pr-comment-post` stays the one network path.
   removed when the baseline is a manifest. Current components were
   compared by absolute path against the relative paths the manifest
   stores. Fingerprints, agent IDs and tool keys are unchanged.
+
+### Not yet done
+
+- Delegation, Separation of Duties and workload-identity change types
+  are not exported to OCSF or SSF yet.
+- SET payloads are unsigned and nothing delivers them; signing and
+  transmission are outside the Community Edition by design.
+- The SSF event type is SafeAI's own and experimental, and the
+  `unmapped.safeai` OCSF fields are not a registered OCSF extension;
+  neither has been proposed to OpenID SSF or OCSF.
 
 ## [2.12.0] - 2026-11-03
 
