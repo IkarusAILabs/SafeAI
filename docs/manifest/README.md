@@ -6,7 +6,7 @@ artifacts, portable import/export, and future evidence aggregation. The
 SQLite registry is an implementation detail; integrations consume the
 manifest.
 
-- Normative schema: `schemas/safeai-manifest/v1.2.0.json`
+- Normative schema: `schemas/safeai-manifest/v1.3.0.json`
   (JSON Schema draft 2020-12; `v1.0.0.json` is kept for older readers).
 - Compatibility policy: `docs/manifest/COMPATIBILITY.md`.
 - Worked examples: `docs/manifest/EXAMPLES.md`.
@@ -20,7 +20,7 @@ Every manifest carries three independent versions — do not conflate them:
 |---|---|---|
 | `safeai.version` | `"2.2.0"` | Scanner package that produced the scan |
 | `schema_version` | `"1.2"` | Legacy document shape (`1.0`/`1.1`/`1.2`, additive) |
-| `contract.version` | `"1.2.0"` | Public contract version (semver; this document) |
+| `contract.version` | `"1.3.0"` | Public contract version (semver; this document) |
 
 ## Validate locally (offline, no dependencies beyond PyYAML/stdlib)
 

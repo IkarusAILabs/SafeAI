@@ -291,6 +291,9 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # without a baseline.
         "delegation_changes": _diff_block(report, "delegation_changes"),
         "workload_identity_changes": _diff_block(report, "workload_identity_changes"),
+        # v2.15 (contract 1.3.0): who approved the --baseline manifest. Null
+        # without a baseline.
+        "baseline_approval": report.get("baseline_approval"),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,

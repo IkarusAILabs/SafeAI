@@ -29,7 +29,7 @@ forward-tolerant merge. Strict rejection modes may exist for integrity
 - A Contract v1 reader accepts any `schema_version` in
   `{1.0, 1.1, 1.2}` and any `contract.version` with major `1`.
 - A Contract v1 writer emits `schema_version: "1.2"` plus the `contract`
-  block (name `safeai-manifest`, version `1.2.0`, minimum reader `1.0.0`).
+  block (name `safeai-manifest`, version `1.3.0`, minimum reader `1.0.0`).
 
 ## Contract history
 
@@ -38,6 +38,7 @@ forward-tolerant merge. Strict rejection modes may exist for integrity
 | `1.0.0` | 2.2 | First published contract (`schemas/safeai-manifest/v1.0.0.json`) |
 | `1.1.0` | 2.12 | New optional section `authority_attestation` (experimental); optional fields `agents[].workload_identity` and `exception_evaluations[].approval` / `approval_state` (`schemas/safeai-manifest/v1.1.0.json`). A 1.0 reader ignores all of them. |
 | `1.2.0` | 2.14 | New optional sections `delegation_changes` and `workload_identity_changes`: the baseline diff's review-only change blocks, null without a baseline (`schemas/safeai-manifest/v1.2.0.json`). Earlier readers ignore them. |
+| `1.3.0` | 2.15 | New optional section `baseline_approval`; optional fields `agents[].governance` and `agents[].workload_identity.identifiers[].link` (`schemas/safeai-manifest/v1.3.0.json`). No existing value domain changes: an identity attributed through a workload uses the existing states. Earlier readers ignore all of them. |
 - Writers never remove fields within a major version; deprecations are
   announced in `CHANGELOG.md` with at least one minor-version notice
   period before removal in the next major.

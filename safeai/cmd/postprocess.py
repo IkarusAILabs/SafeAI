@@ -361,7 +361,20 @@ class ScanPostProcessor:
         return None
 
     def _check_approvals(self):
-        """``--require-approval``: refuse active decisions nobody else approved (v2.12)."""
+        """``--require-approval``: refuse active decisions nobody else approved (v2.12).
+
+        v2.15: the ``--baseline`` manifest is a decision too (plan 2.15-3).
+        """
+        if self.args.baseline:
+            from safeai.kya.baseline_approval import BaselineApprovalError, evaluate
+            try:
+                self.report["baseline_approval"] = evaluate(
+                    self.args.baseline, self.baseline_report,
+                    getattr(self.args, "baseline_approval_path", None))
+            except BaselineApprovalError as exc:
+                self.parser.error(str(exc))
+        elif getattr(self.args, "baseline_approval_path", None):
+            self.parser.error("--baseline-approval requires --baseline")
         missing = [
             f"exception {e['exception_id']} ({e.get('approval_state', 'unrecorded')})"
             for e in self.report.get("exception_evaluations") or []
@@ -374,6 +387,9 @@ class ScanPostProcessor:
                 seen.add(label)
                 missing.append(f"suppression {label} "
                                f"({applied.get('approval_state', 'unrecorded')})")
+        baseline = self.report.get("baseline_approval")
+        if baseline and baseline["state"] != "approved":
+            missing.append(f"baseline {self.args.baseline} ({baseline['state']})")
         self.report["approval_check"] = {
             "required": bool(getattr(self.args, "require_approval", False)),
             "unapproved": missing,

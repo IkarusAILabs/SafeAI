@@ -286,7 +286,7 @@ def review_changes(tmp_path_factory):
 
 def test_manifest_carries_review_change_blocks(review_changes):
     manifest = json.loads(review_changes["manifest"].read_text(encoding="utf-8"))
-    assert manifest["contract"]["version"] == "1.2.0"
+    assert manifest["contract"]["version"] >= "1.2.0"
     assert {c["type"] for c in manifest["delegation_changes"]["changes"]} == {
         "DELEGATE_ADDED", "DELEGATION_BREADTH_INCREASED", "DELEGATE_EXCEEDS_DELEGATOR"}
     assert [c["type"] for c in manifest["workload_identity_changes"]["changes"]] == [

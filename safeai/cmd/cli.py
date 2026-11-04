@@ -131,7 +131,12 @@ def _build_parser():
     scan.add_argument("--require-approval", action="store_true",
                       help="Fail the scan (exit 1) when an active exception or an applied "
                            "suppression has no approval by someone other than its owner "
-                           "(approval block: approved_by, approved_at, escalation_owner)")
+                           "(approval block: approved_by, approved_at, escalation_owner), "
+                           "or when the --baseline manifest is not approved")
+    scan.add_argument("--baseline-approval", dest="baseline_approval_path", metavar="PATH",
+                      help="Approval record for the --baseline manifest (default: "
+                           "<baseline>.approval.json if present; see "
+                           "'safeai manifest approve')")
     # --- SafeAI Security Scorecard ---
     scan.add_argument("--scorecard", dest="scorecard_path",
                       help="Write the SafeAI Security Scorecard Markdown report to PATH")
@@ -266,6 +271,20 @@ def _build_parser():
     man_export.add_argument("--output", "-o", required=True, metavar="PATH",
                             help="Output file (JSON Lines)")
     _add_ssf_claim_options(man_export)
+    man_approve = manifest_sub.add_parser(
+        "approve", help="Record who approved a manifest as the baseline (offline)")
+    man_approve.add_argument("file", help="Path to the baseline safeai-manifest.json")
+    man_approve.add_argument("--by", required=True, dest="approved_by",
+                             help="Approver (for example an email address)")
+    man_approve.add_argument("--at", dest="approved_at",
+                             help="Approval date, YYYY-MM-DD (default: today, UTC)")
+    man_approve.add_argument("--owner", dest="baseline_owner",
+                             help="Who proposed the baseline; an approval by the owner is "
+                                  "self-approved")
+    man_approve.add_argument("--escalation-owner", dest="escalation_owner",
+                             help="Who the approval escalates to")
+    man_approve.add_argument("--output", "-o", metavar="PATH",
+                             help="Record path (default: <file>.approval.json)")
 
     telemetry = sub.add_parser("telemetry", help="Manage opt-in usage telemetry")
     telemetry.add_argument(
