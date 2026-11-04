@@ -163,6 +163,11 @@ def _escalation_entries(report):
     return entries
 
 
+def _diff_block(report, key):
+    block = (report.get("capability_diff") or {}).get(key)
+    return block if isinstance(block, dict) else None
+
+
 def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
                    policy_decision=None, limitations=None):
     """Assemble the canonical manifest dict from a normalized scan report.
@@ -281,6 +286,11 @@ def build_manifest(report, *, project, scan_meta, safeai_meta, agents,
         # tell "no delegation" from "not collected".
         "delegation_graph": report.get("delegation_graph"),
         "separation_of_duties": report.get("separation_of_duties"),
+        # v2.14 (contract 1.2.0): the baseline diff's review-only change
+        # blocks, so exports built from the manifest carry them. Null
+        # without a baseline.
+        "delegation_changes": _diff_block(report, "delegation_changes"),
+        "workload_identity_changes": _diff_block(report, "workload_identity_changes"),
         "summary": {
             "risk_score": trust.get("overall_ai_risk_score"),
             "severity_counts": severity_counts,
