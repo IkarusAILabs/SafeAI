@@ -406,6 +406,22 @@ class ScanPostProcessor:
             (self.report.get("iac_correlations") or {}).get("workload_identity"))
         for note in notes:
             print(f"warning: {note}", file=sys.stderr)
+        # v2.15: declared governance metadata (owner, lifecycle, purpose,
+        # CIMD client_id) and the client metadata document when in the repo.
+        from safeai.kya.governance import (
+            GovernanceError,
+            attach_governance,
+            collect_client_metadata_documents,
+            load_declared_governance,
+        )
+        try:
+            governance = load_declared_governance(self.directory)
+        except GovernanceError as exc:
+            self.parser.error(str(exc))
+        documents = (collect_client_metadata_documents(self.directory)
+                     if any(item.get("client_id") for item in governance) else {})
+        for note in attach_governance(self.agents, governance, documents):
+            print(f"warning: {note}", file=sys.stderr)
         self.report["kya_agents"] = self.agents
 
     def _build_manifest(self):

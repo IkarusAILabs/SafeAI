@@ -270,7 +270,9 @@ def test_attestation_round_trips_through_manifest_verify(tmp_path, capsys):
     assert drafter["machine_derived"]["delegated_by"] == ["claude_code:session"]
     assert [c["pair"] for c in drafter["machine_derived"]["separation_of_duties"]] == [
         "SOD-CHANGE-MERGE"]
-    assert {u["field"] for u in drafter["unknown"]} == {"runtime_identity"}
+    assert {u["field"] for u in drafter["unknown"]} == {
+        "runtime_identity", "governance.owner", "governance.lifecycle", "governance.purpose",
+        "governance.client_id"}
     assert predicate["repository"]["machine_derived"]["workload_identities"] == [
         {"id": DRAFTER_ID, "workloads": ["Deployment/agents/drafter"]}]
 
