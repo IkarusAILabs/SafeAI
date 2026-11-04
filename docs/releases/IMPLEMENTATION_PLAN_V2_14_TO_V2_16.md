@@ -42,6 +42,17 @@
 export path; the 58-case digests unchanged; OCSF events of a real scan
 validate against the vendored 1.9.0 schemas.
 
+**Status.** All three items implemented on `main`, unreleased. Six new
+pending cases (three delegation, three Separation of Duties; 39 pending
+in all, every one holding); digests `ee76875d…` and `de9cb451…`
+unchanged.
+
+| # | Not yet |
+|---|---|
+| 2.14-1 | SSF SETs for review-only changes (they have no change class by design) |
+| 2.14-2 | `import autogen` / module-attribute calls (`autogen.AssistantAgent(...)`) and agents built in another file; LangGraph `StateGraph` edges, which route control flow rather than delegate authority |
+| 2.14-3 | Precision for the new pairs (human review); RBAC bound to users and groups rather than ServiceAccounts |
+
 ## v2.15.0 — Identity & Governance Evidence  *(S4, B3, P6, B2)*
 
 | # | Item | Size |
