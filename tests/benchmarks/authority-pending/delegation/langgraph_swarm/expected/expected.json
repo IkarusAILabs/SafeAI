@@ -1,0 +1,35 @@
+{
+ "case": "delegation/langgraph_swarm",
+ "notes": "flights hands off to hotels and hotels back to flights through create_handoff_tool; the handoff tools are not counted as authority. hotels' handoff to cars names no agent in the file, so it is unresolved.",
+ "delegation_edges": [
+  {
+   "from": "langgraph:flights",
+   "to": "langgraph:hotels",
+   "exceeds": [
+    "book_hotel"
+   ]
+  },
+  {
+   "from": "langgraph:hotels",
+   "to": "langgraph:flights",
+   "exceeds": [
+    "book_flight"
+   ]
+  }
+ ],
+ "delegation_unresolved": 1,
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [
+  "agents lists what the LangGraph and AutoGen inventory parsers report today (they do not name these agents); the delegation graph is the subject of this case"
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.14 (plan 2.14-2) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

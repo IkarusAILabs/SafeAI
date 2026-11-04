@@ -25,6 +25,8 @@ Findings are ``SOD_CONFLICTING_AUTHORITY``: low severity and review-only
 
 import re
 
+from safeai.analysis.delegation import PYTHON_FRAMEWORKS
+
 RULE_SOD = "SOD_CONFLICTING_AUTHORITY"
 
 #: Pair catalogue: id → (title, first half, second half, why).
@@ -197,7 +199,7 @@ def _claude_holders(report):
 def _agent_holders(report):
     graph = report.get("delegation_graph") or {}
     nodes = {n["id"]: n for n in graph.get("nodes") or []
-             if n.get("framework") in ("openai_agents", "crewai")}
+             if n.get("framework") in PYTHON_FRAMEWORKS}
     adjacency = {}
     for edge in graph.get("edges") or []:
         if edge.get("from") in nodes and edge.get("to") in nodes:

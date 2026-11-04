@@ -1,0 +1,6 @@
+{
+ "case": "delegation/langgraph_swarm",
+ "category": "delegation",
+ "description": "LangGraph swarm: two agents hand off to each other; one handoff names an absent agent.",
+ "version": "v2.14"
+}

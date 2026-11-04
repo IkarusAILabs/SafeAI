@@ -700,7 +700,7 @@
       }
     },
     "delegation_graph": {
-      "description": "Optional (v2.10). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation. Lane B; never consumed by a gate.",
+      "description": "Optional (v2.10). Static delegation graph: Claude Code session to subagents, OpenAI Agents SDK handoffs, CrewAI delegation; LangGraph supervisors and swarm handoffs, AutoGen handoffs and teams (v2.14). Lane B; never consumed by a gate.",
       "type": [
         "object",
         "null"
