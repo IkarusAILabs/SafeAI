@@ -486,6 +486,39 @@ def compare_case(expected, current, baseline=None):
             ),
         }
 
+    if "agent_identity_links" in expected:
+        # v2.15 (plan 2.15-1): (agent source path, SPIFFE ID, provenance, link
+        # type) for every identifier attributed through a workload link.
+        obs = set()
+        for agent in current.get("kya_agents") or []:
+            if not isinstance(agent, dict):
+                continue
+            paths = sorted(str(loc.get("path")) for loc in agent.get("source_locations") or []
+                           if isinstance(loc, dict) and loc.get("path"))
+            for item in (agent.get("workload_identity") or {}).get("identifiers") or []:
+                link = item.get("link") if isinstance(item, dict) else None
+                if link:
+                    obs.add((paths[0] if paths else "", str(item.get("id")),
+                             str(item.get("provenance_class")), str(link.get("type"))))
+        exp = {(str(e.get("agent_path")), str(e.get("id")), str(e.get("provenance_class")),
+                str(e.get("link"))) for e in expected.get("agent_identity_links") or []}
+        if exp != obs:
+            failures.append(f"agent_identity_links: missing {sorted(exp - obs)}, "
+                            f"unexpected {sorted(obs - exp)}")
+        parts["agent_identity_links"] = {"expected": len(exp), "matched": len(exp & obs),
+                                         "observed": len(obs)}
+    if "agent_identity_states" in expected:
+        states = {}
+        for agent in current.get("kya_agents") or []:
+            if isinstance(agent, dict):
+                for loc in agent.get("source_locations") or []:
+                    if isinstance(loc, dict) and loc.get("path"):
+                        states[str(loc["path"])] = str(
+                            (agent.get("workload_identity") or {}).get("state"))
+        for path, state in sorted((expected.get("agent_identity_states") or {}).items()):
+            if states.get(path) != state:
+                failures.append(f"agent_identity_states: {path} expected {state}, "
+                                f"got {states.get(path)}")
     if "sod_conflicts" in expected:
         block = current.get("separation_of_duties") or {}
         obs = {(str(c.get("holder")), str(c.get("pair")))
