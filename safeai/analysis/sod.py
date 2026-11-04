@@ -9,9 +9,33 @@ permission policy.
 A *holder* is anything whose authority is stated in one place: the
 Claude Code session (its ``allow`` rules), a Claude Code subagent (its
 ``tools``), an MCP server (its declared tool names), an OpenAI Agents
-SDK or CrewAI agent (its tool names, and through the delegation graph the
-tools of the agents it can hand work to), or an IaC identity (its grant
-actions).
+SDK, CrewAI, LangGraph or AutoGen agent (its tool names, and through the
+delegation graph the tools of the agents it can hand work to), an AWS IAM
+role (its grant actions), or a Kubernetes ServiceAccount (its RBAC verbs
+on resources, v2.14).
+
+Kubernetes pairs (v2.14): creating a CertificateSigningRequest and
+approving one (``certificatesigningrequests/approval``, or ``approve`` on
+``signers``) is ``SOD-REQUEST-APPROVE``; ``escalate`` or ``bind`` on
+Roles / ClusterRoles, or ``impersonate``, is ``SOD-SELF-GRANT``; deleting
+Events while holding any write verb is ``SOD-ACT-ERASE-AUDIT``. A plain
+write to a Role or RoleBinding is not self-grant: Kubernetes refuses a
+binding or rule that grants more than the writer already holds.
+
+An organisation adds its own pairs in ``.safeai/config.yml`` (v2.14)::
+
+    separation_of_duties:
+      pairs:
+        - id: ORG-DEPLOY-APPROVE
+          title: deploy a release and approve it
+          first: ["deploy_*", "Bash(kubectl apply:*)"]
+          second: ["approve_release"]
+          why: releases need a second approver
+
+Patterns are case-insensitive globs over the holder's authority items
+(tool names, Claude Code allow entries, IAM actions, Kubernetes
+``"<verb> <resource>"``). A pair conflicts when one holder has an item
+matching ``first`` and an item matching ``second``.
 
 Each half is matched only on authority that *names* the operation:
 ``Bash(gh pr merge:*)``, an MCP tool ``approve_invoice``, the IAM action
@@ -23,7 +47,11 @@ Findings are ``SOD_CONFLICTING_AUTHORITY``: low severity and review-only
 (Lane B, ADR-0008) until precision on the benchmark is published.
 """
 
+import fnmatch
+import os
 import re
+
+import yaml
 
 from safeai.analysis.delegation import PYTHON_FRAMEWORKS
 
@@ -49,6 +77,77 @@ PAIRS = {
         "act", "self-grant",
         "the holder can widen its own permissions without anyone approving it"),
 }
+
+CONFIG_PATH = ".safeai/config.yml"
+#: Organisation pair IDs: upper case, digits and dashes; never a built-in ID.
+_ORG_ID_RE = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
+
+
+class SodCatalogueError(ValueError):
+    """Raised for a malformed ``separation_of_duties.pairs`` declaration."""
+
+
+def load_org_pairs(root):
+    """Read the organisation pair catalogue from ``.safeai/config.yml``.
+
+    Returns ``[{id, title, first, second, why, evidence}]``; a missing file
+    or key yields ``[]``. A malformed entry raises ``SodCatalogueError``.
+    """
+    try:
+        with open(os.path.join(root, ".safeai", "config.yml"), encoding="utf-8") as handle:
+            text = handle.read()
+    except OSError:
+        return []
+    try:
+        document = yaml.safe_load(text) or {}
+    except yaml.YAMLError as exc:
+        raise SodCatalogueError(f"{CONFIG_PATH}: unreadable YAML: {exc}") from exc
+    section = document.get("separation_of_duties") if isinstance(document, dict) else None
+    if section is None:
+        return []
+    raw = section.get("pairs") if isinstance(section, dict) else None
+    if not isinstance(raw, list):
+        raise SodCatalogueError(f"{CONFIG_PATH}: 'separation_of_duties.pairs' must be a list")
+    lines = text.splitlines()
+    pairs, seen = [], set()
+    for index, item in enumerate(raw, 1):
+        where = f"{CONFIG_PATH}: separation_of_duties.pairs #{index}"
+        if not isinstance(item, dict):
+            raise SodCatalogueError(f"{where} must be a mapping")
+        pair_id = str(item.get("id") or "").strip()
+        if not _ORG_ID_RE.match(pair_id) or pair_id in PAIRS or pair_id in seen:
+            raise SodCatalogueError(
+                f"{where}: 'id' must be unique, upper case (A-Z, 0-9, '-') and not a "
+                f"built-in pair ({', '.join(sorted(PAIRS))})")
+        seen.add(pair_id)
+        title = str(item.get("title") or "").strip()
+        halves = [item.get("first"), item.get("second")]
+        if not title or not all(isinstance(h, list) and h and all(
+                isinstance(x, str) and x.strip() for x in h) for h in halves):
+            raise SodCatalogueError(
+                f"{where}: needs 'title' and non-empty 'first' and 'second' pattern lists")
+        line = next((n for n, text_line in enumerate(lines, 1) if pair_id in text_line), 1)
+        pairs.append({"id": pair_id, "title": title,
+                      "first": [x.strip() for x in halves[0]],
+                      "second": [x.strip() for x in halves[1]],
+                      "why": str(item.get("why") or "").strip()
+                      or "the organisation's pair catalogue keeps these duties apart",
+                      "evidence": {"file": CONFIG_PATH, "line": line}})
+    return pairs
+
+
+def _org_conflicts(items, org_pairs):
+    """``[(pair_id, first_items, second_items)]`` for organisation pairs."""
+    def matching(patterns):
+        return sorted(i for i in items if any(
+            fnmatch.fnmatchcase(str(i).lower(), p.lower()) for p in patterns))
+    found = []
+    for pair in org_pairs:
+        firsts, seconds = matching(pair["first"]), matching(pair["second"])
+        if firsts and seconds:
+            found.append((pair["id"], firsts, seconds))
+    return found
+
 
 _SPLIT_RE = re.compile(r"[^A-Za-z0-9]+|(?<=[a-z0-9])(?=[A-Z])")
 _REQUEST_VERBS = {"create", "submit", "request", "issue", "initiate", "raise", "draft",
@@ -79,6 +178,10 @@ _AUDIT_ERASE_ACTIONS = {
 }
 _WRITE_PREFIXES = ("put", "create", "delete", "update", "modify", "attach", "run", "invoke",
                    "start", "terminate", "write", "send", "publish")
+
+#: Kubernetes RBAC (v2.14). Items are ``"<verb> <resource>"``.
+_K8S_WRITE_VERBS = {"create", "update", "patch", "delete", "deletecollection"}
+_K8S_CSR = ("certificatesigningrequest",)
 
 
 def _tokens(name):
@@ -145,6 +248,28 @@ def _action_roles(action):
         verb = lowered.split(":", 1)[1]
         if verb.startswith(_WRITE_PREFIXES):
             roles.add(("act", None))
+    return roles
+
+
+def _k8s_roles(item):
+    """Roles one Kubernetes ``"<verb> <resource>"`` item names. Wildcards name none."""
+    verb, _, resource = str(item or "").partition(" ")
+    if verb == "*" or resource in ("", "*") or resource.startswith("*"):
+        return set()
+    base = resource.split("/", 1)[0]
+    roles = set()
+    if resource == "certificatesigningrequests" and verb == "create":
+        roles.add(("request", _K8S_CSR))
+    if (resource == "certificatesigningrequests/approval" and verb in ("update", "patch")) \
+            or (resource == "signers" and verb == "approve"):
+        roles.add(("approve", _K8S_CSR))
+    if (verb in ("escalate", "bind") and base in ("roles", "clusterroles")) \
+            or (verb == "impersonate" and base in ("users", "groups", "serviceaccounts")):
+        roles.add(("self-grant", None))
+    if base == "events" and verb in ("delete", "deletecollection"):
+        roles.add(("erase-audit", None))
+    elif verb in _K8S_WRITE_VERBS:
+        roles.add(("act", None))
     return roles
 
 
@@ -263,20 +388,47 @@ def _iac_holders(report):
             for key, v in sorted(by_identity.items())]
 
 
-def analyze_separation_of_duties(report):
-    """Return ``(findings, summary)`` for one assembled report. Never raises."""
+def _k8s_holders(report):
+    by_identity = {}
+    for grant in (report.get("iac_correlations") or {}).get("grants") or []:
+        ident = grant.get("identity") or {}
+        if ident.get("kind") != "kubernetes_service_account":
+            continue
+        key = f"kubernetes_service_account:{ident.get('namespace') or ''}/{ident.get('name')}"
+        entry = by_identity.setdefault(key, {"items": set(), "file": grant.get("source_file"),
+                                             "line": int(grant.get("line") or 1)})
+        verbs = (grant.get("actions") or {}).get("values") or []
+        resources = (grant.get("resources") or {}).get("values") or []
+        entry["items"].update(f"{verb} {resource}" for verb in verbs for resource in resources)
+    return [{"holder": key, "kind": "iac_identity", "items": sorted(v["items"]),
+             "file": v["file"] or "", "line": v["line"], "provenance_class": "repo-iac-observed",
+             "role_fn": _k8s_roles, "via": {}}
+            for key, v in sorted(by_identity.items())]
+
+
+def analyze_separation_of_duties(report, org_pairs=None):
+    """Return ``(findings, summary)`` for one assembled report. Never raises.
+
+    ``org_pairs`` is the organisation catalogue from ``load_org_pairs``.
+    """
+    org_pairs = list(org_pairs or [])
+    org = {pair["id"]: pair for pair in org_pairs}
     holders = (_claude_holders(report) + _mcp_holders(report) + _agent_holders(report)
-               + _iac_holders(report))
+               + _iac_holders(report) + _k8s_holders(report))
     conflicts, findings = [], []
     for holder in holders:
         items = {item: holder["role_fn"](item) for item in holder["items"]}
-        for pair_id, firsts, seconds in _conflicts(items):
-            title, _first, _second, why = PAIRS[pair_id]
+        for pair_id, firsts, seconds in _conflicts(items) + _org_conflicts(items, org_pairs):
+            if pair_id in org:
+                title, why = org[pair_id]["title"], org[pair_id]["why"]
+            else:
+                title, _first, _second, why = PAIRS[pair_id]
             via = sorted({holder["via"][i] for i in firsts + seconds if i in holder["via"]})
             record = {"holder": holder["holder"], "holder_kind": holder["kind"],
                       "pair": pair_id, "first": firsts, "second": seconds,
                       "via_delegation": via, "file": holder["file"], "line": holder["line"],
-                      "provenance_class": holder["provenance_class"]}
+                      "provenance_class": holder["provenance_class"],
+                      "catalogue": "organisation" if pair_id in org else "built-in"}
             conflicts.append(record)
             through = f" (through delegation to {', '.join(via)})" if via else ""
             findings.append({
@@ -292,7 +444,8 @@ def analyze_separation_of_duties(report):
                 "gateability": "review-only",
                 "evidence": (f"pair={pair_id} holder={holder['holder']} "
                              f"first={', '.join(firsts)} second={', '.join(seconds)}"
-                             + (f" via={', '.join(via)}" if via else "")),
+                             + (f" via={', '.join(via)}" if via else "")
+                             + (f" catalogue={CONFIG_PATH}" if pair_id in org else "")),
                 "reason": why,
                 "remediation": ("Split the two duties between holders that a second party "
                                 "controls, or require an approval step between them, and "
@@ -302,5 +455,11 @@ def analyze_separation_of_duties(report):
             })
     conflicts.sort(key=lambda c: (c["holder"], c["pair"]))
     findings.sort(key=lambda f: (f["file"], f["line"], f["evidence"]))
-    return findings, {"lane": "B", "pairs": sorted(PAIRS), "conflicts": conflicts,
-                      "holders_checked": len(holders)}
+    summary = {"lane": "B", "pairs": sorted(set(PAIRS) | set(org)), "conflicts": conflicts,
+               "holders_checked": len(holders)}
+    if org_pairs:
+        summary["organisation_pairs"] = [
+            {"id": pair["id"], "title": pair["title"], "first": pair["first"],
+             "second": pair["second"], "evidence": pair["evidence"]}
+            for pair in sorted(org_pairs, key=lambda pair: pair["id"])]
+    return findings, summary

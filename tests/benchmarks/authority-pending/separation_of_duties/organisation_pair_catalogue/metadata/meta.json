@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/organisation_pair_catalogue",
+ "category": "separation_of_duties",
+ "description": "Pairs declared in .safeai/config.yml are checked against MCP tool names.",
+ "version": "v2.14"
+}

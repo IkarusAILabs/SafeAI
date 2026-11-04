@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/k8s_self_grant_and_erase_events",
+ "category": "separation_of_duties",
+ "description": "Kubernetes self-grant through bind on Roles, and act plus delete Events; a broad grant and plain RoleBinding writes do not count.",
+ "version": "v2.14"
+}

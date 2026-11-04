@@ -1,0 +1,6 @@
+{
+ "case": "separation_of_duties/k8s_csr_request_and_approve",
+ "category": "separation_of_duties",
+ "description": "A ServiceAccount can create CertificateSigningRequests and approve them.",
+ "version": "v2.14"
+}

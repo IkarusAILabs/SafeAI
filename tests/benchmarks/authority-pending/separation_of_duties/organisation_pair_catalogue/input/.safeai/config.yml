@@ -1,0 +1,11 @@
+separation_of_duties:
+  pairs:
+    - id: ORG-DEPLOY-APPROVE
+      title: deploy a release and approve it
+      first: ["deploy_*"]
+      second: ["approve_release", "sign_off_*"]
+      why: production releases need a second approver
+    - id: ORG-PAY-RECONCILE
+      title: pay a supplier and reconcile the ledger
+      first: ["pay_supplier"]
+      second: ["reconcile_ledger"]

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "releases": {
+      "command": "npx",
+      "args": ["-y", "release-mcp"],
+      "tools": ["deploy_service", "approve_release", "list_releases"]
+    },
+    "finance": {
+      "command": "npx",
+      "args": ["-y", "finance-mcp"],
+      "tools": ["pay_supplier", "list_invoices"]
+    }
+  }
+}
