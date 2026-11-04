@@ -1,0 +1,6 @@
+{
+ "case": "delegation/langgraph_supervisor",
+ "category": "delegation",
+ "description": "Nested LangGraph supervisors: an editor over a compiled research team and a writer.",
+ "version": "v2.14"
+}

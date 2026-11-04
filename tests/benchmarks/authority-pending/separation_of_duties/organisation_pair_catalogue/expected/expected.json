@@ -1,0 +1,26 @@
+{
+ "case": "separation_of_duties/organisation_pair_catalogue",
+ "notes": "The releases server can deploy_service and approve_release, matching ORG-DEPLOY-APPROVE. The finance server can pay_supplier but not reconcile_ledger, so ORG-PAY-RECONCILE does not conflict.",
+ "sod_conflicts": [
+  {
+   "holder": "mcp_server:releases",
+   "pair": "ORG-DEPLOY-APPROVE"
+  }
+ ],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "evidence_refs": [
+  ".mcp.json"
+ ],
+ "agents": [],
+ "must_not_fire": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.14 (plan 2.14-3) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

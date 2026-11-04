@@ -27,7 +27,7 @@ manifest whose digest does not verify.
 
 | Export | Records | Validated against |
 |---|---|---|
-| `--ocsf` | OCSF 1.9.0: one **Application Security Posture Finding** (2007) per finding, one **IAM Analysis Finding** (2008) per tool authority change other than `NO_CHANGE` | the published OCSF 1.9.0 class schemas, vendored in [`schemas/ocsf/`](../../schemas/ocsf/README.md) |
+| `--ocsf` | OCSF 1.9.0: one **Application Security Posture Finding** (2007) per finding, one **IAM Analysis Finding** (2008) per tool authority change other than `NO_CHANGE`, and (v2.14) per delegation or workload-identity change, with `severity_id` 0 | the published OCSF 1.9.0 class schemas, vendored in [`schemas/ocsf/`](../../schemas/ocsf/README.md) |
 | `--ssf-set` | one unsigned SET claims set per `MATERIAL_CHANGE` or `HIGH_RISK_CHANGE` tool authority change | [`schemas/safeai-ssf-set/v0.1.0.json`](../../schemas/safeai-ssf-set/v0.1.0.json), transcribed from RFC 8417, OpenID SSF 1.0 and RFC 9493 (none of them publishes a JSON Schema) |
 
 Details: [OCSF mapping](OCSF.md) ·
@@ -43,6 +43,7 @@ Details: [OCSF mapping](OCSF.md) ·
 - No runtime fact: every record restates static repository evidence,
   with the same Lane A / Lane B meaning as the manifest
   (`unmapped.safeai.gateability`, `inferred_only`).
-- Delegation, Separation-of-Duties and workload-identity change types are
-  not exported yet; they are review-only and stay in the manifest and the
-  PR comment.
+- Delegation and workload-identity changes are OCSF events with no
+  severity (`severity_id` 0) and never SETs: they are review-only and
+  have no change class. Separation-of-Duties conflicts are findings and
+  are exported as findings.

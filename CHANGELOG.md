@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Change Coverage (plan v2.14).** Every new signal is review-only
+(Lane B) and ships with pending benchmark cases; the 58-case digests are
+unchanged. Manifest contract 1.2.0 (two new optional sections).
+
+### Added
+
+- Delegation and workload-identity changes in the manifest and the OCSF
+  export (plan 2.14-1; ROADMAP B4). The manifest keeps the baseline
+  diff's `delegation_changes` and `workload_identity_changes` blocks
+  (null without a baseline; schema `v1.2.0.json`), and `--ocsf` /
+  `manifest export --format ocsf` write one IAM Analysis Finding (2008)
+  per change with `severity_id` 0, because SafeAI gives these changes
+  no severity. They never become SSF SETs. Separation-of-Duties
+  conflicts were already exported, as findings.
+- LangGraph and AutoGen in the delegation graph (plan 2.14-2; ROADMAP
+  B2): LangGraph `create_supervisor` (nested, with compiled supervisors
+  as members) and swarm `create_handoff_tool`; AutoGen `AssistantAgent`
+  handoffs (a name or `Handoff(target=...)`), `RoundRobinGroupChat`,
+  `SelectorGroupChat` and `MagenticOneGroupChat` teams, and 0.2
+  `GroupChat` with its `GroupChatManager`. Handoff tools are not counted
+  as authority; a name that matches no agent in the file is unresolved.
+  The existing delegation change types and Separation of Duties apply to
+  the new agents.
+- Kubernetes Separation of Duties (plan 2.14-3; ROADMAP B2): each
+  ServiceAccount is a holder. Creating and approving
+  CertificateSigningRequests is `SOD-REQUEST-APPROVE`; `escalate` /
+  `bind` on Roles or ClusterRoles, or `impersonate`, is
+  `SOD-SELF-GRANT`; a write verb plus deleting Events is
+  `SOD-ACT-ERASE-AUDIT`. Wildcard rules and plain RBAC writes name no
+  pair.
+- Organisation Separation-of-Duties pairs (plan 2.14-3):
+  `separation_of_duties.pairs` in `.safeai/config.yml`, each with
+  glob patterns for its two halves, checked against every holder
+  (`catalogue: organisation`). A malformed catalogue is skipped whole and
+  reported in `separation_of_duties.notes`.
+- Implementation plan v2.14–v2.16
+  (`docs/releases/IMPLEMENTATION_PLAN_V2_14_TO_V2_16.md`).
+
 ## [2.13.0] - 2026-11-03
 
 **Interoperability Exports (plan v2.13).** File only: nothing is signed

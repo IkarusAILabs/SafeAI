@@ -657,7 +657,11 @@ class ScanOrchestrator:
         # which. Lane B; feeds Separation of Duties and the delegation change
         # types in the capability diff.
         from safeai.analysis.delegation import build_delegation_graph, empty_graph
-        from safeai.analysis.sod import analyze_separation_of_duties
+        from safeai.analysis.sod import (
+            SodCatalogueError,
+            analyze_separation_of_duties,
+            load_org_pairs,
+        )
 
         try:
             self.report["delegation_graph"] = build_delegation_graph(
@@ -666,12 +670,21 @@ class ScanOrchestrator:
             self.report["delegation_graph"] = empty_graph()
         # Separation of Duties (v2.10, B2): one holder able to do both halves
         # of a conflicting pair. Review-only findings (Lane B).
+        # v2.14: plus the organisation's own pairs from .safeai/config.yml. A
+        # malformed catalogue is reported and skipped, never half-applied.
+        catalogue_notes = []
+        try:
+            org_pairs = load_org_pairs(self.directory)
+        except SodCatalogueError as exc:
+            org_pairs, catalogue_notes = [], [f"{exc}; organisation pairs not checked"]
         try:
             sod_findings, self.report["separation_of_duties"] = (
-                analyze_separation_of_duties(self.report))
+                analyze_separation_of_duties(self.report, org_pairs))
         except Exception:
             sod_findings, self.report["separation_of_duties"] = [], {
                 "lane": "B", "pairs": [], "conflicts": [], "holders_checked": 0}
+        if catalogue_notes:
+            self.report["separation_of_duties"]["notes"] = catalogue_notes
         self.findings.extend(sod_findings)
         # Single pass: counts, trust score, and relative paths, all over the
         # complete finding set (core + component + correlation).

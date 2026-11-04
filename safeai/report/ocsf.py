@@ -9,7 +9,13 @@ function of the manifest:
   (``class_uid`` 2007);
 * each tool authority change other than ``NO_CHANGE`` is an **IAM
   Analysis Finding** (``class_uid`` 2008): the tool is analysed for what
-  it may do, and its current capabilities are the granted privileges.
+  it may do, and its current capabilities are the granted privileges;
+* each delegation change and each workload-identity change (v2.14) is
+  also an IAM Analysis Finding, with ``severity_id`` 0: these changes
+  are review-only and SafeAI assigns them no severity.
+
+Separation-of-Duties conflicts are findings, so they are exported as
+Application Security Posture Findings like every other finding.
 
 Nothing is sent anywhere. Fields OCSF has no attribute for (rule ID,
 provenance class, gateability, change types, escalations) are kept
@@ -36,7 +42,13 @@ CHANGE_CLASS_SEVERITY_IDS = {"LOW_CHANGE": 2, "MATERIAL_CHANGE": 3,
                              "HIGH_RISK_CHANGE": 4, "UNKNOWN": 0}
 CONFIDENCE_IDS = {"low": 1, "medium": 2, "high": 3}
 STATUS_SUPPRESSED = 3
-
+#: Delegation and identity changes carry no SafeAI severity (Lane B).
+SEVERITY_UNKNOWN = 0
+#: Manifest section -> (``unmapped.safeai.change_kind``, title prefix).
+REVIEW_CHANGE_SECTIONS = {
+    "delegation_changes": ("delegation", "Delegation change"),
+    "workload_identity_changes": ("workload_identity", "Workload identity change"),
+}
 
 
 def _uid(*parts):
@@ -154,8 +166,49 @@ def change_event(change, manifest, time_ms, surface, escalations):
     return event
 
 
+def review_change_event(change, section, manifest, time_ms):
+    """A delegation or workload-identity change (review-only) as an IAM Analysis Finding."""
+    kind, prefix = REVIEW_CHANGE_SECTIONS[section]
+    change_type = str(change.get("type") or "")
+    subject = str(change.get("subject") or "")
+    workload = str(change.get("workload") or "")
+    project_id = (manifest.get("project") or {}).get("project_id")
+    finding_uid = _uid("review-change", project_id, kind, change_type, workload, subject)
+    event = _envelope(IAM_ANALYSIS_CLASS_UID, "IAM Analysis Finding", manifest,
+                      _uid("review-change-event", finding_uid,
+                           (manifest.get("integrity") or {}).get("payload_sha256")),
+                      SEVERITY_UNKNOWN, time_ms)
+    title = f"{prefix} {change_type}: {subject}"
+    event["finding_info"] = {"uid": finding_uid, "title": title, "types": [change_type]}
+    if change.get("detail"):
+        event["finding_info"]["desc"] = str(change["detail"])
+    event["message"] = title
+    event["applications"] = [_application(manifest)]
+    evidence = sorted({(str(ref.get("file")), int(ref.get("line") or 1))
+                       for ref in change.get("evidence") or []
+                       if isinstance(ref, dict) and ref.get("file")})
+    resources = [{"type": "file", "name": path, "uid": path}
+                 for path in sorted({path for path, _ in evidence})]
+    if workload:
+        resources.insert(0, {"type": "workload", "name": workload, "uid": workload})
+    if resources:
+        event["resources"] = resources
+    event["unmapped"] = {"safeai": {
+        "change_kind": kind,
+        "type": change_type,
+        "dimension": change.get("dimension"),
+        "subject": subject,
+        "workload": workload or None,
+        "provenance_class": change.get("provenance_class"),
+        "gateability": change.get("gateability"),
+        "evidence": [{"file": path, "line": line} for path, line in evidence],
+    }}
+    return event
+
+
 def build_events(manifest):
-    """All OCSF events for ``manifest``: findings first, then authority changes."""
+    """All OCSF events for ``manifest``: findings, tool authority changes, then
+    delegation and workload-identity changes."""
     time_ms = 1000 * epoch_seconds((manifest.get("scan") or {}).get("completed_at"))
     surface = {t.get("tool_key"): t for t in manifest.get("tool_surface") or []}
     escalations = manifest.get("escalations") or []
@@ -164,6 +217,13 @@ def build_events(manifest):
     changes = sorted((c for c in manifest.get("authority_changes") or []
                       if c.get("change_class") != "NO_CHANGE"),
                      key=lambda c: str(c.get("tool_key")))
-    return ([finding_event(f, manifest, time_ms) for f in findings]
-            + [change_event(c, manifest, time_ms, surface, escalations) for c in changes])
+    events = ([finding_event(f, manifest, time_ms) for f in findings]
+              + [change_event(c, manifest, time_ms, surface, escalations) for c in changes])
+    for section in REVIEW_CHANGE_SECTIONS:
+        block = manifest.get(section) or {}
+        reviewed = sorted((c for c in block.get("changes") or [] if isinstance(c, dict)),
+                          key=lambda c: (str(c.get("type")), str(c.get("workload") or ""),
+                                         str(c.get("subject"))))
+        events.extend(review_change_event(c, section, manifest, time_ms) for c in reviewed)
+    return events
 

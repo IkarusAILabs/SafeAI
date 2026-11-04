@@ -127,7 +127,7 @@ def test_serialization_byte_identical(kya_project, tmp_path):
 
 
 def test_schema_file_exists_and_matches_contract():
-    path = os.path.join("schemas", "safeai-manifest", "v1.1.0.json")
+    path = os.path.join("schemas", "safeai-manifest", "v1.2.0.json")
     with open(path, encoding="utf-8") as fh:
         schema = json.load(fh)
     assert schema["properties"]["contract"]["properties"]["name"]["const"] == CONTRACT_NAME
@@ -160,7 +160,7 @@ def test_legacy_schema_version_constant_unchanged():
 
 
 def test_schema_provenance_enum_includes_iac():
-    path = os.path.join("schemas", "safeai-manifest", "v1.1.0.json")
+    path = os.path.join("schemas", "safeai-manifest", "v1.2.0.json")
     with open(path, encoding="utf-8") as fh:
         schema = json.load(fh)
     finding_props = schema["properties"]["findings"]["items"]["properties"]
@@ -282,7 +282,7 @@ def test_scan_with_terraform_emits_valid_iac_manifest(tmp_path):
 
 def test_manifest_schema_parity_provenance_and_gateability():
     """Assert set equality between the contract constants and the JSON Schema enums (#265)."""
-    path = os.path.join("schemas", "safeai-manifest", "v1.1.0.json")
+    path = os.path.join("schemas", "safeai-manifest", "v1.2.0.json")
     with open(path, encoding="utf-8") as fh:
         schema = json.load(fh)
     finding_props = schema["properties"]["findings"]["items"]["properties"]

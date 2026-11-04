@@ -8,7 +8,7 @@ Validation here is intentionally standard-library only: it enforces the
 structural guarantees SafeAI itself relies on (required keys, value domains,
 compatibility semantics) rather than executing a full JSON-Schema draft
 engine. The published schema file
-(``schemas/safeai-manifest/v1.1.0.json``) is the normative reference for
+(``schemas/safeai-manifest/v1.2.0.json``) is the normative reference for
 third-party consumers with their own validators; this module's verdicts
 agree with it on every required-field and enum rule.
 
@@ -22,7 +22,7 @@ per ``docs/manifest/COMPATIBILITY.md``.
 from __future__ import annotations
 
 CONTRACT_NAME = "safeai-manifest"
-CONTRACT_VERSION = "1.1.0"
+CONTRACT_VERSION = "1.2.0"
 CONTRACT_MIN_READER = "1.0.0"
 
 #: Legacy document versions this contract accepts (purely additive history).

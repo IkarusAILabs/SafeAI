@@ -1,0 +1,30 @@
+{
+ "case": "separation_of_duties/k8s_self_grant_and_erase_events",
+ "notes": "binder holds bind on roles, so it can bind itself to any Role (SOD-SELF-GRANT). ops-agent patches Deployments and deletes Events, the in-cluster record of what happened (SOD-ACT-ERASE-AUDIT). deployer's wildcard rule names no specific operation, and creating RoleBindings without bind cannot grant more than it holds, so deployer has no conflict.",
+ "sod_conflicts": [
+  {
+   "holder": "kubernetes_service_account:agents/binder",
+   "pair": "SOD-SELF-GRANT"
+  },
+  {
+   "holder": "kubernetes_service_account:agents/ops-agent",
+   "pair": "SOD-ACT-ERASE-AUDIT"
+  }
+ ],
+ "must_fire": [
+  "SOD_CONFLICTING_AUTHORITY"
+ ],
+ "evidence_refs": [
+  "rbac.yaml"
+ ],
+ "agents": [],
+ "must_not_fire": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.14 (plan 2.14-3) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

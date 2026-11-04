@@ -1,0 +1,52 @@
+{
+ "case": "delegation/langgraph_supervisor",
+ "notes": "research_lead (create_supervisor, compiled as research_team) delegates to researcher and coder; editor delegates to the compiled research team and to writer. Supervisors hold no tools of their own here, so every agent edge exceeds its delegator. The chain is two hops deep.",
+ "delegation_edges": [
+  {
+   "from": "langgraph:research_lead",
+   "to": "langgraph:researcher",
+   "exceeds": [
+    "web_search"
+   ]
+  },
+  {
+   "from": "langgraph:research_lead",
+   "to": "langgraph:coder",
+   "exceeds": [
+    "run_python"
+   ]
+  },
+  {
+   "from": "langgraph:editor",
+   "to": "langgraph:research_lead",
+   "exceeds": []
+  },
+  {
+   "from": "langgraph:editor",
+   "to": "langgraph:writer",
+   "exceeds": [
+    "publish_post"
+   ]
+  }
+ ],
+ "delegation_unresolved": 0,
+ "agents": [
+  {
+   "framework": "langchain",
+   "name": "create_react_agent"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [
+  "agents lists what the LangGraph and AutoGen inventory parsers report today (they do not name these agents); the delegation graph is the subject of this case"
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.14 (plan 2.14-2) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

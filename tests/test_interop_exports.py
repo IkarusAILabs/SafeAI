@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import os
+import shutil
 import socket
 from pathlib import Path
 
@@ -260,3 +261,76 @@ def test_consumer_rejects_sets_from_another_manifest(scanned, tmp_path, monkeypa
     rc = consumer.main(["--ocsf", str(scanned["ocsf"]), "--ssf-set", str(scanned["set"]),
                         "--schemas", str(SCHEMAS), "--output", str(out)])
     assert rc == 0 and os.path.getsize(out) > 0
+
+
+# --- v2.14: delegation and workload-identity changes ----------------------------
+
+PENDING = ROOT / "tests" / "benchmarks" / "authority-pending" / "baseline_changes"
+
+
+@pytest.fixture(scope="module")
+def review_changes(tmp_path_factory):
+    """A baseline pair with a new handoff and a new SPIFFE federation."""
+    out = tmp_path_factory.mktemp("review-changes")
+    for side in ("baseline", "current"):
+        target = out / side
+        for case in ("delegation_handoff_added", "spiffe_federation_added"):
+            shutil.copytree(PENDING / case / "input" / side, target, dirs_exist_ok=True)
+    main(["scan", str(out / "baseline"), "--no-registry", "--manifest", str(out / "b.json"),
+          "--sarif", str(out / "b.sarif")])
+    main(["scan", str(out / "current"), "--no-registry", "--baseline", str(out / "b.json"),
+          "--manifest", str(out / "m.json"), "--sarif", str(out / "c.sarif"),
+          "--ocsf", str(out / "e.jsonl")])
+    return {"baseline": out / "b.json", "manifest": out / "m.json", "ocsf": out / "e.jsonl"}
+
+
+def test_manifest_carries_review_change_blocks(review_changes):
+    manifest = json.loads(review_changes["manifest"].read_text(encoding="utf-8"))
+    assert manifest["contract"]["version"] == "1.2.0"
+    assert {c["type"] for c in manifest["delegation_changes"]["changes"]} == {
+        "DELEGATE_ADDED", "DELEGATION_BREADTH_INCREASED", "DELEGATE_EXCEEDS_DELEGATOR"}
+    assert [c["type"] for c in manifest["workload_identity_changes"]["changes"]] == [
+        "FEDERATION_ADDED"]
+    baseline = json.loads(review_changes["baseline"].read_text(encoding="utf-8"))
+    assert baseline["delegation_changes"] is None
+    assert baseline["workload_identity_changes"] is None
+
+
+def test_review_changes_become_iam_analysis_findings(review_changes):
+    events = [e for e in _read_jsonl(review_changes["ocsf"])
+              if (e.get("unmapped") or {}).get("safeai", {}).get("change_kind")]
+    assert sorted((e["unmapped"]["safeai"]["change_kind"], e["finding_info"]["types"][0])
+                  for e in events) == [
+        ("delegation", "DELEGATE_ADDED"), ("delegation", "DELEGATE_EXCEEDS_DELEGATOR"),
+        ("delegation", "DELEGATION_BREADTH_INCREASED"),
+        ("workload_identity", "FEDERATION_ADDED")]
+    for event in events:
+        assert OCSF_VALIDATORS[2008].is_valid(event), event["finding_info"]
+        assert event["class_uid"] == 2008
+        assert event["severity_id"] == 0
+        assert event["unmapped"]["safeai"]["gateability"] == "review-only"
+    federation = next(e for e in events if e["finding_info"]["types"] == ["FEDERATION_ADDED"])
+    assert federation["resources"][0] == {"type": "workload", "name": "Deployment/agents/planner",
+                                          "uid": "Deployment/agents/planner"}
+    assert federation["unmapped"]["safeai"]["subject"] == "partner.example"
+
+
+def test_review_change_uid_is_stable_across_scans():
+    manifest = {"project": {"project_id": "p"}, "scan": {"completed_at": "2026-11-04T00:00:00Z"},
+                "delegation_changes": {"changes": [
+                    {"type": "DELEGATE_ADDED", "dimension": "delegation", "subject": "a -> b",
+                     "detail": "a can now delegate to b", "gateability": "review-only",
+                     "evidence": [{"file": "agents.py", "line": 4}]}]}}
+    first = build_events(dict(manifest, integrity={"payload_sha256": "1" * 64}))
+    second = build_events(dict(manifest, integrity={"payload_sha256": "2" * 64}))
+    assert first[0]["finding_info"]["uid"] == second[0]["finding_info"]["uid"]
+    assert first[0]["metadata"]["uid"] != second[0]["metadata"]["uid"]
+    assert first[0]["resources"] == [{"type": "file", "name": "agents.py", "uid": "agents.py"}]
+
+
+def test_review_changes_never_become_sets(review_changes):
+    manifest = json.loads(review_changes["manifest"].read_text(encoding="utf-8"))
+    assert all(EVENT_TYPE in p["events"] for p in build_payloads(manifest))
+    assert len(build_payloads(manifest)) == sum(
+        1 for c in manifest["authority_changes"]
+        if c["change_class"] in ("MATERIAL_CHANGE", "HIGH_RISK_CHANGE"))

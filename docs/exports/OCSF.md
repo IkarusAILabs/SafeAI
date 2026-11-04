@@ -53,6 +53,33 @@ The tool is the analysed principal: OCSF's identity-centric
 `NO_CHANGE` tools are not exported. Without `--baseline` there are no
 authority changes, so only findings are exported.
 
+## Delegation and workload-identity changes → IAM Analysis Finding (2008)
+
+Since v2.14 the manifest keeps the baseline diff's review-only change
+blocks (`delegation_changes`, `workload_identity_changes`; contract
+1.2.0), and each change in them is one event.
+
+| OCSF attribute | From the manifest change |
+|---|---|
+| `finding_info.uid` | SHA-256 of project, change kind, type, workload and subject (stable across scans) |
+| `finding_info.title`, `message` | `Delegation change <type>: <subject>` or `Workload identity change <type>: <subject>` |
+| `finding_info.types` | `[type]` (`DELEGATE_ADDED`, `FEDERATION_ADDED`, …) |
+| `finding_info.desc` | `detail` |
+| `severity_id` | `0` (Unknown): these changes are review-only and SafeAI gives them no severity |
+| `applications` | `[{uid: project_id, name}]` |
+| `resources` | the workload (`{type: workload, name, uid}`) for identity changes, then each evidence file |
+| `unmapped.safeai` | `change_kind` (`delegation` / `workload_identity`), `type`, `dimension`, `subject`, `workload`, `provenance_class`, `gateability`, `evidence[]` |
+
+They are never SSF SETs: a SET is written only for a tool change classed
+`MATERIAL_CHANGE` or `HIGH_RISK_CHANGE`, and these changes have no
+change class.
+
+## Separation of Duties
+
+`SOD_CONFLICTING_AUTHORITY` conflicts are findings, so each is an
+Application Security Posture Finding like any other finding
+(`finding_info.types` `["SOD_CONFLICTING_AUTHORITY"]`).
+
 ## Validation
 
 `tests/test_interop_exports.py` validates every event of a real scan

@@ -14,6 +14,18 @@ and literal source structure only. Three sources have explicit edges:
 * **CrewAI**: an ``Agent(..., allow_delegation=True)`` in a
   ``Crew(agents=[...])`` can delegate to every other agent of that crew;
   a hierarchical crew's manager delegates to all of them.
+* **LangGraph** (v2.14): ``create_supervisor([...])`` delegates to each
+  agent it is given (a compiled supervisor can itself be a member);
+  ``create_handoff_tool(agent_name=...)`` in an agent's ``tools`` (swarm)
+  is an edge to the named agent. Agents are ``create_react_agent(...,
+  tools=[...], name=...)``.
+* **AutoGen** (v2.14): ``AssistantAgent(name, tools=[...],
+  handoffs=[...])``, each handoff (a name or ``Handoff(target=...)``) an
+  edge; ``RoundRobinGroupChat``, ``SelectorGroupChat`` and
+  ``MagenticOneGroupChat`` teams, and a 0.2 ``GroupChat`` with its
+  ``GroupChatManager``, are a manager that hands work to every
+  participant. A ``Swarm`` team adds no edges of its own: its members
+  hand off through ``handoffs``.
 
 Agents and tools are matched by the names bound in the same file. A
 handoff target that is not a literal reference (a factory call, a
@@ -39,6 +51,35 @@ _SESSION_SETTINGS = (".claude/settings.json", ".claude/settings.local.json")
 
 #: Frameworks with an ``Agent`` class, by the module it is imported from.
 _AGENT_MODULES = {"agents": "openai_agents", "crewai": "crewai"}
+
+#: v2.14: LangGraph and AutoGen constructors, by ``(module, name)`` of the
+#: ``from`` import, as ``(framework, role)``. Roles: ``agent`` builds an
+#: agent; ``team`` is a manager handing work to every participant;
+#: ``supervisor`` is a LangGraph supervisor (an agent with members);
+#: ``swarm`` groups agents that hand off among themselves;
+#: ``handoff-tool`` / ``handoff`` name a handoff target; ``group-chat`` and
+#: ``group-chat-manager`` are AutoGen 0.2's two halves of a team.
+_CONSTRUCTORS = {
+    ("langgraph.prebuilt", "create_react_agent"): ("langgraph", "agent"),
+    ("langgraph_supervisor", "create_supervisor"): ("langgraph", "supervisor"),
+    ("langgraph_supervisor", "create_handoff_tool"): ("langgraph", "handoff-tool"),
+    ("langgraph_swarm", "create_swarm"): ("langgraph", "swarm"),
+    ("langgraph_swarm", "create_handoff_tool"): ("langgraph", "handoff-tool"),
+    ("autogen_agentchat.agents", "AssistantAgent"): ("autogen", "agent"),
+    ("autogen_agentchat.agents", "CodeExecutorAgent"): ("autogen", "agent"),
+    ("autogen_agentchat.teams", "RoundRobinGroupChat"): ("autogen", "team"),
+    ("autogen_agentchat.teams", "SelectorGroupChat"): ("autogen", "team"),
+    ("autogen_agentchat.teams", "MagenticOneGroupChat"): ("autogen", "team"),
+    ("autogen_agentchat.teams", "Swarm"): ("autogen", "swarm"),
+    ("autogen_agentchat.base", "Handoff"): ("autogen", "handoff"),
+    ("autogen", "AssistantAgent"): ("autogen", "agent"),
+    ("autogen", "ConversableAgent"): ("autogen", "agent"),
+    ("autogen", "GroupChat"): ("autogen", "group-chat"),
+    ("autogen", "GroupChatManager"): ("autogen", "group-chat-manager"),
+}
+#: Agent frameworks whose agents hold their own tools (compared by name).
+PYTHON_FRAMEWORKS = ("openai_agents", "crewai", "langgraph", "autogen")
+_PYTHON_MARKERS = ("Agent(", "agent(", "GroupChat(", "Swarm(", "create_supervisor(")
 
 
 def empty_graph():
@@ -182,6 +223,10 @@ def _frameworks_imported(tree):
     found = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                constructor = _CONSTRUCTORS.get((node.module, alias.name))
+                if constructor:
+                    found[alias.asname or alias.name] = ":".join(constructor)
             top = node.module.split(".", 1)[0]
             if top in _AGENT_MODULES:
                 for alias in node.names:
@@ -194,10 +239,12 @@ def _frameworks_imported(tree):
     return found
 
 
-def _tool_names(value):
+def _tool_names(value, skip=()):
     names = []
     if isinstance(value, (ast.List, ast.Tuple)):
         for element in value.elts:
+            if isinstance(element, ast.Call) and _call_name(element) in skip:
+                continue
             name = _ref_name(element) or (_call_name(element) if isinstance(element, ast.Call)
                                           else None)
             if name:
@@ -205,45 +252,86 @@ def _tool_names(value):
     return sorted(set(names))
 
 
+def _uncompiled(call):
+    """``create_supervisor(...)`` behind ``create_supervisor(...).compile(...)``."""
+    while (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute)
+           and call.func.attr == "compile" and isinstance(call.func.value, ast.Call)):
+        call = call.func.value
+    return call
+
+
+def _named_handoffs(call, framework, roles):
+    """``[(target name or None, node)]`` for handoffs named rather than bound."""
+    found = []
+    if framework == "autogen":
+        value = _kwarg(call, "handoffs")
+        for element in getattr(value, "elts", None) or []:
+            if isinstance(element, ast.Call) and roles.get(_call_name(element)) == "handoff":
+                target = _kwarg(element, "target")
+                found.append((_literal_str(target) if target is not None else None, element))
+            else:
+                found.append((_literal_str(element), element))
+    elif framework == "langgraph":
+        for element in getattr(_kwarg(call, "tools"), "elts", None) or []:
+            if isinstance(element, ast.Call) and roles.get(_call_name(element)) == "handoff-tool":
+                target = _kwarg(element, "agent_name") or (element.args[0] if element.args
+                                                           else None)
+                found.append((_literal_str(target) if target is not None else None, element))
+    return found
+
+
 def _python_file(rel, text):
-    """Agents, crews and handoffs bound in one Python file."""
-    if "Agent(" not in text:
+    """Agents, crews, teams and handoffs bound in one Python file."""
+    if not any(marker in text for marker in _PYTHON_MARKERS):
         return None
     try:
         tree = ast.parse(text)
     except (SyntaxError, ValueError):
         return None
     imported = _frameworks_imported(tree)
-    agent_names = {alias: fw for alias, fw in imported.items()
-                   if fw in ("openai_agents", "crewai")}
-    if not agent_names:
+    agent_names = {alias: fw for alias, fw in imported.items() if fw in ("openai_agents", "crewai")}
+    agent_names.update({alias: fw.split(":", 1)[0] for alias, fw in imported.items()
+                        if fw in ("langgraph:agent", "autogen:agent")})
+    roles = {alias: fw.split(":", 1)[1] for alias, fw in imported.items()
+             if fw.startswith(("langgraph:", "autogen:"))}
+    team_names = {alias for alias, role in roles.items()
+                  if role in ("team", "supervisor", "swarm", "group-chat", "group-chat-manager")}
+    if not agent_names and not team_names:
         return None
     crew_names = {a for a, fw in imported.items() if fw == "crewai:crew"}
     handoff_names = {a for a, fw in imported.items() if fw == "openai_agents:handoff"}
+    handoff_tools = {a for a, role in roles.items() if role == "handoff-tool"}
 
     agents = {}  # binding -> agent record
     crews = []
+    teams = []  # (call, binding)
 
     def agent_record(call, binding):
         framework = agent_names[_call_name(call)]
         label = (_literal_str(_kwarg(call, "name")) or _literal_str(_kwarg(call, "role"))
+                 or (_literal_str(call.args[0]) if framework == "autogen" and call.args
+                     else None)
                  or binding or f"agent@{call.lineno}")
         delegation = _kwarg(call, "allow_delegation")
         return {
             "binding": binding, "framework": framework, "name": label,
-            "line": call.lineno, "tools": _tool_names(_kwarg(call, "tools")),
-            "handoffs": _kwarg(call, "handoffs"),
+            "line": call.lineno, "tools": _tool_names(_kwarg(call, "tools"), handoff_tools),
+            "handoffs": _kwarg(call, "handoffs") if framework == "openai_agents" else None,
+            "named_handoffs": _named_handoffs(call, framework, roles),
             "allow_delegation": isinstance(delegation, ast.Constant) and delegation.value is True,
         }
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
-            name = _call_name(node.value)
+            value = _uncompiled(node.value)
+            name = _call_name(value)
             targets = [t.id for t in node.targets if isinstance(t, ast.Name)]
             if name in agent_names and targets:
-                agents[targets[0]] = agent_record(node.value, targets[0])
+                agents[targets[0]] = agent_record(value, targets[0])
             elif name in crew_names:
                 crews.append(node.value)
+            elif name in team_names:
+                teams.append((value, targets[0] if targets else None))
         elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) \
                 and _call_name(node.value) in crew_names:
             crews.append(node.value)
@@ -252,9 +340,17 @@ def _python_file(rel, text):
                 and node not in crews:
             crews.append(node)
 
-    return {"rel": rel, "agents": agents, "crews": crews,
+    bound = {id(call) for call, _ in teams}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and _call_name(node) in team_names \
+                and id(node) not in bound:
+            teams.append((node, None))
+            bound.add(id(node))
+    teams.sort(key=lambda item: (item[0].lineno, item[0].col_offset))
+
+    return {"rel": rel, "agents": agents, "crews": crews, "teams": teams, "roles": roles,
             "agent_names": agent_names, "handoff_names": handoff_names,
-            "record": agent_record}
+            "handoff_tools": handoff_tools, "record": agent_record}
 
 
 def _node_for(rel, record):
@@ -311,6 +407,26 @@ def _python_edges(parsed):
             if target is not None:
                 edges.append(_edge(source, target, "handoff", rel, record["line"]))
 
+    by_label = {}
+    for record in parsed["agents"].values():
+        by_label.setdefault(record["name"], record)
+    for record in list(parsed["agents"].values()):
+        source = nodes[_node_for(rel, record)["id"]]
+        for target_name, element in record["named_handoffs"]:
+            target = by_label.get(target_name) if target_name else None
+            if target is None:
+                unresolved.append({
+                    "from": source["id"], "target": target_name or "handoff",
+                    "reason": ("handoff target is not an agent named in this file"
+                               if target_name else "handoff target is built at run time"),
+                    "evidence": [{"file": rel, "line": getattr(element, "lineno",
+                                                               record["line"])}]})
+                continue
+            edges.append(_edge(source, nodes[_node_for(rel, target)["id"]], "handoff", rel,
+                               getattr(element, "lineno", record["line"])))
+
+    _team_edges(parsed, nodes, edges, unresolved)
+
     for crew in parsed["crews"]:
         members = []
         for element in getattr(_kwarg(crew, "agents"), "elts", []) or []:
@@ -342,6 +458,65 @@ def _python_edges(parsed):
                 if other["id"] != member["id"]:
                     edges.append(_edge(member, other, "crew-delegation", rel, crew.lineno))
     return list(nodes.values()), edges, unresolved
+
+
+def _team_members(parsed, call, supervisors):
+    """Member nodes of a team call, and the elements that could not be resolved."""
+    value = call.args[0] if call.args else (_kwarg(call, "participants")
+                                            or _kwarg(call, "agents"))
+    members, missing = [], []
+    for element in getattr(value, "elts", None) or []:
+        name = _ref_name(element)
+        if name in parsed["agents"]:
+            members.append(_node_for(parsed["rel"], parsed["agents"][name]))
+        elif name in supervisors:
+            members.append(supervisors[name])
+        else:
+            missing.append((name, element))
+    if value is not None and not isinstance(value, (ast.List, ast.Tuple)):
+        missing.append((None, value))
+    return members, missing
+
+
+def _team_edges(parsed, nodes, edges, unresolved):
+    """LangGraph supervisors and AutoGen teams (v2.14): manager -> each member."""
+    rel, roles = parsed["rel"], parsed["roles"]
+    managers = {}  # 0.2 GroupChat binding -> manager name
+    for call, binding in parsed["teams"]:
+        if roles.get(_call_name(call)) == "group-chat-manager":
+            chat = _ref_name(_kwarg(call, "groupchat"))
+            if chat:
+                managers[chat] = _literal_str(_kwarg(call, "name")) or binding or "chat_manager"
+    supervisors = {}  # binding -> supervisor node (a compiled supervisor can be a member)
+    for call, binding in parsed["teams"]:
+        role = roles.get(_call_name(call))
+        if role in ("swarm", "group-chat-manager"):
+            continue
+        if role == "supervisor":
+            framework, kind = "langgraph", "supervisor"
+            name = _literal_str(_kwarg(call, "supervisor_name")) or "supervisor"
+            authority = _tool_names(_kwarg(call, "tools"), parsed["handoff_tools"])
+        else:
+            framework, kind, authority = "autogen", "group-chat-manager", []
+            name = (managers.get(binding, "chat_manager") if role == "group-chat"
+                    else binding or _call_name(call))
+        manager = {"id": f"{framework}:{rel}:{name}", "framework": framework, "kind": kind,
+                   "name": name, "source_file": rel, "line": call.lineno,
+                   "authority": authority, "authority_basis": "tool-name", "inherits": False}
+        manager = nodes.setdefault(manager["id"], manager)
+        if binding and role == "supervisor":
+            supervisors[binding] = manager
+        members, missing = _team_members(parsed, call, supervisors)
+        for member in members:
+            member = nodes.setdefault(member["id"], member)
+            if member["id"] != manager["id"]:
+                edges.append(_edge(manager, member, kind, rel, call.lineno))
+        for name_or_none, element in missing:
+            unresolved.append({
+                "from": manager["id"], "target": name_or_none or "members",
+                "reason": ("team member is not an agent bound in this file" if name_or_none
+                           else "team members are built at run time"),
+                "evidence": [{"file": rel, "line": getattr(element, "lineno", call.lineno)}]})
 
 
 def _edge(source, target, kind, rel, line):

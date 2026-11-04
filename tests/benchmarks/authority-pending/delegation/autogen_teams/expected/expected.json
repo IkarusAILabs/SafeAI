@@ -1,0 +1,57 @@
+{
+ "case": "delegation/autogen_teams",
+ "notes": "triage and refunds hand off to each other by name inside a Swarm (the Swarm adds no edge of its own); triage's Handoff(target='user') returns control to the user and names no agent, so it is unresolved. The RoundRobinGroupChat bound to review is a manager over writer and critic. In the 0.2 file the GroupChatManager named lead runs the coder/tester group chat.",
+ "delegation_edges": [
+  {
+   "from": "autogen:triage",
+   "to": "autogen:refunds",
+   "exceeds": [
+    "issue_refund"
+   ]
+  },
+  {
+   "from": "autogen:refunds",
+   "to": "autogen:triage",
+   "exceeds": [
+    "lookup_order"
+   ]
+  },
+  {
+   "from": "autogen:review",
+   "to": "autogen:writer",
+   "exceeds": []
+  },
+  {
+   "from": "autogen:review",
+   "to": "autogen:critic",
+   "exceeds": [
+    "lookup_order"
+   ]
+  },
+  {
+   "from": "autogen:lead",
+   "to": "autogen:coder",
+   "exceeds": []
+  },
+  {
+   "from": "autogen:lead",
+   "to": "autogen:tester",
+   "exceeds": []
+  }
+ ],
+ "delegation_unresolved": 1,
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [
+  "agents lists what the LangGraph and AutoGen inventory parsers report today (they do not name these agents); the delegation graph is the subject of this case"
+ ],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.14 (plan 2.14-2) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

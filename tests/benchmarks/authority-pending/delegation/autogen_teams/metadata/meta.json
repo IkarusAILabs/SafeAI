@@ -1,0 +1,6 @@
+{
+ "case": "delegation/autogen_teams",
+ "category": "delegation",
+ "description": "AutoGen AgentChat handoffs and teams, plus an AutoGen 0.2 group chat.",
+ "version": "v2.14"
+}
