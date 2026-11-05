@@ -656,7 +656,11 @@ class ScanOrchestrator:
         # Static delegation graph (v2.10, B2): which agent can hand work to
         # which. Lane B; feeds Separation of Duties and the delegation change
         # types in the capability diff.
-        from safeai.analysis.delegation import build_delegation_graph, empty_graph
+        from safeai.analysis.delegation import (
+            attach_tool_capabilities,
+            build_delegation_graph,
+            empty_graph,
+        )
         from safeai.analysis.sod import (
             SodCatalogueError,
             analyze_separation_of_duties,
@@ -668,6 +672,13 @@ class ScanOrchestrator:
                 self.directory, self.excluded_paths)
         except Exception:
             self.report["delegation_graph"] = empty_graph()
+        # v2.15: capabilities detected inside tool functions refine `exceeds`.
+        try:
+            attach_tool_capabilities(self.report["delegation_graph"], self.findings,
+                                     self.directory)
+        except Exception:
+            for node in self.report["delegation_graph"].get("nodes") or []:
+                node.pop("tool_ranges", None)
         # Separation of Duties (v2.10, B2): one holder able to do both halves
         # of a conflicting pair. Review-only findings (Lane B).
         # v2.14: plus the organisation's own pairs from .safeai/config.yml. A

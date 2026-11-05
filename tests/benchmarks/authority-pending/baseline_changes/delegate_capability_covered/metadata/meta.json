@@ -1,0 +1,6 @@
+{
+ "case": "baseline_changes/delegate_capability_covered",
+ "category": "baseline_changes",
+ "description": "triage gains a handoff to worker; one of worker's tools only does what triage can already do.",
+ "version": "v2.15"
+}
