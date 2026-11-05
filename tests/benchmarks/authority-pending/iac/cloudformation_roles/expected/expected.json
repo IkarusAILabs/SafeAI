@@ -1,0 +1,71 @@
+{
+ "case": "iac/cloudformation_roles",
+ "notes": "agent-role's inline policy allows s3:GetObject and s3:PutObject on a !Sub resource (unresolved, never evaluated); its Deny statement is not a grant; ReadOnlyAccess is a managed-policy binding, not a grant. WorkerRole has no RoleName, so its logical ID names it; WorkerPolicy attaches through !Ref. notifier.json is the JSON form: sns:Publish on a Ref resource.",
+ "identities": [
+  {
+   "kind": "aws_iam_role",
+   "name": "agent-role",
+   "namespace": ""
+  },
+  {
+   "kind": "aws_iam_role",
+   "name": "WorkerRole",
+   "namespace": ""
+  },
+  {
+   "kind": "aws_iam_role",
+   "name": "notifier-role",
+   "namespace": ""
+  }
+ ],
+ "grants": [
+  {
+   "identity": "agent-role",
+   "actions": [
+    "s3:GetObject",
+    "s3:PutObject"
+   ],
+   "resources": [],
+   "resolution": "resolved"
+  },
+  {
+   "identity": "WorkerRole",
+   "actions": [
+    "sqs:SendMessage"
+   ],
+   "resources": []
+  },
+  {
+   "identity": "WorkerRole",
+   "actions": [
+    "logs:CreateLogStream",
+    "logs:PutLogEvents"
+   ],
+   "resources": [
+    "*"
+   ]
+  },
+  {
+   "identity": "notifier-role",
+   "actions": [
+    "sns:Publish"
+   ],
+   "resources": []
+  }
+ ],
+ "evidence_refs": [
+  "template.yaml",
+  "notifier.json"
+ ],
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.16 (plan 2.16-1) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

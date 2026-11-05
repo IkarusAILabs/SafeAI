@@ -1,0 +1,45 @@
+{
+ "case": "iac/helm_rbac_templates",
+ "notes": "The ServiceAccount, Role and RoleBinding are named by template expressions; the same expression on both sides of the binding meets, as it would when rendered. configmaps get/list is literal; the second rule's resources come from values (toJson), so they are unresolved. The if block is not evaluated: the rules are reported as if rbac.create were true.",
+ "identities": [
+  {
+   "kind": "kubernetes_service_account",
+   "name": "{{ include \"agent.serviceAccountName\" . }}",
+   "namespace": "{{ .Release.Namespace }}"
+  }
+ ],
+ "grants": [
+  {
+   "identity": "{{ include \"agent.serviceAccountName\" . }}",
+   "actions": [
+    "get",
+    "list"
+   ],
+   "resources": [
+    "configmaps"
+   ],
+   "resolution": "resolved"
+  },
+  {
+   "identity": "{{ include \"agent.serviceAccountName\" . }}",
+   "actions": [
+    "get"
+   ],
+   "resources": []
+  }
+ ],
+ "evidence_refs": [
+  "rbac.yaml"
+ ],
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.16 (plan 2.16-3) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

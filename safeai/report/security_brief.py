@@ -404,7 +404,9 @@ def build_coverage(report):
     iac = report.get("iac_correlations") or {}
     if isinstance(iac, dict):
         files = iac.get("files") or {}
-        inspected = sorted(set(files.get("terraform") or []) | set(files.get("kubernetes_rbac") or []))
+        inspected = sorted({rel for key in ("terraform", "kubernetes_rbac", "cloudformation",
+                                            "serverless", "helm")
+                            for rel in files.get(key) or []})
         if inspected or (iac.get("grants") or iac.get("verdicts")):
             lines.append(f"IaC files inspected: {len(inspected)}")
         unparsed = sorted(set(files.get("unparsed") or []))

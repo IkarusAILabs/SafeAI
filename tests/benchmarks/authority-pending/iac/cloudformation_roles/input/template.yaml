@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Agent roles
+Resources:
+  AgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: agent-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Policies:
+        - PolicyName: agent-inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ["s3:GetObject", "s3:PutObject"]
+                Resource: !Sub "arn:aws:s3:::${Bucket}/*"
+              - Effect: Deny
+                Action: s3:DeleteObject
+                Resource: "*"
+  WorkerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+  WorkerPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: worker
+      Roles: [!Ref WorkerRole]
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !GetAtt Queue.Arn
+          - Effect: Allow
+            Action: ["logs:CreateLogStream", "logs:PutLogEvents"]
+            Resource: "*"
+  Bucket:
+    Type: AWS::S3::Bucket
+  Queue:
+    Type: AWS::SQS::Queue

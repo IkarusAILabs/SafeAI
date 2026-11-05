@@ -1,0 +1,6 @@
+{
+ "case": "iac/helm_rbac_templates",
+ "category": "iac",
+ "description": "Helm chart template with templated RBAC names inside an if block.",
+ "version": "v2.16"
+}

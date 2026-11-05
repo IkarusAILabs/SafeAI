@@ -1,0 +1,57 @@
+{
+ "case": "iac/serverless_roles",
+ "notes": "The provider role (default name orders-lambdaRole) may read and write the orders table, whose ARN contains ${aws:region}, and publish to a topic given by ${self:custom.topicArn}; both resources stay unresolved. The refund function's own role reads payments secrets (a literal wildcard pattern).",
+ "identities": [
+  {
+   "kind": "aws_iam_role",
+   "name": "orders-lambdaRole",
+   "namespace": ""
+  },
+  {
+   "kind": "aws_iam_role",
+   "name": "orders-refund-lambdaRole",
+   "namespace": ""
+  }
+ ],
+ "grants": [
+  {
+   "identity": "orders-lambdaRole",
+   "actions": [
+    "dynamodb:GetItem",
+    "dynamodb:PutItem"
+   ],
+   "resources": []
+  },
+  {
+   "identity": "orders-lambdaRole",
+   "actions": [
+    "sns:Publish"
+   ],
+   "resources": []
+  },
+  {
+   "identity": "orders-refund-lambdaRole",
+   "actions": [
+    "secretsmanager:GetSecretValue"
+   ],
+   "resources": [
+    "arn:aws:secretsmanager:us-east-1:123456789012:secret:payments-*"
+   ],
+   "resolution": "resolved"
+  }
+ ],
+ "evidence_refs": [
+  "serverless.yml"
+ ],
+ "agents": [],
+ "must_fire": [],
+ "must_not_fire": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.16 (plan 2.16-2) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

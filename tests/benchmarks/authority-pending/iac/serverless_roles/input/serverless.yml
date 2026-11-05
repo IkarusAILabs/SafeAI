@@ -1,0 +1,26 @@
+service: orders
+provider:
+  name: aws
+  runtime: python3.12
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+          Resource: arn:aws:dynamodb:${aws:region}:*:table/orders
+        - Effect: Allow
+          Action: sns:Publish
+          Resource: ${self:custom.topicArn}
+functions:
+  lookup:
+    handler: handler.lookup
+  refund:
+    handler: handler.refund
+    iamRoleStatements:
+      - Effect: Allow
+        Action: secretsmanager:GetSecretValue
+        Resource: arn:aws:secretsmanager:us-east-1:123456789012:secret:payments-*
+custom:
+  topicArn: arn:aws:sns:us-east-1:123456789012:orders
