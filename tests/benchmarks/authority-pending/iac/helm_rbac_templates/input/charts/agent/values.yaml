@@ -1,0 +1,3 @@
+rbac:
+  create: true
+extraResources: ["secrets"]

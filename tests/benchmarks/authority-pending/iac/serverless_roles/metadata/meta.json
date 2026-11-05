@@ -1,0 +1,6 @@
+{
+ "case": "iac/serverless_roles",
+ "category": "iac",
+ "description": "Serverless Framework provider role and a per-function role.",
+ "version": "v2.16"
+}

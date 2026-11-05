@@ -1,7 +1,9 @@
 """IaC authority evidence collectors (v2.5 redesign).
 
 Walks the scan root for Terraform (``*.tf``) and Kubernetes YAML files,
-extracts Identities, Grants, GrantBindings, and workload references,
+and (v2.16) CloudFormation templates, Serverless Framework files and Helm
+chart templates; extracts Identities, Grants, GrantBindings, and workload
+references,
 then resolves Agent→Identity links from explicit evidence (see
 ``safeai.iac.linking``). Self-contained: never touches the analyzer
 file cache, never executes anything, never leaves the repo.
@@ -13,9 +15,13 @@ only, per-field resolution states. Unparseable files are recorded in
 
 import os
 
+from safeai.iac.cloudformation import parse_cloudformation
+from safeai.iac.helm import parse_helm_template
 from safeai.iac.k8s import parse_k8s_file
 from safeai.iac.linking import resolve_links
 from safeai.iac.model import identity_key
+from safeai.iac.serverless import FILENAMES as SERVERLESS_FILENAMES
+from safeai.iac.serverless import parse_serverless
 from safeai.iac.spiffe import (
     collect_file,
     empty_collection,
@@ -29,6 +35,8 @@ _MAX_IAC_BYTES = 1024 * 1024
 
 #: YAML extensions sniffed for RBAC kinds.
 _YAML_EXTS = (".yaml", ".yml")
+#: JSON extensions sniffed for CloudFormation templates (v2.16).
+_JSON_EXTS = (".json", ".template")
 
 
 def _is_within_root(root, path):
@@ -78,6 +86,39 @@ def collect_iac_files(root, excluded_paths=None):
     return tf_files, yaml_files
 
 
+def collect_more_iac_files(root, excluded_paths=None):
+    """``(json_files, chart_dirs)``: JSON candidates and Helm chart roots (v2.16)."""
+    json_files, chart_dirs = [], []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        dirnames[:] = sorted(d for d in dirnames if d not in (".git", "node_modules"))
+        try:
+            rel_dir = os.path.relpath(dirpath, root).replace("\\", "/")
+        except ValueError:
+            continue
+        rel_dir = "" if rel_dir == "." else rel_dir
+        if _excluded(rel_dir, excluded_paths) and rel_dir:
+            dirnames[:] = []
+            continue
+        if "Chart.yaml" in filenames:
+            chart_dirs.append(rel_dir)
+        for filename in sorted(filenames):
+            if filename.lower().endswith(_JSON_EXTS):
+                rel = f"{rel_dir}/{filename}" if rel_dir else filename
+                if not _excluded(rel, excluded_paths) and _is_within_root(
+                        root, os.path.join(dirpath, filename)):
+                    json_files.append(rel)
+    return json_files, chart_dirs
+
+
+def _in_chart_templates(rel, chart_dirs):
+    return any(rel.startswith(f"{chart}/templates/" if chart else "templates/")
+               for chart in chart_dirs)
+
+
+def _looks_like_cloudformation(text):
+    return "AWS::" in text and ("Resources" in text or "AWSTemplateFormatVersion" in text)
+
+
 def _read_capped(root, rel_path):
     """Read a file with size cap; return ``None`` when unreadable/huge."""
     full = os.path.join(root, rel_path)
@@ -103,11 +144,12 @@ def scan_iac(root, excluded_paths=None):
     metadata. Never raises; deterministic ordering.
     """
     identities, grants, bindings, workloads = [], [], [], []
-    meta = {"files": {"terraform": [], "kubernetes_rbac": [],
-                      "unparsed": []},
+    meta = {"files": {"terraform": [], "kubernetes_rbac": [], "cloudformation": [],
+                      "serverless": [], "helm": [], "unparsed": []},
             "has_modules": False}
     try:
         tf_files, yaml_files = collect_iac_files(root, excluded_paths)
+        json_files, chart_dirs = collect_more_iac_files(root, excluded_paths)
     except Exception:
         return empty_graph(), meta
     meta["files"]["terraform"] = tf_files
@@ -136,19 +178,60 @@ def scan_iac(root, excluded_paths=None):
                 identities.append(ident)
         grants.extend(file_grants)
         bindings.extend(file_bindings)
+    def add(file_idents, file_grants, file_bindings):
+        for ident in file_idents:
+            key = identity_key(ident)
+            if key not in seen_identities:
+                seen_identities.add(key)
+                identities.append(ident)
+        grants.extend(file_grants)
+        bindings.extend(file_bindings)
+
+    # v2.16: CloudFormation (YAML or JSON) and Serverless Framework files.
+    for rel in yaml_files + json_files:
+        text = _read_capped(root, rel)
+        name = rel.rsplit("/", 1)[-1].lower()
+        if text is None:
+            continue
+        try:
+            if name in SERVERLESS_FILENAMES:
+                file_idents, file_grants, file_bindings, file_meta = parse_serverless(rel, text)
+                if file_meta.get("unparsed"):
+                    meta["files"]["unparsed"].append(rel)
+                elif file_idents or file_grants or file_bindings:
+                    meta["files"]["serverless"].append(rel)
+                add(file_idents, file_grants, file_bindings)
+            elif _looks_like_cloudformation(text):
+                file_idents, file_grants, file_bindings, file_meta = (
+                    parse_cloudformation(rel, text))
+                if file_meta.get("template"):
+                    meta["files"]["cloudformation"].append(rel)
+                add(file_idents, file_grants, file_bindings)
+        except Exception:
+            meta["files"]["unparsed"].append(rel)
+    handled = set(meta["files"]["cloudformation"]) | set(meta["files"]["serverless"])
     for rel in yaml_files:
+        if rel in handled or rel.rsplit("/", 1)[-1].lower() in SERVERLESS_FILENAMES:
+            continue
         text = _read_capped(root, rel)
         if text is None:
             continue
-        collect_file(spiffe_docs, rel, text)
+        helm = _in_chart_templates(rel, chart_dirs)
+        if not helm:
+            collect_file(spiffe_docs, rel, text)
         try:
             (file_idents, file_grants, file_bindings, file_workloads,
-             file_meta) = parse_k8s_file(rel, text)
+             file_meta) = (parse_helm_template if helm else parse_k8s_file)(rel, text)
         except Exception:
             meta["files"]["unparsed"].append(rel)
             continue
         if file_meta.get("unparsed"):
             meta["files"]["unparsed"].append(rel)
+            continue
+        if helm and (file_idents or file_grants or file_bindings or file_workloads):
+            meta["files"]["helm"].append(rel)
+            add(file_idents, file_grants, file_bindings)
+            workloads.extend(file_workloads)
             continue
         if file_idents or file_grants or file_bindings or file_workloads:
             meta["files"]["kubernetes_rbac"].append(rel)
