@@ -425,6 +425,9 @@ cross-plane work and are not duplicated here.
   teams join the graph; Kubernetes ServiceAccounts are SoD holders (CSR
   request + approve, `escalate` / `bind` / `impersonate`, deleting
   Events); organisations add pairs in `.safeai/config.yml`.
+  *v2.15:* `DELEGATE_EXCEEDS_DELEGATOR` uses the capabilities detected
+  inside Python tool functions where they show the delegator already
+  holds the authority; tool names decide otherwise.
 - **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM; experimental prototype in v2.12).**
   Shape the Agent Authority Attestation as a signed in-toto-style
   predicate; map fields to Blueprint agent governance metadata and
@@ -549,7 +552,7 @@ concrete static evidence source.
   env values with credential names), which ties the credential to the
   workload rather than only to the repository.
 - **S4 — Identity in the manifest and attestation (P4, RESEARCH
-  ITEM; field shipped in v2.12).** Add the agent's SPIFFE / WIMSE identifier as an evidence
+  ITEM; field shipped in v2.12; workload links in v2.15).** Add the agent's SPIFFE / WIMSE identifier as an evidence
   field with provenance (`declared` | `repo-iac-observed`;
   `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
   evidence). Feeds B3's re-attestation baseline.

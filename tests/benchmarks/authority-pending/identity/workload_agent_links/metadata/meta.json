@@ -1,0 +1,6 @@
+{
+ "case": "identity/workload_agent_links",
+ "category": "identity",
+ "description": "SPIFFE IDs attributed to agents through the workload that runs them: an entrypoint, an annotation, and an entrypoint matching two files.",
+ "version": "v2.15"
+}

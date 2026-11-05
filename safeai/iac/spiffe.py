@@ -44,6 +44,11 @@ from safeai.iac.model import (
 )
 
 #: Workload kinds whose pod template is read.
+#: Pod-template (or workload) annotation naming the agent a workload runs
+#: (v2.15, plan 2.15-1): its ``name`` or ``agent_id`` in the manifest.
+AGENT_ANNOTATION = "ai.safeai.dev/agent"
+_MODULE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$")
+
 _WORKLOAD_KINDS = frozenset({
     "Deployment", "StatefulSet", "DaemonSet", "Job", "CronJob",
     "Pod", "ReplicaSet", "ReplicationController",
@@ -146,6 +151,29 @@ def _credentials(pod_spec):
     return found
 
 
+def _entrypoints(pod_spec):
+    """Python files the pod's containers start, as written in ``command`` / ``args``.
+
+    ``python app/bot.py`` gives ``app/bot.py``; ``python -m app.bot`` gives
+    ``app/bot.py`` and ``app/bot/__main__.py``. Container paths are kept as
+    written (``/srv/app/bot.py``); matching to repository files is the
+    reader's job.
+    """
+    found = set()
+    for container in pod_spec.get("containers") or []:
+        if not isinstance(container, dict):
+            continue
+        tokens = [token.strip("'\"") for key in ("command", "args")
+                  for part in _str_list(container.get(key)) for token in part.split()]
+        for index, token in enumerate(tokens):
+            if token.endswith(".py") and len(token) > 3:
+                found.add(token.removeprefix("./"))
+            elif token == "-m" and index + 1 < len(tokens) and _MODULE_RE.match(tokens[index + 1]):
+                base = tokens[index + 1].replace(".", "/")
+                found.update((f"{base}.py", f"{base}/__main__.py"))
+    return sorted(found)
+
+
 def _config_from(doc):
     """A ControllerManagerConfig document, or one embedded in a ConfigMap."""
     if doc.get("kind") == "ControllerManagerConfig":
@@ -219,6 +247,10 @@ def collect_file(collection, rel_path, text):
                 "labels": _labels(pod_meta.get("labels")),
                 "annotations": _labels(pod_meta.get("annotations")),
                 "credentials": _credentials(pod_spec),
+                "agent_annotation": str(
+                    _labels(pod_meta.get("annotations")).get(AGENT_ANNOTATION)
+                    or _labels(meta.get("annotations")).get(AGENT_ANNOTATION) or ""),
+                "entrypoints": _entrypoints(pod_spec),
                 "source_file": rel_path, "line": line,
             })
         elif kind == "AuthorizationPolicy" and group == "security.istio.io":
@@ -601,13 +633,21 @@ def resolve_workload_identity(collection):
         else:
             state = "unmatched"
         states.append(state)
-        workload_states.append({
+        record = {
             "workload": ref, "service_account": workload["service_account"],
             "identity_state": state if state in (RESOLVED, PARTIALLY_RESOLVED)
             else "unknown",
             "unknown_reason": {"undecidable": "undecidable-selector",
                                "unmatched": "no-matching-registration"}.get(state, ""),
-        })
+        }
+        # v2.15: what the workload says about the agent it runs (2.15-1).
+        if workload.get("agent_annotation") or workload.get("entrypoints"):
+            record["agent_hints"] = {
+                "annotation": workload.get("agent_annotation") or "",
+                "entrypoints": list(workload.get("entrypoints") or []),
+                "evidence": [{"file": workload["source_file"], "line": workload["line"]}],
+            }
+        workload_states.append(record)
     counts = {
         "registrations": len(registrations),
         "federations": len(federations),

@@ -24,7 +24,9 @@ def run_manifest_command(args):
         return verify_manifest_file(args.file)
     if sub == "export":
         return _export(args)
-    print("Usage: safeai manifest {validate|verify|export} <file>")
+    if sub == "approve":
+        return _approve(args)
+    print("Usage: safeai manifest {validate|verify|export|approve} <file>")
     return 2
 
 
@@ -66,6 +68,38 @@ def _export(args):
     count = write_export(args.format, manifest, args.output,
                          issuer=args.ssf_issuer, audience=args.ssf_audience)
     print(f"exported: {count} {args.format} record(s) to {args.output}")
+    return 0
+
+
+def _approve(args):
+    """Write a baseline approval record bound to the manifest's integrity digest."""
+    import os
+    from datetime import UTC, datetime
+
+    from safeai.kya.baseline_approval import (
+        BaselineApprovalError,
+        build_record,
+        sidecar_path,
+        write_record,
+    )
+
+    try:
+        with open(args.file, encoding="utf-8") as fh:
+            manifest = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"error: unable to read {args.file}: {exc}")
+        return 1
+    try:
+        record = build_record(manifest, os.path.basename(args.file), args.approved_by,
+                              args.approved_at or datetime.now(UTC).date().isoformat(),
+                              args.escalation_owner, args.baseline_owner)
+    except BaselineApprovalError as exc:
+        print(f"error: {exc}")
+        return 1
+    path = args.output or sidecar_path(args.file)
+    write_record(record, path)
+    print(f"approved: {args.file} by {record['approval']['approved_by']} "
+          f"(sha256:{record['manifest']['payload_sha256']}) -> {path}")
     return 0
 
 

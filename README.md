@@ -407,6 +407,7 @@ python -m safeai registry <subcommand> [options]
 | `--digest-file` | — | With `--manifest`: write `<canonical-sha256>  <manifest-basename>` to this path. The digest is the one `safeai manifest verify` reports, not a raw file hash, so it is not `sha256sum -c` compatible |
 | `--baseline` | — | Prior manifest/report for new/existing comparison |
 | `--fail-on-new` | off | With `--baseline`: fail only on new/regressed findings |
+| `--baseline-approval` | `<baseline>.approval.json` | Approval record for the baseline manifest, written by `safeai manifest approve M --by X`; reported as `baseline_approval.state`, and `--require-approval` fails unless it is `approved` |
 | `--policy` | `.safeai/policy.yml` | Policy-as-code YAML file |
 | `--suppressions` | `.safeai/suppressions.yml` | Suppressions YAML file |
 | `--registry` | shared (`SAFEAI_REGISTRY`/`~/.safeai/registry.db`) | Registry database path |

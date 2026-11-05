@@ -26,6 +26,11 @@ exact set of `(type, workload, subject)` in
 count) and `delegation_changes` (exact set of `(type, subject)`).
 Separation-of-Duties cases use `sod_conflicts`: the exact set of
 `(holder, pair)` in `report.separation_of_duties.conflicts`.
+Workload-to-agent link cases (v2.15) use `agent_identity_links`: the
+exact set of `(agent_path, id, provenance_class, link)` for identifiers
+attributed through a workload (`agent_path` is the agent's first source
+file), and `agent_identity_states`: the expected `workload_identity.state`
+per agent source file.
 
 To run them by hand:
 

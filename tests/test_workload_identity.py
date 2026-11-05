@@ -444,7 +444,7 @@ def test_pending_identity_cases_exist():
     assert sorted(os.listdir(root)) == [
         "istio_principal_authorization", "spiffe_ambiguous_selector",
         "spiffe_federation_widening", "spiffe_template_resolution",
-        "static_credential_with_spiffe"]
+        "static_credential_with_spiffe", "workload_agent_links"]
 
 
 def test_manifest_validates_and_carries_the_identity_rate(tmp_path):
