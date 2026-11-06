@@ -4,6 +4,8 @@
 > shipped by v2.13.0 (2026-11-03). This plan turns the *Not yet* column
 > of that plan, and the *Not yet done* lists in `CHANGELOG.md`, into
 > releases. **Baseline: v2.13.0 (`main` at `f4f8baa`).**
+> **Status: all three shipped together as v2.16.0 (2026-11-06)**, at
+> the author's decision; there is no v2.14.0 or v2.15.0.
 >
 > Standing commitments are unchanged: offline, deterministic, static
 > evidence only, unknown is an evidence state, additive-only manifest
@@ -30,7 +32,7 @@
 | Signing and delivery of attestations and SETs | **Not code in CE.** Outside the Community Edition by design (single network path) |
 | Proposing the SSF event type and an OCSF extension to the standards bodies | **Not code.** Process work, tracked in ROADMAP B6 |
 
-## v2.14.0 — Change Coverage  *(B2, B4)*
+## v2.14 — Change Coverage  *(B2, B4)* — **SHIPPED in v2.16.0** (#314)
 
 | # | Item | Size |
 |---|---|---|
@@ -42,7 +44,7 @@
 export path; the 58-case digests unchanged; OCSF events of a real scan
 validate against the vendored 1.9.0 schemas.
 
-**Status.** All three items implemented on `main`, unreleased. Six new
+**Status.** All three items shipped in v2.16.0. Six new
 pending cases (three delegation, three Separation of Duties; 39 pending
 in all, every one holding); digests `ee76875d…` and `de9cb451…`
 unchanged.
@@ -53,7 +55,7 @@ unchanged.
 | 2.14-2 | `import autogen` / module-attribute calls (`autogen.AssistantAgent(...)`) and agents built in another file; LangGraph `StateGraph` edges, which route control flow rather than delegate authority |
 | 2.14-3 | Precision for the new pairs (human review); RBAC bound to users and groups rather than ServiceAccounts |
 
-## v2.15.0 — Identity & Governance Evidence  *(S4, B3, P6, B2)*
+## v2.15 — Identity & Governance Evidence  *(S4, B3, P6, B2)* — **SHIPPED in v2.16.0** (#315)
 
 | # | Item | Size |
 |---|---|---|
@@ -62,7 +64,7 @@ unchanged.
 | 2.15-3 | Baseline approval: `safeai manifest approve M --by --at [--escalation-owner]` writes `M.approval.json`, bound to the manifest's integrity digest. A scan with `--baseline M` reports the baseline's `approval_state`, and `--require-approval` also fails on an unapproved or self-approved baseline. | S |
 | 2.15-4 | Capability-level delegation: Python tool functions (`@function_tool`, `@tool`, CrewAI `BaseTool._run`) get the capabilities detected inside their bodies, and `DELEGATE_EXCEEDS_DELEGATOR` compares capabilities where both sides have them, tool names otherwise. | M |
 
-**Status.** All four items implemented, unreleased (stacked on v2.14).
+**Status.** All four items shipped in v2.16.0.
 Manifest contract 1.3.0; attestation predicate v0.2. Two new pending
 cases (`identity/workload_agent_links`,
 `baseline_changes/delegate_capability_covered`; 41 pending in all, every
@@ -75,7 +77,7 @@ one holding); the 58-case digests are unchanged.
 | 2.15-3 | Signed approval records (approval is unsigned metadata, like exception approvals) |
 | 2.15-4 | Capabilities of tools defined in another module than the agent; Claude Code and MCP delegates (their authority is already compared by rule or tool name) |
 
-## v2.16.0 — IaC Collectors  *(Layer 4)*
+## v2.16 — IaC Collectors  *(Layer 4)* — **SHIPPED in v2.16.0** (#316)
 
 | # | Item | Size |
 |---|---|---|
@@ -85,8 +87,7 @@ one holding); the 58-case digests are unchanged.
 
 **Exit criteria:** pending cases per collector; Lane B verdicts only.
 
-**Status.** All three collectors implemented, unreleased (stacked on
-v2.15). Three new pending cases (`iac/cloudformation_roles`,
+**Status.** All three collectors shipped in v2.16.0. Three new pending cases (`iac/cloudformation_roles`,
 `iac/serverless_roles`, `iac/helm_rbac_templates`; 44 pending in all,
 every one holding); the 58-case digests are unchanged.
 

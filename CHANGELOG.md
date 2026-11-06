@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-11-06
+
+Ships plans v2.14, v2.15 and v2.16 in one release; there is no 2.14.0
+or 2.15.0. Manifest contract 1.3.0 (1.2.0 and 1.3.0 together: new
+optional sections and fields only). Attestation predicate
+`v0.2-experimental`. The 58-case digests are unchanged; eleven new
+pending cases (44 in all).
+
 **Change Coverage (plan v2.14).** Every new signal is review-only
 (Lane B) and ships with pending benchmark cases; the 58-case digests are
 unchanged. Manifest contract 1.2.0 (two new optional sections).
@@ -104,6 +112,21 @@ existing IaC correlation, verdicts and Separation of Duties.
   verbs and resources are unresolved (`helm-template-value`), templated
   names are shown as the expression (`helm-templated-name`), and
   `if` / `range` are not evaluated (`helm-conditional`).
+
+### Not yet done
+
+- Precision for every new signal: the eleven new pending cases, like the
+  thirty-three before them, await human review, so all of them stay
+  review-only (Lane B).
+- JWT-SVID audience changes (the audience is chosen at run time and is
+  in no repository file); signing and delivery of attestations, SETs and
+  approval records (outside the Community Edition by design).
+- The SSF event type and an OCSF extension have not been proposed to
+  OpenID SSF or OCSF.
+- Collector limits: CloudFormation nested stacks, SAM `Transform`
+  policy templates and `Fn::If` branches; Serverless `${file(...)}`;
+  a Helm ServiceAccount in another template than its binding; delegation
+  agents and tools defined in another module.
 
 ## [2.13.0] - 2026-11-03
 

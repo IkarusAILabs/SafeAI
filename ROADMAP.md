@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.13.0 on 2026-11-03; see
+re-checked at v2.16.0 on 2026-11-06; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -738,6 +738,13 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.16.0** — Plans v2.14 to v2.16 in one release (no v2.14.0 or
+  v2.15.0): delegation and identity changes in the OCSF export,
+  LangGraph and AutoGen delegation, Kubernetes and organisation
+  Separation-of-Duties pairs, workload-to-agent identity links,
+  governance metadata in the attestation (predicate v0.2), baseline
+  approval, capability-level delegation, CloudFormation / Serverless /
+  Helm collectors; manifest contract 1.3.0.
 - **v2.13.0** — Interoperability exports, file only: OCSF 1.9.0
   events for findings and authority changes, unsigned SSF SET payloads
   for MATERIAL / HIGH_RISK changes with SafeAI's experimental event

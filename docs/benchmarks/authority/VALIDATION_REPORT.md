@@ -271,3 +271,8 @@ accuracy without coverage does not graduate.
 - v2.13.0: the OCSF and SSF exports and the repository-relative
   evidence paths leave both digests unchanged; no new rule, so no new
   cases (thirty-three pending in all).
+- v2.16.0 (plans v2.14 to v2.16): new delegation frameworks,
+  Separation-of-Duties pairs, identity links, capability-level
+  delegation and three IaC collectors leave both digests unchanged;
+  eleven new pending cases (forty-four pending in all), none reviewed
+  yet.
