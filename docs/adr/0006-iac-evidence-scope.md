@@ -10,6 +10,10 @@
   `safeai/iac/terraform.py` (brace-block scanner → Grant triples) and
   `safeai/iac/k8s.py` (RBAC YAML via PyYAML). Terraform-only plus
   Kubernetes RBAC YAML; CloudFormation/Helm/serverless deferred to v2.6.
+  *(Update v2.16: CloudFormation templates, Serverless Framework files and
+  Helm chart templates are collected, under the same rules: intrinsic
+  functions, `${...}` variables and template actions are never evaluated,
+  only noted, and they degrade the field's resolution.)*
   All IaC output is Lane B (review-only): no new gates, no exit-code
   changes. Resolution is per-field (`resolved | partially-resolved |
   unresolved`; ADR-0009): interpolation, modules, dynamic blocks, and

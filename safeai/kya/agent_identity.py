@@ -20,6 +20,24 @@ Two provenance classes are emitted, and kept apart:
   to agents, so an observed SPIFFE ID is never attached to an agent on
   its own (that would be a guess).
 
+Workload-to-agent links (v2.15, plan 2.15-1) attribute the SPIFFE IDs a
+Kubernetes workload is issued to the agent that workload runs, from two
+kinds of repository evidence only:
+
+* ``workload-annotation``: the workload's pod template (or the workload
+  itself) is annotated ``ai.safeai.dev/agent: <name or agent_id>``. That
+  is a declaration in the repository, so the identity is listed as
+  ``declared`` (evidence: the workload) and, being issued there, as
+  ``repo-iac-observed``; the state is ``corroborated``.
+* ``workload-entrypoint``: a container ``command`` / ``args`` starts the
+  Python file in which this agent, and no other, is defined. Only the
+  ``repo-iac-observed`` entry is added; nothing was declared, so the
+  state stays what the declarations make it (``unknown`` without any).
+
+Each linked identifier carries ``link: {type, workload}``. A file that
+defines several agents, or an entrypoint matching several files, links
+nothing. Name coincidence never links.
+
 ``runtime-unverified`` is reserved (``RESERVED_IDENTITY_PROVENANCE``) for
 issuance evidence supplied from outside the scan (for example a SPIRE
 server export). SafeAI never emits it; readers must accept it.
@@ -36,6 +54,7 @@ import re
 
 import yaml
 
+from safeai.iac.spiffe import AGENT_ANNOTATION
 from safeai.kya.contract import (  # noqa: F401
     IDENTITY_PROVENANCE_CLASSES,
     IDENTITY_STATES,
@@ -117,11 +136,81 @@ def _observed(workload_identity):
     return observed
 
 
-def identity_field(agent, declared, workload_identity):
+def _agent_paths(agent):
+    return {str(loc.get("path")) for loc in agent.get("source_locations") or []
+            if isinstance(loc, dict) and loc.get("path")}
+
+
+def _entrypoint_matches(entrypoint, path):
+    entry = entrypoint.replace("\\", "/").lstrip("/")
+    return entry == path or entry.endswith("/" + path)
+
+
+def workload_links(agents, workload_identity):
+    """``{agent_id: [link]}`` from workload annotations and entrypoints (2.15-1).
+
+    A link is ``{type, workload, evidence}``. Ambiguous evidence links nothing.
+    """
+    links = {}
+    by_key = {}
+    for agent in agents:
+        for key in (agent.get("name"), agent.get("agent_id")):
+            if key:
+                by_key.setdefault(key, []).append(agent)
+    for state in (workload_identity or {}).get("workloads") or []:
+        hints = state.get("agent_hints") if isinstance(state, dict) else None
+        if not hints:
+            continue
+        evidence = list(hints.get("evidence") or [])
+        if hints.get("annotation"):
+            # An annotation is the workload's own statement: when it names no
+            # single agent, nothing is linked (no fallback to the entrypoint).
+            named = by_key.get(hints["annotation"]) or []
+            if len({a.get("agent_id") for a in named}) == 1:
+                links.setdefault(named[0]["agent_id"], []).append(
+                    {"type": "workload-annotation", "workload": state["workload"],
+                     "evidence": evidence})
+            continue
+        matched = {}
+        for entrypoint in hints.get("entrypoints") or []:
+            for agent in agents:
+                for path in _agent_paths(agent):
+                    if _entrypoint_matches(entrypoint, path):
+                        matched.setdefault(path, set()).add(agent.get("agent_id"))
+        if len(matched) == 1:
+            (agent_ids,) = matched.values()
+            if len(agent_ids) == 1:
+                links.setdefault(next(iter(agent_ids)), []).append(
+                    {"type": "workload-entrypoint", "workload": state["workload"],
+                     "evidence": evidence})
+    return links
+
+
+def identity_field(agent, declared, workload_identity, links=None):
     """The ``workload_identity`` field for one agent record (see module docstring)."""
     observed = _observed(workload_identity)
     keys = {agent.get("name"), agent.get("agent_id")} - {None}
     identifiers = []
+    issued = {}
+    for assignment in (workload_identity or {}).get("assignments") or []:
+        if isinstance(assignment, dict) and assignment.get("resolution") in (
+                "resolved", "partially-resolved"):
+            issued.setdefault(assignment["workload"], []).append(assignment)
+    for link in links or []:
+        for assignment in issued.get(link["workload"]) or []:
+            spiffe_id = assignment["spiffe_id"]
+            tag = {"type": link["type"], "workload": link["workload"]}
+            if link["type"] == "workload-annotation":
+                identifiers.append({"id": spiffe_id, "scheme": "spiffe",
+                                    "provenance_class": "declared",
+                                    "evidence": list(link["evidence"]), "link": tag})
+            identifiers.append({
+                "id": spiffe_id, "scheme": "spiffe", "provenance_class": "repo-iac-observed",
+                "evidence": sorted(({"file": ref["file"], "line": int(ref.get("line") or 1)}
+                                    for ref in assignment.get("evidence") or []),
+                                   key=lambda r: (r["file"], r["line"])),
+                "workloads": [link["workload"]],
+                "registrations": [assignment["registration"]], "link": tag})
     for item in declared:
         if item["agent"] not in keys:
             continue
@@ -139,12 +228,22 @@ def identity_field(agent, declared, workload_identity):
                 "workloads": sorted({a["workload"] for a in assignments}),
                 "registrations": sorted({a["registration"] for a in assignments}),
             })
-    identifiers.sort(key=lambda i: (i["id"], i["provenance_class"]))
-    classes = {i["provenance_class"] for i in identifiers}
-    if "repo-iac-observed" in classes:
+    unique = {}
+    for item in identifiers:
+        key = (item["id"], item["provenance_class"], (item.get("link") or {}).get("workload", ""))
+        unique.setdefault(key, item)
+    identifiers = [unique[k] for k in sorted(unique)]
+    declared_ids = {i["id"] for i in identifiers if i["provenance_class"] == "declared"}
+    observed_ids = {i["id"] for i in identifiers if i["provenance_class"] == "repo-iac-observed"}
+    if declared_ids & observed_ids:
         state, reason = "corroborated", ""
-    elif classes:
+    elif declared_ids:
         state, reason = "declared", ""
+    elif any(i.get("link") for i in identifiers):
+        state = "unknown"
+        reason = ("no declared identity; the repository issues the listed SPIFFE ID(s) "
+                  "to a workload whose entrypoint is this agent's file (annotate the "
+                  f"workload with {AGENT_ANNOTATION!r} or declare the identity to confirm)")
     elif observed:
         state = "unknown"
         reason = (f"no declared identity; the repository issues {len(observed)} "
@@ -162,8 +261,23 @@ def attach_identities(agents, declared, workload_identity):
     than dropped, so a typo in the agent name is visible.
     """
     names = {key for agent in agents for key in (agent.get("name"), agent.get("agent_id"))}
+    links = workload_links(agents, workload_identity)
     for agent in agents:
-        agent["workload_identity"] = identity_field(agent, declared, workload_identity)
-    return [f"{CONFIG_PATH}: agent_identities names agent {item['agent']!r}, "
-            "which this scan did not report" for item in declared
-            if item["agent"] not in names]
+        agent["workload_identity"] = identity_field(agent, declared, workload_identity,
+                                                    links.get(agent.get("agent_id")))
+    notes = [f"{CONFIG_PATH}: agent_identities names agent {item['agent']!r}, "
+             "which this scan did not report" for item in declared
+             if item["agent"] not in names]
+    for state in (workload_identity or {}).get("workloads") or []:
+        annotation = ((state.get("agent_hints") or {}).get("annotation")
+                      if isinstance(state, dict) else "")
+        if not annotation:
+            continue
+        matches = {a.get("agent_id") for a in agents
+                   if annotation in (a.get("name"), a.get("agent_id"))}
+        if len(matches) != 1:
+            notes.append(f"{state['workload']}: {AGENT_ANNOTATION} names {annotation!r}, which "
+                         + ("matches several agents (use the agent_id)" if matches
+                            else "this scan did not report")
+                         + "; no identity linked")
+    return notes

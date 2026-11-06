@@ -1,0 +1,6 @@
+{
+ "case": "iac/cloudformation_roles",
+ "category": "iac",
+ "description": "CloudFormation roles with inline, attached and managed policies (YAML and JSON).",
+ "version": "v2.16"
+}

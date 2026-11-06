@@ -3,6 +3,80 @@
 > Releases v2.1–v2.6 are documented in `CHANGELOG.md` and on the
 > GitHub Releases page.
 
+## v2.16.0 (2026-11-06)
+
+**Change Coverage, Identity & Governance Evidence, IaC Collectors.** One
+release for plans v2.14 to v2.16; there is no v2.14.0 or v2.15.0. Every
+new signal is review-only (Lane B): it is reported for review and never
+fails a gate until its precision is published.
+
+### What's New
+
+- **More in the OCSF export.** Delegation and workload-identity changes
+  are IAM Analysis Findings (`severity_id` 0: SafeAI gives them no
+  severity). The manifest now keeps those change blocks.
+- **LangGraph and AutoGen delegation.** Supervisors (nested ones too),
+  swarm handoff tools, AutoGen handoffs and teams, and 0.2 group chats
+  join the delegation graph; the delegation change types and Separation
+  of Duties apply to them.
+- **Separation of Duties for Kubernetes, and your own pairs.**
+  ServiceAccounts that can create and approve certificate requests,
+  `escalate` / `bind` Roles, `impersonate`, or act and delete Events are
+  reported. Declare organisation pairs in `.safeai/config.yml`:
+
+  ```yaml
+  separation_of_duties:
+    pairs:
+      - id: ORG-DEPLOY-APPROVE
+        title: deploy a release and approve it
+        first: ["deploy_*"]
+        second: ["approve_release"]
+  ```
+- **Agent identity through its workload.** Annotate the pod template with
+  `ai.safeai.dev/agent: <name or agent_id>`, or let the container
+  entrypoint name the agent's file, and the SPIFFE ID the workload is
+  issued is attributed to that agent.
+- **Governance metadata in the attestation.** `agent_governance` in
+  `.safeai/config.yml` (owner, lifecycle, purpose, CIMD `client_id`) is
+  restated in the attestation, with the client metadata document when
+  the repository holds it (never fetched).
+- **Baseline approval.** `safeai manifest approve baseline.json --by
+  security-lead@example.org --owner dev@example.org` records who approved
+  the baseline; `--require-approval` now also fails on an unapproved,
+  self-approved or changed baseline.
+- **Capability-level delegation.** A delegate's tool no longer counts as
+  exceeding its delegator when everything detected inside it is
+  something the delegator can already do.
+- **CloudFormation, Serverless Framework and Helm.** IAM roles and
+  policies from CloudFormation templates and `serverless.yml`, and RBAC
+  from Helm chart templates, read without evaluating intrinsics,
+  variables or template actions.
+
+### Upgrade notes
+
+- No breaking changes. Manifest contract **1.3.0** (schema
+  `v1.3.0.json`); readers of 1.0 to 1.1 are unaffected, and no value
+  domain changed. Fingerprints, agent IDs and tool keys are unchanged.
+- The attestation predicate type is now `agent-authority-v0.2-experimental`;
+  `manifest verify --attestation` still accepts v0.1 Statements.
+- `--require-approval` with `--baseline` now needs an approved baseline:
+  run `safeai manifest approve` once per baseline, or expect the scan to
+  fail.
+- A CloudFormation YAML file with `!Ref` tags was listed as unparsed IaC;
+  it is now read, so IaC counts and correlation verdicts can change for
+  repositories that hold such templates.
+- The 58-case authority benchmark holds with unchanged digests
+  (`ee76875d…`, `de9cb451…`); the 44 pending cases hold.
+
+### Links
+
+- [Changelog](../../CHANGELOG.md#2160---2026-11-06)
+- [Implementation plan v2.14–v2.16](../releases/IMPLEMENTATION_PLAN_V2_14_TO_V2_16.md)
+- [Attestation predicate v0.2 (experimental)](../attestation/agent-authority-v0.2-experimental.md)
+- [OCSF mapping](../exports/OCSF.md)
+
+---
+
 ## v2.13.0 (2026-11-03)
 
 **Interoperability Exports.** A scan's findings and authority changes

@@ -30,9 +30,14 @@ and literal source structure only. Three sources have explicit edges:
 Agents and tools are matched by the names bound in the same file. A
 handoff target that is not a literal reference (a factory call, a
 variable built at run time) is recorded as ``unresolved``, never
-guessed. Authority for OpenAI and CrewAI agents is compared by tool
-*name*: capability detection in Python source is not yet attributed to
-tool functions, so the tool is the finest grain available.
+guessed. Authority for Python agents is compared by tool *name*
+(``exceeds``). Since v2.15 (plan 2.15-4) a tool defined in the same file
+(a function, or a class such as a CrewAI ``BaseTool``) also gets the
+capabilities detected inside its body (``tool_capabilities``), and a
+delegate's tool stops counting as exceeding its delegator when every
+capability detected in it is one the delegator's tools already hold
+(``exceeds_capability_check``). A tool with no detected capability is
+not known to be harmless, so it keeps counting.
 """
 
 import ast
@@ -305,6 +310,11 @@ def _python_file(rel, text):
     agents = {}  # binding -> agent record
     crews = []
     teams = []  # (call, binding)
+    # v2.15: line ranges of functions and classes defined in this file, so a
+    # tool's capabilities can be read from detections inside its body.
+    ranges = {node.name: [node.lineno, getattr(node, "end_lineno", node.lineno)]
+              for node in tree.body
+              if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
 
     def agent_record(call, binding):
         framework = agent_names[_call_name(call)]
@@ -349,6 +359,7 @@ def _python_file(rel, text):
     teams.sort(key=lambda item: (item[0].lineno, item[0].col_offset))
 
     return {"rel": rel, "agents": agents, "crews": crews, "teams": teams, "roles": roles,
+            "ranges": ranges,
             "agent_names": agent_names, "handoff_names": handoff_names,
             "handoff_tools": handoff_tools, "record": agent_record}
 
@@ -368,6 +379,9 @@ def _python_edges(parsed):
     for record in parsed["agents"].values():
         node = _node_for(rel, record)
         nodes[node["id"]] = node
+    for node in nodes.values():
+        node["tool_ranges"] = {t: parsed["ranges"][t] for t in node["authority"]
+                               if t in parsed["ranges"]}
 
     def resolve(element, source):
         """Node for one handoff element, or None (recorded as unresolved)."""
@@ -426,6 +440,9 @@ def _python_edges(parsed):
                                getattr(element, "lineno", record["line"])))
 
     _team_edges(parsed, nodes, edges, unresolved)
+    for node in nodes.values():
+        node.setdefault("tool_ranges", {t: parsed["ranges"][t] for t in node["authority"]
+                                        if t in parsed["ranges"]})
 
     for crew in parsed["crews"]:
         members = []
@@ -524,6 +541,66 @@ def _edge(source, target, kind, rel, line):
     return {"from": source["id"], "to": target["id"], "framework": source["framework"],
             "kind": kind, "evidence": [{"file": rel, "line": int(line or 1)}],
             "exceeds": exceeds, "exceeds_note": ""}
+
+
+# --- capabilities of tool functions (v2.15, plan 2.15-4) ------------------------
+
+def _rel(path, root):
+    text = str(path or "").replace("\\", "/")
+    if root and os.path.isabs(str(path or "")):
+        try:
+            text = os.path.relpath(str(path), root).replace("\\", "/")
+        except ValueError:
+            return text
+    return text.removeprefix("./")
+
+
+def attach_tool_capabilities(graph, findings, root=None):
+    """Give Python agents' tools the capabilities detected in their bodies.
+
+    ``findings`` are the scan's findings; each ``CAP_<name>`` finding inside a
+    tool's line range adds ``<name>``. Sets ``tool_capabilities`` on nodes and
+    ``exceeds_capability_check`` on edges whose ``exceeds`` it can refine.
+    Never raises; a graph without ranges is left as it is.
+    """
+    by_file = {}
+    for finding in findings or []:
+        rule = str(finding.get("rule_id") or "")
+        if rule.startswith("CAP_") and finding.get("file"):
+            by_file.setdefault(_rel(finding["file"], root), []).append(
+                (int(finding.get("line") or 0), rule[4:]))
+    nodes = {n["id"]: n for n in graph.get("nodes") or []}
+    for node in nodes.values():
+        ranges = node.pop("tool_ranges", None)
+        if ranges is None:
+            continue
+        hits = by_file.get(node.get("source_file") or "", [])
+        node["tool_capabilities"] = {
+            tool: sorted({cap for line, cap in hits if start <= line <= end})
+            for tool, (start, end) in sorted(ranges.items())}
+    for edge in graph.get("edges") or []:
+        source, target = nodes.get(edge["from"]), nodes.get(edge["to"])
+        if not edge.get("exceeds") or source is None or target is None \
+                or "tool_capabilities" not in target:
+            continue
+        held = {cap for caps in (source.get("tool_capabilities") or {}).values() for cap in caps}
+        covered, gained = [], set()
+        for tool in edge["exceeds"]:
+            caps = set((target["tool_capabilities"] or {}).get(tool) or [])
+            if caps and caps <= held:
+                covered.append(tool)
+            gained |= caps - held
+        edge["exceeds_capability_check"] = {"covered": sorted(covered),
+                                            "capabilities_gained": sorted(gained)}
+    graph.setdefault("counts", {})["edges_exceeding_delegator"] = sum(
+        1 for e in graph.get("edges") or [] if _effective_exceeds(e))
+    return graph
+
+
+def _effective_exceeds(edge):
+    """Tools of the delegate its delegator does not hold, after the capability check."""
+    covered = set((edge.get("exceeds_capability_check") or {}).get("covered") or [])
+    return [tool for tool in edge.get("exceeds") or [] if tool not in covered]
 
 
 # --- graph metrics ---------------------------------------------------------------
@@ -640,10 +717,17 @@ def _views(graph):
         key = (_label(by_id[edge["from"]]), _label(by_id[edge["to"]]))
         edges[key] = edge
         breadth[key[0]] = breadth.get(key[0], 0) + 1
-        for tool in edge.get("exceeds") or []:
+        for tool in _effective_exceeds(edge):
             exceeds.add((key[0], key[1], tool))
     subagents = {_label(n): n for n in by_id.values() if n.get("kind") == "subagent"}
     return edges, exceeds, breadth, subagents
+
+
+def _node_caps(graph, node_id):
+    for node in graph.get("nodes") or []:
+        if node.get("id") == node_id:
+            return node.get("tool_capabilities")
+    return None
 
 
 def _delegation_change(change_type, subject, detail, evidence=None):
@@ -679,10 +763,14 @@ def compute_delegation_changes(current_report, baseline_report):
             "DELEGATION_DEPTH_INCREASED", "max_depth",
             f"longest delegation chain is {new_depth} hops (was {old_depth})"))
     for delegator, delegate, tool in sorted(new_exceeds - old_exceeds):
+        edge = new_edges[(delegator, delegate)]
+        caps = (_node_caps(after, edge["to"]) or {}).get(tool)
+        detail = f"{delegate} holds {tool}, which {delegator} does not"
+        if caps:
+            detail += f" (capabilities: {', '.join(caps)})"
         changes.append(_delegation_change(
-            "DELEGATE_EXCEEDS_DELEGATOR", f"{delegator} -> {delegate}: {tool}",
-            f"{delegate} holds {tool}, which {delegator} does not",
-            new_edges[(delegator, delegate)].get("evidence")))
+            "DELEGATE_EXCEEDS_DELEGATOR", f"{delegator} -> {delegate}: {tool}", detail,
+            edge.get("evidence")))
     for label in sorted(set(new_subs) & set(old_subs)):
         old, new = old_subs[label], new_subs[label]
         if old.get("inherits"):

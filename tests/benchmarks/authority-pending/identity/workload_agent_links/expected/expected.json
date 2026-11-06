@@ -1,0 +1,47 @@
+{
+ "case": "identity/workload_agent_links",
+ "notes": "support's container runs /srv/app/agents/support.py, the only file defining that agent, so the support workload's SPIFFE ID is repo-iac-observed for it; nothing is declared, so its state stays unknown. The billing workload is annotated ai.safeai.dev/agent with billing's agent_id (fixed by project_id), a repository declaration, so the ID is declared and observed: corroborated. The router container runs /srv/main.py, which matches both main.py and srv/main.py; ambiguous, so neither agent is linked.",
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "agent_identity_links": [
+  {
+   "agent_path": "agents/support.py",
+   "id": "spiffe://example.org/ns/agents/sa/support",
+   "provenance_class": "repo-iac-observed",
+   "link": "workload-entrypoint"
+  },
+  {
+   "agent_path": "agents/billing.py",
+   "id": "spiffe://example.org/ns/agents/sa/billing",
+   "provenance_class": "declared",
+   "link": "workload-annotation"
+  },
+  {
+   "agent_path": "agents/billing.py",
+   "id": "spiffe://example.org/ns/agents/sa/billing",
+   "provenance_class": "repo-iac-observed",
+   "link": "workload-annotation"
+  }
+ ],
+ "agent_identity_states": {
+  "agents/support.py": "unknown",
+  "agents/billing.py": "corroborated",
+  "main.py": "unknown",
+  "srv/main.py": "unknown"
+ },
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.15 (plan 2.15-1) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

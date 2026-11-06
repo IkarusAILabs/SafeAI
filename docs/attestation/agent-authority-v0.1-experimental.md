@@ -1,5 +1,9 @@
 # Agent Authority Attestation — predicate v0.1 (experimental)
 
+> **Superseded by [v0.2](agent-authority-v0.2-experimental.md)** (SafeAI
+> 2.15). This page stays because its URL is the v0.1 predicate type;
+> `manifest verify --attestation` still accepts v0.1 Statements.
+
 > **Experimental.** No schema-stability promise: any field may change in
 > any release until the predicate is published as stable. The predicate
 > carries `"experimental": true` and `"schema_stability": "none"`.

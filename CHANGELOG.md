@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-11-06
+
+Ships plans v2.14, v2.15 and v2.16 in one release; there is no 2.14.0
+or 2.15.0. Manifest contract 1.3.0 (1.2.0 and 1.3.0 together: new
+optional sections and fields only). Attestation predicate
+`v0.2-experimental`. The 58-case digests are unchanged; eleven new
+pending cases (44 in all).
+
 **Change Coverage (plan v2.14).** Every new signal is review-only
 (Lane B) and ships with pending benchmark cases; the 58-case digests are
 unchanged. Manifest contract 1.2.0 (two new optional sections).
@@ -44,6 +52,81 @@ unchanged. Manifest contract 1.2.0 (two new optional sections).
   reported in `separation_of_duties.notes`.
 - Implementation plan v2.14–v2.16
   (`docs/releases/IMPLEMENTATION_PLAN_V2_14_TO_V2_16.md`).
+
+**Identity & Governance Evidence (plan v2.15).** Manifest contract 1.3.0
+(one new optional section, two new optional fields; no value domain
+changes). The attestation predicate moves to `v0.2-experimental`.
+
+- Workload-to-agent identity links (plan 2.15-1; ROADMAP S4). A
+  Kubernetes workload annotated `ai.safeai.dev/agent: <name or
+  agent_id>` attributes the SPIFFE IDs it is issued to that agent as
+  `declared` and `repo-iac-observed` (state `corroborated`). A container
+  `command` / `args` that starts the one file defining an agent adds the
+  `repo-iac-observed` identifier only, so the state stays `unknown`
+  without a declaration. Linked identifiers carry `link: {type,
+  workload}`. Ambiguous evidence links nothing, and an annotation that
+  names no single agent is reported.
+- Governance metadata in the attestation (plan 2.15-2; ROADMAP B3).
+  `agent_governance` in `.safeai/config.yml` (owner, lifecycle, purpose,
+  OAuth Client ID Metadata Document `client_id`) becomes
+  `agents[].governance`. When the repository holds the client metadata
+  document, its fields are copied with the file as evidence. The URL is
+  never fetched and secrets are never copied. Predicate v0.2 adds
+  `declared.governance` per agent, `governance.<field>` unknowns, and a
+  crosswalk to Blueprint agent-directory fields and CIMD; v0.1
+  Statements still verify.
+- Baseline approval (plan 2.15-3; ROADMAP P6). `safeai manifest approve
+  M --by X [--owner Y]` writes `M.approval.json`, bound to the
+  manifest's integrity digest. A scan with `--baseline` reports
+  `baseline_approval.state` (`approved`, `self-approved`, `unrecorded`,
+  `digest-mismatch`, `unverifiable`); `--require-approval` now also
+  fails when the baseline is not approved. `--baseline-approval PATH`
+  names a record elsewhere.
+- Capability-level delegation (plan 2.15-4; ROADMAP B2). Python tool
+  functions and tool classes defined in the agent's file get the
+  capabilities detected inside them (`tool_capabilities`). A delegate's
+  tool no longer counts as exceeding its delegator when every capability
+  detected in it is one the delegator already holds
+  (`exceeds_capability_check`). A tool with no detected capability
+  still counts.
+
+**IaC Collectors (plan v2.16).** All three are Lane B; grants feed the
+existing IaC correlation, verdicts and Separation of Duties.
+
+- CloudFormation (plan 2.16-1): YAML templates (short-form intrinsic
+  tags included) and JSON templates. `AWS::IAM::Role` identities
+  (`RoleName`, or the logical ID noted `logical-id-name`); grants from
+  inline `Policies` and from `AWS::IAM::Policy` / `ManagedPolicy`
+  attached through `Roles`; `ManagedPolicyArns` as bindings. Intrinsic
+  functions are never evaluated: they degrade the field
+  (`intrinsic-function`). `Deny`, `NotAction` and `NotResource`
+  statements are not grants. A CloudFormation YAML file with `!Ref` tags
+  was previously listed as unparsed.
+- Serverless Framework (plan 2.16-2): `provider.iam.role.statements`,
+  `provider.iamRoleStatements` and per-function `iamRoleStatements` as
+  grants; a string `provider.iam.role` is a binding to an external role.
+  `${...}` variables are never resolved (`serverless-variable`).
+- Helm (plan 2.16-3): templates under a chart's `templates/` are parsed
+  without rendering. Template-only lines are blanked, other actions
+  become placeholders, so one expression stays one token; templated
+  verbs and resources are unresolved (`helm-template-value`), templated
+  names are shown as the expression (`helm-templated-name`), and
+  `if` / `range` are not evaluated (`helm-conditional`).
+
+### Not yet done
+
+- Precision for every new signal: the eleven new pending cases, like the
+  thirty-three before them, await human review, so all of them stay
+  review-only (Lane B).
+- JWT-SVID audience changes (the audience is chosen at run time and is
+  in no repository file); signing and delivery of attestations, SETs and
+  approval records (outside the Community Edition by design).
+- The SSF event type and an OCSF extension have not been proposed to
+  OpenID SSF or OCSF.
+- Collector limits: CloudFormation nested stacks, SAM `Transform`
+  policy templates and `Fn::If` branches; Serverless `${file(...)}`;
+  a Helm ServiceAccount in another template than its binding; delegation
+  agents and tools defined in another module.
 
 ## [2.13.0] - 2026-11-03
 

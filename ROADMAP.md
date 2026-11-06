@@ -32,7 +32,7 @@ machine-readable evidence for policy and human review.
 ## How to read this roadmap
 
 Status labels reflect the actual repository (re-baselined at v2.5.0,
-re-checked at v2.13.0 on 2026-11-03; see
+re-checked at v2.16.0 on 2026-11-06; see
 *Repository status* below), not earlier milestone claims:
 
 - **SHIPPED AND VERIFIED** — implemented, tested, and exercised.
@@ -178,7 +178,8 @@ authority → REVIEW, with all of the above attached.
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
 | IaC precision/recall, attribution accuracy, escalation precision | **SHIPPED AND VERIFIED (v2.6 hardened)** | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (58/58 hold; digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.4851 with 69/134 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/identity LANE-A CANDIDATE, authority attribution/change/escalation LANE-B, overall NOT LANE-A READY + unknown veto; provenance: 21 independent / 37 migrated) |
 | Delegation depth (sub-agent scope, indirect authority) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.10) | static delegation graph (Claude Code, OpenAI Agents SDK, CrewAI; LangGraph and AutoGen in v2.14) and delegation change types, Lane B; precision pending review (#300); ESC_COMBO proxies kept |
-| CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
+| CFN/Helm/serverless IaC | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.16) | `safeai/iac/cloudformation.py`, `serverless.py`, `helm.py`; Lane B; three pending cases |
+| Curated signed packs, component manifests | PLANNED | process work |
 | Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM (experimental attestation prototype in v2.12) | `--experimental-attestation`, `manifest verify --attestation`; §§ below |
 | Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6; CI-gated v2.7)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md`; `authority-benchmark` CI job fails on any case that stops holding |
 | Evidence metrics (evidence-backed / inferred / unattributed authority rates, evidence completeness, finding provenance, unknown authority-dimension rate) | **SHIPPED AND VERIFIED (v2.7)** | `safeai/analysis/evidence_metrics.py`, manifest `summary.evidence_metrics`, JSON report; informational, never gates |
@@ -267,7 +268,7 @@ verification, signatures.*
   Evaluate declared vs source-detected vs IaC-observed authority,
   mismatches, unresolved scope, confidence, false positives and
   false negatives. Regulatory readiness is secondary context.
-- **PLANNED:** CFN/Helm/serverless collectors (v2.6); Lane-A
+- **IMPLEMENTED (v2.16):** CFN/Helm/serverless collectors, Lane B. **PLANNED:** Lane-A
   graduation only with published precision (ADR-0008).
 - **Division with OpenPulse:** SafeAI answers *which agent authority
   or components depend on this software component*; OpenPulse answers
@@ -425,6 +426,9 @@ cross-plane work and are not duplicated here.
   teams join the graph; Kubernetes ServiceAccounts are SoD holders (CSR
   request + approve, `escalate` / `bind` / `impersonate`, deleting
   Events); organisations add pairs in `.safeai/config.yml`.
+  *v2.15:* `DELEGATE_EXCEEDS_DELEGATOR` uses the capabilities detected
+  inside Python tool functions where they show the delegator already
+  holds the authority; tool names decide otherwise.
 - **B3 — Attestation as re-attestation baseline (P4, RESEARCH ITEM; experimental prototype in v2.12).**
   Shape the Agent Authority Attestation as a signed in-toto-style
   predicate; map fields to Blueprint agent governance metadata and
@@ -549,7 +553,7 @@ concrete static evidence source.
   env values with credential names), which ties the credential to the
   workload rather than only to the repository.
 - **S4 — Identity in the manifest and attestation (P4, RESEARCH
-  ITEM; field shipped in v2.12).** Add the agent's SPIFFE / WIMSE identifier as an evidence
+  ITEM; field shipped in v2.12; workload links in v2.15).** Add the agent's SPIFFE / WIMSE identifier as an evidence
   field with provenance (`declared` | `repo-iac-observed`;
   `RUNTIME_UNVERIFIED` reserved for externally supplied issuance
   evidence). Feeds B3's re-attestation baseline.
@@ -734,6 +738,13 @@ research foundation.
 
 ## Shipped release log (condensed; see CHANGELOG.md for detail)
 
+- **v2.16.0** — Plans v2.14 to v2.16 in one release (no v2.14.0 or
+  v2.15.0): delegation and identity changes in the OCSF export,
+  LangGraph and AutoGen delegation, Kubernetes and organisation
+  Separation-of-Duties pairs, workload-to-agent identity links,
+  governance metadata in the attestation (predicate v0.2), baseline
+  approval, capability-level delegation, CloudFormation / Serverless /
+  Helm collectors; manifest contract 1.3.0.
 - **v2.13.0** — Interoperability exports, file only: OCSF 1.9.0
   events for findings and authority changes, unsigned SSF SET payloads
   for MATERIAL / HIGH_RISK changes with SafeAI's experimental event

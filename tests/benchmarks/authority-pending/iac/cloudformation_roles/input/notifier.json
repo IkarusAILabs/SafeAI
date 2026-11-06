@@ -1,0 +1,16 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "NotifierRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "notifier-role",
+        "AssumeRolePolicyDocument": {"Statement": [{"Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]},
+        "Policies": [{"PolicyName": "notify", "PolicyDocument": {"Statement": [
+          {"Effect": "Allow", "Action": "sns:Publish", "Resource": {"Ref": "Topic"}}
+        ]}}]
+      }
+    },
+    "Topic": {"Type": "AWS::SNS::Topic"}
+  }
+}
