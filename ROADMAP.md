@@ -178,7 +178,8 @@ authority → REVIEW, with all of the above attached.
 | Governance signals, dataflow (heuristic), scorecard, SARIF/JSON/terminal | SHIPPED AND VERIFIED | GOV_*, DATAFLOW_* (gate-inert), scorecard opt-in gating |
 | IaC precision/recall, attribution accuracy, escalation precision | **SHIPPED AND VERIFIED (v2.6 hardened)** | hardened measurements published: `docs/benchmarks/authority/VALIDATION_REPORT.md` (58/58 hold; digest `de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`; entity discovery calibrated 1.0; attributable-only 1.0; end-to-end 0.4851 with 69/134 unattributed; change P/R/F1 1.0 on 5; escalation P/R/F1 1.0 on 4 with measured corpus false-escalation 0.0; per-class verdict: capability/identity LANE-A CANDIDATE, authority attribution/change/escalation LANE-B, overall NOT LANE-A READY + unknown veto; provenance: 21 independent / 37 migrated) |
 | Delegation depth (sub-agent scope, indirect authority) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.10) | static delegation graph (Claude Code, OpenAI Agents SDK, CrewAI; LangGraph and AutoGen in v2.14) and delegation change types, Lane B; precision pending review (#300); ESC_COMBO proxies kept |
-| CFN/Helm/serverless IaC, curated signed packs, component manifests | PLANNED | deferred to v2.6 / process work |
+| CFN/Helm/serverless IaC | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.16) | `safeai/iac/cloudformation.py`, `serverless.py`, `helm.py`; Lane B; three pending cases |
+| Curated signed packs, component manifests | PLANNED | process work |
 | Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM (experimental attestation prototype in v2.12) | `--experimental-attestation`, `manifest verify --attestation`; §§ below |
 | Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6; CI-gated v2.7)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md`; `authority-benchmark` CI job fails on any case that stops holding |
 | Evidence metrics (evidence-backed / inferred / unattributed authority rates, evidence completeness, finding provenance, unknown authority-dimension rate) | **SHIPPED AND VERIFIED (v2.7)** | `safeai/analysis/evidence_metrics.py`, manifest `summary.evidence_metrics`, JSON report; informational, never gates |
@@ -267,7 +268,7 @@ verification, signatures.*
   Evaluate declared vs source-detected vs IaC-observed authority,
   mismatches, unresolved scope, confidence, false positives and
   false negatives. Regulatory readiness is secondary context.
-- **PLANNED:** CFN/Helm/serverless collectors (v2.6); Lane-A
+- **IMPLEMENTED (v2.16):** CFN/Helm/serverless collectors, Lane B. **PLANNED:** Lane-A
   graduation only with published precision (ADR-0008).
 - **Division with OpenPulse:** SafeAI answers *which agent authority
   or components depend on this software component*; OpenPulse answers

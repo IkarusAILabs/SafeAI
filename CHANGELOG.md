@@ -82,6 +82,29 @@ changes). The attestation predicate moves to `v0.2-experimental`.
   (`exceeds_capability_check`). A tool with no detected capability
   still counts.
 
+**IaC Collectors (plan v2.16).** All three are Lane B; grants feed the
+existing IaC correlation, verdicts and Separation of Duties.
+
+- CloudFormation (plan 2.16-1): YAML templates (short-form intrinsic
+  tags included) and JSON templates. `AWS::IAM::Role` identities
+  (`RoleName`, or the logical ID noted `logical-id-name`); grants from
+  inline `Policies` and from `AWS::IAM::Policy` / `ManagedPolicy`
+  attached through `Roles`; `ManagedPolicyArns` as bindings. Intrinsic
+  functions are never evaluated: they degrade the field
+  (`intrinsic-function`). `Deny`, `NotAction` and `NotResource`
+  statements are not grants. A CloudFormation YAML file with `!Ref` tags
+  was previously listed as unparsed.
+- Serverless Framework (plan 2.16-2): `provider.iam.role.statements`,
+  `provider.iamRoleStatements` and per-function `iamRoleStatements` as
+  grants; a string `provider.iam.role` is a binding to an external role.
+  `${...}` variables are never resolved (`serverless-variable`).
+- Helm (plan 2.16-3): templates under a chart's `templates/` are parsed
+  without rendering. Template-only lines are blanked, other actions
+  become placeholders, so one expression stays one token; templated
+  verbs and resources are unresolved (`helm-template-value`), templated
+  names are shown as the expression (`helm-templated-name`), and
+  `if` / `range` are not evaluated (`helm-conditional`).
+
 ## [2.13.0] - 2026-11-03
 
 **Interoperability Exports (plan v2.13).** File only: nothing is signed

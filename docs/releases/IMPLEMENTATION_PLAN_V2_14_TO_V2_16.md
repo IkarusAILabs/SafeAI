@@ -85,6 +85,17 @@ one holding); the 58-case digests are unchanged.
 
 **Exit criteria:** pending cases per collector; Lane B verdicts only.
 
+**Status.** All three collectors implemented, unreleased (stacked on
+v2.15). Three new pending cases (`iac/cloudformation_roles`,
+`iac/serverless_roles`, `iac/helm_rbac_templates`; 44 pending in all,
+every one holding); the 58-case digests are unchanged.
+
+| # | Not yet |
+|---|---|
+| 2.16-1 | Nested stacks and `Transform` macros (SAM `Policies` templates); `Fn::If` branches |
+| 2.16-2 | Variables resolved from other files (`${file(...)}`) and plugin-defined roles beyond per-function statements |
+| 2.16-3 | ServiceAccounts defined in another template of the chart (bindings match within one file, as for plain YAML); SPIFFE registrations inside charts |
+
 ## Explicitly out of scope
 
 Everything the v2.8–v2.13 plan excluded stays excluded: runtime

@@ -210,8 +210,9 @@ def _iac_assurance_notes(report):
     if not isinstance(iac, dict):
         return []
     files = iac.get("files") or {}
-    inspected = sorted(set(files.get("terraform") or [])
-                       | set(files.get("kubernetes_rbac") or []))
+    inspected = sorted({rel for key in ("terraform", "kubernetes_rbac", "cloudformation",
+                                        "serverless", "helm")
+                        for rel in files.get(key) or []})
     unparsed = sorted(set(files.get("unparsed") or []))
     counts = iac.get("counts") or {}
     if not inspected and not unparsed and not counts.get("grants"):
