@@ -9,7 +9,8 @@ scan found, kept in three separate groups:
   (capabilities, tools, delegation edges, Separation-of-Duties
   conflicts, SPIFFE IDs issued by repository IaC);
 * ``declared`` — what people wrote down (declared agent identities,
-  policy exceptions with their approval metadata);
+  governance metadata and OAuth client metadata (v0.2), policy
+  exceptions with their approval metadata);
 * ``unknown`` — fields the scan could not fill, each with its reason.
   Nothing is fabricated to fill a field.
 
@@ -19,7 +20,7 @@ any release until the predicate is published as stable.
 
 The Statement is unsigned. Sign it as an external step (DSSE, for
 example with ``cosign attest-blob``; see
-``docs/attestation/agent-authority-v0.1-experimental.md``).
+``docs/attestation/agent-authority-v0.2-experimental.md``).
 Binding to the manifest works both ways, offline:
 
 * the subject digest is the SHA-256 of the manifest file's bytes;
@@ -40,9 +41,14 @@ import json
 from safeai.kya.integrity import OK, verify_document
 
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
-PREDICATE_TYPE = ("https://github.com/IkarusAILabs/SafeAI/blob/main/docs/attestation/"
-                  "agent-authority-v0.1-experimental.md")
-PREDICATE_VERSION = "0.1-experimental"
+_PREDICATE_BASE = "https://github.com/IkarusAILabs/SafeAI/blob/main/docs/attestation/"
+PREDICATE_TYPE = _PREDICATE_BASE + "agent-authority-v0.2-experimental.md"
+PREDICATE_VERSION = "0.2-experimental"
+#: Predicate types ``manifest verify --attestation`` accepts. v0.1 (SafeAI
+#: 2.12-2.14) has no governance fields; its digests still verify.
+KNOWN_PREDICATE_TYPES = (PREDICATE_TYPE, _PREDICATE_BASE + "agent-authority-v0.1-experimental.md")
+#: Governance fields reported as ``unknown`` when not declared (v0.2).
+GOVERNANCE_FIELDS = ("owner", "lifecycle", "purpose", "client_id")
 
 #: ``safeai manifest verify --attestation`` statuses besides ``integrity``'s own.
 ATTESTATION_OK = "ok"
@@ -98,6 +104,20 @@ def _agent_entry(agent, delegation, sod):
                         "reason": identity.get("unknown_reason") or "no identity evidence"})
     unknown.append({"field": "runtime_identity",
                     "reason": "static scan: SVID issuance is not observable"})
+    governance = agent.get("governance") or {}
+    for field in GOVERNANCE_FIELDS:
+        if not governance.get(field):
+            unknown.append({"field": f"governance.{field}",
+                            "reason": "not declared in .safeai/config.yml agent_governance"})
+    if governance.get("client_id") and not governance.get("client_metadata"):
+        unknown.append({"field": "governance.client_metadata",
+                        "reason": {"not-in-repository": "the Client ID Metadata Document is "
+                                   "not in the repository (the URL is never fetched)",
+                                   "ambiguous": "several repository files claim this client_id"}
+                        .get(governance.get("client_metadata_state"), "not available")})
+    declared_governance = {k: v for k, v in governance.items()
+                           if k in (*GOVERNANCE_FIELDS, "client_metadata", "evidence")
+                           and v is not None}
     return {
         "agent_id": agent.get("agent_id"),
         "name": agent.get("name"),
@@ -105,7 +125,8 @@ def _agent_entry(agent, delegation, sod):
         "agent_type": agent.get("agent_type"),
         "machine_derived": machine,
         "declared": {"workload_identity": [i for i in identifiers
-                                           if i.get("provenance_class") == "declared"]},
+                                           if i.get("provenance_class") == "declared"],
+                     "governance": declared_governance},
         "unknown": unknown,
     }
 
@@ -203,13 +224,16 @@ def verify_attestation(manifest_bytes, manifest, statement):
     status, detail = verify_document(manifest)
     if status != OK:
         return status, f"manifest: {detail}"
-    if not is_statement(statement) or statement.get("predicateType") != PREDICATE_TYPE:
-        return NOT_A_STATEMENT, ("attestation is not an in-toto Statement v1 with the "
+    if not is_statement(statement) or statement.get("predicateType") not in KNOWN_PREDICATE_TYPES:
+        return NOT_A_STATEMENT, ("attestation is not an in-toto Statement v1 with a "
                                  "SafeAI agent-authority predicate type")
     block = manifest.get("authority_attestation")
     if not isinstance(block, dict) or not block.get("predicate_sha256"):
         return NO_ATTESTATION_BLOCK, ("manifest has no authority_attestation block "
                                       "(scanned without --experimental-attestation)")
+    if block.get("predicate_type") not in (None, statement["predicateType"]):
+        return PREDICATE_MISMATCH, ("predicate type differs from the one the manifest records "
+                                    f"({block.get('predicate_type')})")
     file_digest = hashlib.sha256(manifest_bytes).hexdigest()
     if not any(isinstance(s, dict) and (s.get("digest") or {}).get("sha256") == file_digest
                for s in statement.get("subject") or []):

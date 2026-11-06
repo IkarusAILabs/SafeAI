@@ -1,0 +1,39 @@
+{
+ "case": "baseline_changes/delegate_capability_covered",
+ "notes": "worker's fetch_page makes HTTP requests, and triage's http_get already does, so fetch_page does not exceed triage. run_report runs a subprocess (shell), which triage cannot. lookup's body is a stub with no detected capability: unknown, not harmless, so it still exceeds. The new edge makes the longest chain one hop.",
+ "agents": [
+  {
+   "framework": "openai_agents",
+   "name": "Agent"
+  }
+ ],
+ "delegation_changes": [
+  {
+   "type": "DELEGATE_ADDED",
+   "subject": "openai_agents:triage -> openai_agents:worker"
+  },
+  {
+   "type": "DELEGATE_EXCEEDS_DELEGATOR",
+   "subject": "openai_agents:triage -> openai_agents:worker: lookup"
+  },
+  {
+   "type": "DELEGATE_EXCEEDS_DELEGATOR",
+   "subject": "openai_agents:triage -> openai_agents:worker: run_report"
+  },
+  {
+   "type": "DELEGATION_DEPTH_INCREASED",
+   "subject": "max_depth"
+  }
+ ],
+ "must_fire": [],
+ "must_not_fire": [],
+ "evidence_refs": [],
+ "uncertainty": [],
+ "truth_schema_version": "2.0",
+ "annotation": {
+  "basis": "ai_assisted_draft",
+  "confidence": "medium",
+  "rationale": "Written with AI assistance for v2.15 (plan 2.15-4) from the case inputs and the framework documentation. Not yet reviewed by a human annotator; counted under 'Other derivation types' until it is.",
+  "derivation": "pending_human_review"
+ }
+}

@@ -249,7 +249,7 @@ def test_attestation_round_trips_through_manifest_verify(tmp_path, capsys):
     rc, manifest, statement = _scan(tmp_path, repo)
     assert rc == 0
     document = json.loads(manifest.read_text(encoding="utf-8"))
-    assert document["contract"]["version"] == CONTRACT_VERSION == "1.2.0"
+    assert document["contract"]["version"] == CONTRACT_VERSION == "1.3.0"
     assert validate_manifest(document)[0] == []
     capsys.readouterr()
     assert main(["manifest", "verify", str(manifest), "--attestation", str(statement)]) == 0
@@ -270,7 +270,9 @@ def test_attestation_round_trips_through_manifest_verify(tmp_path, capsys):
     assert drafter["machine_derived"]["delegated_by"] == ["claude_code:session"]
     assert [c["pair"] for c in drafter["machine_derived"]["separation_of_duties"]] == [
         "SOD-CHANGE-MERGE"]
-    assert {u["field"] for u in drafter["unknown"]} == {"runtime_identity"}
+    assert {u["field"] for u in drafter["unknown"]} == {
+        "runtime_identity", "governance.owner", "governance.lifecycle", "governance.purpose",
+        "governance.client_id"}
     assert predicate["repository"]["machine_derived"]["workload_identities"] == [
         {"id": DRAFTER_ID, "workloads": ["Deployment/agents/drafter"]}]
 
@@ -324,7 +326,7 @@ def test_predicate_is_deterministic(tmp_path):
 
 
 def test_schema_enums_match_contract():
-    path = os.path.join("schemas", "safeai-manifest", "v1.2.0.json")
+    path = os.path.join("schemas", "safeai-manifest", "v1.3.0.json")
     with open(path, encoding="utf-8") as handle:
         props = json.load(handle)["properties"]
     identity = props["agents"]["items"]["properties"]["workload_identity"]["properties"]

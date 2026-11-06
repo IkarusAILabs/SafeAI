@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: support
+  namespace: agents
+spec:
+  selector:
+    matchLabels: {app: support}
+  template:
+    metadata:
+      labels: {app: support, spiffe: enabled}
+    spec:
+      serviceAccountName: support
+      containers:
+        - name: app
+          image: example/support:1
+          command: ["python", "/srv/app/agents/support.py"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing
+  namespace: agents
+spec:
+  selector:
+    matchLabels: {app: billing}
+  template:
+    metadata:
+      labels: {app: billing, spiffe: enabled}
+      annotations:
+        ai.safeai.dev/agent: agent-61ab767e0357
+    spec:
+      serviceAccountName: billing
+      containers:
+        - name: app
+          image: example/billing:1
+          args: ["serve"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router
+  namespace: agents
+spec:
+  selector:
+    matchLabels: {app: router}
+  template:
+    metadata:
+      labels: {app: router, spiffe: enabled}
+    spec:
+      serviceAccountName: router
+      containers:
+        - name: app
+          image: example/router:1
+          command: ["python", "/srv/main.py"]
+---
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: agents
+spec:
+  spiffeIDTemplate: "spiffe://example.org/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      spiffe: enabled

@@ -57,10 +57,23 @@ unchanged.
 
 | # | Item | Size |
 |---|---|---|
-| 2.15-1 | Workload-to-agent linking: a Kubernetes workload is linked to an agent by an `ai.safeai.dev/agent` annotation (`declared`) or by a container `command` / `args` naming the Python file that defines exactly that agent (`repo-iac-observed`). The SPIFFE ID the workload is issued is then attributed to the agent (state `observed`), never by name coincidence. | M |
+| 2.15-1 | Workload-to-agent linking: a Kubernetes workload is linked to an agent by an `ai.safeai.dev/agent` annotation (`declared`) or by a container `command` / `args` naming the Python file that defines exactly that agent (`repo-iac-observed`). The SPIFFE ID the workload is issued is then attributed to the agent through the existing states (no new state value, so 1.x readers are unaffected), never by name coincidence. | M |
 | 2.15-2 | Governance metadata in the attestation: `agent_governance` in `.safeai/config.yml` (owner, lifecycle state, purpose, CIMD `client_id` URL) and in-repository OAuth Client ID Metadata Documents, mapped into the predicate's `declared` group, with a field crosswalk to Blueprint agent-governance metadata and CIMD. Predicate `v0.2-experimental`. | M |
 | 2.15-3 | Baseline approval: `safeai manifest approve M --by --at [--escalation-owner]` writes `M.approval.json`, bound to the manifest's integrity digest. A scan with `--baseline M` reports the baseline's `approval_state`, and `--require-approval` also fails on an unapproved or self-approved baseline. | S |
 | 2.15-4 | Capability-level delegation: Python tool functions (`@function_tool`, `@tool`, CrewAI `BaseTool._run`) get the capabilities detected inside their bodies, and `DELEGATE_EXCEEDS_DELEGATOR` compares capabilities where both sides have them, tool names otherwise. | M |
+
+**Status.** All four items implemented, unreleased (stacked on v2.14).
+Manifest contract 1.3.0; attestation predicate v0.2. Two new pending
+cases (`identity/workload_agent_links`,
+`baseline_changes/delegate_capability_covered`; 41 pending in all, every
+one holding); the 58-case digests are unchanged.
+
+| # | Not yet |
+|---|---|
+| 2.15-1 | Agents the inventory parsers name generically (`Agent`) can only be annotated by `agent_id`; workloads outside Kubernetes |
+| 2.15-2 | Fetching a CIMD document served elsewhere (never, by design); checking that the declared owner exists |
+| 2.15-3 | Signed approval records (approval is unsigned metadata, like exception approvals) |
+| 2.15-4 | Capabilities of tools defined in another module than the agent; Claude Code and MCP delegates (their authority is already compared by rule or tool name) |
 
 ## v2.16.0 — IaC Collectors  *(Layer 4)*
 
