@@ -25,14 +25,20 @@ the scanner is unchanged and gains no network path.
   disclosed advisories from `research/credibility/incidents.yml` and
   reports recall over statically visible incidents; runtime-only
   incidents are counted apart as expected `unknown`.
-- `research/credibility/`: proposed C-2 targets (none confirmed) and an
-  empty incident registry with its search record.
+- `scripts/incident_search.py` (C-3): runs the recorded GitHub Advisory
+  Database search and applies written keyword, flaw-class and
+  fix-commit screens. Search of 2026-11-07: 7,657 advisories, 726
+  keyword matches, **183 candidate incidents** (none verified); every
+  match and the screen that excluded it is in
+  `research/credibility/incident_screening.json`.
+- `research/credibility/`: proposed C-2 targets (none confirmed), the
+  candidate incident registry and its screening record.
 
 ### Not yet done
 
 - No study has run. C-2 targets await the owner's confirmation and
-  pinned ranges; the incident search has not been run; no reviewer has
-  labelled anything.
+  pinned ranges; no incident has been verified (each needs a human to set
+  its visibility and expected rules); no reviewer has labelled anything.
 
 ## [2.16.0] - 2026-11-06
 
