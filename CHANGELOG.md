@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Credibility track (roadmap C-1 to C-8).** A new roadmap track that
+measures SafeAI on code its authors did not write, ahead of new signals.
+Plan and pre-registered protocols in
+`docs/research/CREDIBILITY_TRACK.md`. Study tooling only, in `scripts/`;
+the scanner is unchanged and gains no network path.
+
+- `scripts/label_kit.py`: review packets and sheets for the pending
+  corpus (C-1); blind labelling packets for a history study, with
+  SafeAI's change class withheld (C-2); Cohen's kappa between two
+  sheets; precision, materiality and miss rate with 95% Wilson
+  intervals, *insufficient* below 10 labelled units.
+- `scripts/history_study.py` (C-2): replays a repository's first-parent
+  history through `--baseline` and records every reported change.
+  Trees are exported with `git archive`; target code is never run.
+- `scripts/incident_replay.py` (C-3): scans the vulnerable revision of
+  disclosed advisories from `research/credibility/incidents.yml` and
+  reports recall over statically visible incidents; runtime-only
+  incidents are counted apart as expected `unknown`.
+- `research/credibility/`: proposed C-2 targets (none confirmed) and an
+  empty incident registry with its search record.
+
+### Not yet done
+
+- No study has run. C-2 targets await the owner's confirmation and
+  pinned ranges; the incident search has not been run; no reviewer has
+  labelled anything.
+
 ## [2.16.0] - 2026-11-06
 
 Ships plans v2.14, v2.15 and v2.16 in one release; there is no 2.14.0

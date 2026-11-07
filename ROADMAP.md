@@ -45,7 +45,9 @@ re-checked at v2.16.0 on 2026-11-06; see
 - **OBSOLETE / REMOVE** — explicitly dropped; kept here so it stays dropped.
 
 The work is organised in **research layers** (§Layers 1–8), not a
-chronological feature list. Layers 1–3 are the validated core; Layers
+chronological feature list, plus a **Credibility track** (§Credibility
+track, C-1 to C-8) that measures the layers on code SafeAI's authors
+did not write. Layers 1–3 are the validated core; Layers
 4–6 extend it; Layer 7 is future integration research; Layer 8 validates
 all of it. Milestones (P0–P8) sequence the layers; work may proceed in
 parallel where dependencies allow.
@@ -672,6 +674,44 @@ plane); dependency vulnerability or lifecycle intelligence
 (OpenPulse's plane); LLM analysis in the scan path; dynamic MCP
 probing.
 
+## Credibility track (opened 2026-11-07)
+
+> **Why this track exists.** Since v2.9 SafeAI has added more signals
+> than it has measured. At v2.16.0 every signal added since v2.9 is
+> review-only (Lane B), 44 benchmark cases carry AI-drafted truth that
+> no human has reviewed, the change and escalation measurements rest on
+> 5 and 4 cases, end-to-end attribution is 0.4851, and the corpus is
+> SafeAI's own fixtures (21 independent, 37 migrated). The product
+> claims (*Govern*, *fills the gap other tools leave*) need evidence
+> from code nobody wrote for SafeAI. This track produces that evidence.
+> It ranks ahead of new signals: a new signal adds one more thing that
+> has not been measured.
+
+**Rules for every item.** Pre-register the targets, sample and metrics
+before the first run (`docs/research/CREDIBILITY_TRACK.md`); report
+point estimates with 95% Wilson intervals, and *insufficient* below the
+stated minimum sample, never 0 or 1; publish misses and negative
+results with the same prominence as hits; humans label, SafeAI never
+labels its own output; the study tooling lives in `scripts/`, outside
+the scanner, so the scan path stays offline. A Lane-A proposal still
+goes through ADR-0008; this track supplies its numbers and does not
+lower its bar.
+
+| # | Item | What it measures | Gap it closes | Status |
+|---|---|---|---|---|
+| C-1 | **External review of the pending corpus.** Two reviewers label each of the 44 pending cases independently, with agreement (Cohen's kappa) published; adjudicated cases are promoted to the authority corpus. | Whether SafeAI's candidate truth is right | AI-drafted, unreviewed truth | **IMPLEMENTED (tooling, v2.17 dev):** `scripts/label_kit.py review-packets` / `agreement`; review not started |
+| C-2 | **Real-world change study.** Replay the first-parent history of pre-registered open-source agent applications and MCP servers through `--baseline`; humans label every reported change (is it real? is it material?) and a stratified sample of silent commits (was a change missed?). | ChangeGuard precision and recall per change type on real commits | Change / escalation measured on 5 and 4 fixtures; Lane-B signals cannot graduate | **IMPLEMENTED (tooling, v2.17 dev):** `scripts/history_study.py`, `scripts/label_kit.py packets` / `score`; targets proposed, run not started |
+| C-3 | **Incident replay.** For publicly disclosed agent, MCP and skill security advisories, scan the vulnerable revision (and the commit that introduced the flaw, where known) and record whether SafeAI would have flagged it before the fix. Flaws visible only at run time are counted as expected `unknown`, apart from misses. | Recall on real incidents | No real-world recall | **IMPLEMENTED (tooling, v2.17 dev):** `scripts/incident_replay.py`, registry `research/credibility/incidents.yml`; no verified incident yet |
+| C-4 | **Comparative measurement** (= E2 / R-1), with the cases every tool misses, SafeAI's included. | Position against Agentic Radar, Cisco MCP Scanner, Snyk Agent Scan, Aguara | "Fills the gap" claim | PLANNED, after C-2 targets are fixed (same repositories) |
+| C-5 | **Authority surface census.** A descriptive measurement of pre-registered public MCP servers and agent configurations: share with shell / write / execute authority, without a declared approval control, with static credentials, and the unknown rate. Aggregates only; no per-project ranking. | What agent authority looks like in practice | Positioning claims without data | PLANNED |
+| C-6 | **Coordinated disclosure as a by-product.** A finding from C-2, C-3 or C-5 that a human has confirmed as exploitable is reported privately under `community-scans/disclosure-policy.md`, published only after a fix. The published number is the **maintainer acceptance rate** (accepted / filed), not a finding count. Replaces the "scan and share" issues (#129–#141). | External precision | Credibility of findings | PLANNED; no automated filing, ever |
+| C-7 | **Open-source design partners.** Run the SafeAI action in the CI of 3–5 agent projects for a month; record which review requests maintainers found useful. | Usefulness of review-only output | Whether Lane B helps anyone | PLANNED |
+| C-8 | **Claims ledger.** Every claim in the README and the website linked to the measurement that backs it, or reworded until one exists. | Honesty of the public claims | Claims ahead of evidence | PLANNED |
+
+Process items that also bear on credibility stay where they are: P-1
+(DCO as a required check), P-2 (OpenSSF Best Practices), P-3 (required
+review on `main`) in `docs/releases/IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md`.
+
 ---
 
 ## Priority sequence
@@ -712,6 +752,10 @@ probing.
   dependency-context export, combined policy experiment; file-only
   OCSF / SSF-CAEP exports and open reference integration, B4/B6
   (research). *v2.13:* both exports and the reference integration.
+- **C — Credibility (opened 2026-11-07, ahead of new signals):**
+  external review of the pending corpus, real-world change study,
+  incident replay, comparative measurement, census, coordinated
+  disclosure, design partners, claims ledger (C-1 to C-8 above).
 - **P8 — Enterprise Evidence Plane:** only after the evidence model
   is validated — aggregation, retention, SSO/RBAC, routing,
   integrations (EE0–EE4 sequencing unchanged).

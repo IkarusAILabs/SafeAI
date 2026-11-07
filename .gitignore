@@ -57,3 +57,9 @@ gpg-key-config.txt
 .env
 venv/
 .venv/
+
+# Credibility-track working directories (docs/research/CREDIBILITY_TRACK.md)
+/study/
+/labels/
+/review/
+/replay/

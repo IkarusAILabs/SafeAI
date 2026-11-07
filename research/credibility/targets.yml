@@ -1,0 +1,28 @@
+# C-2 real-world change study: targets (docs/research/CREDIBILITY_TRACK.md).
+#
+# Pre-registration: the owner sets a target to `confirmed` and pins
+# `from` / `to` to commit SHAs BEFORE the run. `history_study.py` runs
+# confirmed targets only (`--include-proposed` is for dry runs, never
+# for published results). Results never change this list; a target that
+# is dropped after a run stays here as `excluded` with its reason.
+#
+# Selection criteria: open-source licence; >= 50 first-parent commits in
+# the range; defines agents or tools in a framework SafeAI parses, or is
+# an MCP server; not written by SafeAI's authors. Applications, example
+# collections and MCP servers, not framework internals.
+#
+# Fields: id, url (https), status (proposed | confirmed | excluded),
+# from, to (commit SHAs, required when confirmed), why, reason (when
+# excluded).
+
+version: 1
+targets:
+  - id: mcp-reference-servers
+    url: https://github.com/modelcontextprotocol/servers
+    status: proposed
+    why: Reference MCP servers; tools are added and widened over time.
+
+  - id: crewai-examples
+    url: https://github.com/crewAIInc/crewAI-examples
+    status: proposed
+    why: Example CrewAI crews that define agents and tools.
