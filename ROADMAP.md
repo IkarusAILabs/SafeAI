@@ -163,14 +163,14 @@ authority → REVIEW, with all of the above attached.
 
 ---
 
-## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate; v2.8 provenance audit + control mappings in JSON/SARIF; v2.10–v2.12 rows updated)
+## Repository status (verified at v2.5.0; v2.6 benchmark hardened; v2.7 evidence metrics + CI benchmark gate; v2.8 provenance audit + control mappings in JSON/SARIF; v2.10–v2.16 rows updated)
 
 | Area | Status | Evidence |
 |---|---|---|
 | Authority diff, ChangeGuard, ESC_* rules, access-mode transitions | SHIPPED AND VERIFIED | `capability_diff.py` schema v2, change classes, `--fail-on-authority-change` |
 | Review lanes, policy-as-code, exceptions + strict mode | SHIPPED AND VERIFIED | `policy.py` lanes, `exceptions.py` scope states, #220 scope-escape review |
 | Provenance/gateability per finding, assurance boundary | SHIPPED AND VERIFIED | Contract v1 enums, manifest + reports |
-| KYA manifest Contract v1, digests, verify | SHIPPED AND VERIFIED | `schemas/safeai-manifest/v1.0.0.json`, `v1.1.0.json` (v2.12), `manifest validate/verify` |
+| KYA manifest Contract v1, digests, verify | SHIPPED AND VERIFIED | `schemas/safeai-manifest/v1.0.0.json`, `v1.1.0.json` (v2.12), `v1.2.0.json` and `v1.3.0.json` (v2.16), `manifest validate/verify` |
 | IaC authority evidence (TF + K8s RBAC, identities/grants/bindings, 5 verdicts) | SHIPPED AND VERIFIED | `safeai/iac/`, Lane-B only, benchmark corpus + harness |
 | security_brief reporting layer, decision-support HTML | SHIPPED AND VERIFIED | `safeai/report/security_brief.py`, PR Lane-B sections |
 | Plugin SDK, custom rules, control mappings (taxonomy) | SHIPPED AND VERIFIED | entry points, `rules check`, OWASP/NIST mappings |
@@ -180,7 +180,7 @@ authority → REVIEW, with all of the above attached.
 | Delegation depth (sub-agent scope, indirect authority) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.10) | static delegation graph (Claude Code, OpenAI Agents SDK, CrewAI; LangGraph and AutoGen in v2.14) and delegation change types, Lane B; precision pending review (#300); ESC_COMBO proxies kept |
 | CFN/Helm/serverless IaC | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.16) | `safeai/iac/cloudformation.py`, `serverless.py`, `helm.py`; Lane B; three pending cases |
 | Curated signed packs, component manifests | PLANNED | process work |
-| Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM (experimental attestation prototype in v2.12) | `--experimental-attestation`, `manifest verify --attestation`; §§ below |
+| Authority attestation object, cross-plane contract, flagship experiment | RESEARCH ITEM (experimental attestation prototype in v2.12; predicate v0.2 with governance metadata in v2.16) | `--experimental-attestation`, `manifest verify --attestation`; unsigned in the Community Edition; §§ below |
 | Public authority benchmark (hardened slice: 58 cases + canonical v2 truth + harness + published measurements) | **SHIPPED AND VERIFIED (v2.6; CI-gated v2.7)** | `tests/benchmarks/authority/` (truth_schema_version 2.0, human-reviewed), `safeai benchmark`, `docs/benchmarks/authority/VALIDATION_REPORT.md`; `authority-benchmark` CI job fails on any case that stops holding |
 | Evidence metrics (evidence-backed / inferred / unattributed authority rates, evidence completeness, finding provenance, unknown authority-dimension rate) | **SHIPPED AND VERIFIED (v2.7)** | `safeai/analysis/evidence_metrics.py`, manifest `summary.evidence_metrics`, JSON report; informational, never gates |
 | Trend charts (`safeai trend`), generic compliance dashboard, AI-BOM-as-CE-core, exploitability AI triage, interactive MCP consent, per-finding risk scores, runtime enforcement in core | OBSOLETE / REMOVE | kept listed so they stay dropped |
@@ -230,9 +230,14 @@ autonomy changes.*
   taxonomy + dimensions (machine-readable), review lanes, portable
   file-backed exceptions with owner/expiry/scope, deterministic
   policy decisions with reasons.
-- **PLANNED:** deeper delegation-change semantics (new sub-agent,
-  broader delegated scope, indirect authority) as explicit change
-  types rather than combo-rule proxies.
+- **IMPLEMENTED BUT INSUFFICIENTLY VALIDATED (v2.10; extended in
+  v2.16):** deeper delegation-change semantics (new sub-agent, broader
+  delegated scope, indirect authority) as explicit change types
+  (`DELEGATE_ADDED`, `DELEGATION_BREADTH_INCREASED`,
+  `DELEGATION_DEPTH_INCREASED`, `DELEGATE_EXCEEDS_DELEGATOR`,
+  `SUBAGENT_TOOLS_WIDENED`), Lane B; capability-level comparison since
+  v2.16. `ESC_COMBO_DELEGATION_EXTERNAL_SIDE_EFFECT` keeps its
+  behaviour until the new types have published precision (see B2).
 
 ## Layer 4 — Evidence Contract
 
@@ -243,7 +248,10 @@ verification, signatures.*
   canonical digests + offline verify; assurance boundary in every
   report and manifest; portable registry export/import; release
   pipeline signs and verifies (Cosign keyless, SLSA/SBOM assets).
-- **Outcome — Agent Authority Evidence Contract (PLANNED hardening):**
+- **Outcome — Agent Authority Evidence Contract (PARTIALLY SHIPPED;
+  hardening continues):** contracts 1.1.0 to 1.3.0 (v2.12, v2.16) added
+  the workload identity, delegation and identity change blocks, declared
+  governance metadata and the baseline approval reference. The target remains to
   evolve the manifest toward the interoperable evidence artefact —
   agent identity, principal/delegation where available, intended
   purpose where declared, authority statements, access modes,
@@ -283,9 +291,14 @@ accountable human decisions.*
 - **SHIPPED AND VERIFIED:** policy-as-code + profiles, Lane A/B
   separation (gates print verdicts, review prints questions),
   expiring scoped exceptions, `--strict-exceptions` fail-closed.
-- **PLANNED:** approval metadata on exceptions/decisions (who
-  approved, when, expiry, escalation owner) short of a workflow
-  system; review-decision records linkable from evidence.
+- **SHIPPED AND VERIFIED (v2.12, v2.16):** approval metadata (who approved, when,
+  escalation owner) on exceptions and suppressions (v2.12) and on the
+  baseline itself, bound to the manifest digest (`safeai manifest
+  approve`, v2.16); `--require-approval` fails on missing,
+  self-approved or mismatched approval. Short of a workflow system.
+- **PLANNED:** review-decision records for individual changes,
+  linkable from evidence; signed approval records (approvals are
+  unsigned metadata today).
 - **Runtime boundary (kept):** SafeAI proves no deployed IAM,
   runtime identity, egress, behaviour, or dynamically granted
   permissions. Future research adapters *may* consume externally
@@ -375,10 +388,10 @@ never imply membership, endorsement or certification.
 | Blueprint component | SafeAI evidence | Status |
 |---|---|---|
 | P1 · AI Agent Security Posture Mgmt — tool & skill supply-chain scanning, misconfigurations, "configuration drift introduced after an agent's initial review passed" | Layer 1 discovery, MCP poisoning detection, ChangeGuard baseline diff | SHIPPED AND VERIFIED |
-| P1 · Agent Directory — agent governance metadata (owner, lifecycle, risk tier, scope), identity profile (CIMD) | KYA manifest Contract v1 (declared / detected / inferred / unknown) | PARTIALLY SHIPPED — no owner/lifecycle fields, no CIMD mapping |
+| P1 · Agent Directory — agent governance metadata (owner, lifecycle, risk tier, scope), identity profile (CIMD) | KYA manifest Contract v1 (declared / detected / inferred / unknown); declared `agent_governance` (owner, lifecycle, purpose, CIMD `client_id`) and in-repository CIMD documents (v2.16) | PARTIALLY SHIPPED — governance fields are declared only (owner existence not checked); no risk tier or scope fields |
 | P1 · Agent Import — MCP & skill registries as untrusted input | MCP/skill adapters, destination taxonomy | SHIPPED AND VERIFIED (static config only) |
-| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics: static delegation graph and change types (v2.10) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED — Lane B, precision pending review |
-| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry and approval metadata (v2.12); `SOD_CONFLICTING_AUTHORITY` (v2.10) | PARTIALLY SHIPPED — SoD is Lane B with precision pending review; no joiner-mover-leaver |
+| P2 · Access policies — delegation & inheritance (intersection of entitlements, capped depth/breadth) | Layer 3 delegation semantics: static delegation graph and change types (v2.10; LangGraph, AutoGen and capability-level comparison in v2.16) | IMPLEMENTED BUT INSUFFICIENTLY VALIDATED — Lane B, precision pending review |
+| P2 · Governance — agent requests checked against static permission ceilings; Separation of Duties; joiner-mover-leaver | Approved baseline = static ceiling; policy-as-code; exceptions with owner/expiry and approval metadata (v2.12); baseline approval (v2.16); `SOD_CONFLICTING_AUTHORITY` (v2.10; Kubernetes RBAC and organisation pairs in v2.16) | PARTIALLY SHIPPED — SoD is Lane B with precision pending review; no joiner-mover-leaver |
 | P3 · Runtime authorization, gateways, monitoring | — | OUT OF SCOPE (runtime boundary kept) |
 | P4 · Access Recovery — re-attestation "against a known-good baseline", audit trail closure | `manifest verify` + baseline diff + evidence chain | SHIPPED AND VERIFIED (static evidence only) |
 | P4 · Response / kill switch | — | OUT OF SCOPE |
@@ -440,6 +453,12 @@ cross-plane work and are not duplicated here.
   v0.1-experimental`), bound to the manifest both ways and checked by
   `safeai manifest verify --attestation`; Blueprint and CIMD field
   mapping not yet done.
+  *v2.16 (experimental):* predicate `agent-authority
+  v0.2-experimental` restates declared governance metadata (owner,
+  lifecycle, purpose, CIMD `client_id` and in-repository CIMD
+  documents) with a Blueprint / CIMD field crosswalk
+  (`docs/attestation/agent-authority-v0.2-experimental.md`); verify
+  accepts v0.1 and v0.2. Still unsigned.
 - **B4 — Standards exports, file-only (P7 / EE, SHIPPED in v2.13.0).** Export
   findings and authority changes as OCSF events, and MATERIAL /
   HIGH_RISK changes as SSF/CAEP Security Event Token payloads.
@@ -560,6 +579,11 @@ concrete static evidence source.
   *v2.12:* `agents[].workload_identity` with `declared` and
   `repo-iac-observed` identifiers; the reserved class is spelled
   `runtime-unverified` in the data.
+  *v2.16:* a Kubernetes workload links to an agent through the
+  `ai.safeai.dev/agent` annotation (`declared`) or a container
+  entrypoint naming the agent's file (`repo-iac-observed`), so its
+  SPIFFE ID is attributed to that agent; workloads outside Kubernetes
+  are not linked.
 - **S5 — SPIFFE benchmark cases (P5, RESEARCH ITEM).** Fixtures for
   template resolution, ambiguous selectors, federation widening, and
   principal-based authorization; publish agent → identity attribution
@@ -669,10 +693,12 @@ probing.
 - **P3 — Declared vs Repository/IaC Authority:** CFN/Helm/serverless,
   mismatch precision/recall publication, Lane-A graduation case
   (v2.6); static SPIFFE identity collector and static-credential
-  signal, S1/S3.
+  signal, S1/S3. *v2.16:* CFN / Serverless / Helm collectors (Lane B).
 - **P4 — Agent Authority Attestation:** canonical representation,
   evidence chain object, external consumer contract; re-attestation
   baseline shape, B3; SPIFFE / WIMSE identity field, S4 (research).
+  *v2.16:* predicate v0.2 with governance metadata; workload-to-agent
+  identity links.
 - **P5 — Research Benchmark:** fixture corpus, expected-truth
   annotations, evaluation harness, reproducibility; Blueprint
   scenario fixtures + coverage report, B5; SPIFFE identity cases,
@@ -680,7 +706,8 @@ probing.
   malicious-skill corpus, E2/E3 (research).
 - **P6 — Accountability:** review decisions, approvals, exceptions,
   expiry, escalation records. *v2.12:* approval metadata on exceptions
-  and suppressions, `--require-approval`.
+  and suppressions, `--require-approval`. *v2.16:* baseline approval
+  (`safeai manifest approve`).
 - **P7 — Cross-Plane Assurance Research:** integration contract,
   dependency-context export, combined policy experiment; file-only
   OCSF / SSF-CAEP exports and open reference integration, B4/B6
