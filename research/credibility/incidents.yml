@@ -1,0 +1,32 @@
+# C-3 incident replay registry (docs/research/CREDIBILITY_TRACK.md).
+#
+# Every advisory found by the recorded search goes in, not a hand-picked
+# subset. An entry is `candidate` until a human has read the advisory and
+# the fix diff and confirmed every field; only `verified` entries are
+# scored. `rejected` entries stay listed with a reason (out of scope, no
+# public fix, not an agent / MCP / skill flaw).
+#
+# Fields:
+#   id                 short stable id, e.g. the GHSA id
+#   advisory           https URL of the public advisory
+#   repository         https clone URL
+#   vulnerable_ref     a commit (or tag) that contains the flaw
+#   fixed_ref          the commit (or tag) that fixes it
+#   introduced_ref     optional: the commit that introduced the flaw
+#   static_visibility  visible | runtime-only
+#   expected.rules     SafeAI rule ids a correct scan would raise
+#   expected.paths     files or directories the flaw lives in
+#   status             candidate | verified | rejected
+#   notes              what the flaw is, in one or two sentences
+#
+# `python scripts/incident_replay.py --registry research/credibility/incidents.yml --check`
+# validates this file.
+
+version: 1
+search:
+  query: >-
+    GitHub Advisory Database, ecosystems pip and npm, keywords "mcp",
+    "model context protocol", "agent", "tool", "skill", published on or
+    after 2025-01-01
+  date: not yet run
+incidents: []
