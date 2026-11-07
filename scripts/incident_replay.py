@@ -49,7 +49,7 @@ from study_common import (
 )
 
 STATUSES = ("candidate", "verified", "rejected")
-VISIBILITY = ("visible", "runtime-only")
+VISIBILITY = ("visible", "runtime-only", "undetermined")
 REQUIRED = ("id", "advisory", "repository", "vulnerable_ref", "static_visibility", "status",
             "expected")
 
@@ -76,6 +76,9 @@ def validate(data: Any) -> list[dict[str, Any]]:
         if entry["static_visibility"] not in VISIBILITY:
             raise StudyError(f"incident {entry['id']!r}: static_visibility must be one of "
                              f"{VISIBILITY}")
+        if entry["status"] == "verified" and entry["static_visibility"] == "undetermined":
+            raise StudyError(f"incident {entry['id']!r}: a verified incident needs "
+                             "static_visibility visible or runtime-only")
         for key in ("advisory", "repository"):
             if not str(entry[key]).startswith("https://"):
                 raise StudyError(f"incident {entry['id']!r}: {key} must be an https URL")
@@ -106,6 +109,14 @@ def rule_hits(report: dict[str, Any], expected: dict[str, Any]) -> list[dict[str
                   key=lambda h: (str(h["rule"]), str(h["file"]), h["line"] or 0))
 
 
+def observed_on_paths(report: dict[str, Any], expected: dict[str, Any]) -> list[str]:
+    paths = expected.get("paths") or []
+    if not paths:
+        return []
+    return sorted({str(f.get("rule_id")) for f in report.get("findings") or []
+                   if f.get("rule_id") and _under(str(f.get("file") or ""), paths)})
+
+
 def change_hits(report: dict[str, Any], expected: dict[str, Any]) -> list[dict[str, Any]]:
     paths = expected.get("paths") or []
     return [{"kind": u["kind"], "subject": u["subject"], "type": u["type"],
@@ -120,7 +131,10 @@ def replay(entry: dict[str, Any], repo: str, work: str) -> dict[str, Any]:
     export_tree(repo, entry["vulnerable_ref"], tree)
     report = scan_tree(tree, os.path.join(work, "vulnerable.json"))
     shutil.rmtree(tree, ignore_errors=True)
-    outcome = {"rule_hits": rule_hits(report, entry["expected"]), "change_hits": []}
+    outcome = {"rule_hits": rule_hits(report, entry["expected"]), "change_hits": [],
+               # What fired on the flaw's files: lets the verifier fill expected.rules
+               # from evidence instead of guessing. Never scored.
+               "observed_on_paths": observed_on_paths(report, entry["expected"])}
     if entry.get("introduced_ref"):
         info = commit_info(repo, entry["introduced_ref"])
         if not info["parents"]:
@@ -134,7 +148,10 @@ def replay(entry: dict[str, Any], repo: str, work: str) -> dict[str, Any]:
         shutil.rmtree(tree, ignore_errors=True)
         outcome["change_hits"] = change_hits(introduced, entry["expected"])
     flagged = bool(outcome["rule_hits"] or outcome["change_hits"])
-    if entry["static_visibility"] == "runtime-only":
+    if entry["status"] != "verified" or entry["static_visibility"] == "undetermined":
+        # Dry runs over candidates: what they would give, never scored.
+        outcome["outcome"] = "unscored-flagged" if flagged else "unscored"
+    elif entry["static_visibility"] == "runtime-only":
         outcome["outcome"] = "expected-unknown-flagged" if flagged else "expected-unknown"
     else:
         outcome["outcome"] = "detected" if flagged else "missed"
@@ -145,6 +162,7 @@ def summarise(results: list[dict[str, Any]]) -> dict[str, Any]:
     visible = [r for r in results if r.get("outcome") in ("detected", "missed")]
     return {
         "recall": wilson(sum(r["outcome"] == "detected" for r in visible), len(visible)),
+        "unscored": sum(r.get("outcome", "").startswith("unscored") for r in results),
         "runtime_only": sum(r.get("outcome", "").startswith("expected-unknown") for r in results),
         "runtime_only_flagged": sum(r.get("outcome") == "expected-unknown-flagged"
                                     for r in results),
@@ -160,14 +178,18 @@ def render(results: list[dict[str, Any]], summary: dict[str, Any]) -> str:
              (f"Recall over verified, statically visible incidents: {head} "
               f"(n={recall['n']})."),
              (f"Runtime-only incidents (expected unknown): {summary['runtime_only']}, "
-              f"of which flagged anyway: {summary['runtime_only_flagged']}."), "",
-             "| Incident | Visibility | Outcome | Evidence |", "|---|---|---|---|"]
+              f"of which flagged anyway: {summary['runtime_only_flagged']}."),
+             (f"Unscored (candidates or undetermined visibility, dry run): "
+              f"{summary['unscored']}."), "",
+             "| Incident | Visibility | Outcome | Evidence | Rules on the flaw's files |",
+             "|---|---|---|---|---|"]
     for r in results:
         evidence = ", ".join(f"`{h['rule']}` {h['file']}" for h in r.get("rule_hits", [])) or \
             ", ".join(f"{h['kind']} `{h['subject']}`" for h in r.get("change_hits", [])) or \
             r.get("error", "—")
+        observed = ", ".join(f"`{x}`" for x in r.get("observed_on_paths", [])) or "—"
         lines.append(f"| [{r['id']}]({r['advisory']}) | {r['static_visibility']} | "
-                     f"{r['outcome']} | {evidence} |")
+                     f"{r['outcome']} | {evidence} | {observed} |")
     return "\n".join(lines) + "\n"
 
 

@@ -175,11 +175,29 @@ interval; `runtime-only` incidents reported apart as expected
 `unknown` (a static scanner flagging them would be a coincidence, not a
 hit); every miss listed with a one-line reason.
 
-**Selection.** Every advisory found by the stated search (GitHub
-Advisory Database, ecosystem `pip` and `npm`, keywords `mcp`,
-`model context protocol`, `agent`, `tool`, `skill`, published
-2025-01-01 or later), not a hand-picked subset. The search query and
-date are recorded with the registry.
+**Selection.** Every advisory the recorded search returns, not a
+hand-picked subset. `python scripts/incident_search.py` runs it and
+applies four written screens in order: (1) reviewed `pip` / `npm`
+advisories published on or after 2025-01-01; (2) a keyword screen
+(MCP, Model Context Protocol, AI / LLM / coding agents, agentic, agent
+skills, Claude Code, tool or function calling, prompt injection, or a
+package name containing `mcp` or `agent`); (3) a flaw-class screen
+(CWE-22, 23, 59, 73, 77, 78, 88, 94, 95, 918, 1427: injection, path
+traversal, SSRF, prompt injection, the classes agent authority evidence
+bears on); (4) a fix commit on GitHub to replay. Survivors become
+`candidate` entries with the fix's parent as `vulnerable_ref` and the
+non-test files the fix changes as `expected.paths`;
+`static_visibility` is `undetermined` and `expected.rules` empty until a
+human verifies them. `research/credibility/incident_screening.json`
+lists every keyword match with the screen that excluded it.
+
+**Search of 2026-11-07.** 7,657 advisories searched; 726 keyword
+matches; 375 excluded by flaw class, 167 for want of a fix commit, 1
+because its fix commit could not be read; **183 candidates**, none
+verified. Replay scores `verified` entries only: a candidate, or an
+entry whose visibility is still `undetermined`, is reported as
+`unscored` even in a dry run, and the rules that fired on the flaw's
+files are listed to help the verifier, never counted.
 
 ## C-4 to C-8
 
@@ -211,3 +229,4 @@ Planned; each gets its protocol here before it starts.
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-07 | Initial protocol | — |
+| 2026-11-07 | C-3 search made concrete before any scoring: the keyword list replaced by the written keyword, flaw-class and fix-commit screens; `undetermined` visibility for candidates | The first search returned 726 keyword matches, most of them flaws (XSS, missing authentication) that no static authority evidence bears on; the screens are recorded so the exclusion of each advisory can be checked |
