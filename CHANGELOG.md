@@ -50,14 +50,26 @@ the scanner is unchanged and gains no network path.
   keyword matches, **183 candidate incidents** (none verified); every
   match and the screen that excluded it is in
   `research/credibility/incident_screening.json`.
-- `research/credibility/`: proposed C-2 targets (none confirmed), the
-  candidate incident registry and its screening record.
+- `scripts/incident_verify.py` (C-3): verification in a pre-registered
+  seeded order; one packet per candidate (advisory, fix diff, SafeAI's
+  rule catalogue, never SafeAI's output, so expected rules are chosen
+  blind) and a sheet per verifier; `apply` writes only what two
+  verifiers agree on, or an adjudicator settles, with `verified_by` and
+  `verified_on`. `incident_replay.py --check` refuses a verified or
+  rejected entry without two named verifiers.
+- `scripts/target_check.py` (C-2): records each proposed target's
+  licence, flags, first-parent commit count and, at the head commit,
+  the frameworks, tools and MCP assets SafeAI finds (no findings), and
+  suggests a 300-commit range for the owner to pin.
+- `research/credibility/`: nine proposed C-2 targets (none confirmed)
+  with their eligibility check, the candidate incident registry and its
+  screening record.
 
 ### Not yet done
 
 - No study has run. C-2 targets await the owner's confirmation and
-  pinned ranges; no incident has been verified (each needs a human to set
-  its visibility and expected rules); no reviewer has labelled anything.
+  pinned ranges; no incident has been verified (each needs two people to
+  set its visibility and expected rules); no reviewer has labelled anything.
 
 ## [2.16.0] - 2026-11-06
 

@@ -103,6 +103,14 @@ The list lives in `research/credibility/targets.yml` with
 `status: proposed`. The owner flips it to `confirmed` and pins each
 range (`from` / `to` commit SHAs) before the run.
 
+**Eligibility check.** `python scripts/target_check.py --targets research/credibility/targets.yml --out research/credibility/target_check.json`
+records, per target, the facts the criteria depend on: licence,
+archived / fork flags, owner, first-parent commit count, and, at the
+head commit only, the frameworks SafeAI detects and how many tools and
+MCP assets it finds. It records **no findings**, so choosing a target
+cannot depend on how SafeAI scores it. It suggests a range of the last
+300 first-parent commits; the owner pins the actual range.
+
 **Procedure.**
 1. `python scripts/history_study.py --targets research/credibility/targets.yml --out study/`
    clones each confirmed target, exports each first-parent commit in the
@@ -164,6 +172,30 @@ could be expected to see:
 An entry is `candidate` until a human has read the advisory and the
 fix diff and confirmed every field; only `verified` entries are scored.
 
+**Verification.** Two people verify each candidate independently, then
+agree (or a third adjudicates):
+
+1. `python scripts/incident_verify.py order --registry research/credibility/incidents.yml`
+   prints the pre-registered order: candidates sorted by
+   `sha256("20261107:<id>")`. Candidates are verified in this order, so
+   verifying the first *N* gives a random sample, not a hand-picked one,
+   and a later search does not reshuffle the existing ones.
+2. `python scripts/incident_verify.py packets --count 20 --verifiers ana,ben --out verify/`
+   writes one packet per candidate (advisory text, CWEs, fix commit and
+   its diff, SafeAI's full rule catalogue) and a blank sheet per
+   verifier. **Packets never show what SafeAI reports on the code**:
+   `expected.rules` is the verifier's answer to "which rules should flag
+   this flaw if SafeAI worked as documented?", chosen blind. Otherwise a
+   verifier could copy the rules that fired and recall would measure
+   nothing.
+3. Each verifier answers `decision` (`verified` / `rejected` / `unsure`),
+   `static_visibility`, `rules`, `paths` and, if found, `introduced_ref`.
+4. `python scripts/incident_verify.py apply --registry research/credibility/incidents.yml verify/sheet.ana.csv verify/sheet.ben.csv [--adjudication verify/sheet.cem.csv]`
+   writes rows the two agree on (or the adjudicator settles) into the
+   registry with `verified_by` and `verified_on`; every other row stays
+   a candidate and is listed. The registry check refuses a verified or
+   rejected entry without two named verifiers.
+
 **Procedure.** `python scripts/incident_replay.py --registry research/credibility/incidents.yml --out replay/`
 scans the vulnerable revision (and, where given, the introducing commit
 against its parent as baseline) and records, per incident, whether any
@@ -196,8 +228,9 @@ matches; 375 excluded by flaw class, 167 for want of a fix commit, 1
 because its fix commit could not be read; **183 candidates**, none
 verified. Replay scores `verified` entries only: a candidate, or an
 entry whose visibility is still `undetermined`, is reported as
-`unscored` even in a dry run, and the rules that fired on the flaw's
-files are listed to help the verifier, never counted.
+`unscored` even in a dry run. The rules that fired on the flaw's files
+are listed in the replay output for analysing misses after scoring;
+they are never counted and never shown to verifiers.
 
 ## C-4 to C-8
 
@@ -220,13 +253,26 @@ Planned; each gets its protocol here before it starts.
 | Phase | Work | Exit |
 |---|---|---|
 | 1 (this change) | Tooling for C-1, C-2, C-3; protocols above; proposed targets; empty incident registry | Tooling tested on fixtures; nothing run on real targets yet |
-| 2 | Owner confirms C-2 targets and ranges; incident search run and entries verified; reviewers recruited | `targets.yml` confirmed; ≥ 10 verified incidents or a statement that fewer exist |
+| 2 (in progress) | Owner confirms C-2 targets and ranges; incident search run and entries verified; reviewers recruited | `targets.yml` confirmed; ≥ 10 verified incidents or a statement that fewer exist |
 | 3 | C-1 review; C-2 run and labelling; C-3 replay | Technical report with all numbers, misses and corrections |
 | 4 | C-4, C-5, C-8; README wording follows the numbers | Claims ledger published |
+
+## Phase 2 — what is left, and who does it
+
+Tooling for every Phase 2 step exists; each remaining step needs a
+person, by Rule 2.
+
+| Step | Who | How |
+|---|---|---|
+| Confirm C-2 targets | Owner | Read `research/credibility/target_check.json`; in `targets.yml` set eligible targets to `confirmed` with `from` / `to` (the suggested range or another), and ineligible or unwanted ones to `excluded` with a `reason`. Commit before any run. |
+| Verify incidents | Two verifiers (+ an adjudicator) | `incident_verify.py packets --count 20` in the pre-registered order, fill the sheets, `apply`. Continue in batches until at least 10 verified `visible` incidents, or the candidates run out. |
+| Recruit C-1 reviewers | Owner | At least one from outside SafeAI's authors, who consents to be named. `label_kit.py review-packets` produces their packets. |
 
 ## Protocol changes
 
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-07 | Initial protocol | — |
+| 2026-11-08 | C-3 verification fixed before any verification: seeded order, two verifiers with adjudication, `verified_by` / `verified_on` required, and `expected.rules` chosen blind (packets show the rule catalogue, never SafeAI's output). The earlier wording that the rules which fired are "listed to help the verifier" is withdrawn | Letting a verifier see what fired would let `expected.rules` follow SafeAI's output and make recall circular; a seeded order makes a partly verified registry a random sample |
+| 2026-11-08 | C-2: seven more proposed targets (MCP servers, an Agents SDK application, a multi-framework toolkit) and a recorded eligibility check that stores no findings | Two targets could not reach 30 labelled units per change type; the check lets the owner confirm from recorded facts. Targets added before any history run |
 | 2026-11-07 | C-3 search made concrete before any scoring: the keyword list replaced by the written keyword, flaw-class and fix-commit screens; `undetermined` visibility for candidates | The first search returned 726 keyword matches, most of them flaws (XSS, missing authentication) that no static authority evidence bears on; the screens are recorded so the exclusion of each advisory can be checked |

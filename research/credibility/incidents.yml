@@ -6,15 +6,17 @@
 # search on a later date adds advisories; it never removes one a human
 # has verified or rejected.
 #
-# An entry is `candidate` until a human has read the advisory and the
-# fix diff, set static_visibility (visible | runtime-only), filled
-# expected.rules and corrected expected.paths. Only `verified` entries
+# An entry is `candidate` until two people have read the advisory and
+# the fix diff, without seeing what SafeAI reports, and agreed on
+# static_visibility (visible | runtime-only), expected.rules and
+# expected.paths (scripts/incident_verify.py). Only `verified` entries
 # are scored; `rejected` entries stay listed with a reason in notes.
 #
 # Fields: id, advisory, repository, vulnerable_ref (parent of the fix),
 # fixed_ref, introduced_ref (optional), static_visibility, expected.rules,
 # expected.paths, status (candidate | verified | rejected), published,
-# packages, cwes, notes.
+# packages, cwes, notes; verified_by and verified_on once verified or
+# rejected.
 #
 # `python scripts/incident_replay.py --registry research/credibility/incidents.yml --check`
 # validates this file.

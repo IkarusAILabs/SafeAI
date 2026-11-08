@@ -79,6 +79,11 @@ def validate(data: Any) -> list[dict[str, Any]]:
         if entry["status"] == "verified" and entry["static_visibility"] == "undetermined":
             raise StudyError(f"incident {entry['id']!r}: a verified incident needs "
                              "static_visibility visible or runtime-only")
+        if entry["status"] != "candidate":
+            by = entry.get("verified_by")
+            if not isinstance(by, list) or len(set(by)) < 2 or not entry.get("verified_on"):
+                raise StudyError(f"incident {entry['id']!r}: a {entry['status']} incident needs "
+                                 "verified_by (two or more people) and verified_on")
         for key in ("advisory", "repository"):
             if not str(entry[key]).startswith("https://"):
                 raise StudyError(f"incident {entry['id']!r}: {key} must be an https URL")
@@ -132,8 +137,9 @@ def replay(entry: dict[str, Any], repo: str, work: str) -> dict[str, Any]:
     report = scan_tree(tree, os.path.join(work, "vulnerable.json"))
     shutil.rmtree(tree, ignore_errors=True)
     outcome = {"rule_hits": rule_hits(report, entry["expected"]), "change_hits": [],
-               # What fired on the flaw's files: lets the verifier fill expected.rules
-               # from evidence instead of guessing. Never scored.
+               # What fired on the flaw's files, for analysing misses after scoring.
+               # Never scored, and never shown to verifiers: expected.rules is
+               # chosen blind (scripts/incident_verify.py).
                "observed_on_paths": observed_on_paths(report, entry["expected"])}
     if entry.get("introduced_ref"):
         info = commit_info(repo, entry["introduced_ref"])

@@ -26,3 +26,40 @@ targets:
     url: https://github.com/crewAIInc/crewAI-examples
     status: proposed
     why: Example CrewAI crews that define agents and tools.
+
+  # Added 2026-11-08, before any history run; eligibility facts for every
+  # target are in target_check.json (scripts/target_check.py).
+  - id: awslabs-mcp
+    url: https://github.com/awslabs/mcp
+    status: proposed
+    why: Many Python MCP servers in one repository; tools added and changed often.
+
+  - id: github-mcp-server
+    url: https://github.com/github/github-mcp-server
+    status: proposed
+    why: Widely used MCP server whose tool set grows (Go; the check shows whether SafeAI parses it).
+
+  - id: stripe-ai
+    url: https://github.com/stripe/ai
+    status: proposed
+    why: Agent toolkit wiring the same tools into OpenAI Agents, LangChain, CrewAI and MCP.
+
+  - id: openai-cs-agents-demo
+    url: https://github.com/openai/openai-cs-agents-demo
+    status: proposed
+    why: OpenAI Agents SDK application with agents, handoffs and tools.
+
+  - id: cloudflare-mcp-servers
+    url: https://github.com/cloudflare/mcp-server-cloudflare
+    status: proposed
+    why: Several remote MCP servers (TypeScript) with tool definitions.
+
+  - id: playwright-mcp
+    url: https://github.com/microsoft/playwright-mcp
+    status: proposed
+    why: Browser-automation MCP server; tools that act on pages and files.
+
+  - id: executeautomation-playwright-mcp
+    url: https://github.com/executeautomation/mcp-playwright
+    status: proposed
+    why: Community browser-automation MCP server, written independently of the one above.
