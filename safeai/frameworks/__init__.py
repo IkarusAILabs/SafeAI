@@ -65,7 +65,10 @@ def _load_external_parsers():
 
 def discover_parsers(include_external=True):
     """Return a list of all registered parser instances."""
-    # Ensure all built-in parsers are imported so they register.
+    # Ensure all built-in parsers are imported so they register. Every
+    # ``safeai/frameworks/<name>/parser.py`` must be listed here:
+    # tests/test_parser_discovery.py fails when one is missing.
+    from safeai.frameworks.autogen.parser import AutoGenParser  # noqa: F401
     from safeai.frameworks.azure_foundry.parser import AzureFoundryParser  # noqa: F401
     from safeai.frameworks.bedrock_agent.parser import BedrockAgentParser  # noqa: F401
     from safeai.frameworks.claude_code.parser import ClaudeCodeParser  # noqa: F401

@@ -286,3 +286,66 @@ def test_incident_replay_end_to_end(tmp_path):
     assert data["summary"]["recall"] == {"n": 2, "k": 1, "status": "insufficient"}
     assert data["registry"] == {"candidate": 1, "verified": 3, "rejected": 0}
     assert "insufficient" in (out / "replay.md").read_text(encoding="utf-8")
+
+
+# --- C-3 incident search screens (offline) -----------------------------------------------
+
+search = _load("incident_search")
+
+
+def _advisory(**kw):
+    base = {"ghsa_id": "GHSA-aaaa-bbbb-cccc", "summary": "MCP server command injection",
+            "description": "", "cwes": [{"cwe_id": "CWE-78"}],
+            "source_code_location": "https://github.com/o/r",
+            "references": ["https://github.com/fork/r/commit/abc1234",
+                           "https://github.com/o/r/commit/DEF5678", "https://example.org"],
+            "vulnerabilities": [{"package": {"ecosystem": "pip", "name": "thing"}}]}
+    return {**base, **kw}
+
+
+def test_search_screens_in_the_documented_order():
+    assert search.screen(_advisory()) == "candidate"
+    assert search.screen(_advisory(withdrawn_at="2026-01-01")) == "withdrawn"
+    assert search.screen(_advisory(summary="XML parser bug")) == "no-keyword"
+    assert search.screen(_advisory(summary="bug", vulnerabilities=[
+        {"package": {"ecosystem": "npm", "name": "my-mcp-server"}}])) == "candidate"
+    assert search.screen(_advisory(summary="user-agent header parsing")) == "no-keyword"
+    assert search.screen(_advisory(cwes=[{"cwe_id": "CWE-79"}])) == "flaw-class-out-of-scope"
+    assert search.screen(_advisory(references=[])) == "no-fix-commit"
+
+
+def test_fix_commits_prefer_the_advisory_repository():
+    assert search.fix_commits(_advisory()) == [("o", "r", "def5678"), ("fork", "r", "abc1234")]
+
+
+@pytest.mark.parametrize(("path", "evidence"), [
+    ("src/server.py", True), ("Dockerfile", True), ("tests/test_server.py", False),
+    ("src/a.test.ts", False), (".github/workflows/ci.yml", False), ("CHANGELOG.md", False),
+    ("package-lock.json", False), ("docs/usage.md", False),
+])
+def test_fix_files_that_are_not_evidence(path, evidence):
+    assert (search.NOT_EVIDENCE.search(path) is None) is evidence
+
+
+def test_committed_registry_matches_its_screening_record():
+    reg = common.load_yaml(os.path.join(ROOT, "research", "credibility", "incidents.yml"))
+    with open(os.path.join(ROOT, "research", "credibility", "incident_screening.json"),
+              encoding="utf-8") as fh:
+        screening = json.load(fh)
+    candidates = {a["id"] for a in screening["advisories"] if a["decision"] == "candidate"}
+    assert {e["id"] for e in reg["incidents"]} == candidates
+    assert reg["search"]["counts"] == screening["summary"]
+    assert all(e["status"] == "candidate" and e["static_visibility"] == "undetermined"
+               for e in reg["incidents"])
+
+
+def test_candidates_are_never_scored():
+    results = [{"outcome": "unscored-flagged"}, {"outcome": "unscored"},
+               {"outcome": "detected"}]
+    assert replay.summarise(results)["recall"]["n"] == 1
+    assert replay.summarise(results)["unscored"] == 2
+    with pytest.raises(common.StudyError, match="verified incident needs"):
+        replay.validate({"search": {"query": "q", "date": "d"}, "incidents": [
+            {"id": "V", "advisory": "https://a", "repository": "https://r", "vulnerable_ref": "x",
+             "static_visibility": "undetermined", "status": "verified",
+             "expected": {"paths": ["p"]}}]})

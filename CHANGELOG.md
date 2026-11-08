@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **AutoGen agents were never inventoried by a real scan.** The AutoGen
+  parser was missing from `discover_parsers()`, so it registered only
+  when another module happened to import it. `safeai scan` reported no
+  AutoGen agents, while pytest workers that had imported the parser for
+  another test did report them, which made the pending-corpus test
+  depend on test order. The parser is now registered, and
+  `tests/test_parser_discovery.py` fails when any
+  `safeai/frameworks/<name>/parser.py` is left out. Scans of AutoGen
+  code now list AutoGen agents. The parser names an agent by its
+  constructor (`AssistantAgent`), not by its `name` argument; the
+  pending case `delegation/autogen_teams` records this. The 58-case
+  digests are unchanged (no published case contains AutoGen code).
+
 **Credibility track (roadmap C-1 to C-8).** A new roadmap track that
 measures SafeAI on code its authors did not write, ahead of new signals.
 Plan and pre-registered protocols in
@@ -25,14 +40,20 @@ the scanner is unchanged and gains no network path.
   disclosed advisories from `research/credibility/incidents.yml` and
   reports recall over statically visible incidents; runtime-only
   incidents are counted apart as expected `unknown`.
-- `research/credibility/`: proposed C-2 targets (none confirmed) and an
-  empty incident registry with its search record.
+- `scripts/incident_search.py` (C-3): runs the recorded GitHub Advisory
+  Database search and applies written keyword, flaw-class and
+  fix-commit screens. Search of 2026-11-07: 7,657 advisories, 726
+  keyword matches, **183 candidate incidents** (none verified); every
+  match and the screen that excluded it is in
+  `research/credibility/incident_screening.json`.
+- `research/credibility/`: proposed C-2 targets (none confirmed), the
+  candidate incident registry and its screening record.
 
 ### Not yet done
 
 - No study has run. C-2 targets await the owner's confirmation and
-  pinned ranges; the incident search has not been run; no reviewer has
-  labelled anything.
+  pinned ranges; no incident has been verified (each needs a human to set
+  its visibility and expected rules); no reviewer has labelled anything.
 
 ## [2.16.0] - 2026-11-06
 
