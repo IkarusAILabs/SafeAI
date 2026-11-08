@@ -40,12 +40,17 @@
   }
  ],
  "delegation_unresolved": 1,
- "agents": [],
+ "agents": [
+  {
+   "framework": "autogen",
+   "name": "AssistantAgent"
+  }
+ ],
  "must_fire": [],
  "must_not_fire": [],
  "evidence_refs": [],
  "uncertainty": [
-  "agents lists what the LangGraph and AutoGen inventory parsers report today (they do not name these agents); the delegation graph is the subject of this case"
+  "agents lists what the AutoGen inventory parser reports: it names agents by constructor (AssistantAgent), not by their name argument (triage, refunds, writer, critic, coder, tester), and both files collapse to one entry. Through v2.16.0 the parser was not registered in scanner discovery, so scans reported no AutoGen agent and this list was empty. The delegation graph, which names the agents, is the subject of this case"
  ],
  "truth_schema_version": "2.0",
  "annotation": {
