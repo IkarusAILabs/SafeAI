@@ -1,0 +1,10 @@
+{
+  "active_latest": 58734,
+  "entries": 59677,
+  "list": "census_frame.txt.gz",
+  "list_sha256": "84df21a4a7cd921ad438cfe062c82c4d18a799aa38c9ac751be942205695dbbe",
+  "registry": "https://registry.modelcontextprotocol.io/v0/servers",
+  "repositories": 30150,
+  "snapshot": "2026-11-08T20:40:54Z",
+  "with_github_repository": 38372
+}

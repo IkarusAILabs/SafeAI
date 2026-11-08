@@ -3,8 +3,8 @@
 Inputs for the studies in [`docs/research/CREDIBILITY_TRACK.md`](../../docs/research/CREDIBILITY_TRACK.md)
 (roadmap: `ROADMAP.md` §Credibility track). Study *outputs* (scans,
 packets, label sheets) are not committed here until a study is published;
-`study/`, `labels/`, `review/`, `replay/` and `verify/` working directories are
-git-ignored.
+`study/`, `labels/`, `review/`, `replay/`, `verify/` and `census/` working
+directories are git-ignored.
 
 | File | Study | Tool |
 |---|---|---|
@@ -13,7 +13,9 @@ git-ignored.
 | `target_check.json` | C-2 eligibility facts per target (no findings) and suggested ranges | `scripts/target_check.py` |
 | `incident_screening.json` | C-3 selection record: every keyword match and the screen that excluded it | `scripts/incident_search.py` |
 | — (pending corpus) | C-1 external review | `scripts/label_kit.py review-packets` |
-| `claims.yml` | C-8 claims ledger: every public claim and what backs it | `scripts/claims_check.py` (runs in the test suite) |
+| `claims.yml` | C-8 claims ledger: every public claim and what backs it | `scripts/claims_check.py` (runs in the test suite; `--web` also checks the website) |
+| `census_frame.txt.gz`, `census_frame.json` | C-5 frame: distinct GitHub repositories of active MCP registry servers, with counts and digest | `scripts/census.py frame` |
+| `census_sample.json` | C-5 sample: seeded screening order, eligibility reason, pinned commit | `scripts/census.py sample` |
 
 No tool labels anything: people label, `scripts/label_kit.py` lays out
 packets and counts answers (`agreement`, `score`). Rates come with 95%
@@ -44,6 +46,15 @@ python scripts/incident_verify.py packets --registry research/credibility/incide
     --count 20 --verifiers ana,ben --out verify/
 python scripts/incident_verify.py apply --registry research/credibility/incidents.yml \
     verify/sheet.ana.csv verify/sheet.ben.csv
+
+# C-5: census of the committed sample (aggregates only), then the human check
+python scripts/census.py run --sample research/credibility/census_sample.json --out census/
+python scripts/census.py aggregate census/ --json census/aggregate.json
+python scripts/census.py packets census/ --seed 20261108 --count 30 --checkers ana,ben --out census/check/
+python scripts/census.py agreement census/ census/check/adjudicated.csv --json census/agreement.json
+
+# C-8: re-check the website quotes after a site change
+python scripts/claims_check.py --web
 
 # C-3: re-run the search (keeps verified / rejected entries), validate, replay verified incidents
 python scripts/incident_search.py --registry research/credibility/incidents.yml \

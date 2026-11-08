@@ -91,6 +91,16 @@ the scanner is unchanged and gains no network path.
   `tests/test_scan_offline_runtime.py` checks at run time that a scan
   opens no socket and starts no process, and that the CLI runs only four
   read-only `git` metadata commands.
+- **Authority surface census (C-5):** `scripts/census.py` snapshots the
+  official MCP registry, draws a seeded sample of 200 eligible
+  repositories pinned to a commit, scans them, and keeps only five
+  attributes per repository (surface, execute, write-or-broader,
+  approval missing, hardcoded credential). It publishes aggregates with
+  Wilson intervals, never repository names, and includes a blind human
+  check. The frame and sample are committed before any census scan.
+- `scripts/claims_check.py --web` fetches the website and checks every
+  web quote. The release version is now a counted fact, so a release
+  flags a site that still shows the old version.
 - History study export works on Windows for paths Windows cannot hold
   (`config /agents.yaml`): `study_common.portable_name`.
 - `scripts/target_check.py` (C-2): records each proposed target's

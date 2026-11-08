@@ -7,17 +7,22 @@ Reads ``research/credibility/claims.yml`` and fails when:
   the wording cannot drift apart silently;
 - a ``count`` claim's number differs from the number recomputed from
   the code (frameworks, capability categories, escalation, governance
-  and risk categories);
+  and risk categories, and the release version). This holds for web
+  claims too: a release or a new framework fails the check until the
+  web claim is marked ``stale`` or the page is updated and re-quoted;
 - the rule-coverage table in ``docs/reference/SUPPORT_MATRIX.md`` differs
   from the built-in rules, prefix by prefix;
 - a ``tested`` claim names a test file or test that does not exist;
 - a field is missing or a status is unknown.
 
-Claims sourced from web pages (``https://``) are listed with their
-status but not fetched: the check stays offline.
+Claims sourced from web pages (``https://``) are not fetched by default,
+so the check in the test suite stays offline. ``--web`` fetches each page
+once (with ``curl``) and also checks that every web quote is on it; run
+it after the site changes, then update ``retrieved``.
 
 Usage:
     python scripts/claims_check.py [--ledger research/credibility/claims.yml] [--summary]
+    python scripts/claims_check.py --web
 
 Exit codes: 0 consistent · 1 inconsistencies found · 2 usage error.
 """
@@ -25,6 +30,7 @@ Exit codes: 0 consistent · 1 inconsistencies found · 2 usage error.
 from __future__ import annotations
 
 import argparse
+import html
 import os
 import re
 import sys
@@ -48,11 +54,12 @@ def _rule_ids() -> list[str]:
     return [r["id"] for r in load_rules()[0]]
 
 
-def actual_counts() -> dict[str, int]:
+def actual_counts() -> dict[str, Any]:
     from safeai.analysis.capabilities import CAPABILITY_CATEGORIES
     from safeai.analysis.escalation import ESCALATION_RULES
     from safeai.frameworks import discover_parsers
     from safeai.scoring.engine import CATEGORY_WEIGHTS
+    from safeai.version import SAFEAI_VERSION
 
     return {
         "frameworks": len(discover_parsers(include_external=False)),
@@ -60,6 +67,7 @@ def actual_counts() -> dict[str, int]:
         "escalation_rules": len(ESCALATION_RULES),
         "governance_rules": sum(i.startswith("GOV_") for i in _rule_ids()),
         "risk_categories": len(CATEGORY_WEIGHTS),
+        "release": SAFEAI_VERSION,
     }
 
 
@@ -80,6 +88,36 @@ def support_matrix_counts(text: str) -> dict[str, int]:
 
 def _normalise(text: str) -> str:
     return re.sub(r"\s+", " ", text.replace("*", "")).strip()
+
+
+def page_text(raw: str) -> str:
+    """Visible text of an HTML page, normalised like the quotes."""
+    raw = re.sub(r"(?is)<(script|style|noscript)\b[^>]*>.*?</\1>", " ", raw)
+    return _normalise(html.unescape(re.sub(r"(?s)<[^>]+>", " ", raw)))
+
+
+def check_web(claims: list[dict[str, Any]], get: Any = None) -> list[str]:
+    """Each web quote must be on its page (fetched once per page)."""
+    if get is None:
+        sys.path.insert(0, os.path.join(REPO, "scripts"))
+        from study_common import fetch as get
+    pages: dict[str, str] = {}
+    problems = []
+    for claim in claims:
+        source = str(claim.get("source") or "")
+        if not source.startswith("https://"):
+            continue
+        if source not in pages:
+            try:
+                pages[source] = page_text(get(source).decode("utf-8", "replace"))
+            except Exception as exc:
+                problems.append(f"{source}: could not fetch: {exc}")
+                pages[source] = ""
+                continue
+        if pages[source] and _normalise(str(claim.get("quote"))) not in pages[source]:
+            problems.append(f"{claim.get('id')}: quote no longer on {source}: "
+                            f"{claim.get('quote')!r}")
+    return problems
 
 
 def _test_exists(ref: str) -> bool:
@@ -163,6 +201,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ledger", default=os.path.join(REPO, "research", "credibility",
                                                          "claims.yml"))
     parser.add_argument("--summary", action="store_true", help="also print counts by status")
+    parser.add_argument("--web", action="store_true",
+                        help="also fetch web sources and check their quotes")
     args = parser.parse_args(argv)
     import yaml
 
@@ -173,6 +213,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"claims_check: {exc}", file=sys.stderr)
         return 2
     problems = check(ledger)
+    if args.web:
+        problems += check_web(ledger.get("claims") or [])
     for problem in problems:
         print(problem)
     if args.summary or not problems:

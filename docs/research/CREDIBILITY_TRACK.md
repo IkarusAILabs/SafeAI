@@ -309,17 +309,116 @@ On the websites:
   community use unsafe AI agents" and "Enterprise ready".
 - 2 stale facts: "15 frameworks", and v1.7 shown as pending.
 
-These are listed for the owner to change.
+The owner revised the site the same day. `claims_check.py --web`
+confirmed that all five lines are gone, and the ledger quotes the new
+wording, with the old wording under `replaced`. After the revision there
+are 29 claims and no overclaim or stale fact. The release shown on the
+site is now a counted fact: the next release fails the check until the
+site is updated or the claim is marked `stale`.
 
-## C-4 to C-7
+## C-5 — Authority surface census (protocol 2026-11-08)
+
+**Question.** In public MCP server repositories, how often does SafeAI
+report execute authority, write-or-broader authority, missing approval
+controls and hardcoded credentials, and how often does it find nothing
+to report? And how often do people agree with SafeAI on each of these?
+
+**Frame.** The official MCP registry
+(`registry.modelcontextprotocol.io`, `/v0/servers?version=latest`):
+every entry whose registry status is `active`, whose `repository.url`
+is on github.com, reduced to distinct repositories (case-insensitive).
+A repository that hosts several registered servers counts once. The
+snapshot is committed as `research/credibility/census_frame.txt.gz` with
+its counts and SHA-256 in `census_frame.json`. Servers without a public
+repository, and agent configurations outside the registry, are not in
+the frame; this census says nothing about them.
+
+**Sample.** The frame ordered by `sha256("C5:20261108:<repository>")`.
+Repositories are screened in that order until **200** are eligible.
+Eligible means:
+- a recognised open-source licence;
+- not archived and not a fork;
+- not owned by SafeAI's authors;
+- not empty and at most 500 MB.
+
+Screening uses GitHub API facts only; nothing is scanned before the
+sample is committed. Each eligible repository is pinned to its
+default-branch head at the draw. The draw is committed as
+`census_sample.json`, with every screened repository and its reason.
+With 200, a share near 50% has a 95% Wilson interval about ±7 points
+wide.
+
+**Draw of 2026-11-08.** The registry held 59,677 latest entries:
+- 58,734 were active;
+- 38,372 of those linked a GitHub repository;
+- these resolved to 30,150 distinct repositories.
+
+Reaching 200 eligible took 293 repositories in seeded order. The other
+93 were screened out:
+
+| Reason | Repositories |
+|---|---|
+| Not found (deleted, renamed away, or private) | 48 |
+| No recognised licence | 43 |
+| Fork | 2 |
+| Empty | 2 |
+| Archived | 1 |
+| Over 500 MB | 1 |
+
+That one in six linked repositories could not be found is itself a
+fact about the registry. It is reported with the census and is not a
+SafeAI measurement.
+
+**Run.** Each pinned commit is fetched at depth 1, exported with
+`git archive`, and scanned with `safeai scan --no-registry`, with
+telemetry forced off. Only the attributes below are kept, never
+findings. Repositories that fail to fetch or scan are counted and
+reported, not replaced.
+
+**Attributes** (per repository, as SafeAI reports them):
+
+| Attribute | Definition | Share of |
+|---|---|---|
+| `surface` | a detected framework, a tool, or an MCP asset | all scanned |
+| `execute` | some capability with access mode `execute` | `surface` |
+| `write_or_broader` | some capability with access mode `write`, `mutate` or `execute` | `surface` |
+| `approval_missing` | `write_or_broader` and `GOV_APPROVAL_MISSING` reported | `write_or_broader` |
+| `static_credential` | `MCP_HARDCODED_SECRET`, `SKILL_HARDCODED_SECRET` or `DATA_LEAKAGE` reported | `surface` |
+
+The pooled unattributed-authority rate over `surface` repositories is
+also reported. It has no interval, because statements within one
+repository are not independent.
+
+**Human check.** 30 scanned repositories, chosen by
+`sha256("C5:check:20261108:<repository>")`. Two people each fill in
+every attribute from the repository at the pinned commit. Their sheets
+never show SafeAI's answers. Disagreements are adjudicated by a third
+person or by discussion, and the adjudicated sheet gives SafeAI's
+precision, recall and agreement per attribute. Below 10 in a
+denominator, the result is *insufficient*.
+
+**Reporting.**
+- Aggregates only: published output never names or ranks a repository.
+- Every share is labelled "as SafeAI reports it" and is published next
+  to the human-check agreement for that attribute.
+- A share is never presented as the prevalence of a property unless
+  that agreement supports it.
+- The rate of repositories where SafeAI finds nothing (`surface` = no)
+  is published with the same prominence as the other shares.
+
+**Not claimed.**
+- Nothing about deployed servers, or about servers without a public
+  repository.
+- Nothing about exploitability: a reported attribute is authority, not
+  a vulnerability. Confirmed exploitable cases go to C-6, never here.
+
+## C-4, C-6, C-7
 
 Planned; each gets its protocol here before it starts.
 
 - **C-4 Comparative measurement** reuses C-2's confirmed targets and
   the authority corpus; tools at pinned versions; scored on SafeAI's
   rubric; LLM-backed analysers off or reported apart.
-- **C-5 Census** reports aggregates only (no per-project ranking or
-  naming) over a pre-registered target list.
 - **C-6 Disclosure** publishes the maintainer acceptance rate
   (accepted / filed) and never a raw finding count.
 - **C-7 Design partners** records, per review request, whether the
@@ -350,6 +449,8 @@ person, by Rule 2.
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-07 | Initial protocol | — |
+| 2026-11-08 | C-5 protocol fixed and frame and sample drawn before any census scan: official MCP registry, seed `20261108`, 200 eligible repositories, the five attributes above, a 30-repository human check | A census whose sample, attributes or denominators were chosen after seeing results could be tuned to a story; the draw uses repository facts only |
+| 2026-11-08 | C-8: web claims are re-quoted from the live pages with `claims_check.py --web`; earlier wording is kept under `replaced`; the release version is a counted fact | After the owner revised the website, every overclaim and stale fact was gone, and one hub quote had changed without the ledger noticing; the version shown on the site was the stale fact found first |
 | 2026-11-08 | C-8 started ahead of Phase 4 as an inventory and a CI check; wording is still changed only after measurements, except corrections and withdrawals | Wrong numbers were found in the README while preparing C-2; checking claims needs no study, and a check stops them drifting again |
 | 2026-11-08 | C-2 tooling: trees whose paths Windows cannot hold (`config /agents.yaml`) are exported with `core.protectNTFS` off for the archive and names made portable on extraction | A dry run on a repository that cannot be a target (crewAI-examples, archived) lost 25 of 141 commits to export errors; errored commits fold their changes into the next diff and would bias the study |
 | 2026-11-08 | C-3 verification fixed before any verification: seeded order, two verifiers with adjudication, `verified_by` / `verified_on` required, and `expected.rules` chosen blind (packets show the rule catalogue, never SafeAI's output). The earlier wording that the rules which fired are "listed to help the verifier" is withdrawn | Letting a verifier see what fired would let `expected.rules` follow SafeAI's output and make recall circular; a seeded order makes a partly verified registry a random sample |

@@ -18,6 +18,8 @@
 #   positioning   a comparison or framing; needs C-4 to back it
 #   limitation    states what SafeAI does not do (kept so it is not dropped)
 # action: what should change, when something should.
+# replaced: earlier wording of the same claim (quote, until, why), kept so
+#   withdrawals and corrections stay on record.
 #
 # Rule 6: wording is strengthened only after a published measurement.
 # Corrections of wrong numbers and withdrawals of overclaims are not
@@ -183,54 +185,80 @@ claims:
 
 # --- safeai-analyzer.ikaruslabs.net (not in this repository) -------------------
 
-- id: site-every-capability
+- id: site-tagline
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: Every AI capability in your codebase, mapped and risk-rated.
+  quote: See what your AI agents can do, with evidence, before you deploy.
   kind: quality
-  status: overclaim
-  study: C-2 miss rate will put a number on it; "every" cannot be shown
-  action: Reword to what is measured, e.g. "Maps the capabilities SafeAI recognises in 20 frameworks".
+  status: unmeasured
+  study: C-2 (miss rate in silent commits), C-3 (recall on incidents)
+  replaced:
+  - quote: Every AI capability in your codebase, mapped and risk-rated.
+    until: '2026-11-08'
+    why: overclaim; "every" cannot be shown
 
-- id: site-unsafe-agents
+- id: site-mission
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: We will not let our community use unsafe AI agents.
+  quote: We help teams see and review what their AI agents are allowed to do before it ships.
   kind: quality
-  status: overclaim
-  action: Remove; it contradicts "does not certify that an agent is safe".
+  status: unmeasured
+  study: C-7 (whether maintainers act on review requests)
+  replaced:
+  - quote: We will not let our community use unsafe AI agents.
+    until: '2026-11-08'
+    why: overclaim; contradicted "does not certify that an agent is safe"
 
-- id: site-frameworks-15
+- id: site-frameworks
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: SafeAI currently detects and analyzes 15 AI agent frameworks and platforms
+  quote: SafeAI currently detects and analyzes 20 AI agent frameworks and platforms
   kind: count
-  status: stale
-  action: 20, per the code (the same page also says "15+").
+  status: counted
+  count: frameworks
+  claimed: 20
+  replaced:
+  - quote: SafeAI currently detects and analyzes 15 AI agent frameworks and platforms
+    until: '2026-11-08'
+    why: stale (also "15+")
 
-- id: site-v17-pending
+- id: site-release
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: Completed · Pending Release
-  kind: positioning
-  status: stale
-  action: The page describes v1.7 as pending; the current release is v2.16.0.
+  quote: 'Released. Current release: v2.16.0.'
+  kind: count
+  status: counted
+  count: release
+  claimed: 2.16.0
+  note: Fails the check at the next release until the page is updated (or this is marked stale).
+  replaced:
+  - quote: Completed · Pending Release
+    until: '2026-11-08'
+    why: stale; v1.7 shown as pending
 
-- id: site-enterprise-ready
+- id: site-community
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: Community built. Enterprise ready.
-  kind: positioning
-  status: overclaim
-  action: Remove "Enterprise ready"; the same page calls enterprise governance a future direction.
+  quote: Community built. Open source. Early preview.
+  kind: limitation
+  status: limitation
+  replaced:
+  - quote: Community built. Enterprise ready.
+    until: '2026-11-08'
+    why: overclaim; the same page calls enterprise governance a future direction
 
-- id: site-missing-layer
+- id: site-layer
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: The missing security layer for AI agents
+  quote: A pre-deployment security layer for AI agents, alongside runtime guardrails and red-teaming
   kind: positioning
   status: positioning
   study: C-4
+  note: No longer comparative; C-4 will show what SafeAI finds that the other tools do not.
+  replaced:
+  - quote: The missing security layer for AI agents
+    until: '2026-11-08'
+    why: comparative claim without C-4
 
 - id: site-offline
   source: https://safeai-analyzer.ikaruslabs.net
@@ -241,17 +269,32 @@ claims:
   backing:
     tests:
     - tests/test_scan_offline_runtime.py
+  note: Telemetry is opt-in and off by default; the study tools force it off for their scans.
 
-- id: site-never-execute
+- id: site-runs-offline
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'
-  quote: Never execute code.
+  quote: 100% offline
   kind: property
   status: tested
   backing:
     tests:
     - tests/test_scan_offline_runtime.py
-  note: True of the scanned code; the CLI runs local read-only `git` commands for metadata.
+  note: True of scanning; `--pr-comment-post` is an explicit, opt-in network integration.
+
+- id: site-never-execute
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Never executes the code it scans.
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_scan_offline_runtime.py
+  replaced:
+  - quote: Never execute code.
+    until: '2026-11-08'
+    why: broader than the truth; the CLI runs local read-only `git` commands
 
 - id: site-evidence-remediation
   source: https://safeai-analyzer.ikaruslabs.net
@@ -270,9 +313,13 @@ claims:
 - id: hub-early-preview
   source: https://ikaruslabs.net/safeai
   retrieved: '2026-11-08'
-  quote: SafeAI is an early-preview, evidence-producing static analyser for agent authority
+  quote: Early preview · Static analysis before deployment
   kind: limitation
   status: limitation
+  replaced:
+  - quote: SafeAI is an early-preview, evidence-producing static analyser for agent authority
+    until: '2026-11-08'
+    why: the page was reworded; the early-preview limitation stays
 
 - id: hub-not-certify
   source: https://ikaruslabs.net/safeai
