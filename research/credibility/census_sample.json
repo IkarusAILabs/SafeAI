@@ -1,0 +1,2155 @@
+{
+  "drawn": "2026-11-08",
+  "n": 200,
+  "rows": [
+    {
+      "commit": "90d2bb02b7f32e0d2678ccc231aac66d0633b8f7",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 1,
+      "repository": "https://github.com/svgnew/mcp"
+    },
+    {
+      "commit": "034270ecf374621ae854984b20c12623ce308a68",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 2,
+      "repository": "https://github.com/askuma/workflow-generator"
+    },
+    {
+      "commit": "5046c337de1af898779d84ac0ec3a61ef34446e1",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 3,
+      "repository": "https://github.com/pipeworx-io/mcp-pulsedive"
+    },
+    {
+      "commit": "0015795570e5e5cef2f1457a909cef27c23486f8",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 4,
+      "repository": "https://github.com/cyanheads/pentest-mcp-server"
+    },
+    {
+      "eligible": false,
+      "rank": 5,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/junter1989k-ai/malta-payments-mcp"
+    },
+    {
+      "commit": "bfd7e0883d8837c728ab9db441ae4382a4bab429",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 6,
+      "repository": "https://github.com/n24q02m/crg"
+    },
+    {
+      "eligible": false,
+      "rank": 7,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/vmware-skills/vmware-nsx"
+    },
+    {
+      "commit": "68a94c6245758a28dece5c1ed05ba1e7b061216d",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 8,
+      "repository": "https://github.com/coinlooter/payflowagent-mcp"
+    },
+    {
+      "commit": "df0a1595f2f095df8ce21c5a4ec5cd4e4c11e93c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 9,
+      "repository": "https://github.com/miguelgandia/enchantedcolony-mcp"
+    },
+    {
+      "commit": "c0d5601222175f6370e5bde5b7c7f1084987f5fd",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 10,
+      "repository": "https://github.com/csoai-org/lorem-ipsum-ai-mcp"
+    },
+    {
+      "commit": "7044ab38df0ae89e877d5c3b1ded8a0c92afacb7",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 11,
+      "repository": "https://github.com/jongall45/frontrun-mcp-server"
+    },
+    {
+      "commit": "7fca97416debe29647dc7a1321a73f4200160a4b",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 12,
+      "repository": "https://github.com/fantasyce/agent-runtime-proof"
+    },
+    {
+      "commit": "00452eed2837f953aca7f89abb439c4d8b9df8f9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 13,
+      "repository": "https://github.com/adiaz0511/derived"
+    },
+    {
+      "commit": "475bdc23bc56edf0e1b2ebc197c3775f9ec3fae9",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 14,
+      "repository": "https://github.com/wyre-ai/sherweb-mcp"
+    },
+    {
+      "commit": "8fe5a674cbcfa68244d603e148ff1760e1786369",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 15,
+      "repository": "https://github.com/mayberrydt/ibara"
+    },
+    {
+      "commit": "ba6bc728a3102d2c6f0e4c40bf239a3d98b2499a",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 16,
+      "repository": "https://github.com/upstageai/korean-tax-calc-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 17,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/larrylemonbot/gatecheck"
+    },
+    {
+      "commit": "d4263cbb48b2112f992fd3c47fdf3239c3291d37",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 18,
+      "repository": "https://github.com/pipeworx-io/mcp-htmltext"
+    },
+    {
+      "commit": "20941b06fc2e8b62fa8dbb9dd4c914e29f097bb3",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 19,
+      "repository": "https://github.com/mcp-dir/pref_sp_sao_paulo_multas_guias-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 20,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/doublespeed-main/mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 21,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/tengence-team/tengence-search-mcp"
+    },
+    {
+      "commit": "ed6e00d1f8d821e9ee5fa0d2bbb1f877b22f10ca",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 22,
+      "repository": "https://github.com/inferensys/dr-mcp"
+    },
+    {
+      "commit": "8dff8321f92f7bf118002d850db072121e18e45a",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 23,
+      "repository": "https://github.com/pipeworx-io/mcp-guild-wars-2"
+    },
+    {
+      "commit": "c06eb9841312c002b2272ad62869628b09ec6f43",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 24,
+      "repository": "https://github.com/savantcat/savantcat-ai-compliance-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 25,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/sadri-dridi/uuid-mint-mcp"
+    },
+    {
+      "commit": "638f7b01780baa51b8fda1ba74db7cdd76082f85",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 26,
+      "repository": "https://github.com/dushyant30suthar/endiagram-mcp"
+    },
+    {
+      "commit": "7d6e3f8b4b1222d371eff880a724e57b1113f2c3",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 27,
+      "repository": "https://github.com/ashlrai/phantom-secrets"
+    },
+    {
+      "commit": "d2e2b668a34f5f92fb9d87a4e64360dd2d09a9a7",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 28,
+      "repository": "https://github.com/kfx2026/sanyu-research-mcp"
+    },
+    {
+      "commit": "653011493c495deff1ae56a5cdd2ccf88eab62df",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 29,
+      "repository": "https://github.com/pipeworx-io/mcp-seo-backlinks"
+    },
+    {
+      "commit": "23c5a965e52041de27c1c8479d7370e0f2415558",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 30,
+      "repository": "https://github.com/upscrape/upscrape-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 31,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/ipezygj/numguard"
+    },
+    {
+      "commit": "8ce0b15116681087c850c3ebdc9263124bb270ab",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 32,
+      "repository": "https://github.com/bamwor-dev/bamwor-mcp-server"
+    },
+    {
+      "commit": "e76358979e18a74a3f446e59eb6c72637ca741fc",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 33,
+      "repository": "https://github.com/shbernal/rfc-ai-tooling"
+    },
+    {
+      "commit": "1d640283b40303af5f767ca995b7eba26edaadb0",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 34,
+      "repository": "https://github.com/olk/design-pattern-mcp"
+    },
+    {
+      "commit": "d65e22061279f7abc52d3ac14b1a0e4d02e8d74e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 35,
+      "repository": "https://github.com/kubaopoczka/tripwire-guard"
+    },
+    {
+      "commit": "eed5a0f414da9463554c23607309daad1093dc9f",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 36,
+      "repository": "https://github.com/upgrow-com/instagram-growth-mcp"
+    },
+    {
+      "commit": "f71683a0489e4e220b1b6764207a96ae42d622ca",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 37,
+      "repository": "https://github.com/pipeworx-io/mcp-spaceflight-news"
+    },
+    {
+      "commit": "2c6781ce476a222faf93862a735ced7777aa02ae",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 38,
+      "repository": "https://github.com/mastercard/developers-agent-toolkit"
+    },
+    {
+      "commit": "5fad29b30269143675c39b0fc63b65e72d39828a",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 39,
+      "repository": "https://github.com/cyanheads/eu-parliament-mcp-server"
+    },
+    {
+      "eligible": false,
+      "rank": 40,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/alphaparkinc/genpark-reservoir-sampling-stream-auditor-skill"
+    },
+    {
+      "eligible": false,
+      "rank": 41,
+      "reasons": [
+        "no recognised open-source licence",
+        "a fork"
+      ],
+      "repository": "https://github.com/temple-of-epiphany/imap-mcp-pro"
+    },
+    {
+      "commit": "2c25d383ce661e91ecc30cd7c605fc81ac9a366d",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 42,
+      "repository": "https://github.com/abderahmane-ai/mimir"
+    },
+    {
+      "commit": "048069c083152f8c8adaa2caa9bf5b06273ed992",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 43,
+      "repository": "https://github.com/meador793/stats-explorer-mcp"
+    },
+    {
+      "commit": "b4d46e6a60906ee6012ca2052b72fd793eaee65e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 44,
+      "repository": "https://github.com/lahutchins91/patent-mcp"
+    },
+    {
+      "commit": "2d1ab06e9b32024d6d5b0ad5ddf6aa821e4d67da",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 45,
+      "repository": "https://github.com/ethanasm/mcp-queue-doctor"
+    },
+    {
+      "eligible": false,
+      "rank": 46,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/bjnagent/crowd"
+    },
+    {
+      "eligible": false,
+      "rank": 47,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/unbearabledev/k8s-manifest-audit"
+    },
+    {
+      "commit": "ae0960f05bcff24efc5e829b582bf10194429b16",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 48,
+      "repository": "https://github.com/meser10/meser10-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 49,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/manteclaw/litcoiin-solutions"
+    },
+    {
+      "eligible": false,
+      "rank": 50,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/lamont703/project_innerg_complete_agency"
+    },
+    {
+      "commit": "1d01735216566f751029d1399620952edee00c62",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 51,
+      "repository": "https://github.com/lusrodri/render-useful-mcp"
+    },
+    {
+      "commit": "7d85265e6052eab8060d08fed56bb3698d1a85a6",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 52,
+      "repository": "https://github.com/jiankn/nbmecalc-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 53,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/jmeg8r/mcp-astgl-knowledge"
+    },
+    {
+      "commit": "eb1226709d6bf7f3ea9e51d4ba7831fc6de7f3ce",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 54,
+      "repository": "https://github.com/paxalabs/mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 55,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/iterationlayer/iterationlayer"
+    },
+    {
+      "commit": "936c5de73486806dc007a0381bcb141a4bd1a955",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 56,
+      "repository": "https://github.com/robinafaruqia/stripe-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 57,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/edulelis/moonlight-desktop-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 58,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/buildwithchirp/weather-monorepo"
+    },
+    {
+      "commit": "f070619b251483b2e3bc7ff562da8a5c3aa0e548",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 59,
+      "repository": "https://github.com/namestation/plugins"
+    },
+    {
+      "eligible": false,
+      "rank": 60,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/empiriolabs-ai/mcp"
+    },
+    {
+      "commit": "b313b17c34102356ed4e65cd907392ae0467365e",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 61,
+      "repository": "https://github.com/outlitai/outlit-sdk"
+    },
+    {
+      "commit": "2c577a834580ef405f56c26e0de498004d28cf53",
+      "eligible": true,
+      "licence": "GPL-3.0",
+      "rank": 62,
+      "repository": "https://github.com/abhishek207/headsup-mcp"
+    },
+    {
+      "commit": "6d1266d87fe377f96b6de03a5e86c45d0d9266df",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 63,
+      "repository": "https://github.com/carrotlabsai/3gpp-scout-mcp"
+    },
+    {
+      "commit": "4ab9a81f381f8051a3dc097feba9a87473028379",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 64,
+      "repository": "https://github.com/rmzlb/notifyd"
+    },
+    {
+      "commit": "44c987d803a64ea7687a7590210c0647c4c9ee55",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 65,
+      "repository": "https://github.com/10ml-com/perfume-finder-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 66,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/sadri-dridi/robots-inspect-mcp"
+    },
+    {
+      "commit": "5a18d396e20c07d12180f6a88740d3cb784ad409",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 67,
+      "repository": "https://github.com/gordonkjlee/factmem"
+    },
+    {
+      "commit": "1aba1ffcc82c1d660a63d7e639dc1a3e9976767a",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 68,
+      "repository": "https://github.com/foretak/registry-mcp"
+    },
+    {
+      "commit": "0dd9a01a065da76d96c448a3261e51f8b2895837",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 69,
+      "repository": "https://github.com/cameron4316/x402-oracle-server"
+    },
+    {
+      "commit": "6794a5153efd7cb7776159bb81c3c3113107b01c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 70,
+      "repository": "https://github.com/swebsy/mcp"
+    },
+    {
+      "commit": "ff1aef3921a26584e5f9e7e9d64e91a60be55faa",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 71,
+      "repository": "https://github.com/qompassai/phaedrus"
+    },
+    {
+      "commit": "212e95e000dc0e4b6dfee45a4eb4c742c8601c9e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 72,
+      "repository": "https://github.com/tsvetang2/cognigy-ai-mcp-management-server"
+    },
+    {
+      "commit": "8ac3cde0dfbd591e427c265c782add319e11ade5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 73,
+      "repository": "https://github.com/semiotronika/nouz-mcp"
+    },
+    {
+      "commit": "7f5519cc81d087f98e2264b59ed5c37e355da7da",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 74,
+      "repository": "https://github.com/jldlab/connexagents-mcp"
+    },
+    {
+      "commit": "d59d3b6d317aba5af4307f7f29d261d350578600",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 75,
+      "repository": "https://github.com/trustabl/agent-reliability-analyzer"
+    },
+    {
+      "commit": "6f8a60fb5ba5bc141db3568562156128dddc471c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 76,
+      "repository": "https://github.com/milos106/ares-mcp"
+    },
+    {
+      "commit": "cdaf093050b71fdc12fff3809b3692b724856ede",
+      "eligible": true,
+      "licence": "AGPL-3.0",
+      "rank": 77,
+      "repository": "https://github.com/madponyinteractive/cubric-studio-agents"
+    },
+    {
+      "eligible": false,
+      "rank": 78,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/im5tu/verifymcp"
+    },
+    {
+      "commit": "a83c7242b5cff7dca7e6d1c5ee3a27948a55e680",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 79,
+      "repository": "https://github.com/pipeworx-io/mcp-owasp"
+    },
+    {
+      "commit": "d59b178e2754743d34ea420868cd9eefbb517ac0",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 80,
+      "repository": "https://github.com/stufently/yandex-mcp"
+    },
+    {
+      "commit": "4928dde9cfc7a85ffe2171e423b7a0d6456a0571",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 81,
+      "repository": "https://github.com/ianderso/dpla-catalog-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 82,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/lchampz/mcp-heimdall"
+    },
+    {
+      "commit": "fd42696f563dc7eb4b294d97be5a9f411df6b2b9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 83,
+      "repository": "https://github.com/robertoyanguas-ops/assay"
+    },
+    {
+      "eligible": false,
+      "rank": 84,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/ipify-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 85,
+      "reasons": [
+        "archived"
+      ],
+      "repository": "https://github.com/writerslogic/cogmem"
+    },
+    {
+      "commit": "98590868b4d117aeea84fe7964d8b549af1c2b45",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 86,
+      "repository": "https://github.com/jobzeroapp/jobzero-mcp"
+    },
+    {
+      "commit": "e5cfff88435bdaf1df6ebba154092fda40625841",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 87,
+      "repository": "https://github.com/cloudcorprecords/coinintel"
+    },
+    {
+      "commit": "2d8d4e9c8e998fbd528197847812da2597ef877e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 88,
+      "repository": "https://github.com/starnikovoleg/tgatlas-mcp"
+    },
+    {
+      "commit": "931a2ce280bd4c6a2e16992a0acb7a44fbaa7551",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 89,
+      "repository": "https://github.com/rubenglez/devicecloud-mcp"
+    },
+    {
+      "commit": "db88c1e3d7ca30aa65ff3d566c1d85ae1985b5a5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 90,
+      "repository": "https://github.com/lumayapartners/memini"
+    },
+    {
+      "commit": "479cee05fa750ca152b695ed9f622a627e84d5f3",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 91,
+      "repository": "https://github.com/keeploopapp/claude-plugin"
+    },
+    {
+      "commit": "e393697c8c22f5f3975d5ba9fe38da9e11d37df5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 92,
+      "repository": "https://github.com/theyahia/robokassa-mcp"
+    },
+    {
+      "commit": "9f95d4ade27ba6936fb43b2ddc85206641cac9c3",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 93,
+      "repository": "https://github.com/nirholas/sperax-crypto-mcp"
+    },
+    {
+      "commit": "f63a3324c3446eb81842da2733d5448a29c56fdb",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 94,
+      "repository": "https://github.com/altoninelli/marketplace-agents-ai-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 95,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/africa-data-bank/afridb-platform"
+    },
+    {
+      "commit": "9bfac9bc41028e441f1649c3032f06585b0881d5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 96,
+      "repository": "https://github.com/tom409114/research-repo-doctor"
+    },
+    {
+      "commit": "7fdae5aa59cd6b387ac28ef1182a7e8580c55d03",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 97,
+      "repository": "https://github.com/dockndevai/mcp-percona-pg"
+    },
+    {
+      "eligible": false,
+      "rank": 98,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/bouncelens/mcp-email-check"
+    },
+    {
+      "commit": "840b4d7e54e6213857be2ecd0178cb175f0b97a8",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 99,
+      "repository": "https://github.com/trainmyagent/machinehearts"
+    },
+    {
+      "commit": "be720206773ba96b5c9a3af050ee453e6efa19d5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 100,
+      "repository": "https://github.com/duhokim/nebulamind"
+    },
+    {
+      "eligible": false,
+      "rank": 101,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/aistrail/mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 102,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/beco360/alfil"
+    },
+    {
+      "commit": "4d92ef0b2ce39748cf5bb84555f7b5506d20aa5b",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 103,
+      "repository": "https://github.com/haison8x/geogebra-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 104,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/philpof102-svg/lawbor"
+    },
+    {
+      "eligible": false,
+      "rank": 105,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/ansible-galaxy-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 106,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/fluke-studio/uk-business-intelligence-mcp"
+    },
+    {
+      "commit": "c31079c488ad3ebca7a385f0096f8ee1a29faeda",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 107,
+      "repository": "https://github.com/sepehr071/iran-tax-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 108,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/cameronrye/portfolio"
+    },
+    {
+      "eligible": false,
+      "rank": 109,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/retailbox-automation/clickup-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 110,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/atushi1841/japan-port-vessel-mcp"
+    },
+    {
+      "commit": "b17c530580dc06f55f84d6a49fd6ed5f31e50aa9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 111,
+      "repository": "https://github.com/paulbreuler/limps"
+    },
+    {
+      "eligible": false,
+      "rank": 112,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/akis111/grantiq-mcp"
+    },
+    {
+      "commit": "c252de4cdc871ac1eb184dea91265ee69c29d7aa",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 113,
+      "repository": "https://github.com/obto-inc/platform"
+    },
+    {
+      "commit": "0ebaca2cc2767f8bfae51750a1f0507898cc644b",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 114,
+      "repository": "https://github.com/l20941485-blip/bintu-api"
+    },
+    {
+      "commit": "0ed154db49c14a8b527a4f8f58648ca6ae1e6091",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 115,
+      "repository": "https://github.com/theluckystrike/cups-to-grams-mcp"
+    },
+    {
+      "commit": "f13aaa62fe2cbfd7255baf8ba136a36c9fb81e70",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 116,
+      "repository": "https://github.com/pipeworx-io/mcp-arcgis-princewilliam"
+    },
+    {
+      "eligible": false,
+      "rank": 117,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/neousaxis/ai-visionary"
+    },
+    {
+      "eligible": false,
+      "rank": 118,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/beremaran/jevjam"
+    },
+    {
+      "commit": "a37e050ce316b37355c3dae7341bf56fe61b2de9",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 119,
+      "repository": "https://github.com/alfa-reza/cvss-calculator-mcp"
+    },
+    {
+      "commit": "d0c16eb8bd5ed9e06e5a9335591cce87c9055d28",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 120,
+      "repository": "https://github.com/hexahedral-inc/siren-mcp"
+    },
+    {
+      "commit": "e8629a22cfab3f19537fb76406be0c8f36761b8b",
+      "eligible": true,
+      "licence": "ISC",
+      "rank": 121,
+      "repository": "https://github.com/meharajm/whatsapp-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 122,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/public-safety-api/publicsafetyapi-mcp"
+    },
+    {
+      "commit": "c06ab1137883ec1cc7350415876f79e860ecff91",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 123,
+      "repository": "https://github.com/rocnubie/27-0-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 124,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/kaikhq/recur.tw"
+    },
+    {
+      "eligible": false,
+      "rank": 125,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/premium-mcps"
+    },
+    {
+      "commit": "86cead047e4cbf17fa43349749e1798b8d0e9689",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 126,
+      "repository": "https://github.com/apatilgtn/k8scortex-mcp"
+    },
+    {
+      "commit": "91cb7c612a6235e7c51c1397b4b99dd572ad8400",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 127,
+      "repository": "https://github.com/enkiduhub/mentionforge"
+    },
+    {
+      "eligible": false,
+      "rank": 128,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/yasuhiro-lanitech/pc-catalog-site"
+    },
+    {
+      "commit": "5731f66de9203bd3ab2eacab872b13d92c40d7b2",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 129,
+      "repository": "https://github.com/dinggi5/kura"
+    },
+    {
+      "commit": "0aebcbd54db60aec6a7132775d2ecad480ca07b9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 130,
+      "repository": "https://github.com/neondatabase/mcp-server-neon"
+    },
+    {
+      "commit": "f222646faba2ceed0ba5aaba9f3b8948590825a5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 131,
+      "repository": "https://github.com/mshegolev/allure-testops-mcp"
+    },
+    {
+      "commit": "7738bc24dc24f3cda94d12fda31e87b8a5cc377c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 132,
+      "repository": "https://github.com/pipeworx-io/mcp-catnap"
+    },
+    {
+      "commit": "c465a51e3d7735598cefcb542a48183a48d37a61",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 133,
+      "repository": "https://github.com/avala-ai/avala-sdk-ts"
+    },
+    {
+      "commit": "32409db91681d5d26780061cc4ea91a2aa2f9c71",
+      "eligible": true,
+      "licence": "GPL-3.0",
+      "rank": 134,
+      "repository": "https://github.com/stefanbackor/edupage-keyring-mcp"
+    },
+    {
+      "commit": "6b29a6086aa5b2f0ff9ea748ee160a75a06b5059",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 135,
+      "repository": "https://github.com/strategiumfinancepartner/agentnexus"
+    },
+    {
+      "eligible": false,
+      "rank": 136,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/jovealtrabajo/wap-backend"
+    },
+    {
+      "commit": "40bfd04996e63c7afc3b7556cedf46aab52d7f0f",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 137,
+      "repository": "https://github.com/neuralnexusnote/n3mcmcp-lite"
+    },
+    {
+      "eligible": false,
+      "rank": 138,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/mintmas/oracle42-intelligence"
+    },
+    {
+      "eligible": false,
+      "rank": 139,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/ansvar-systems/uk-pest-management-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 140,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/kedu21-beep/passage-data-mcp"
+    },
+    {
+      "commit": "4bc4f16e757184f27e10d3ee7ae51be896f95b67",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 141,
+      "repository": "https://github.com/kirill-markin/expense-budget-tracker"
+    },
+    {
+      "eligible": false,
+      "rank": 142,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/cfpb-mcp"
+    },
+    {
+      "commit": "4faf87da7e2f9bd52d6e73b0d26fd15216051fa0",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 143,
+      "repository": "https://github.com/ihorponom/agentpack"
+    },
+    {
+      "commit": "9e695dc7400519ad80180579d126245c2deebd97",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 144,
+      "repository": "https://github.com/hashtagsmile/sl-mcp"
+    },
+    {
+      "commit": "e30a184d732868becb9a760af5adfc556b8ecc42",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 145,
+      "repository": "https://github.com/bellchain-app/mcp"
+    },
+    {
+      "commit": "8367e7d32fdb4cd9b02f12563d79c07132a5ad06",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 146,
+      "repository": "https://github.com/experiens/cupom-center-mcp"
+    },
+    {
+      "commit": "1a009ab1ee89d9943e2a7f7738388f3339dcd0cb",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 147,
+      "repository": "https://github.com/xjtlumedia/ai_answer_copier"
+    },
+    {
+      "commit": "fe2d9735c86c14b3e8607fed7ff6fee466ae101b",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 148,
+      "repository": "https://github.com/analitikisler/ai-tag-debugger"
+    },
+    {
+      "commit": "cd1dc79756fe0532e387b0aae221d28e07e1d8ba",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 149,
+      "repository": "https://github.com/pipeworx-io/mcp-crypto"
+    },
+    {
+      "eligible": false,
+      "rank": 150,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/lexsocket/mcp-ted"
+    },
+    {
+      "commit": "fcf0213a424999ced9cf781517baf15715abfc52",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 151,
+      "repository": "https://github.com/mcp-dir/cpf-mcp"
+    },
+    {
+      "commit": "1661be65686fdaa0974abd159ead23bc22e8599d",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 152,
+      "repository": "https://github.com/alalanet/alalanet-agent"
+    },
+    {
+      "commit": "46639c4beeaade428b9396daab92e581ac6779bd",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 153,
+      "repository": "https://github.com/e2llm/e2llm-sifr"
+    },
+    {
+      "commit": "50b17ef577de451d51ee8f64baa7168b1658b5ee",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 154,
+      "repository": "https://github.com/khavel/proplab-mcp"
+    },
+    {
+      "commit": "601b6eb2d6845a62a989d116ca069bc7b1a783fa",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 155,
+      "repository": "https://github.com/pipeworx-io/mcp-czso-cz"
+    },
+    {
+      "commit": "a86ec9a1841a5ab8cdc9670a030dacf89f18bbff",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 156,
+      "repository": "https://github.com/cloudcorprecords/gridbase"
+    },
+    {
+      "commit": "5513ab35f13ae4dff1d7989714de0acf9506cb53",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 157,
+      "repository": "https://github.com/pooriaarab/agentic-analytics"
+    },
+    {
+      "commit": "11c4517da0cf6f0d4bf1e02cc3f6003d30e3aa58",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 158,
+      "repository": "https://github.com/pipeworx-io/mcp-soilgrids"
+    },
+    {
+      "eligible": false,
+      "rank": 159,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/atlasgrunch/ship-com-mcp"
+    },
+    {
+      "commit": "e15e825e025963c204bb2e766bed9cf44297e703",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 160,
+      "repository": "https://github.com/sum-eet/aiformapi-mcp"
+    },
+    {
+      "commit": "35c30710ff5073c7ad10d534089170a68740ec3d",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 161,
+      "repository": "https://github.com/kincaidyang/whois"
+    },
+    {
+      "eligible": false,
+      "rank": 162,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/betterhumantech/probablemedia"
+    },
+    {
+      "commit": "c27d6af6d861109029b009655728b661795fded9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 163,
+      "repository": "https://github.com/kinti/a11y-toolkit"
+    },
+    {
+      "commit": "474aa5a1676ef3eae6ed7f6dcbd4552ec3ba1747",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 164,
+      "repository": "https://github.com/pipeworx-io/mcp-sba-loans"
+    },
+    {
+      "commit": "dd4c511676890f24a37c646c55c8b62145392c0e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 165,
+      "repository": "https://github.com/kirill-sviridov/handoff-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 166,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/aikuba/llmconfigurator.com"
+    },
+    {
+      "commit": "7d6c0dad380a92e6628accfc84addd3da58d0b23",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 167,
+      "repository": "https://github.com/bbriggs1990/moltawards-mcp"
+    },
+    {
+      "commit": "23a0cdf8b763b062a4994f50a4bf655ed6ed57e5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 168,
+      "repository": "https://github.com/a1-x-tech/mcp-google-gmail"
+    },
+    {
+      "commit": "2a3df6f47f2fce6b67386f3e75854d4bc7634670",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 169,
+      "repository": "https://github.com/ranawaqas-ai/mdreview-service"
+    },
+    {
+      "commit": "73b45da6c99ea3aed86efefad6774021d8dacab1",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 170,
+      "repository": "https://github.com/nellinc/onionlens-public"
+    },
+    {
+      "eligible": false,
+      "rank": 171,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/cyan-eclipse-technologies-llc/eclipse-feedforge-mcp"
+    },
+    {
+      "commit": "1e3907ba32e50de8026186e097647cdc798ef232",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 172,
+      "repository": "https://github.com/mcp-dir/sintegra_rs-mcp"
+    },
+    {
+      "commit": "c15521eb7f6819c655d9b8bae1c70f9410651cd9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 173,
+      "repository": "https://github.com/insightful-pipe/klaviyo-mcp-server"
+    },
+    {
+      "commit": "dc3238e3d5833fdd0e1253c89f75136a7f0cea69",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 174,
+      "repository": "https://github.com/mpzarde/fabric-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 175,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/topness-msft/crowdhum-plugin"
+    },
+    {
+      "commit": "e7ea7651272d9c2420f1fa1b3223ac06beec273f",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 176,
+      "repository": "https://github.com/newscatcher/catchall-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 177,
+      "reasons": [
+        "no recognised open-source licence",
+        "larger than 500 MB"
+      ],
+      "repository": "https://github.com/richer-richard/arquimedes"
+    },
+    {
+      "commit": "fa5cc3f1de53e2cad96ecc533f52813d6d825485",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 178,
+      "repository": "https://github.com/paperdavid/manoma"
+    },
+    {
+      "commit": "108a0d370cea31491198db8f1664a8e3dcf09b97",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 179,
+      "repository": "https://github.com/theluckystrike/estate-gift-tax-exemption-calculator-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 180,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/yashvigupta15/npm-advisor-mcp"
+    },
+    {
+      "commit": "74b44907e80e28f86737b84786db342ef253510d",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 181,
+      "repository": "https://github.com/ahmedlaminou/windows-mcp-server"
+    },
+    {
+      "commit": "0b9e44ad3722eca78b22acb22435a93a23f0c984",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 182,
+      "repository": "https://github.com/cyanheads/openaq-mcp-server"
+    },
+    {
+      "eligible": false,
+      "rank": 183,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mumega-com/mcpwp"
+    },
+    {
+      "eligible": false,
+      "rank": 184,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/gwhthompson/grist-mcp-server"
+    },
+    {
+      "commit": "c523690e9687d7ef03234f898e0908874c38abd1",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 185,
+      "repository": "https://github.com/codeswhat/portkey-admin-mcp"
+    },
+    {
+      "commit": "1609150896b029602c9e685924a12d76df7274e2",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 186,
+      "repository": "https://github.com/vcode-sh/dokploy-mcp"
+    },
+    {
+      "commit": "3c61c43ed549414951f06b09944d90f59a4ffdc3",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 187,
+      "repository": "https://github.com/cyanheads/clinicaltrialsgov-mcp-server"
+    },
+    {
+      "commit": "66275bdc0015acc49c48d00a651de28333295598",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 188,
+      "repository": "https://github.com/nyarlathoteppppp/pi-durateam"
+    },
+    {
+      "eligible": false,
+      "rank": 189,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/omniaisystems/govomniai-web"
+    },
+    {
+      "commit": "668b448649ec8a9eb8beba79be8a87e8ae3c7c6a",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 190,
+      "repository": "https://github.com/pipeworx-io/mcp-data-seattle"
+    },
+    {
+      "eligible": false,
+      "rank": 191,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/tooloracle/accessoracle"
+    },
+    {
+      "commit": "e8fb72eabf9a2193b8d8cf5ce4e5c17de4edbcfe",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 192,
+      "repository": "https://github.com/vsh5dvsch7-png/yueying"
+    },
+    {
+      "commit": "34efc059b2cd39b44d59d9ca1aa195db215c6423",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 193,
+      "repository": "https://github.com/mesharc-org/mesharc-python"
+    },
+    {
+      "commit": "7238599c54dfa2cd3652b09b3d1395e1f7d63ee7",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 194,
+      "repository": "https://github.com/pipeworx-io/mcp-aviation-weather"
+    },
+    {
+      "commit": "bf058fce485d053dcf9490ed73ff6653e972d64e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 195,
+      "repository": "https://github.com/chrischall/redfin-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 196,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/findmetool/findmetool"
+    },
+    {
+      "eligible": false,
+      "rank": 197,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/jf-cmyk/agentic-payments"
+    },
+    {
+      "eligible": false,
+      "rank": 198,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/adeiltonpessini/zapcore"
+    },
+    {
+      "eligible": false,
+      "rank": 199,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/paboohwow-arch/ifa-wisdom"
+    },
+    {
+      "commit": "353ac023c23dc9e2bcc8252d6343268f553dc623",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 200,
+      "repository": "https://github.com/naveenbhargav-m/appbricx-examples"
+    },
+    {
+      "commit": "829bf50870011a017b6b7d5dedc106733d425508",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 201,
+      "repository": "https://github.com/payclaw/badge-server"
+    },
+    {
+      "eligible": false,
+      "rank": 202,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/stealthg0dd/neufin"
+    },
+    {
+      "commit": "9c039c594ec4ee5a06916edf71c228b81f56384d",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 203,
+      "repository": "https://github.com/pipeworx-io/mcp-json"
+    },
+    {
+      "eligible": false,
+      "rank": 204,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/brainsparker/frugal"
+    },
+    {
+      "eligible": false,
+      "rank": 205,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/muffinlabs-mcp"
+    },
+    {
+      "commit": "69a42e6ff7deb0a1027bbaf359a440f0ffb775f5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 206,
+      "repository": "https://github.com/mcp-dir/cnd_imovel_rural-mcp"
+    },
+    {
+      "commit": "2baac704724c296294fb17e265760205a4a7eee5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 207,
+      "repository": "https://github.com/openvancamp/openvan-camp-public-api"
+    },
+    {
+      "eligible": false,
+      "rank": 208,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/quadratik-ai/quadratik"
+    },
+    {
+      "eligible": false,
+      "rank": 209,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/promptcoinapp/provably-fair-mcp"
+    },
+    {
+      "commit": "12f3b9c0d5dc5eddd43722ac89df44d0e2ba90f8",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 210,
+      "repository": "https://github.com/mattkerr09/docket-mcp"
+    },
+    {
+      "commit": "3ba34f85a4d3eaa65f27fb4dbce122d0dcc65c53",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 211,
+      "repository": "https://github.com/m-akcan/zektor-cli"
+    },
+    {
+      "commit": "0f3a363039517116091a45ee825463393c5fc72a",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 212,
+      "repository": "https://github.com/pipeworx-io/mcp-china-disclosures"
+    },
+    {
+      "commit": "dddb5f26fd41f8e39c813159d805901460ed4b11",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 213,
+      "repository": "https://github.com/lrehmann/ecfr-mcp"
+    },
+    {
+      "commit": "c3c4cf62c9230916df9225e433abaa2ce409897b",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 214,
+      "repository": "https://github.com/illyism/awesome-tools-mcp"
+    },
+    {
+      "commit": "21c226f49b22c0fc905203a79c5e0a958eca4ff9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 215,
+      "repository": "https://github.com/drivenrajat/f1"
+    },
+    {
+      "commit": "c2f3de4af3c3a10bbeeb0a59a0fc4b8c820798c4",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 216,
+      "repository": "https://github.com/pipeworx-io/mcp-unwrangle"
+    },
+    {
+      "eligible": false,
+      "rank": 217,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/beyondfolder/mailyond"
+    },
+    {
+      "commit": "06b3b48b3501afba804b98798c543965798da537",
+      "eligible": true,
+      "licence": "MPL-2.0",
+      "rank": 218,
+      "repository": "https://github.com/quazardous/nelson-mcp"
+    },
+    {
+      "commit": "3968b88125ec09653c4c7fad9ec0f0dd403260e4",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 219,
+      "repository": "https://github.com/opsloft/tariff-resolver"
+    },
+    {
+      "commit": "fdd803ffaf427e6712f06219391968f5d6b53cc5",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 220,
+      "repository": "https://github.com/yafldev/mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 221,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/lazymac2x/agent-workflow-engine-api"
+    },
+    {
+      "commit": "9f1d439d621298eb47ec2ead25c55e141b552937",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 222,
+      "repository": "https://github.com/rohan-protocol/sdk"
+    },
+    {
+      "eligible": false,
+      "rank": 223,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/h2bis-dev/h2bis-project-brain-mcp"
+    },
+    {
+      "commit": "4ea6ed259425646182c436a43219f0d611c61ded",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 224,
+      "repository": "https://github.com/karakoramdev/karakoram"
+    },
+    {
+      "eligible": false,
+      "rank": 225,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/wyre-technology/auvik-mcp"
+    },
+    {
+      "commit": "5b4e08ba42e22f66878078e15518a5630c8903d1",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 226,
+      "repository": "https://github.com/mahabubul470/gpp"
+    },
+    {
+      "commit": "3845446f0e15f3be9d3686c874db5945300c5848",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 227,
+      "repository": "https://github.com/codeturion/codesurface"
+    },
+    {
+      "commit": "94c1500d2c13832ba2e69237295a77698d4d22b0",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 228,
+      "repository": "https://github.com/pipeworx-io/mcp-fjc-judges"
+    },
+    {
+      "commit": "74832222ddc306fce86ef9c3034020fd99b9dc06",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 229,
+      "repository": "https://github.com/gagarin-cloud/mcp"
+    },
+    {
+      "commit": "01a37b22942a5e3ec2aecb51a9b63df0e417a812",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 230,
+      "repository": "https://github.com/csprout3/carrierscore-mcp"
+    },
+    {
+      "commit": "2c399d2c8254da3e613cb6306a32b853480a1a4d",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 231,
+      "repository": "https://github.com/cantara/kcp-harness"
+    },
+    {
+      "commit": "35af289c390eb86901c5286575c8030ed47d2402",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 232,
+      "repository": "https://github.com/stablevoy/stablevoy-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 233,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/junter1989k-ai/chile-invoice-mcp"
+    },
+    {
+      "commit": "0e8197fef71b9016b647e12c07345988c08d2b11",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 234,
+      "repository": "https://github.com/yrangana/fm-mcp"
+    },
+    {
+      "commit": "246cc41fe87ea100d31a6d4f8cd97e615868ebbd",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 235,
+      "repository": "https://github.com/ianderso/snac-archives-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 236,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/thetangstr/clockchain-developer-tools"
+    },
+    {
+      "commit": "804fffd6b9e6ba065b1acc051972a14d05b61929",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 237,
+      "repository": "https://github.com/sayouzone/sayou-opendart-mcp"
+    },
+    {
+      "commit": "24865093ae6e300d52e09bf683082218f10e4e56",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 238,
+      "repository": "https://github.com/mcp-dir/caf_agricultura_pf-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 239,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/lfhillesheim/calculadora"
+    },
+    {
+      "eligible": false,
+      "rank": 240,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/jmtroller/mcp-documentation"
+    },
+    {
+      "commit": "0f60ae4438c98d1787db9a3369d40ed655a38323",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 241,
+      "repository": "https://github.com/putervision/state-memory-mcp"
+    },
+    {
+      "commit": "3cabd5b110279a502f45931732ca85a0566bdd21",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 242,
+      "repository": "https://github.com/vpatel9202/glovebox"
+    },
+    {
+      "eligible": false,
+      "rank": 243,
+      "reasons": [
+        "no recognised open-source licence",
+        "empty"
+      ],
+      "repository": "https://github.com/aesopfrom0/todoglow-releases"
+    },
+    {
+      "commit": "13517b0f603932a7fd7ae866ee71fb4a6b7d078e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 244,
+      "repository": "https://github.com/ckalima/pipedrive-mcp-server"
+    },
+    {
+      "commit": "f15c8c5e6ffab55d5a3fddefee2c64d3738be68d",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 245,
+      "repository": "https://github.com/sarooo17/event-intelligence"
+    },
+    {
+      "commit": "49f173350ee4edcd5a2e43e3761524dc4debe839",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 246,
+      "repository": "https://github.com/jupiterspins/starsinger-mcp"
+    },
+    {
+      "commit": "c82e62c0e809fe8a90df0df115cb00be49b75cda",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 247,
+      "repository": "https://github.com/toolsnap-app/toolsnap-mcp"
+    },
+    {
+      "commit": "d9f7fca6cad1e907c8237f676baf3926ec1ac1c9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 248,
+      "repository": "https://github.com/mcp-dir/tribunal_tjsc_processo-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 249,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/tooloracle/incidentoracle"
+    },
+    {
+      "eligible": false,
+      "rank": 250,
+      "reasons": [
+        "no recognised open-source licence",
+        "empty"
+      ],
+      "repository": "https://github.com/lazymac2x/ai-model-router-api"
+    },
+    {
+      "eligible": false,
+      "rank": 251,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/atushi1841/japan-food-delivery-mcp"
+    },
+    {
+      "commit": "c8a62e4a77563e45e2b5b60e8f9cafdf0d18e1a2",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 252,
+      "repository": "https://github.com/dyscalculia-io/dyscalculia-mcp"
+    },
+    {
+      "commit": "649c6d0acf25087c97198601c0746011c1c276bf",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 253,
+      "repository": "https://github.com/codeshoel/llmtomd-mcp"
+    },
+    {
+      "commit": "ed410a07c49f4a0773c374f2001072090b0b7120",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 254,
+      "repository": "https://github.com/pipeworx-io/mcp-water-quality-portal"
+    },
+    {
+      "commit": "315d942384ce0f445384d9f4f28fe3e38fd865cf",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 255,
+      "repository": "https://github.com/richardnorthcott/frontierstack-agent-kit"
+    },
+    {
+      "commit": "c6179712f36ceded276214c2f6cd01722f6daa1c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 256,
+      "repository": "https://github.com/songt-50/korean-agriculture-mcp"
+    },
+    {
+      "commit": "9c3496417d3f14d9975462f64c322a32691e1cbe",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 257,
+      "repository": "https://github.com/pipeworx-io/mcp-wolfram-alpha"
+    },
+    {
+      "commit": "a093282ea1dae067b43509675fe40c1896a4e7a3",
+      "eligible": true,
+      "licence": "GPL-3.0",
+      "rank": 258,
+      "repository": "https://github.com/rison1337/x64dbgmcp"
+    },
+    {
+      "commit": "9ebedecb8b9c45bbcdee513b3e75186b1b005f6c",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 259,
+      "repository": "https://github.com/pipeworx-io/mcp-outlook-mail"
+    },
+    {
+      "commit": "271466fe3ae20d19e862b63914657c8c36bd1379",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 260,
+      "repository": "https://github.com/nova-data-analytics/nova-amazon-mcp"
+    },
+    {
+      "commit": "bf04d81c4f84d67123c978e39c1b1cbfd6d60114",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 261,
+      "repository": "https://github.com/nucleusv/linux-mcp-daemon"
+    },
+    {
+      "eligible": false,
+      "rank": 262,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/kalo-build/blip-zone"
+    },
+    {
+      "eligible": false,
+      "rank": 263,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/mrfentmen/segaretro-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 264,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/dataleadspro/keyword-research"
+    },
+    {
+      "eligible": false,
+      "rank": 265,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/heyiamluke/spinwheelnames"
+    },
+    {
+      "commit": "d82ce35c865c2ab5ebdebd1e441deff8d36a8a3e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 266,
+      "repository": "https://github.com/yolkins/weeek-mcp"
+    },
+    {
+      "commit": "f428476a069d51b9efd01d24f93ac1e6ead9da6f",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 267,
+      "repository": "https://github.com/endoflife-ai/endoflife-mcp"
+    },
+    {
+      "commit": "2065778f15505fe5565a7cf70120e26cff32b162",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 268,
+      "repository": "https://github.com/mcp-dir/sefaz_df_iss-mcp"
+    },
+    {
+      "commit": "1ebdb73d4f42b35ae9fd67f0a0789c31a1ad0e69",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 269,
+      "repository": "https://github.com/dmitrii-nino/akmon-claude-plugin"
+    },
+    {
+      "eligible": false,
+      "rank": 270,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/nobetcieczane/nobetci-eczane"
+    },
+    {
+      "commit": "762dc326b666bd984b765358dc453488689b9ed9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 271,
+      "repository": "https://github.com/nudgehost/nudgehost-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 272,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/junter1989k-ai/colombia-payments-mcp"
+    },
+    {
+      "commit": "7d163374db4fcb7f6c0f38b67c33c2198635c9e7",
+      "eligible": true,
+      "licence": "AGPL-3.0",
+      "rank": 273,
+      "repository": "https://github.com/dinglebear-ai/rarcane"
+    },
+    {
+      "commit": "ea3f84789006f1ee5b16513feb4f35d15f6e98a6",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 274,
+      "repository": "https://github.com/nick-timms/drag-mcp-server"
+    },
+    {
+      "eligible": false,
+      "rank": 275,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/jing7ao/seedance-mcp"
+    },
+    {
+      "commit": "cfa0464455d7d9c6eb2d0bd4b8aa51c6c3bbf133",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 276,
+      "repository": "https://github.com/pulse-circle-studio/pulse-sdk"
+    },
+    {
+      "commit": "fd267bb6ab50eb865b62303fbe826180216f0efd",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 277,
+      "repository": "https://github.com/apparelhub-ai/apparelhub-mcp"
+    },
+    {
+      "commit": "906bc146f01b3479446d7cab9ccb6b616c6428a0",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 278,
+      "repository": "https://github.com/cyanheads/gutenberg-mcp-server"
+    },
+    {
+      "eligible": false,
+      "rank": 279,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/icohangar-ops/agent-conductor"
+    },
+    {
+      "commit": "c92a5a282bc7e942d9365c7ba1d217cc00ff5892",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 280,
+      "repository": "https://github.com/projecthsf/genai-capture"
+    },
+    {
+      "eligible": false,
+      "rank": 281,
+      "reasons": [
+        "a fork"
+      ],
+      "repository": "https://github.com/dinesh-nalla-se/chrome-devtools-mcp"
+    },
+    {
+      "commit": "427763e0dc45b09d584bad6cb563f6bfec8d196f",
+      "eligible": true,
+      "licence": "Apache-2.0",
+      "rank": 282,
+      "repository": "https://github.com/ritualdev-lab/skillprism"
+    },
+    {
+      "commit": "10c18c65343f3b908d5ba88e758da86a2d6cc57e",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 283,
+      "repository": "https://github.com/cmendes0101/sipflow-cursor-plugin"
+    },
+    {
+      "eligible": false,
+      "rank": 284,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/vncent786/bounty-api"
+    },
+    {
+      "commit": "8fdebcf4e365f862ef80fa95d100067e6b911e11",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 285,
+      "repository": "https://github.com/iliassami/scrawly-seo-crawler"
+    },
+    {
+      "commit": "2caf5384bbc6eae459b9babc733747a9cf469cb2",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 286,
+      "repository": "https://github.com/mcp-dir/credito_pf-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 287,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/jdalethoughtbox/thoughtbox"
+    },
+    {
+      "eligible": false,
+      "rank": 288,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/yash1ts/shipdapp"
+    },
+    {
+      "eligible": false,
+      "rank": 289,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/renatovcs/mcp-server-receita-federal"
+    },
+    {
+      "commit": "66a62fe570bc97247978fcad7d4556bbc76284d0",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 290,
+      "repository": "https://github.com/softdevfz/cucutime-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 291,
+      "reasons": [
+        "not found"
+      ],
+      "repository": "https://github.com/mrfentmen/text-tools-mcp"
+    },
+    {
+      "eligible": false,
+      "rank": 292,
+      "reasons": [
+        "no recognised open-source licence"
+      ],
+      "repository": "https://github.com/shsoftwaresolutioncom/blog-automation-mcp"
+    },
+    {
+      "commit": "41a72d1ef8ef6bb58c1d7b36e02dec27b1e87dd9",
+      "eligible": true,
+      "licence": "MIT",
+      "rank": 293,
+      "repository": "https://github.com/pipeworx-io/mcp-nevada-code"
+    }
+  ],
+  "seed": "20261108"
+}

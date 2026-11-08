@@ -53,6 +53,41 @@ def test_ledger_problems_are_reported(claim, problem):
     assert any(problem in p for p in claims.check(_ledger(**claim)))
 
 
+def test_a_release_fails_a_web_claim_that_names_the_old_version():
+    problems = claims.check(_ledger(source="https://example.org", retrieved="2026-11-08",
+                                    kind="count", status="counted", count="release",
+                                    claimed="0.0.1"))
+    assert any("the code has" in p for p in problems)
+
+
+def test_web_quotes_are_checked_against_the_visible_page_text():
+    page = (b"<html><head><style>.a{}</style><script>var q='Hidden claim';</script></head>"
+            b"<body><h1>We help teams</h1><p>see <b>what</b> agents do &amp; more</p>"
+            b"</body></html>")
+    ledger = [
+        {"id": "ok", "source": "https://example.org", "quote": "We help teams see what agents do & more"},
+        {"id": "gone", "source": "https://example.org", "quote": "Hidden claim"},
+        {"id": "repo", "source": "README.md", "quote": "not fetched"},
+    ]
+    fetched = []
+
+    def get(url):
+        fetched.append(url)
+        return page
+
+    problems = claims.check_web(ledger, get)
+    assert fetched == ["https://example.org"]  # once per page; repository claims are not fetched
+    assert problems == ["gone: quote no longer on https://example.org: 'Hidden claim'"]
+
+
+def test_an_unreachable_page_is_reported_not_raised():
+    def get(url):
+        raise OSError("refused")
+
+    problems = claims.check_web([{"id": "a", "source": "https://x.invalid", "quote": "q"}], get)
+    assert problems == ["https://x.invalid: could not fetch: refused"]
+
+
 def test_quotes_match_across_line_breaks_and_emphasis():
     assert claims._normalise("a **b**\n  c") == claims._normalise("a b c")
 

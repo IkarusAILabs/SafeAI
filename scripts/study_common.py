@@ -19,6 +19,7 @@ import re
 import subprocess  # every call uses a fixed argv list, never shell=True
 import sys
 import tarfile
+import time
 from typing import Any
 
 GIT_TIMEOUT = 600
@@ -51,6 +52,30 @@ def git(args: list[str], cwd: str | None = None, timeout: int = GIT_TIMEOUT) -> 
     if result.returncode != 0:
         raise StudyError(f"git {args[0]} failed: {result.stderr.strip()[:300]}")
     return result.stdout
+
+
+def fetch(url: str, attempts: int = 6, timeout: int = 120) -> bytes:
+    """GET a public URL with ``curl`` (fixed argv), retrying transient failures.
+
+    Study tooling only: the scanner never fetches anything.
+    """
+    last = ""
+    for attempt in range(attempts):
+        try:
+            result = subprocess.run(
+                ["curl", "-sSfL", "--max-time", str(timeout), "-A", "safeai-research", url],
+                capture_output=True, timeout=timeout + 30, check=False)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            last = str(exc)
+        else:
+            if result.returncode == 0:
+                return result.stdout
+            last = result.stderr.decode("utf-8", "replace").strip()[:200]
+            if result.returncode == 22 and " 404" in last:
+                break
+        if attempt + 1 < attempts:
+            time.sleep(min(30, 2 * (attempt + 1)))
+    raise StudyError(f"fetch {url}: {last}")
 
 
 def clone(url: str, dest: str) -> str:
@@ -145,8 +170,10 @@ def scan_tree(tree: str, out_json: str, baseline: str | None = None,
             "--json", out_json, "--sarif", out_json[:-5] + ".sarif"]
     if baseline:
         argv += ["--baseline", baseline]
+    # A machine that opted in to telemetry must not report study scans.
+    env = {**os.environ, "DO_NOT_TRACK": "1", "SAFEAI_TELEMETRY": "0"}
     try:
-        subprocess.run(argv, capture_output=True, timeout=timeout, check=False)
+        subprocess.run(argv, capture_output=True, timeout=timeout, check=False, env=env)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise StudyError(f"scan failed: {exc}") from exc
     sarif = out_json[:-5] + ".sarif"
