@@ -61,8 +61,8 @@ the scanner is unchanged and gains no network path.
   licence, flags, first-parent commit count and, at the head commit,
   the frameworks, tools and MCP assets SafeAI finds (no findings), and
   suggests a 300-commit range for the owner to pin.
-- `research/credibility/`: nine proposed C-2 targets (none confirmed)
-  with their eligibility check, the candidate incident registry and its
+- `research/credibility/`: nine proposed C-2 targets (none confirmed;
+  6 eligible by the check of 2026-11-08) with their eligibility facts, the candidate incident registry and its
   screening record.
 
 ### Not yet done

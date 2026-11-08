@@ -111,6 +111,18 @@ MCP assets it finds. It records **no findings**, so choosing a target
 cannot depend on how SafeAI scores it. It suggests a range of the last
 300 first-parent commits; the owner pins the actual range.
 
+**Check of 2026-11-08.** 6 of 9 proposed targets meet every criterion:
+`awslabs-mcp`, `github-mcp-server`, `stripe-ai`,
+`cloudflare-mcp-servers`, `playwright-mcp`,
+`executeautomation-playwright-mcp`. Not eligible as recorded:
+`mcp-reference-servers` (GitHub reports its licence as "Other", not an
+SPDX identifier; the owner may read the licence file and confirm it by
+hand, noting why), `crewai-examples` (archived, no recognised licence),
+`openai-cs-agents-demo` (10 first-parent commits). Side observation, not
+a study result: the check reports `azure_foundry` at the head of three
+MCP servers and `n8n` at two, which look like framework misdetections;
+they are a SafeAI defect to look at, not a reason to drop a target.
+
 **Procedure.**
 1. `python scripts/history_study.py --targets research/credibility/targets.yml --out study/`
    clones each confirmed target, exports each first-parent commit in the
