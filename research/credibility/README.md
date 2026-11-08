@@ -13,6 +13,7 @@ git-ignored.
 | `target_check.json` | C-2 eligibility facts per target (no findings) and suggested ranges | `scripts/target_check.py` |
 | `incident_screening.json` | C-3 selection record: every keyword match and the screen that excluded it | `scripts/incident_search.py` |
 | — (pending corpus) | C-1 external review | `scripts/label_kit.py review-packets` |
+| `claims.yml` | C-8 claims ledger: every public claim and what backs it | `scripts/claims_check.py` (runs in the test suite) |
 
 No tool labels anything: people label, `scripts/label_kit.py` lays out
 packets and counts answers (`agreement`, `score`). Rates come with 95%

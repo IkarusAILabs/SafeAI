@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`safeai scan` on a mistyped path passed as a clean scan.** A path
+  that does not exist was created (to hold `.safeai/config.yml`) and
+  scanned as an empty project, exit 0: a CI step with a wrong path
+  passed its gate. A file path crashed with exit 1. Both now exit 2 with
+  `give the project directory to scan`, as `SUPPORT_MATRIX.md` documents.
+- **`TOOL_ORPHAN_IMPLEMENTED` was reported for the unattributed bucket.**
+  Capabilities SafeAI cannot tie to a tool are not a tool, but were
+  reported as an "implemented but undeclared" tool `unknown:unattributed`
+  with no evidence. Digests unchanged.
+- **Wrong numbers in the README and support matrix:** 20 frameworks (said
+  19, and 16 parsers elsewhere), 20 capability categories (said 19), 10
+  `GOV_*` rules (said 8), 21 `CAP_*` rules (said 19); the `IAC_*` and
+  `SOD_*` rows were missing. `scripts/claims_check.py` now fails CI when
+  these drift.
+
 - **AutoGen agents were never inventoried by a real scan.** The AutoGen
   parser was missing from `discover_parsers()`, so it registered only
   when another module happened to import it. `safeai scan` reported no
@@ -69,6 +84,15 @@ the scanner is unchanged and gains no network path.
   verifiers agree on, or an adjudicator settles, with `verified_by` and
   `verified_on`. `incident_replay.py --check` refuses a verified or
   rejected entry without two named verifiers.
+- **Claims ledger (C-8):** `research/credibility/claims.yml` lists 28
+  public claims (README, package and repository descriptions, both
+  websites) with what backs each; `scripts/claims_check.py` and
+  `tests/test_claims_ledger.py` check quotes, counts and named tests.
+  `tests/test_scan_offline_runtime.py` checks at run time that a scan
+  opens no socket and starts no process, and that the CLI runs only four
+  read-only `git` metadata commands.
+- History study export works on Windows for paths Windows cannot hold
+  (`config /agents.yaml`): `study_common.portable_name`.
 - `scripts/target_check.py` (C-2): records each proposed target's
   licence, flags, first-parent commit count and, at the head commit,
   the frameworks, tools and MCP assets SafeAI finds (no findings), and

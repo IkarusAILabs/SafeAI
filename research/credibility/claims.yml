@@ -1,0 +1,282 @@
+# C-8 claims ledger (docs/research/CREDIBILITY_TRACK.md).
+#
+# Every public claim SafeAI makes, with what backs it. `python
+# scripts/claims_check.py` checks this file: each repository claim's
+# `quote` must still appear in its `source`, every `count` claim is
+# recomputed from the code, and every `test` backing must exist. A claim
+# whose source wording changes, or whose number drifts from the code,
+# fails CI until the ledger and the wording agree.
+#
+# Fields: id; source (repository path, or https URL for claims outside
+# the repository, with `retrieved`); quote (verbatim, short); kind
+# (count | property | quality | positioning | limitation); status:
+#   counted       a number recomputed from the code by `count`
+#   tested        a property a named test checks (`backing.tests`)
+#   unmeasured    a quality claim no measurement backs yet (`study` names the one that will)
+#   overclaim     no planned measurement can back it; reword or remove
+#   stale         factually out of date
+#   positioning   a comparison or framing; needs C-4 to back it
+#   limitation    states what SafeAI does not do (kept so it is not dropped)
+# action: what should change, when something should.
+#
+# Rule 6: wording is strengthened only after a published measurement.
+# Corrections of wrong numbers and withdrawals of overclaims are not
+# strengthening and can happen at any time.
+
+version: 1
+inventoried: '2026-11-08'
+claims:
+
+# --- README.md ---------------------------------------------------------------
+
+- id: readme-tagline
+  source: README.md
+  quote: Know what your AI agent can do before you deploy it.
+  kind: quality
+  status: unmeasured
+  study: C-2 (miss rate in silent commits), C-3 (recall on incidents)
+  action: Keep; replace "know" with the measured recall once C-2 / C-3 publish.
+
+- id: readme-offline
+  source: README.md
+  quote: it never executes agents or calls LLMs
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_scan_offline_runtime.py
+    - tests/test_benchmarks.py::test_runner_never_uses_network_or_execution
+  note: A scan opens no socket and launches no process; the CLI runs four fixed,
+    read-only local `git` commands for commit metadata, pinned by the test.
+
+- id: readme-deterministic-decisions
+  source: README.md
+  quote: Deterministic CI/CD decisions
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_architectural_invariants.py::test_4_deterministic_output
+    - tests/test_capability_diff_v2.py::test_diff_is_deterministic_across_runs
+    measurements:
+    - docs/benchmarks/authority/VALIDATION_REPORT.md (determinism 58/58)
+
+- id: readme-not-certification
+  source: README.md
+  quote: SafeAI is not a runtime guardrail and does not certify an agent as safe.
+  kind: limitation
+  status: limitation
+
+- id: readme-fills-gap
+  source: README.md
+  quote: SafeAI fills this gap
+  kind: positioning
+  status: positioning
+  study: C-4 (comparative measurement)
+  action: Soften to "is built for this gap" until C-4 publishes.
+
+- id: readme-frameworks-count
+  source: README.md
+  quote: Detects and parses 20 AI agent frameworks
+  kind: count
+  count: frameworks
+  claimed: 20
+  status: counted
+  note: Read 19 until 2026-11-08 (parsers registered then, 20).
+
+- id: readme-parsers-count
+  source: README.md
+  quote: Framework Detection — 20 parsers
+  kind: count
+  count: frameworks
+  claimed: 20
+  status: counted
+  note: Read 16 until 2026-11-08.
+
+- id: readme-capability-categories
+  source: README.md
+  quote: Maps 20 capability categories
+  kind: count
+  count: capability_categories
+  claimed: 20
+  status: counted
+  note: Read 19 until 2026-11-08.
+
+- id: readme-escalation-rules
+  source: README.md
+  quote: 14 rules, including gating-aware subsumption
+  kind: count
+  count: escalation_rules
+  claimed: 14
+  status: counted
+
+- id: readme-governance-rules
+  source: README.md
+  quote: (10 `GOV_*` rules)
+  kind: count
+  count: governance_rules
+  claimed: 10
+  status: counted
+  note: Read 8 until 2026-11-08 (max-iterations and recursion-guard rules were not counted).
+
+- id: readme-risk-categories
+  source: README.md
+  quote: Categorizes findings into 7 risk categories
+  kind: count
+  count: risk_categories
+  claimed: 7
+  status: counted
+
+- id: readme-escalation-quality
+  source: README.md
+  quote: Per-tool authority diffs between scans
+  kind: quality
+  status: unmeasured
+  study: C-2 (precision and miss rate per change type)
+  note: Change detection is 1.0 P/R/F1 on 5 fixtures and escalation on 4
+    (VALIDATION_REPORT.md); nothing on real commits yet.
+
+- id: readme-secrets-redacted
+  source: README.md
+  quote: Flags hardcoded secrets, tokens, and API keys (redacted in all outputs)
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_fingerprints.py::test_normalize_findings_redacts_evidence
+    - tests/test_kya_integration.py::test_secret_redaction_end_to_end
+  note: Redaction is tested; how many secrets are found (recall) is not measured.
+
+- id: readme-unknown-never-pass
+  source: README.md
+  quote: and SafeAI never converts it into a pass.
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_architectural_invariants.py::test_2_unknown_never_fails_authority_gate
+    - tests/test_architectural_invariants.py::test_12_static_evidence_never_claims_runtime_proof
+
+- id: readme-prompt-risk
+  source: README.md
+  quote: Detects injection patterns, delimiter issues, system leak, role override
+  kind: quality
+  status: unmeasured
+  study: none planned; C-3 covers prompt-injection advisories (CWE-1427) only
+  action: Say these are pattern checks, or plan a measurement.
+
+# --- Package and repository metadata ------------------------------------------
+
+- id: pyproject-description
+  source: pyproject.toml
+  quote: The lightweight, open-source Static AI Capability & Risk Analyzer for CI/CD pipelines.
+  kind: positioning
+  status: positioning
+
+- id: github-description
+  source: https://github.com/IkarusAILabs/SafeAI
+  retrieved: '2026-11-08'
+  quote: Detects capabilities, prompt risks, tool permissions, and governance gaps before deployment.
+  kind: quality
+  status: unmeasured
+  study: C-2, C-3
+
+# --- safeai-analyzer.ikaruslabs.net (not in this repository) -------------------
+
+- id: site-every-capability
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Every AI capability in your codebase, mapped and risk-rated.
+  kind: quality
+  status: overclaim
+  study: C-2 miss rate will put a number on it; "every" cannot be shown
+  action: Reword to what is measured, e.g. "Maps the capabilities SafeAI recognises in 20 frameworks".
+
+- id: site-unsafe-agents
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: We will not let our community use unsafe AI agents.
+  kind: quality
+  status: overclaim
+  action: Remove; it contradicts "does not certify that an agent is safe".
+
+- id: site-frameworks-15
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: SafeAI currently detects and analyzes 15 AI agent frameworks and platforms
+  kind: count
+  status: stale
+  action: 20, per the code (the same page also says "15+").
+
+- id: site-v17-pending
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Completed · Pending Release
+  kind: positioning
+  status: stale
+  action: The page describes v1.7 as pending; the current release is v2.16.0.
+
+- id: site-enterprise-ready
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Community built. Enterprise ready.
+  kind: positioning
+  status: overclaim
+  action: Remove "Enterprise ready"; the same page calls enterprise governance a future direction.
+
+- id: site-missing-layer
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: The missing security layer for AI agents
+  kind: positioning
+  status: positioning
+  study: C-4
+
+- id: site-offline
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: No account, server, daemon, telemetry or external network calls for Community Edition scanning.
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_scan_offline_runtime.py
+
+- id: site-never-execute
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Never execute code.
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_scan_offline_runtime.py
+  note: True of the scanned code; the CLI runs local read-only `git` commands for metadata.
+
+- id: site-evidence-remediation
+  source: https://safeai-analyzer.ikaruslabs.net
+  retrieved: '2026-11-08'
+  quote: Every finding includes evidence and remediation guidance.
+  kind: property
+  status: tested
+  backing:
+    tests:
+    - tests/test_claims_ledger.py::test_every_fixture_finding_has_a_location_and_remediation
+  note: Checking it found TOOL_ORPHAN_IMPLEMENTED reported for the unattributed
+    bucket with no evidence; fixed 2026-11-08.
+
+# --- ikaruslabs.net/safeai ------------------------------------------------------
+
+- id: hub-early-preview
+  source: https://ikaruslabs.net/safeai
+  retrieved: '2026-11-08'
+  quote: SafeAI is an early-preview, evidence-producing static analyser for agent authority
+  kind: limitation
+  status: limitation
+
+- id: hub-not-certify
+  source: https://ikaruslabs.net/safeai
+  retrieved: '2026-11-08'
+  quote: it does not certify that an agent is safe.
+  kind: limitation
+  status: limitation

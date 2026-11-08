@@ -159,6 +159,24 @@ change (each of those targets still has tools and MCP assets).
      commits with its interval (this is an estimate of recall, stated as
      such).
 
+**Tooling dry run (2026-11-08), not a result.** The full pipeline
+(`history_study.py`, then `label_kit.py packets`) was run on
+`crewAIInc/crewAI-examples`, which cannot be a target (archived, no
+recognised licence), so seeing SafeAI's output on it cannot influence
+target selection. Two things came out of it:
+
+- **Exports.** First run: 25 of 141 commits failed to export on Windows
+  (a `config ` directory with a trailing space). After the portable
+  export: 135 scanned, 5 skipped, 0 errors; 18 labelling packets
+  rendered.
+- **Yield.** Only 5 change units across 135 commits, all in the
+  `unattributed` bucket; no change was attributed to a CrewAI tool.
+  Targets built mainly on CrewAI will give few labelled units per change
+  type, and the low tool attribution is itself a SafeAI gap, consistent
+  with the end-to-end attribution of 0.4851. This is a reason to prefer
+  the MCP-server targets when the owner confirms, not a measured
+  precision.
+
 **Minimum for a per-type number.** 10 labelled units of that type;
 below it, *insufficient*. A Lane-A proposal for a change type needs at
 least 30.
@@ -246,7 +264,54 @@ entry whose visibility is still `undetermined`, is reported as
 are listed in the replay output for analysing misses after scoring;
 they are never counted and never shown to verifiers.
 
-## C-4 to C-8
+## C-8 — Claims ledger (started 2026-11-08)
+
+**Question.** Is every public claim backed by what it says it is?
+
+**Ledger.** `research/credibility/claims.yml` lists each claim in the
+README, the package and repository descriptions, and the two websites,
+quoted verbatim, with a status: `counted` (a number recomputed from the
+code), `tested` (a property a named test checks), `unmeasured` (a
+quality claim; names the study that will measure it), `overclaim` (no
+planned measurement can back it), `stale`, `positioning` (needs C-4) or
+`limitation`.
+
+**Check.** `python scripts/claims_check.py` runs in the test suite
+(`tests/test_claims_ledger.py`) and fails when a quoted claim no longer
+appears in its source, a counted number differs from the code, the
+rule-coverage table in `docs/reference/SUPPORT_MATRIX.md` differs from
+the built-in rules, or a named test is missing. Web claims are listed
+with their retrieval date and not fetched (the check stays offline).
+
+**Rule 6 applies.** Correcting a wrong number and withdrawing an
+overclaim can happen at any time; strengthening wording waits for a
+published measurement. The website is outside this repository: the
+ledger's `action` field says what to change there.
+
+**Inventory of 2026-11-08** (28 claims). In the repository:
+- Four wrong numbers were corrected: 19 → 20 frameworks, 16 → 20
+  parsers, 19 → 20 capability categories, and 8 → 10 `GOV_*` rules.
+- The support matrix's `CAP_*` count was corrected from 19 to 21, and
+  the missing `IAC_*` and `SOD_*` rows were added.
+
+Testing the claims found three defects, all fixed:
+- `TOOL_ORPHAN_IMPLEMENTED` was reported, without evidence, for the
+  unattributed bucket, which is not a tool.
+- `safeai scan` on a path that does not exist exited 0 with an empty
+  "clean" scan, and created the directory. On a file, it crashed and
+  exited 1. Both now exit 2.
+- "Never executes code" is true of the scanned code, and is now tested
+  at run time (no socket, no process). The CLI's only process launches
+  are four fixed, read-only `git` metadata commands, which the test pins.
+
+On the websites:
+- 3 overclaims: "Every AI capability … mapped", "We will not let our
+  community use unsafe AI agents" and "Enterprise ready".
+- 2 stale facts: "15 frameworks", and v1.7 shown as pending.
+
+These are listed for the owner to change.
+
+## C-4 to C-7
 
 Planned; each gets its protocol here before it starts.
 
@@ -259,8 +324,6 @@ Planned; each gets its protocol here before it starts.
   (accepted / filed) and never a raw finding count.
 - **C-7 Design partners** records, per review request, whether the
   maintainer acted on it, dismissed it as noise, or ignored it.
-- **C-8 Claims ledger** lists every public claim with the measurement
-  that backs it.
 
 ## Order of work
 
@@ -287,6 +350,8 @@ person, by Rule 2.
 | Date | Change | Reason |
 |---|---|---|
 | 2026-11-07 | Initial protocol | — |
+| 2026-11-08 | C-8 started ahead of Phase 4 as an inventory and a CI check; wording is still changed only after measurements, except corrections and withdrawals | Wrong numbers were found in the README while preparing C-2; checking claims needs no study, and a check stops them drifting again |
+| 2026-11-08 | C-2 tooling: trees whose paths Windows cannot hold (`config /agents.yaml`) are exported with `core.protectNTFS` off for the archive and names made portable on extraction | A dry run on a repository that cannot be a target (crewAI-examples, archived) lost 25 of 141 commits to export errors; errored commits fold their changes into the next diff and would bias the study |
 | 2026-11-08 | C-3 verification fixed before any verification: seeded order, two verifiers with adjudication, `verified_by` / `verified_on` required, and `expected.rules` chosen blind (packets show the rule catalogue, never SafeAI's output). The earlier wording that the rules which fired are "listed to help the verifier" is withdrawn | Letting a verifier see what fired would let `expected.rules` follow SafeAI's output and make recall circular; a seeded order makes a partly verified registry a random sample |
 | 2026-11-08 | C-2: seven more proposed targets (MCP servers, an Agents SDK application, a multi-framework toolkit) and a recorded eligibility check that stores no findings | Two targets could not reach 30 labelled units per change type; the check lets the owner confirm from recorded facts. Targets added before any history run |
 | 2026-11-07 | C-3 search made concrete before any scoring: the keyword list replaced by the written keyword, flaw-class and fix-commit screens; `undetermined` visibility for candidates | The first search returned 726 keyword matches, most of them flaws (XSS, missing authentication) that no static authority evidence bears on; the screens are recorded so the exclusion of each advisory can be checked |

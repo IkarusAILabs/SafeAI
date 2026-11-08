@@ -15,6 +15,7 @@ import io
 import json
 import math
 import os
+import re
 import subprocess  # every call uses a fixed argv list, never shell=True
 import sys
 import tarfile
@@ -84,12 +85,43 @@ def only_binary(files: list[str]) -> bool:
     return bool(files) and all(f.lower().endswith(BINARY_SUFFIXES) for f in files)
 
 
+_WINDOWS_BAD = re.compile(r'[<>:"|?*\x00-\x1f]')
+
+
+def portable_name(name: str, windows: bool = os.name == "nt") -> str:
+    """A member name every filesystem can hold.
+
+    On Windows, a path component cannot end in a space or a dot or contain
+    ``<>:"|?*``; real repositories have such names (``config /agents.yaml``).
+    They are rewritten (trailing spaces and dots dropped, bad characters
+    replaced by ``_``) so the commit is scanned instead of failing.
+    Elsewhere names are kept as they are.
+    """
+    if not windows:
+        return name
+    parts = [_WINDOWS_BAD.sub("_", part).rstrip(" .") or "_" for part in name.split("/")]
+    return "/".join(parts)
+
+
+def _extract_filter(member: tarfile.TarInfo, path: str) -> tarfile.TarInfo | None:
+    renamed = portable_name(member.name)
+    if renamed != member.name:
+        member = member.replace(name=renamed, deep=False)
+    return tarfile.data_filter(member, path)
+
+
 def export_tree(repo: str, sha: str, dest: str) -> str:
-    """Write the tree of ``sha`` into ``dest`` without a checkout."""
+    """Write the tree of ``sha`` into ``dest`` without a checkout.
+
+    ``core.protectNTFS`` is turned off for the archive only: it guards
+    checkouts on Windows, and nothing is checked out here. Extraction goes
+    through the tarfile ``data`` filter (no absolute paths, no traversal,
+    no links outside ``dest``) after :func:`portable_name`.
+    """
     try:
         data = subprocess.run(
-            ["git", "archive", "--format=tar", sha], cwd=repo, capture_output=True,
-            timeout=GIT_TIMEOUT, check=False,
+            ["git", "-c", "core.protectNTFS=false", "archive", "--format=tar", sha], cwd=repo,
+            capture_output=True, timeout=GIT_TIMEOUT, check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise StudyError(f"git archive failed: {exc}") from exc
@@ -100,7 +132,7 @@ def export_tree(repo: str, sha: str, dest: str) -> str:
         raise StudyError("this Python has no tarfile data filter; use 3.11.4 or later")
     os.makedirs(dest, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(data.stdout)) as archive:
-        archive.extractall(dest, filter="data")
+        archive.extractall(dest, filter=_extract_filter)
     return dest
 
 

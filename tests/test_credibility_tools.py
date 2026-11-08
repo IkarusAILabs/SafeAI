@@ -507,3 +507,42 @@ def test_target_criteria(change, fail):
     assert any(fail in f for f in target_check.assess({**facts, **change}))
     assert target_check.repo_facts({**_META, "license": {"spdx_id": "NOASSERTION"}})[
         "licence"] is None
+
+
+# --- portable export (shake-down 2026-11-08) ---------------------------------------------
+
+@pytest.mark.parametrize(("name", "windows", "expected"), [
+    ("screenplay_writer/config /agents.yaml", True, "screenplay_writer/config/agents.yaml"),
+    ("a/b:c?.py", True, "a/b_c_.py"),
+    ("a/../b", True, "a/_/b"),
+    ("a/trailing./x", True, "a/trailing/x"),
+    ("screenplay_writer/config /agents.yaml", False, "screenplay_writer/config /agents.yaml"),
+    ("plain/path.py", True, "plain/path.py"),
+])
+def test_portable_names(name, windows, expected):
+    assert common.portable_name(name, windows=windows) == expected
+
+
+@needs_git
+def test_export_survives_names_windows_cannot_hold(tmp_path):
+    repo = tmp_path / "odd"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "study@example.org")
+    _git(repo, "config", "user.name", "study")
+
+    def plumbing(*args, stdin):
+        # Bytes, not text: text-mode stdin on Windows writes CRLF line ends.
+        return subprocess.run(["git", *args], cwd=repo, input=stdin.encode(),
+                              capture_output=True, check=True).stdout.decode().strip()
+
+    blob = plumbing("hash-object", "-w", "--stdin", stdin="x: 1\n")
+    # Build a tree holding "config /agents.yaml" without touching the filesystem.
+    inner = plumbing("mktree", stdin=f"100644 blob {blob}\tagents.yaml\n")
+    outer = plumbing("mktree", stdin=f"040000 tree {inner}\tconfig \n")
+    commit = plumbing("commit-tree", outer, "-m", "odd", stdin="")
+    dest = tmp_path / "tree"
+    common.export_tree(str(repo), commit, str(dest))
+    files = [os.path.relpath(os.path.join(r, f), dest).replace("\\", "/")
+             for r, _, fs in os.walk(dest) for f in fs]
+    assert files in (["config/agents.yaml"], ["config /agents.yaml"])
