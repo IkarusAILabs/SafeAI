@@ -40,7 +40,7 @@ we deliberately do not overclaim coverage.
 | Haystack | AST + imports | Pipelines, agents, tools, generators | RAG, external APIs, browser | Minimal | Experimental |
 | LlamaIndex | AST + imports | Agents, tools, indexes, models | RAG, databases, external APIs | Minimal | Experimental |
 | Dify | YAML/JSON + references | Workflows, agents, tools, models | Shell, databases, external APIs | Minimal | Experimental |
-| n8n | Workflow JSON + references | Workflows, nodes, connections | Shell, databases, email, external APIs | Minimal | Experimental |
+| n8n | Workflow JSON (n8n node types) + Python references outside comments | Workflows, nodes, connections | Shell, databases, email, external APIs | Minimal | Experimental |
 | Cursor (.cursorrules) | Filename + JSON/YAML/free text | Declared tools, model | Shell, filesystem, external APIs, databases | Minimal | Experimental |
 | Windsurf (.windsurfrules) | Filename + JSON/YAML/free text | Declared tools, model | Shell, filesystem, external APIs, databases | Minimal | Experimental |
 | OpenClaw config | Filename + JSON/YAML/free text | Declared tools, model, MCP servers | Shell, filesystem, external APIs, databases, MCP | Minimal | Experimental |
@@ -461,7 +461,10 @@ SafeAI detects:
 **Priority:** Configuration (YAML/JSON) → dependencies
 
 - **File extension:** `.yaml`, `.yml` files
-- **Content:** `azure` keyword in YAML/JSON content
+- **Content:** `azure` keyword, in a YAML mapping with a top-level
+  `tools`, `actions` or `instructions` key (the shape of an agent
+  definition). CI pipelines, GitHub workflows and lockfiles that only
+  mention Azure are not reported.
 - **Dependencies:** `azure-ai-projects`, `azure-ai-agents` in manifest files
 
 ### Artifacts Discovered

@@ -11,27 +11,36 @@ import re
 from safeai.analysis.capabilities import dedupe_capabilities, make_capability
 from safeai.frameworks import register_parser
 
+_N8N_NODE = re.compile(r"^(?:n8n-nodes-base\.|@n8n/n8n-nodes-)")
+_N8N_WORD = re.compile(r"\bn8n\b", re.IGNORECASE)
+
 
 @register_parser
 class N8nParser:
     name = "n8n"
 
     def detect(self, path, content, scan_ctx=None):
-        low = content.lower()
-        if "n8n" in low:
-            return True
+        # A JSON file is an n8n workflow only by its structure: nodes and
+        # connections, with at least one n8n node type. Mentioning n8n is
+        # not enough (``package.json`` depending on ``@n8n/...``).
         if path.endswith(".json"):
+            if "n8n" not in content:
+                return False
             try:
                 data = json.loads(content)
-                if isinstance(data, dict) and "nodes" in data and "connections" in data:
-                    nodes = data.get("nodes")
-                    if isinstance(nodes, list) and any(
-                        isinstance(node, dict) and str(node.get("type", "")).startswith("n8n-nodes-base.")
-                        for node in nodes
-                    ):
-                        return True
             except Exception:
-                pass
+                return False
+            if isinstance(data, dict) and "nodes" in data and "connections" in data:
+                nodes = data.get("nodes")
+                return isinstance(nodes, list) and any(
+                    isinstance(node, dict) and _N8N_NODE.match(str(node.get("type", "")))
+                    for node in nodes
+                )
+            return False
+        # Python code that talks to n8n, outside comments.
+        if path.endswith(".py"):
+            return any(_N8N_WORD.search(line) for line in content.splitlines()
+                       if not line.lstrip().startswith("#"))
         return False
 
     def parse(self, path, content, scan_ctx=None):

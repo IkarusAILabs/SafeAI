@@ -119,9 +119,11 @@ cannot depend on how SafeAI scores it. It suggests a range of the last
 SPDX identifier; the owner may read the licence file and confirm it by
 hand, noting why), `crewai-examples` (archived, no recognised licence),
 `openai-cs-agents-demo` (10 first-parent commits). Side observation, not
-a study result: the check reports `azure_foundry` at the head of three
-MCP servers and `n8n` at two, which look like framework misdetections;
-they are a SafeAI defect to look at, not a reason to drop a target.
+a study result: the check reported `azure_foundry` at the head of three
+MCP servers and `n8n` at two. They were framework misdetections (CI and
+lock files, a `package.json` dependency), fixed after the check; the
+recorded `target_check.json` predates the fix, and eligibility does not
+change (each of those targets still has tools and MCP assets).
 
 **Procedure.**
 1. `python scripts/history_study.py --targets research/credibility/targets.yml --out study/`
