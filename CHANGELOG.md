@@ -25,6 +25,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   argument when it is a string literal; a name built at run time falls
   back to the constructor name with `name_resolved: false`. The pending
   case `delegation/autogen_teams` now expects its six agents by name.
+- **Azure AI Foundry and n8n were reported for files that only mention
+  them.** Any YAML file containing "azure" counted as a Foundry agent
+  definition (Azure Pipelines and GitHub workflow files, `pnpm-lock.yaml`)
+  and added a `cloud_service` capability; any file containing "n8n"
+  counted as an n8n project (a `package.json` depending on
+  `@n8n/json-schema-to-zod`), with the package name reported as a
+  workflow. Foundry YAML now needs the shape of an agent (a top-level
+  `tools`, `actions` or `instructions` key; lockfiles are skipped); n8n
+  needs a workflow JSON with n8n node types, or Python code naming n8n
+  outside comments. Found by the credibility track's target eligibility
+  check on three public MCP server repositories. The 58-case digests are
+  unchanged and the 44 pending cases hold.
 
 **Credibility track (roadmap C-1 to C-8).** A new roadmap track that
 measures SafeAI on code its authors did not write, ahead of new signals.

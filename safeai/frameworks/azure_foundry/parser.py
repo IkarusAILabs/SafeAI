@@ -1,14 +1,36 @@
 """Azure AI Foundry configuration adapter.
 
-Detects Azure AI Foundry projects via YAML config files containing
-``azure`` keyword and dependency metadata. Extracts tools, models,
-workflow names from YAML structure and infers cloud service capability.
+Detects Azure AI Foundry agent definitions: a YAML mapping that mentions
+``azure`` and has the shape of an agent (a top-level ``tools``,
+``actions`` or ``instructions`` key), plus dependency metadata. Extracts
+tools, models, workflow names from YAML structure and infers cloud
+service capability.
+
+A YAML file that merely mentions Azure is not an agent definition: CI
+pipelines (Azure Pipelines, GitHub workflows) and lockfiles are not
+reported.
 """
+
+import os
 
 import yaml
 
 from safeai.analysis.capabilities import make_capability
 from safeai.frameworks import register_parser
+
+# Top-level keys an agent definition has; CI pipelines and lockfiles have none.
+_AGENT_KEYS = ("tools", "actions", "instructions")
+_LOCKFILES = ("pnpm-lock.yaml", "yarn.lock", "poetry.lock", "pubspec.lock")
+
+
+def _is_agent_definition(path, content):
+    if os.path.basename(path).lower() in _LOCKFILES or path.lower().endswith(".lock.yml"):
+        return False
+    try:
+        data = yaml.safe_load(content)
+    except Exception:
+        return False
+    return isinstance(data, dict) and any(key in data for key in _AGENT_KEYS)
 
 
 @register_parser
@@ -17,7 +39,7 @@ class AzureFoundryParser:
 
     def detect(self, path, content, scan_ctx=None):
         if path.endswith((".yaml", ".yml")) and "azure" in content.lower():
-            return True
+            return _is_agent_definition(path, content)
         if scan_ctx:
             deps = scan_ctx.get("dependencies", set())
             if "azure-ai-projects" in deps or "azure-ai-agents" in deps:
