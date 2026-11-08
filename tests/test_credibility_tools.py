@@ -236,11 +236,15 @@ def test_committed_registry_is_valid():
     ({"advisory": "http://x"}, "https"),
     ({"expected": {"notes": "x"}}, "rules"),
     ({"vulnerable_ref": ""}, "lacks"),
+    ({"verified_by": ["ana"]}, "two or more"),
+    ({"verified_by": ["ana", "ana"]}, "two or more"),
+    ({"verified_on": None}, "verified_on"),
 ])
 def test_registry_entries_are_checked(entry, message):
     base = {"id": "I-1", "advisory": "https://a", "repository": "https://r",
             "vulnerable_ref": "abc", "static_visibility": "visible", "status": "verified",
-            "expected": {"paths": ["x"]}}
+            "expected": {"paths": ["x"]}, "verified_by": ["ana", "ben"],
+            "verified_on": "2026-11-08"}
     with pytest.raises(common.StudyError, match=message):
         replay.validate({"search": {"query": "q", "date": "d"}, "incidents": [{**base, **entry}]})
     with pytest.raises(common.StudyError, match="search"):
@@ -260,16 +264,17 @@ def test_incident_replay_end_to_end(tmp_path):
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, check=True,
                           capture_output=True, text=True).stdout.strip()
     registry = tmp_path / "incidents.yml"
+    by = {"verified_by": ["ana", "ben"], "verified_on": "2026-11-08"}
     registry.write_text(json.dumps({"search": {"query": "q", "date": "2026-11-07"}, "incidents": [
         {"id": "VIS-1", "advisory": "https://example.org/a", "repository": "https://example.org/r",
          "vulnerable_ref": head, "introduced_ref": head, "static_visibility": "visible",
-         "status": "verified", "expected": {"paths": [".mcp.json"]}},
+         "status": "verified", "expected": {"paths": [".mcp.json"]}, **by},
         {"id": "VIS-2", "advisory": "https://example.org/b", "repository": "https://example.org/r",
          "vulnerable_ref": head, "static_visibility": "visible", "status": "verified",
-         "expected": {"rules": ["NO_SUCH_RULE"]}},
+         "expected": {"rules": ["NO_SUCH_RULE"]}, **by},
         {"id": "RT-1", "advisory": "https://example.org/c", "repository": "https://example.org/r",
          "vulnerable_ref": head, "static_visibility": "runtime-only", "status": "verified",
-         "expected": {"rules": ["NO_SUCH_RULE"]}},
+         "expected": {"rules": ["NO_SUCH_RULE"]}, **by},
         {"id": "CAND", "advisory": "https://example.org/d", "repository": "https://example.org/r",
          "vulnerable_ref": head, "static_visibility": "visible", "status": "candidate",
          "expected": {"paths": ["x"]}},
@@ -335,8 +340,8 @@ def test_committed_registry_matches_its_screening_record():
     candidates = {a["id"] for a in screening["advisories"] if a["decision"] == "candidate"}
     assert {e["id"] for e in reg["incidents"]} == candidates
     assert reg["search"]["counts"] == screening["summary"]
-    assert all(e["status"] == "candidate" and e["static_visibility"] == "undetermined"
-               for e in reg["incidents"])
+    assert all(e["static_visibility"] == "undetermined"
+               for e in reg["incidents"] if e["status"] == "candidate")
 
 
 def test_candidates_are_never_scored():
@@ -349,3 +354,156 @@ def test_candidates_are_never_scored():
             {"id": "V", "advisory": "https://a", "repository": "https://r", "vulnerable_ref": "x",
              "static_visibility": "undetermined", "status": "verified",
              "expected": {"paths": ["p"]}}]})
+
+
+# --- C-3 incident verification kit (offline) ---------------------------------------------
+
+verify = _load("incident_verify")
+
+_REGISTRY_HEAD = "# head comment\n#\n\n"
+
+
+def _registry(tmp_path, n=4):
+    incidents = [{"id": f"GHSA-{i}", "advisory": f"https://github.com/advisories/GHSA-{i}",
+                  "repository": "https://github.com/o/r.git", "vulnerable_ref": "a" * 40,
+                  "fixed_ref": "b" * 40, "static_visibility": "undetermined",
+                  "expected": {"rules": [], "paths": ["src/server.py"]},
+                  "status": "candidate", "cwes": ["CWE-78"], "notes": f"flaw {i}"}
+                 for i in range(n)]
+    path = tmp_path / "incidents.yml"
+    path.write_text(_REGISTRY_HEAD + json.dumps(
+        {"version": 1, "search": {"query": "q", "date": "2026-11-07"}, "incidents": incidents}),
+        encoding="utf-8")
+    return path
+
+
+def test_verification_order_is_seeded_and_stable_when_candidates_are_added():
+    few = [{"id": f"GHSA-{i}", "status": "candidate"} for i in range(5)]
+    more = [*few, *({"id": f"GHSA-x{i}", "status": "candidate"} for i in range(5))]
+    order_few = [e["id"] for e in verify.verification_order(few)]
+    order_more = [e["id"] for e in verify.verification_order(more)]
+    assert [i for i in order_more if i in order_few] == order_few
+    assert [e["id"] for e in verify.verification_order(few, seed=1)] != order_few
+    done = [{**few[0], "status": "verified"}, *few[1:]]
+    assert few[0]["id"] not in [e["id"] for e in verify.verification_order(done)]
+
+
+def test_packets_are_blind_and_list_the_rule_catalogue(tmp_path):
+    registry = _registry(tmp_path)
+    out = tmp_path / "verify"
+    assert verify.main(["packets", "--registry", str(registry), "--out", str(out),
+                        "--verifiers", "ana,ben", "--count", "2", "--offline"]) == 0
+    packets = sorted((out / "packets").iterdir())
+    assert len(packets) == 2 and packets[0].name.startswith("001-")
+    text = packets[0].read_text(encoding="utf-8")
+    assert "`CAP_shell`" in text and "does not show what SafeAI reports" in text
+    assert "rule_id" not in text and "observed" not in text
+    with open(out / "sheet.ana.csv", encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    assert [r["id"] for r in rows] == [p.name[4:-3] for p in packets]
+    assert list(rows[0]) == verify.SHEET_FIELDS
+    assert verify.main(["packets", "--registry", str(registry), "--out", str(out),
+                        "--verifiers", "ana", "--offline"]) == 2
+
+
+def _sheet(path, rows):
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=verify.SHEET_FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+    return str(path)
+
+
+def test_apply_writes_agreed_answers_and_lists_the_rest(tmp_path):
+    registry = _registry(tmp_path, n=5)
+    agreed = {"id": "GHSA-0", "decision": "verified", "static_visibility": "visible",
+              "rules": "CAP_shell; PROMPT_INJECTION", "paths": "src/server.py"}
+    rejected = {"id": "GHSA-1", "decision": "rejected", "reason": "not an agent flaw"}
+    a = _sheet(tmp_path / "sheet.ana.csv", [
+        agreed, rejected,
+        {"id": "GHSA-2", "decision": "verified", "static_visibility": "visible",
+         "rules": "CAP_shell", "paths": "src/server.py"},
+        {"id": "GHSA-3", "decision": "verified", "static_visibility": "runtime-only",
+         "paths": "src/server.py"},
+        {"id": "GHSA-4", "decision": "unsure"}])
+    b = _sheet(tmp_path / "sheet.ben.csv", [
+        {**agreed, "rules": "PROMPT_INJECTION;CAP_shell"}, rejected,
+        {"id": "GHSA-2", "decision": "verified", "static_visibility": "runtime-only",
+         "rules": "CAP_shell", "paths": "src/server.py"},
+        {"id": "GHSA-3", "decision": "verified", "static_visibility": "visible",
+         "paths": "src/server.py"},
+        {"id": "GHSA-4", "decision": "unsure"}])
+    adj = _sheet(tmp_path / "sheet.cem.csv", [
+        {"id": "GHSA-3", "decision": "verified", "static_visibility": "runtime-only",
+         "paths": "src/server.py"}])
+    assert verify.main(["apply", "--registry", str(registry), a, b, "--adjudication", adj,
+                        "--today", "2026-11-08"]) == 1
+    assert registry.read_text(encoding="utf-8").startswith(_REGISTRY_HEAD)
+    data = common.load_yaml(str(registry))
+    by_id = {e["id"]: e for e in data["incidents"]}
+    assert by_id["GHSA-0"]["status"] == "verified"
+    assert by_id["GHSA-0"]["expected"]["rules"] == ["CAP_shell", "PROMPT_INJECTION"]
+    assert by_id["GHSA-0"]["verified_by"] == ["ana", "ben"]
+    assert by_id["GHSA-1"]["status"] == "rejected"
+    assert "not an agent flaw" in by_id["GHSA-1"]["notes"]
+    assert by_id["GHSA-2"]["status"] == "candidate"
+    assert by_id["GHSA-3"]["verified_by"] == ["ana", "ben", "cem"]
+    assert by_id["GHSA-3"]["static_visibility"] == "runtime-only"
+    assert by_id["GHSA-4"]["status"] == "candidate"
+    replay.validate(data)
+    assert verify.main(["apply", "--registry", str(registry), a, a]) == 2
+
+
+@pytest.mark.parametrize(("answer", "problem"), [
+    ({"decision": "maybe"}, "decision"),
+    ({"decision": "rejected"}, "reason"),
+    ({"decision": "verified", "static_visibility": "undetermined", "paths": "x"},
+     "static_visibility"),
+    ({"decision": "verified", "static_visibility": "visible"}, "rules or paths"),
+    ({"decision": "verified", "static_visibility": "visible", "paths": "x",
+      "introduced_ref": "HEAD~1"}, "SHA"),
+])
+def test_bad_answers_are_not_applied(tmp_path, answer, problem):
+    path = _sheet(tmp_path / "sheet.x.csv", [{"id": "GHSA-0", **answer}])
+    assert problem in verify.check_answer(verify.read_answers(path)["GHSA-0"])
+
+
+# --- C-2 target eligibility (offline) -----------------------------------------------------
+
+target_check = _load("target_check")
+
+_META = {"license": {"spdx_id": "MIT"}, "archived": False, "fork": False,
+         "owner": {"login": "someone"}, "default_branch": "main"}
+
+
+@needs_git
+def test_target_check_records_surface_but_no_findings(tmp_path):
+    repo = _repo(tmp_path)
+    work = tmp_path / "work"
+    work.mkdir()
+    facts = target_check.check_target(
+        {"id": "demo", "url": "https://github.com/someone/demo"}, str(work), window=3,
+        meta=_META, repo=str(repo))
+    assert facts["first_parent_commits"] == 4
+    assert facts["suggested_range"]["first_parent_commits"] == 3
+    assert facts["suggested_range"]["to"] == facts["head"]
+    assert facts["head_surface"]["tools"] >= 1 and "mcp" in facts["head_surface"]["frameworks"]
+    assert "findings" not in json.dumps(facts) and "rule_id" not in json.dumps(facts)
+    # Four commits are below the 50-commit criterion.
+    assert facts["eligible"] is False
+    assert facts["fails"] == ["fewer than 50 first-parent commits"]
+
+
+@pytest.mark.parametrize(("change", "fail"), [
+    ({"licence": None}, "licence"), ({"archived": True}, "archived"), ({"fork": True}, "fork"),
+    ({"owner": "IkarusAILabs"}, "SafeAI's authors"),
+    ({"head_surface": {"frameworks": [], "tools": 0, "mcp_assets": 0}}, "no agent framework"),
+])
+def test_target_criteria(change, fail):
+    facts = {"licence": "MIT", "archived": False, "fork": False, "owner": "x",
+             "first_parent_commits": 60,
+             "head_surface": {"frameworks": ["mcp"], "tools": 1, "mcp_assets": 0}}
+    assert target_check.assess(facts) == []
+    assert any(fail in f for f in target_check.assess({**facts, **change}))
+    assert target_check.repo_facts({**_META, "license": {"spdx_id": "NOASSERTION"}})[
+        "licence"] is None

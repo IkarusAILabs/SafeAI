@@ -1,0 +1,285 @@
+{
+ "date": "2026-11-08",
+ "window": 300,
+ "criteria": {
+  "min_first_parent_commits": 50,
+  "recorded_at_head": "frameworks, tool and MCP asset counts; no findings"
+ },
+ "targets": [
+  {
+   "id": "mcp-reference-servers",
+   "url": "https://github.com/modelcontextprotocol/servers",
+   "status": "proposed",
+   "licence": null,
+   "archived": false,
+   "fork": false,
+   "owner": "modelcontextprotocol",
+   "default_branch": "main",
+   "first_parent_commits": 1317,
+   "head": "36380287ed3b15d115b55f546617d723072b1296",
+   "head_date": "2026-11-04T16:01:13-05:00",
+   "head_surface": {
+    "frameworks": [
+     "claude_code",
+     "mcp"
+    ],
+    "tools": 3,
+    "mcp_assets": 70,
+    "files_scanned": 102
+   },
+   "suggested_range": {
+    "from": "df78abce6a45307a916e42aee60d0bbdfa1dd9a9",
+    "to": "36380287ed3b15d115b55f546617d723072b1296",
+    "first_parent_commits": 300
+   },
+   "fails": [
+    "no recognised open-source licence"
+   ],
+   "eligible": false
+  },
+  {
+   "id": "crewai-examples",
+   "url": "https://github.com/crewAIInc/crewAI-examples",
+   "status": "proposed",
+   "licence": null,
+   "archived": true,
+   "fork": false,
+   "owner": "crewAIInc",
+   "default_branch": "main",
+   "first_parent_commits": 141,
+   "head": "da94a91e691e1cf5b3151416bb15b5b62729bea8",
+   "head_date": "2026-04-20T14:45:43-05:00",
+   "head_surface": {
+    "frameworks": [
+     "crewai",
+     "langchain",
+     "langgraph",
+     "openai_agents"
+    ],
+    "tools": 1,
+    "mcp_assets": 0,
+    "files_scanned": 159
+   },
+   "suggested_range": {
+    "from": "79915013be1ab132fb0dd5cb207d30a150a44abd",
+    "to": "da94a91e691e1cf5b3151416bb15b5b62729bea8",
+    "first_parent_commits": 141
+   },
+   "fails": [
+    "no recognised open-source licence",
+    "archived"
+   ],
+   "eligible": false
+  },
+  {
+   "id": "awslabs-mcp",
+   "url": "https://github.com/awslabs/mcp",
+   "status": "proposed",
+   "licence": "Apache-2.0",
+   "archived": false,
+   "fork": false,
+   "owner": "awslabs",
+   "default_branch": "main",
+   "first_parent_commits": 2072,
+   "head": "d33705e0890e8cf39aa42eeee7b45d6a6e088112",
+   "head_date": "2026-11-07T16:39:32Z",
+   "head_surface": {
+    "frameworks": [
+     "bedrock_agent",
+     "claude_code",
+     "crewai",
+     "haystack",
+     "langchain",
+     "mcp",
+     "microsoft_agent_framework",
+     "n8n",
+     "openai_agents"
+    ],
+    "tools": 70,
+    "mcp_assets": 2182,
+    "files_scanned": 2750
+   },
+   "suggested_range": {
+    "from": "048c844151121f180ae7251151cf32dc552319da",
+    "to": "d33705e0890e8cf39aa42eeee7b45d6a6e088112",
+    "first_parent_commits": 300
+   },
+   "fails": [],
+   "eligible": true
+  },
+  {
+   "id": "github-mcp-server",
+   "url": "https://github.com/github/github-mcp-server",
+   "status": "proposed",
+   "licence": "MIT",
+   "archived": false,
+   "fork": false,
+   "owner": "github",
+   "default_branch": "main",
+   "first_parent_commits": 1191,
+   "head": "99d6d6503a7b2a133e2f8a595d6d0ba24b4086d3",
+   "head_date": "2026-11-04T14:23:03+01:00",
+   "head_surface": {
+    "frameworks": [
+     "azure_foundry",
+     "copilot",
+     "mcp"
+    ],
+    "tools": 2,
+    "mcp_assets": 15,
+    "files_scanned": 26
+   },
+   "suggested_range": {
+    "from": "b5397f6e3305531a1c534b90b2d347a70fa84da9",
+    "to": "99d6d6503a7b2a133e2f8a595d6d0ba24b4086d3",
+    "first_parent_commits": 300
+   },
+   "fails": [],
+   "eligible": true
+  },
+  {
+   "id": "stripe-ai",
+   "url": "https://github.com/stripe/ai",
+   "status": "proposed",
+   "licence": "MIT",
+   "archived": false,
+   "fork": false,
+   "owner": "stripe",
+   "default_branch": "main",
+   "first_parent_commits": 378,
+   "head": "6b8065ed604e24092247ac690500613a9cef48bf",
+   "head_date": "2026-11-08T00:32:55Z",
+   "head_surface": {
+    "frameworks": [
+     "mcp"
+    ],
+    "tools": 2,
+    "mcp_assets": 16,
+    "files_scanned": 66
+   },
+   "suggested_range": {
+    "from": "46f59122878b51e07946b1f0cbe3017ef0de6fd0",
+    "to": "6b8065ed604e24092247ac690500613a9cef48bf",
+    "first_parent_commits": 300
+   },
+   "fails": [],
+   "eligible": true
+  },
+  {
+   "id": "openai-cs-agents-demo",
+   "url": "https://github.com/openai/openai-cs-agents-demo",
+   "status": "proposed",
+   "licence": "MIT",
+   "archived": false,
+   "fork": false,
+   "owner": "openai",
+   "default_branch": "main",
+   "first_parent_commits": 10,
+   "head": "bd7bfca0f5abf50529370814c3e7c88542011925",
+   "head_date": "2025-12-11T18:03:50Z",
+   "head_surface": {
+    "frameworks": [
+     "openai_agents"
+    ],
+    "tools": 1,
+    "mcp_assets": 1,
+    "files_scanned": 15
+   },
+   "suggested_range": {
+    "from": "3baf14cecc12d0ae1422e7ab1eda153eeda3c7e5",
+    "to": "bd7bfca0f5abf50529370814c3e7c88542011925",
+    "first_parent_commits": 10
+   },
+   "fails": [
+    "fewer than 50 first-parent commits"
+   ],
+   "eligible": false
+  },
+  {
+   "id": "cloudflare-mcp-servers",
+   "url": "https://github.com/cloudflare/mcp-server-cloudflare",
+   "status": "proposed",
+   "licence": "Apache-2.0",
+   "archived": false,
+   "fork": false,
+   "owner": "cloudflare",
+   "default_branch": "main",
+   "first_parent_commits": 312,
+   "head": "a21972e219289337731a066befb5c66886b9ce7b",
+   "head_date": "2026-10-22T16:20:22+01:00",
+   "head_surface": {
+    "frameworks": [
+     "azure_foundry",
+     "n8n"
+    ],
+    "tools": 1,
+    "mcp_assets": 25,
+    "files_scanned": 66
+   },
+   "suggested_range": {
+    "from": "b57df5bf2f2659c4486e6f82464f3f7cc5800d83",
+    "to": "a21972e219289337731a066befb5c66886b9ce7b",
+    "first_parent_commits": 300
+   },
+   "fails": [],
+   "eligible": true
+  },
+  {
+   "id": "playwright-mcp",
+   "url": "https://github.com/microsoft/playwright-mcp",
+   "status": "proposed",
+   "licence": "Apache-2.0",
+   "archived": false,
+   "fork": false,
+   "owner": "microsoft",
+   "default_branch": "main",
+   "first_parent_commits": 613,
+   "head": "404be8eb89abecff77a55152b6d843d140c78372",
+   "head_date": "2026-11-06T14:49:42-08:00",
+   "head_surface": {
+    "frameworks": [
+     "azure_foundry",
+     "claude_code"
+    ],
+    "tools": 1,
+    "mcp_assets": 14,
+    "files_scanned": 16
+   },
+   "suggested_range": {
+    "from": "dbd44110f18f566676634cc217fc438098aab687",
+    "to": "404be8eb89abecff77a55152b6d843d140c78372",
+    "first_parent_commits": 300
+   },
+   "fails": [],
+   "eligible": true
+  },
+  {
+   "id": "executeautomation-playwright-mcp",
+   "url": "https://github.com/executeautomation/mcp-playwright",
+   "status": "proposed",
+   "licence": "MIT",
+   "archived": false,
+   "fork": false,
+   "owner": "executeautomation",
+   "default_branch": "main",
+   "first_parent_commits": 99,
+   "head": "2349c2891e7c499c8c07b7d78c7f3fb4c797a1da",
+   "head_date": "2025-12-13T09:58:37+05:30",
+   "head_surface": {
+    "frameworks": [
+     "mcp"
+    ],
+    "tools": 2,
+    "mcp_assets": 9,
+    "files_scanned": 18
+   },
+   "suggested_range": {
+    "from": "855ceeb5784a4a3ddbc68d4651be6d42f752f1c7",
+    "to": "2349c2891e7c499c8c07b7d78c7f3fb4c797a1da",
+    "first_parent_commits": 99
+   },
+   "fails": [],
+   "eligible": true
+  }
+ ]
+}
