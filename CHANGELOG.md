@@ -17,10 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   depend on test order. The parser is now registered, and
   `tests/test_parser_discovery.py` fails when any
   `safeai/frameworks/<name>/parser.py` is left out. Scans of AutoGen
-  code now list AutoGen agents. The parser names an agent by its
-  constructor (`AssistantAgent`), not by its `name` argument; the
-  pending case `delegation/autogen_teams` records this. The 58-case
-  digests are unchanged (no published case contains AutoGen code).
+  code now list AutoGen agents. The 58-case digests are unchanged (no
+  published case contains AutoGen code).
+- **AutoGen agents are named by their own name.** The parser named every
+  agent after its constructor (`AssistantAgent`), so all agents in a
+  file collapsed into one. It now uses `name=` or the first positional
+  argument when it is a string literal; a name built at run time falls
+  back to the constructor name with `name_resolved: false`. The pending
+  case `delegation/autogen_teams` now expects its six agents by name.
 
 **Credibility track (roadmap C-1 to C-8).** A new roadmap track that
 measures SafeAI on code its authors did not write, ahead of new signals.
