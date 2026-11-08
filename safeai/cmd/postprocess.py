@@ -99,6 +99,13 @@ class ScanPostProcessor:
         """Execute all stages in order; returns ``None`` normally or an int
         exit code for an early failure (e.g. --strict-registry)."""
         self._configure_logging()
+        if not os.path.isdir(self.directory):
+            # A mistyped path must not pass a CI gate as an empty, clean scan
+            # (or create the directory to persist a project id into).
+            what = "a file" if os.path.exists(self.directory) else "not found"
+            print(f"safeai scan: {self.args.directory}: {what}; give the project directory "
+                  "to scan", file=sys.stderr)
+            return 2
         if getattr(self.args, "digest_file", None) and not self.args.manifest_path:
             self.parser.error("--digest-file requires --manifest")
         if getattr(self.args, "attestation_path", None) and not self.args.manifest_path:

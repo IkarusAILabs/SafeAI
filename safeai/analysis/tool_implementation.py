@@ -11,7 +11,12 @@ static analysis).  Surfaces two orphan states:
 
 Both states are informational; they help reviewers understand the gap
 between what an agent *says* it uses and what the code actually provides.
+
+The unattributed bucket (capabilities SafeAI could not tie to a tool) is
+not a tool, so it is never reported as an orphan.
 """
+
+from safeai.analysis.tool_identity import UNATTRIBUTED_KEY
 
 
 def _tool_refs_from_surface(tool_surface):
@@ -158,7 +163,7 @@ def map_tool_implementations(report):
     all_keys = sorted(set(declared_refs.keys()) | set(implementation_refs.keys()))
 
     for key in all_keys:
-        if key.startswith(("mcp:", "mcp_server:")):
+        if key.startswith(("mcp:", "mcp_server:")) or key == UNATTRIBUTED_KEY:
             continue
 
         decl = declared_refs.get(key)

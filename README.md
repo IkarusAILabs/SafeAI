@@ -123,13 +123,13 @@ but the default leaves it visible and unfailed.
 
 | Feature | Description |
 |---------|-------------|
-| **Framework Detection** | Detects and parses 19 AI agent frameworks (AST + config + regex, no mutual exclusion) |
+| **Framework Detection** | Detects and parses 20 AI agent frameworks (AST + config + regex, no mutual exclusion) |
 | **Tool Identity & Access Modes** | Capabilities attributed to named tools (agent / MCP server / skill / tool / workflow node) on an access scale `none < read < write < mutate < execute`; inferred modes are flagged, never overstated |
-| **Capability Discovery** | Maps 19 capability categories (shell, filesystem, network, database, memory, MCP, ...) with evidence, confidence, and provenance |
+| **Capability Discovery** | Maps 20 capability categories (shell, filesystem, network, database, memory, MCP, ...) with evidence, confidence, and provenance |
 | **Capability Escalation Detection** | Per-tool authority diffs between scans (new shell, read→write widening, new MCP server, removed approval gate, ...) — 14 rules, including gating-aware subsumption |
 | **AI Risk Analysis** | Categorizes findings into 7 risk categories with weighted trust scoring (0–100) |
 | **Prompt Risk Analysis** | Detects injection patterns, delimiter issues, system leak, role override |
-| **Governance Signal Detection** | Detects missing operational controls: timeout, retry, approval, audit, rate limiting, circuit breaker, backpressure, health check (8 `GOV_*` rules) |
+| **Governance Signal Detection** | Detects missing operational controls: timeout, retry, approval, audit, rate limiting, circuit breaker, backpressure, health check, iteration and recursion limits (10 `GOV_*` rules) |
 | **Component-Level Analysis** | Skills, prompt files, tool definitions, model configurations, workflow templates |
 | **Data-Flow Analysis** | Tracks untrusted input propagation into sensitive sinks (prompts, tool calls, shell, file writes, HTTP, database); placeholder-aware confidence |
 | **Control Mappings** | OWASP LLM / Agentic + NIST AI RMF mapping layer for framework-based filtering and grouping |
@@ -159,7 +159,7 @@ File Collection — Python, YAML, JSON, .prompt, and .claude configs;
                  prunes VCS, caches, oversized files, and SafeAI's own artifacts
     │
     ▼
-Framework Detection — 16 parsers (AST + config + regex), all run on all files;
+Framework Detection — 20 parsers (AST + config + regex), all run on all files;
                      import graph and dependency manifests
     │
     ▼

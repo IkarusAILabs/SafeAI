@@ -111,18 +111,20 @@
 
 | Category | Rules | Description |
 |----------|-------|-------------|
-| `CAP_*` | 19 | Capability detection |
+| `CAP_*` | 21 | Capability detection |
 | `CC_*` | 10 | Claude Code specific |
 | `DATA_*` | 1 | Data classification |
 | `DATAFLOW_*` | 6 | Data-flow tracking |
 | `DEP_*` | 2 | Dependency correlation |
 | `ENV_*` | 1 | Environment analysis |
 | `GOV_*` | 10 | Governance controls |
+| `IAC_*` | 4 | Repository IaC identities and grants |
 | `MCP_*` | 4 | MCP configuration |
 | `MODEL_*` | 3 | Model configuration |
 | `PROMPT_*` | 4 | Prompt injection detection |
 | `PROMPT_FILE_*` | 4 | Prompt file scanning |
 | `SKILL_*` | 5 | Skill analysis |
+| `SOD_*` | 1 | Separation of duties |
 | `TOOL_*` | 6 | Tool analysis |
 | `WORKFLOW_*` | 4 | Workflow analysis |
 
