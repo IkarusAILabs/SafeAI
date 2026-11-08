@@ -16,6 +16,23 @@ from safeai.analysis.semantic import (
 from safeai.frameworks import register_parser
 
 
+def _agent_name(call):
+    """The agent's own name: ``name=`` or the first positional argument.
+
+    AutoGen 0.2 and AgentChat both take the name as the first parameter
+    (``AssistantAgent("triage", ...)`` or ``AssistantAgent(name="triage")``).
+    Only a string literal counts; a name built at run time returns None and
+    the caller falls back to the constructor name, marked unresolved.
+    """
+    name = (call.get("kwargs") or {}).get("name")
+    if not isinstance(name, str):
+        args = call.get("args") or []
+        name = args[0] if args else None
+    if not isinstance(name, str):
+        return None
+    return name.strip() or None
+
+
 @register_parser
 class AutoGenParser:
     name = "autogen"
@@ -58,8 +75,11 @@ class AutoGenParser:
             lname = (resolved or call["name"]).lower()
 
             if "assistantagent" in lname or "userproxyagent" in lname:
+                name = _agent_name(call)
                 agents.append({
-                    "name": call["name"],
+                    "name": name or call["name"],
+                    "name_resolved": name is not None,
+                    "constructor": call["name"],
                     "line": call.get("line"),
                     "kwargs": call.get("kwargs", {}),
                     "evidence": call["name"],
