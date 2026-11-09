@@ -641,6 +641,11 @@ class TestFixtureCoverageCompleteness:
         parsers = discover_parsers()
         frameworks = set()
         for parser in parsers:
+            if getattr(parser, "name", None):
+                # A parser's registered name; parsing empty content proves nothing
+                # for a parser that, rightly, rejects it.
+                frameworks.add(parser.name)
+                continue
             # Try .py first, then .json, then .yaml for parsers that need specific file types
             for test_file, test_content in [("test.py", ""), ("test.json", "{}"), ("test.yaml", "")]:
                 result = parser.parse(test_file, test_content)

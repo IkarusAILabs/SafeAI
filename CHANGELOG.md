@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Any JSON file that mentioned "bedrock" was a Bedrock Agent.** The
+  C-5 census found a plugin manifest that lists Bedrock as a provider
+  reported as a Bedrock Agent configuration; package manifests that
+  depend on a Bedrock SDK were reported the same way. Detection now
+  needs an agent definition: Bedrock API keys (`foundationModel`,
+  `actionGroups`, `agentResourceRoleArn`), `AWS::Bedrock::Agent` in a
+  CloudFormation template, or an `actions` list in a configuration whose
+  name, description, model or type names Bedrock. Action groups are now
+  read as tools, and API agents whose JSON never says "bedrock" are
+  detected. CloudFormation in YAML is still not read. Digests unchanged.
+- **A framework without a fixture went unnoticed.** The fixture-coverage
+  test worked out each parser's framework by parsing empty content, so
+  it missed AutoGen, whose parser rightly returns nothing for empty
+  content. The test now reads each parser's registered name, and
+  AutoGen has a representative fixture. On that fixture SafeAI detects
+  AutoGen and the read and execute capabilities, but ties neither to a
+  tool: the unattributed-authority gap the census measured.
+
 - **One parser failure aborted the whole scan.** A JSON file whose top
   level was a list and that mentioned "bedrock" crashed the Bedrock
   Agent parser with `AttributeError`, so the scan wrote no report. Found

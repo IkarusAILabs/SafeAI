@@ -33,7 +33,7 @@ we deliberately do not overclaim coverage.
 | OpenAI Agents SDK | AST + metadata + regex | Agents, tools, handoffs, MCP | Multi-agent, delegation, MCP | Partial | Partial |
 | Microsoft Agent Framework | AST + config + deps + regex | Agents, workflows, tools, memory, models | Cloud, memory | Minimal | Experimental |
 | Azure AI Foundry | Configuration | Tools, models from YAML | Cloud | Minimal | Experimental |
-| Bedrock Agent | Configuration | Tools from JSON | (minimal) | Minimal | Experimental |
+| Bedrock Agent | JSON agent definitions (Bedrock API keys, `AWS::Bedrock::Agent` in CloudFormation JSON, or an `actions` list in a config named for Bedrock) | Agent names; tools from `actions` and action groups | (minimal) | Minimal | Experimental |
 | Claude Code | CLAUDE.md + .claude config (deep) | Settings, permissions, MCP config, slash commands, subagents, hooks | Shell, filesystem, MCP, delegation | Partial | Partial |
 | Google ADK | AST + imports | Agents, workflows, tools, models | External APIs | Minimal | Experimental |
 | Mastra | AST + imports | Agents, workflows, tools, models | Multi-agent, RAG, external APIs | Minimal | Experimental |
