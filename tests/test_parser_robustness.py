@@ -44,7 +44,7 @@ def test_parsers_survive_unexpected_shapes(parser, case):
 
 
 def test_one_failing_parser_does_not_abort_the_scan(tmp_path, monkeypatch):
-    (tmp_path / "agent.json").write_text('{"bedrock": true, "actions": ["a"]}',
+    (tmp_path / "agent.json").write_text('{"name": "bedrock_agent", "actions": ["a"]}',
                                          encoding="utf-8")
     from safeai.frameworks.bedrock_agent.parser import BedrockAgentParser
 
