@@ -1,8 +1,10 @@
 # Review sheet: expected answers affected by tool-body attribution
 
-Status: **awaiting human review.** Nothing in `tests/benchmarks/` has
-been changed. The authority benchmark fails on the 13 cases below until
-a reviewer decides each one.
+Status: **decided by the project owner on 2026-11-09.** All 13
+revisions are applied in `tests/benchmarks/authority/`, and each case's
+`annotation` now reads `independent_annotation`. One decision amends the
+proposal (`baseline_changes/new_tool`, below), and that case remains a
+measured scanner miss.
 
 ## Why these cases change
 
@@ -38,29 +40,37 @@ reviewer and `derivation: independent_annotation`.
 
 | Case | What the input does | Expected now | Observed now | Proposed | Decision |
 |---|---|---|---|---|---|
-| `capabilities/shell_tool` | `deploy` runs `subprocess.run(cmd, shell=True)`; registered with `Tool(name="deploy", func=deploy)` | shell not on the surface ("known blind spot") | `tool:deploy` shell_execution / execute | add `tool:deploy` {shell_execution: execute}; drop blind-spot note | |
-| `access_modes/execute_tool` | `maintain` runs a shell command; registered as a tool | no tool entry | `tool:maintain` shell_execution / execute | add `tool:maintain` {shell_execution: execute} | |
-| `access_modes/write_tool` | `save_note` opens a file with `"w"` | no tool entry | `tool:save-note` filesystem_access / write | add `tool:save-note` {filesystem_access: write} | |
-| `capabilities/file_read_only` | `read_note` opens a file for reading | no tool entry | `tool:read-note` filesystem_access / read | add `tool:read-note` {filesystem_access: read} | |
-| `capabilities/network_egress` | `post_report` makes an HTTP POST | no tool entry | `tool:post-report` external_apis / write | add `tool:post-report` {external_apis: write} | |
-| `attribution/similar_tools` | `read_note` reads; `write_note` opens with `"w"` | neither attributed ("cannot tell which tool does what") | `tool:read-note` read; `tool:write-note` write | add both; revise note | |
-| `attribution/shared_tool` | one `run` function (shell) shared by two CrewAI agents through `Tool(name="run", func=run)` | shell unattributed; uncertainty `unlinked shell_execution` | `tool:run` shell_execution / execute | attribute to `tool:run`; drop the `unlinked` uncertainty | |
-| `attribution/delegation_chain` | the worker's `run` tool (`Tool(name="run", func=run)`) runs a shell command; two supervising agents delegate to it | shell unattributed; `UNVERIFIED_LINK` expected | `tool:run` shell_execution / execute | attribute to `tool:run`; reviewer to decide whether the link is still unverified | |
-| `delegation/subagent_chain` | same pattern as above | same as above | `tool:run` shell_execution / execute | same as above | |
-| `workflows/langgraph_tools` | `ToolNode([shell_run])`; `shell_run` runs `subprocess.run(shell=True)` | shell unattributed | `tool:shell-run` shell_execution / execute | attribute shell to `tool:shell-run`. The unattributed `filesystem_access` here comes from `ChatOpenAI` matching "open" (separate LangGraph parser fix, not in this change) | |
-| `baseline_changes/new_tool` | current version adds a `diagnose` tool that runs a shell command | change seen through findings only | `tool:diagnose` shell_execution / execute; MATERIAL_CHANGE on that tool | expect MATERIAL_CHANGE on `tool:diagnose` through the surface channel | |
-| `baseline_changes/read_to_write` | `read_note` gains an `open(path, "w")` branch | change seen through findings only ("surface carries no filesystem capability") | `tool:read-note` read → write; MATERIAL_CHANGE | expect MATERIAL_CHANGE on `tool:read-note` through the surface channel | |
-| `unknown/unresolved_egress` | `notify` POSTs to a URL read from `NOTIFY_URL` | `DEP_UNDECLARED_CAPABILITY` must fire | `tool:notify` external_apis / write; the rule is silent, because the URL now has a consumer | **reviewer decision.** If "undeclared" means "no tool consumes it", remove the rule from `must_fire`. If the case is meant to test unknown destinations, keep the rule and change the rule instead | |
+| `capabilities/shell_tool` | `deploy` runs `subprocess.run(cmd, shell=True)`; registered with `Tool(name="deploy", func=deploy)` | shell not on the surface ("known blind spot") | `tool:deploy` shell_execution / execute | add `tool:deploy` {shell_execution: execute}; drop blind-spot note | accepted (owner) |
+| `access_modes/execute_tool` | `maintain` runs a shell command; registered as a tool | no tool entry | `tool:maintain` shell_execution / execute | add `tool:maintain` {shell_execution: execute} | accepted (owner) |
+| `access_modes/write_tool` | `save_note` opens a file with `"w"` | no tool entry | `tool:save-note` filesystem_access / write | add `tool:save-note` {filesystem_access: write} | accepted (owner) |
+| `capabilities/file_read_only` | `read_note` opens a file for reading | no tool entry | `tool:read-note` filesystem_access / read | add `tool:read-note` {filesystem_access: read} | accepted (owner) |
+| `capabilities/network_egress` | `post_report` makes an HTTP POST | no tool entry | `tool:post-report` external_apis / write | add `tool:post-report` {external_apis: write} | accepted (owner) |
+| `attribution/similar_tools` | `read_note` reads; `write_note` opens with `"w"` | neither attributed ("cannot tell which tool does what") | `tool:read-note` read; `tool:write-note` write | add both; revise note | accepted (owner) |
+| `attribution/shared_tool` | one `run` function (shell) shared by two CrewAI agents through `Tool(name="run", func=run)` | shell unattributed; uncertainty `unlinked shell_execution` | `tool:run` shell_execution / execute | attribute to `tool:run`; drop the `unlinked` uncertainty | accepted (owner) |
+| `attribution/delegation_chain` | the worker's `run` tool (`Tool(name="run", func=run)`) runs a shell command; two supervising agents delegate to it | shell unattributed; `UNVERIFIED_LINK` expected | `tool:run` shell_execution / execute | attribute to `tool:run`; reviewer to decide whether the link is still unverified | accepted; UNVERIFIED_LINK dropped (owner) |
+| `delegation/subagent_chain` | same pattern as above | same as above | `tool:run` shell_execution / execute | same as above | accepted; UNVERIFIED_LINK dropped (owner) |
+| `workflows/langgraph_tools` | `ToolNode([shell_run])`; `shell_run` runs `subprocess.run(shell=True)` | shell unattributed | `tool:shell-run` shell_execution / execute | attribute shell to `tool:shell-run`. The unattributed `filesystem_access` here comes from `ChatOpenAI` matching "open" (separate LangGraph parser fix, not in this change) | accepted (owner) |
+| `baseline_changes/new_tool` | current version adds a `diagnose` tool that runs a shell command | change seen through findings only | `tool:diagnose` shell_execution / execute; MATERIAL_CHANGE on that tool | expect MATERIAL_CHANGE on `tool:diagnose` through the surface channel | **amended**: keep AUTHORITY_ESCALATION (a new shell tool is an escalation), now detected through the surface. The scanner's MATERIAL_CHANGE is a measured miss (owner) |
+| `baseline_changes/read_to_write` | `read_note` gains an `open(path, "w")` branch | change seen through findings only ("surface carries no filesystem capability") | `tool:read-note` read → write; MATERIAL_CHANGE | expect MATERIAL_CHANGE on `tool:read-note` through the surface channel | accepted (owner) |
+| `unknown/unresolved_egress` | `notify` POSTs to a URL read from `NOTIFY_URL` | `DEP_UNDECLARED_CAPABILITY` must fire | `tool:notify` external_apis / write; the rule is silent, because the URL now has a consumer | **reviewer decision.** If "undeclared" means "no tool consumes it", remove the rule from `must_fire`. If the case is meant to test unknown destinations, keep the rule and change the rule instead | **rule silent**: the URL has a consumer; DEP_UNDECLARED_CAPABILITY removed from must_fire (owner) |
 
-## Effect on the numbers, if every proposal is accepted
+## Measured after the decisions
 
-These numbers come from `--no-determinism` and are measured with the
-change in place against the *current* expected answers:
+These numbers come from `--no-determinism` (committed records):
 
-- 45 of 58 cases pass;
-- capability attribution: 65 of 134 applicable statements resolved.
+- 57 of 58 cases hold. The mismatch is `baseline_changes/new_tool`
+  (escalation miss).
+- Capability attribution: 79 of 144 applicable statements resolved
+  (0.5486), up from 65 of 134 (0.4851).
+- Material change: recall 0.8571 (6 TP, 1 FN). Escalation: recall 0.8
+  (4 TP, 1 FN). Surface-blind entries: 1, down from 3.
+- Digests: `6b30d59b…` (committed records) and `5d48523e…` (CI path).
+  See `VALIDATION_REPORT.md`.
 
-Once the cases are decided, rerun `python -m safeai.cmd.cli benchmark`,
-update the digests in `VALIDATION_REPORT.md`, and regenerate
-`evaluation.json` and `brief.md`. Until then the published digests
-(`ee76875d…`, `de9cb451…`) describe the scanner before this change.
+One harness change was needed. When matching an expected change to a
+tool, the harness now also reads escalation evidence, so a read-to-write
+widening (which adds no capability) can be matched.
+
+The `new_tool` miss is closed only by a scanner change: rating a new
+code-defined tool with shell authority as a critical escalation, as
+adding shell to an existing tool already is.

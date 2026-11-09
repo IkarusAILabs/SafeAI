@@ -1,6 +1,6 @@
 {
   "case": "delegation/subagent_chain",
-  "notes": "CrewAI manager/worker detected as agents; shell execution observed but unattributed to the worker tool.",
+  "notes": "Manager delegates to a worker whose run tool holds the shell execution; the run -> shell link is verified from source.",
   "agents": [
     {
       "framework": "crewai",
@@ -9,7 +9,7 @@
   ],
   "tools": [
     {
-      "tool_key": "unknown:unattributed",
+      "tool_key": "tool:run",
       "capabilities": [
         {
           "name": "shell_execution",
@@ -26,18 +26,13 @@
   "evidence_refs": [
     "crew.py"
   ],
-  "uncertainty": [
-    {
-      "kind": "unlinked",
-      "match": "shell_execution"
-    }
-  ],
+  "uncertainty": [],
   "truth_schema_version": "2.0",
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): Manager delegates to a worker whose run tool holds the shell execution; the run -> shell link is verified from source.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [
@@ -47,20 +42,30 @@
         "name": "Agent"
       }
     ],
-    "tools": [],
-    "capabilities": [
+    "tools": [
       {
-        "tool": null,
-        "capability": "shell_execution",
-        "access_mode": "execute",
-        "attribution": "unresolved"
+        "id": "run",
+        "name": "run",
+        "kind": "tool",
+        "attributable": true
       }
     ],
-    "unknown_expectations": [
+    "capabilities": [
       {
-        "area": "unlinked",
-        "expected": "UNVERIFIED_LINK",
-        "match": "shell_execution"
+        "tool": "run",
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "attribution": "attributed"
+      }
+    ],
+    "unknown_expectations": [],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "run",
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "resolvable": true
       }
     ]
   }

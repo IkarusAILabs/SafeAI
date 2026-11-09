@@ -1,6 +1,6 @@
 {
   "case": "unknown/unresolved_egress",
-  "notes": "Webhook URL from configuration: destination unknown, undeclared-capability correlation fires honestly.",
+  "notes": "Webhook URL from configuration: the notify tool POSTs to it, so the configured URL has a consuming capability and DEP_UNDECLARED_CAPABILITY does not fire.",
   "agents": [
     {
       "framework": "langchain",
@@ -8,6 +8,15 @@
     }
   ],
   "tools": [
+    {
+      "tool_key": "tool:notify",
+      "capabilities": [
+        {
+          "name": "external_apis",
+          "access_mode": "write"
+        }
+      ]
+    },
     {
       "tool_key": "unknown:unattributed",
       "capabilities": [
@@ -23,8 +32,7 @@
     }
   ],
   "must_fire": [
-    "CAP_http",
-    "DEP_UNDECLARED_CAPABILITY"
+    "CAP_http"
   ],
   "must_not_fire": [],
   "evidence_refs": [
@@ -40,8 +48,8 @@
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): Webhook URL from configuration: the notify tool POSTs to it, so the configured URL has a consuming capability and DEP_UNDECLARED_CAPABILITY does not fire.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [
@@ -51,7 +59,14 @@
         "name": "initialize_agent"
       }
     ],
-    "tools": [],
+    "tools": [
+      {
+        "id": "notify",
+        "name": "notify",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
     "capabilities": [
       {
         "tool": null,
@@ -64,6 +79,12 @@
         "capability": "planner_chain",
         "access_mode": "read",
         "attribution": "unresolved"
+      },
+      {
+        "tool": "notify",
+        "capability": "external_apis",
+        "access_mode": "write",
+        "attribution": "attributed"
       }
     ],
     "unknown_expectations": [
@@ -71,6 +92,15 @@
         "area": "inferred",
         "expected": "INFERRED",
         "match": "multi_agent_or_delegation"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "notify",
+        "capability": "external_apis",
+        "access_mode": "write",
+        "resolvable": true
       }
     ]
   }

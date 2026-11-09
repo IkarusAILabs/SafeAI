@@ -27,12 +27,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tool. Helpers a tool calls are not followed
   (`safeai/analysis/tool_bodies.py`).
 
-  **13 authority-benchmark cases no longer match their expected
-  answers.** Those answers record the old gap, and two say so in their
-  notes ("known blind spot"). They are listed for human review in
-  `docs/benchmarks/authority/REVIEW_TOOL_BODIES.md`. The expected answers
-  and published digests are unchanged until a reviewer decides each
-  case.
+  **13 authority-benchmark expected answers revised by the project
+  owner.** They recorded the old gap, and two said so in their notes
+  ("known blind spot"). The owner reviewed each case's input
+  (`docs/benchmarks/authority/REVIEW_TOOL_BODIES.md`); all 13 are now
+  independent annotations.
+  - The owner kept `baseline_changes/new_tool` as an authority
+    escalation, so the benchmark now reports 57/58. A new code-defined
+    shell tool is rated MATERIAL_CHANGE, a measured scanner miss.
+  - End-to-end capability attribution: 0.4851 (65/134) → 0.5486
+    (79/144). Surface-blind changes: 3 → 1.
+  - The harness now reads escalation evidence when matching a change
+    to a tool.
+  - Digests: `6b30d59b…` (committed records) and `5d48523e…` (CI path).
+    The pending corpus still holds 44/44 (digest `bb58e818…`).
 
 ### Fixed
 

@@ -1,6 +1,6 @@
 {
   "case": "access_modes/execute_tool",
-  "notes": "Execute access detected via shell rules; read-only-only claims would be false.",
+  "notes": "The maintain tool runs a shell command: execute, attributed to tool:maintain.",
   "agents": [
     {
       "framework": "langchain",
@@ -8,6 +8,15 @@
     }
   ],
   "tools": [
+    {
+      "tool_key": "tool:maintain",
+      "capabilities": [
+        {
+          "name": "shell_execution",
+          "access_mode": "execute"
+        }
+      ]
+    },
     {
       "tool_key": "unknown:unattributed",
       "capabilities": [
@@ -40,8 +49,8 @@
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): The maintain tool runs a shell command: execute, attributed to tool:maintain.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [
@@ -51,7 +60,14 @@
         "name": "initialize_agent"
       }
     ],
-    "tools": [],
+    "tools": [
+      {
+        "id": "maintain",
+        "name": "maintain",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
     "capabilities": [
       {
         "tool": null,
@@ -64,6 +80,12 @@
         "capability": "planner_chain",
         "access_mode": "read",
         "attribution": "unresolved"
+      },
+      {
+        "tool": "maintain",
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "attribution": "attributed"
       }
     ],
     "unknown_expectations": [
@@ -71,6 +93,15 @@
         "area": "inferred",
         "expected": "INFERRED",
         "match": "multi_agent_or_delegation"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "maintain",
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "resolvable": true
       }
     ]
   }

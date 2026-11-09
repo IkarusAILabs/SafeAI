@@ -1,6 +1,6 @@
 {
   "case": "baseline_changes/read_to_write",
-  "notes": "Same tool widens read to write. Surface carries no filesystem capability, so the findings channel (new CAP_file_write) is the detection path.",
+  "notes": "The same tool widens read to write. The surface shows tool:read_note going from filesystem read to write; the findings channel fires CAP_file_write.",
   "agents": [
     {
       "framework": "langchain",
@@ -8,6 +8,15 @@
     }
   ],
   "tools": [
+    {
+      "tool_key": "tool:read-note",
+      "capabilities": [
+        {
+          "name": "filesystem_access",
+          "access_mode": "write"
+        }
+      ]
+    },
     {
       "tool_key": "unknown:unattributed",
       "capabilities": [
@@ -24,7 +33,7 @@
   ],
   "changes": [
     {
-      "tool": "read_note tool (agent.py)",
+      "tool": "tool:read-note (agent.py)",
       "status": "changed",
       "materiality": "MATERIAL_CHANGE",
       "channels": [
@@ -52,8 +61,8 @@
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): The same tool widens read to write. The surface shows tool:read_note going from filesystem read to write; the findings channel fires CAP_file_write.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [
@@ -63,7 +72,14 @@
         "name": "initialize_agent"
       }
     ],
-    "tools": [],
+    "tools": [
+      {
+        "id": "read_note",
+        "name": "read_note",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
     "capabilities": [
       {
         "tool": null,
@@ -76,18 +92,24 @@
         "capability": "planner_chain",
         "access_mode": "read",
         "attribution": "unresolved"
+      },
+      {
+        "tool": "read_note",
+        "capability": "filesystem_access",
+        "access_mode": "write",
+        "attribution": "attributed"
       }
     ],
     "changes": [
       {
-        "subject": "read_note tool (agent.py)",
+        "subject": "tool:read-note (agent.py)",
         "kind": "MATERIAL_CHANGE",
         "status": "changed",
         "domain": "tool-surface",
         "evidence": [
           "agent.py"
         ],
-        "surface_expected": false
+        "surface_expected": true
       }
     ],
     "unknown_expectations": [
@@ -95,6 +117,15 @@
         "area": "inferred",
         "expected": "INFERRED",
         "match": "multi_agent_or_delegation"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "read_note",
+        "capability": "filesystem_access",
+        "access_mode": "write",
+        "resolvable": true
       }
     ]
   }

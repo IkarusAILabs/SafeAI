@@ -1,6 +1,6 @@
 {
   "case": "capabilities/network_egress",
-  "notes": "External HTTP egress must be detected as a destination-relevant capability.",
+  "notes": "post_report sends an HTTP POST: external API write, attributed to tool:post_report.",
   "agents": [
     {
       "framework": "langchain",
@@ -8,6 +8,15 @@
     }
   ],
   "tools": [
+    {
+      "tool_key": "tool:post-report",
+      "capabilities": [
+        {
+          "name": "external_apis",
+          "access_mode": "write"
+        }
+      ]
+    },
     {
       "tool_key": "unknown:unattributed",
       "capabilities": [
@@ -39,8 +48,8 @@
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): post_report sends an HTTP POST: external API write, attributed to tool:post_report.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [
@@ -50,7 +59,14 @@
         "name": "initialize_agent"
       }
     ],
-    "tools": [],
+    "tools": [
+      {
+        "id": "post_report",
+        "name": "post_report",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
     "capabilities": [
       {
         "tool": null,
@@ -63,6 +79,12 @@
         "capability": "planner_chain",
         "access_mode": "read",
         "attribution": "unresolved"
+      },
+      {
+        "tool": "post_report",
+        "capability": "external_apis",
+        "access_mode": "write",
+        "attribution": "attributed"
       }
     ],
     "unknown_expectations": [
@@ -70,6 +92,15 @@
         "area": "inferred",
         "expected": "INFERRED",
         "match": "multi_agent_or_delegation"
+      }
+    ],
+    "relationships": [
+      {
+        "type": "tool_has_capability",
+        "tool": "post_report",
+        "capability": "external_apis",
+        "access_mode": "write",
+        "resolvable": true
       }
     ]
   }

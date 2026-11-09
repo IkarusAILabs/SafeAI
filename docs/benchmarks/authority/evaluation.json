@@ -14,10 +14,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -45,7 +45,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -53,18 +53,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -132,18 +132,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -201,18 +201,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -248,19 +248,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -280,18 +279,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -306,8 +305,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -341,8 +340,8 @@
           "matched": 2
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -354,7 +353,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "access_modes",
@@ -726,10 +725,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -757,7 +756,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -765,18 +764,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -844,18 +843,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -913,18 +912,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -960,19 +959,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -992,18 +990,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -1018,8 +1016,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -1053,8 +1051,8 @@
           "matched": 1
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -1066,7 +1064,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "adversarial",
@@ -3207,10 +3205,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
+          "attributable_expected": 1,
+          "attributable_matched": 1,
           "expected": 1,
-          "matched": 0
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -3238,7 +3236,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -3248,17 +3246,17 @@
             "capability": {
               "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 1
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
             },
             "capability_grant": {
               "applicable": 0,
@@ -3325,18 +3323,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -3403,7 +3401,7 @@
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
               "true_positives": 1,
               "unresolved": 0
@@ -3441,19 +3439,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -3473,18 +3470,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -3492,10 +3489,10 @@
           "gold_notes": [],
           "unknown": {
             "preserved": {
-              "expected": 1,
-              "matched": 1
+              "expected": 0,
+              "matched": 0
             },
-            "status": "measured"
+            "status": "insufficient_evidence"
           }
         },
         "capabilities": {
@@ -3538,8 +3535,8 @@
           "matched": 1
         },
         "uncertainty": {
-          "expected": 1,
-          "matched": 1
+          "expected": 0,
+          "matched": 0
         },
         "uncertainty_observed": {
           "unknown": 0,
@@ -4981,10 +4978,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
+          "attributable_expected": 1,
+          "attributable_matched": 1,
           "expected": 1,
-          "matched": 0
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -5012,7 +5009,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -5022,17 +5019,17 @@
             "capability": {
               "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 1
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
             },
             "capability_grant": {
               "applicable": 0,
@@ -5099,18 +5096,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -5177,7 +5174,7 @@
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
               "true_positives": 1,
               "unresolved": 0
@@ -5215,19 +5212,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -5247,18 +5243,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -5266,10 +5262,10 @@
           "gold_notes": [],
           "unknown": {
             "preserved": {
-              "expected": 1,
-              "matched": 1
+              "expected": 0,
+              "matched": 0
             },
-            "status": "measured"
+            "status": "insufficient_evidence"
           }
         },
         "capabilities": {
@@ -5312,8 +5308,8 @@
           "matched": 1
         },
         "uncertainty": {
-          "expected": 1,
-          "matched": 1
+          "expected": 0,
+          "matched": 0
         },
         "uncertainty_observed": {
           "unknown": 0,
@@ -5337,10 +5333,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 2,
+          "attributable_matched": 2,
+          "expected": 4,
+          "matched": 2
         },
         "canonical": {
           "attribution": {
@@ -5368,7 +5364,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -5376,18 +5372,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 4,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 2,
+              "coverage": 0.5,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 2,
+              "status": "measured",
+              "true_positives": 2,
               "unresolved": 2
             },
             "capability_grant": {
@@ -5455,18 +5451,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 2,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 2,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 2,
+              "status": "measured",
+              "true_positives": 2,
               "unresolved": 0
             }
           },
@@ -5524,18 +5520,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 4,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 4,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 2,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 4,
               "unresolved": 0
             },
             "grants": {
@@ -5571,19 +5567,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 2,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 2,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 2,
+              "status": "measured",
+              "true_positives": 2,
               "unresolved": 0
             },
             "statements": {
@@ -5603,18 +5598,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 2,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 2,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 2,
+              "status": "measured",
+              "true_positives": 2,
               "unresolved": 0
             }
           },
@@ -5629,8 +5624,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 4,
+          "matched": 4
         },
         "changes": {
           "expected": 0,
@@ -5664,8 +5659,8 @@
           "matched": 2
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 3,
+          "matched": 3
         },
         "uncertainty": {
           "expected": 1,
@@ -7092,7 +7087,9 @@
         "checked": false,
         "violations": []
       },
-      "failures": [],
+      "failures": [
+        "change misclassified: 'tool:diagnose (agent.py)' expected AUTHORITY_ESCALATION, observed MATERIAL_CHANGE"
+      ],
       "id": "baseline_changes/new_tool",
       "parts": {
         "agents": {
@@ -7100,10 +7097,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -7131,7 +7128,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -7139,18 +7136,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -7218,58 +7215,6 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            }
-          },
-          "change": {
-            "escalation": {
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "status": "insufficient_evidence",
-              "true_positives": 0
-            },
-            "false_escalation_rate": {
-              "reason": "no HIGH_RISK diffs observed on this case",
-              "status": "insufficient_evidence",
-              "value": null
-            },
-            "material_change": {
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "status": "insufficient_evidence",
-              "true_positives": 0
-            },
-            "missed_material_rate": {
-              "reason": "no material changes expected on this case",
-              "status": "insufficient_evidence",
-              "value": null
-            },
-            "no_change_correct": 0,
-            "no_change_total": 0,
-            "surface_blind": 1,
-            "surface_blind_escalations": 1,
-            "unknown_changes": 0
-          },
-          "entities": {
-            "agents": {
               "applicable": 1,
               "contradicted": 0,
               "correct": 1,
@@ -7283,318 +7228,16 @@
               "status": "measured",
               "true_positives": 1,
               "unresolved": 0
-            },
-            "capabilities": {
-              "applicable": 2,
-              "contradicted": 0,
-              "correct": 2,
-              "coverage": 1.0,
-              "f1": 1.0,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": 1.0,
-              "recall": 1.0,
-              "resolvable": 0,
-              "status": "measured",
-              "true_positives": 2,
-              "unresolved": 0
-            },
-            "grants": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no grant truth in fixture",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "identities": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no identity truth in fixture",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "relationships": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "statements": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no authority-statement truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "tools": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            }
-          },
-          "gold_derived_from_legacy": false,
-          "gold_notes": [],
-          "unknown": {
-            "preserved": {
-              "expected": 1,
-              "matched": 1
-            },
-            "status": "measured"
-          }
-        },
-        "capabilities": {
-          "expected": 2,
-          "matched": 2
-        },
-        "changes": {
-          "expected": 1,
-          "matched": 1,
-          "unmeasurable": 0
-        },
-        "escalations": {
-          "expected": 1,
-          "false": 0,
-          "observed": 0
-        },
-        "evidence": {
-          "expected": 1,
-          "matched": 1
-        },
-        "grants": {
-          "expected": 0,
-          "matched": 0
-        },
-        "identities": {
-          "expected": 0,
-          "matched": 0
-        },
-        "links": {
-          "expected": 0,
-          "matched": 0
-        },
-        "must_fire": {
-          "expected": 0,
-          "false_positives": 0,
-          "matched": 0
-        },
-        "tools": {
-          "expected": 1,
-          "matched": 1
-        },
-        "uncertainty": {
-          "expected": 1,
-          "matched": 1
-        },
-        "uncertainty_observed": {
-          "unknown": 0,
-          "unresolved": 0
-        }
-      },
-      "passed": true,
-      "provenance": "migrated_from_legacy"
-    },
-    {
-      "category": "baseline_changes",
-      "determinism": {
-        "checked": false,
-        "violations": []
-      },
-      "failures": [],
-      "id": "baseline_changes/read_to_write",
-      "parts": {
-        "agents": {
-          "expected": 1,
-          "matched": 1
-        },
-        "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
-        },
-        "canonical": {
-          "attribution": {
-            "agent": {
-              "applicable": 1,
-              "contradicted": 0,
-              "correct": 1,
-              "coverage": 1.0,
-              "f1": 1.0,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": 1.0,
-              "recall": 1.0,
-              "resolvable": 1,
-              "status": "measured",
-              "true_positives": 1,
-              "unresolved": 0
-            },
-            "agent_identity": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no relationship truth in fixture",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "capability": {
-              "applicable": 2,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 2
-            },
-            "capability_grant": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no authority-statement truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "end_to_end": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no authority-statement truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "grant": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no grant truth in fixture",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "identity": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "reason": "no identity truth in fixture",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
-            },
-            "tool": {
-              "applicable": 0,
-              "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
-              "false_negatives": 0,
-              "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 0
             }
           },
           "change": {
             "escalation": {
               "f1": null,
-              "false_negatives": 0,
+              "false_negatives": 1,
               "false_positives": 0,
               "precision": null,
-              "recall": null,
-              "status": "insufficient_evidence",
+              "recall": 0.0,
+              "status": "measured",
               "true_positives": 0
             },
             "false_escalation_rate": {
@@ -7604,21 +7247,20 @@
             },
             "material_change": {
               "f1": null,
-              "false_negatives": 0,
+              "false_negatives": 1,
               "false_positives": 0,
               "precision": null,
-              "recall": null,
-              "status": "insufficient_evidence",
+              "recall": 0.0,
+              "status": "measured",
               "true_positives": 0
             },
             "missed_material_rate": {
-              "reason": "no material changes expected on this case",
-              "status": "insufficient_evidence",
-              "value": null
+              "status": "measured",
+              "value": 1.0
             },
             "no_change_correct": 0,
             "no_change_total": 0,
-            "surface_blind": 1,
+            "surface_blind": 0,
             "surface_blind_escalations": 0,
             "unknown_changes": 0
           },
@@ -7639,18 +7281,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -7686,19 +7328,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -7718,18 +7359,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -7744,8 +7385,360 @@
           }
         },
         "capabilities": {
+          "expected": 3,
+          "matched": 3
+        },
+        "changes": {
+          "expected": 1,
+          "matched": 1,
+          "unmeasurable": 0
+        },
+        "escalations": {
+          "expected": 1,
+          "false": 0,
+          "observed": 0
+        },
+        "evidence": {
+          "expected": 1,
+          "matched": 1
+        },
+        "grants": {
+          "expected": 0,
+          "matched": 0
+        },
+        "identities": {
+          "expected": 0,
+          "matched": 0
+        },
+        "links": {
+          "expected": 0,
+          "matched": 0
+        },
+        "must_fire": {
+          "expected": 0,
+          "false_positives": 0,
+          "matched": 0
+        },
+        "tools": {
           "expected": 2,
           "matched": 2
+        },
+        "uncertainty": {
+          "expected": 1,
+          "matched": 1
+        },
+        "uncertainty_observed": {
+          "unknown": 0,
+          "unresolved": 0
+        }
+      },
+      "passed": false,
+      "provenance": "independent_annotation"
+    },
+    {
+      "category": "baseline_changes",
+      "determinism": {
+        "checked": false,
+        "violations": []
+      },
+      "failures": [],
+      "id": "baseline_changes/read_to_write",
+      "parts": {
+        "agents": {
+          "expected": 1,
+          "matched": 1
+        },
+        "attribution": {
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
+        },
+        "canonical": {
+          "attribution": {
+            "agent": {
+              "applicable": 1,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
+            },
+            "agent_identity": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no agent-identity truth",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "capability": {
+              "applicable": 3,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 2
+            },
+            "capability_grant": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no authority-statement truth",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "end_to_end": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no authority-statement truth",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "grant": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no grant truth in fixture",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "identity": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no identity truth in fixture",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "tool": {
+              "applicable": 1,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
+            }
+          },
+          "change": {
+            "escalation": {
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "recall": null,
+              "status": "insufficient_evidence",
+              "true_positives": 0
+            },
+            "false_escalation_rate": {
+              "reason": "no HIGH_RISK diffs observed on this case",
+              "status": "insufficient_evidence",
+              "value": null
+            },
+            "material_change": {
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "status": "measured",
+              "true_positives": 1
+            },
+            "missed_material_rate": {
+              "status": "measured",
+              "value": 0.0
+            },
+            "no_change_correct": 0,
+            "no_change_total": 0,
+            "surface_blind": 0,
+            "surface_blind_escalations": 0,
+            "unknown_changes": 0
+          },
+          "entities": {
+            "agents": {
+              "applicable": 1,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
+            },
+            "capabilities": {
+              "applicable": 3,
+              "contradicted": 0,
+              "correct": 3,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 3,
+              "unresolved": 0
+            },
+            "grants": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no grant truth in fixture",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "identities": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no identity truth in fixture",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "relationships": {
+              "applicable": 1,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
+            },
+            "statements": {
+              "applicable": 0,
+              "contradicted": 0,
+              "correct": 0,
+              "coverage": null,
+              "f1": null,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": null,
+              "reason": "no authority-statement truth",
+              "recall": null,
+              "resolvable": 0,
+              "status": "insufficient_evidence",
+              "true_positives": 0,
+              "unresolved": 0
+            },
+            "tools": {
+              "applicable": 1,
+              "contradicted": 0,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
+              "false_negatives": 0,
+              "false_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
+            }
+          },
+          "gold_derived_from_legacy": false,
+          "gold_notes": [],
+          "unknown": {
+            "preserved": {
+              "expected": 1,
+              "matched": 1
+            },
+            "status": "measured"
+          }
+        },
+        "capabilities": {
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 1,
@@ -7779,8 +7772,8 @@
           "matched": 0
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -7792,7 +7785,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "baseline_changes",
@@ -8511,10 +8504,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -8542,7 +8535,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -8550,18 +8543,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -8629,18 +8622,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -8698,18 +8691,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -8745,19 +8738,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -8777,18 +8769,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -8803,8 +8795,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -8838,8 +8830,8 @@
           "matched": 1
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -8851,7 +8843,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "capabilities",
@@ -8867,10 +8859,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -8898,7 +8890,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -8906,18 +8898,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -8985,18 +8977,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9054,18 +9046,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -9101,19 +9093,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -9133,18 +9124,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9159,8 +9150,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -9194,8 +9185,8 @@
           "matched": 1
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -9207,7 +9198,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "capabilities",
@@ -9223,10 +9214,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -9254,7 +9245,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -9262,18 +9253,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -9341,18 +9332,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9410,18 +9401,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -9457,19 +9448,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -9489,18 +9479,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9515,8 +9505,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -9550,8 +9540,8 @@
           "matched": 3
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -9563,7 +9553,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "delegation",
@@ -9579,10 +9569,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
+          "attributable_expected": 1,
+          "attributable_matched": 1,
           "expected": 1,
-          "matched": 0
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -9610,7 +9600,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -9620,17 +9610,17 @@
             "capability": {
               "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 1
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 0
             },
             "capability_grant": {
               "applicable": 0,
@@ -9697,18 +9687,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9775,7 +9765,7 @@
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
               "true_positives": 1,
               "unresolved": 0
@@ -9813,19 +9803,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -9845,18 +9834,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -9864,10 +9853,10 @@
           "gold_notes": [],
           "unknown": {
             "preserved": {
-              "expected": 1,
-              "matched": 1
+              "expected": 0,
+              "matched": 0
             },
-            "status": "measured"
+            "status": "insufficient_evidence"
           }
         },
         "capabilities": {
@@ -9910,8 +9899,8 @@
           "matched": 1
         },
         "uncertainty": {
-          "expected": 1,
-          "matched": 1
+          "expected": 0,
+          "matched": 0
         },
         "uncertainty_observed": {
           "unknown": 0,
@@ -9919,7 +9908,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "delegation",
@@ -19142,10 +19131,10 @@
           "matched": 1
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
-          "expected": 2,
-          "matched": 0
+          "attributable_expected": 1,
+          "attributable_matched": 1,
+          "expected": 3,
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -19173,7 +19162,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -19181,18 +19170,18 @@
               "unresolved": 0
             },
             "capability": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.3333,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 2
             },
             "capability_grant": {
@@ -19260,18 +19249,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -19329,18 +19318,18 @@
               "unresolved": 0
             },
             "capabilities": {
-              "applicable": 2,
+              "applicable": 3,
               "contradicted": 0,
-              "correct": 2,
+              "correct": 3,
               "coverage": 1.0,
               "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
-              "true_positives": 2,
+              "true_positives": 3,
               "unresolved": 0
             },
             "grants": {
@@ -19376,19 +19365,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -19408,18 +19396,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -19434,8 +19422,8 @@
           }
         },
         "capabilities": {
-          "expected": 2,
-          "matched": 2
+          "expected": 3,
+          "matched": 3
         },
         "changes": {
           "expected": 0,
@@ -19464,13 +19452,13 @@
           "matched": 0
         },
         "must_fire": {
-          "expected": 2,
+          "expected": 1,
           "false_positives": 0,
-          "matched": 2
+          "matched": 1
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -19482,7 +19470,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "unknown",
@@ -19854,10 +19842,10 @@
           "matched": 0
         },
         "attribution": {
-          "attributable_expected": 0,
-          "attributable_matched": 0,
+          "attributable_expected": 1,
+          "attributable_matched": 1,
           "expected": 4,
-          "matched": 0
+          "matched": 1
         },
         "canonical": {
           "attribution": {
@@ -19885,7 +19873,7 @@
               "false_negatives": 0,
               "false_positives": 0,
               "precision": null,
-              "reason": "no relationship truth in fixture",
+              "reason": "no agent-identity truth",
               "recall": null,
               "resolvable": 0,
               "status": "insufficient_evidence",
@@ -19895,17 +19883,17 @@
             "capability": {
               "applicable": 4,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": 0.0,
-              "f1": null,
+              "correct": 1,
+              "coverage": 0.25,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
-              "unresolved": 4
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
+              "unresolved": 3
             },
             "capability_grant": {
               "applicable": 0,
@@ -19972,18 +19960,18 @@
               "unresolved": 0
             },
             "tool": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -20050,7 +20038,7 @@
               "false_positives": 0,
               "precision": 1.0,
               "recall": 1.0,
-              "resolvable": 0,
+              "resolvable": 1,
               "status": "measured",
               "true_positives": 4,
               "unresolved": 0
@@ -20088,19 +20076,18 @@
               "unresolved": 0
             },
             "relationships": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "reason": "no resolvable relationship truth",
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             },
             "statements": {
@@ -20120,18 +20107,18 @@
               "unresolved": 0
             },
             "tools": {
-              "applicable": 0,
+              "applicable": 1,
               "contradicted": 0,
-              "correct": 0,
-              "coverage": null,
-              "f1": null,
+              "correct": 1,
+              "coverage": 1.0,
+              "f1": 1.0,
               "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": null,
-              "resolvable": 0,
-              "status": "insufficient_evidence",
-              "true_positives": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "resolvable": 1,
+              "status": "measured",
+              "true_positives": 1,
               "unresolved": 0
             }
           },
@@ -20181,8 +20168,8 @@
           "matched": 1
         },
         "tools": {
-          "expected": 1,
-          "matched": 1
+          "expected": 2,
+          "matched": 2
         },
         "uncertainty": {
           "expected": 1,
@@ -20194,7 +20181,7 @@
         }
       },
       "passed": true,
-      "provenance": "migrated_from_legacy"
+      "provenance": "independent_annotation"
     },
     {
       "category": "workflows",
@@ -20553,7 +20540,7 @@
       "provenance": "migrated_from_legacy"
     }
   ],
-  "digest": "de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b",
+  "digest": "6b30d59bf2effc93eb8bea5b6437dae84a1b3e37b270df731097ed65d7befb97",
   "lane_a": {
     "eligible": false,
     "gates": [
@@ -20573,7 +20560,7 @@
         "name": "attribution_accuracy",
         "passed": false,
         "threshold": 0.95,
-        "value": 0.4851
+        "value": 0.5486
       },
       {
         "name": "false_escalation_rate",
@@ -20602,11 +20589,11 @@
   "metrics": {
     "attribution": {
       "attributable_accuracy": 1.0,
-      "attributable_expected": 65,
-      "attributable_matched": 65,
-      "end_to_end": 0.4851,
-      "expected": 134,
-      "matched": 65
+      "attributable_expected": 79,
+      "attributable_matched": 79,
+      "end_to_end": 0.5486,
+      "expected": 144,
+      "matched": 79
     },
     "canonical": {
       "attribution_levels": {
@@ -20641,19 +20628,19 @@
           "unresolved": 0
         },
         "capability": {
-          "applicable": 134,
+          "applicable": 144,
           "contradicted": 0,
-          "correct": 65,
-          "coverage": 0.4851,
+          "correct": 79,
+          "coverage": 0.5486,
           "f1": 1.0,
           "false_negatives": 0,
           "false_positives": 0,
           "precision": 1.0,
           "recall": 1.0,
-          "resolvable": 65,
+          "resolvable": 79,
           "status": "measured",
-          "true_positives": 65,
-          "unresolved": 69
+          "true_positives": 79,
+          "unresolved": 65
         },
         "capability_grant": {
           "applicable": 16,
@@ -20716,34 +20703,34 @@
           "unresolved": 0
         },
         "tool": {
-          "applicable": 19,
+          "applicable": 33,
           "contradicted": 0,
-          "correct": 19,
+          "correct": 33,
           "coverage": 1.0,
           "f1": 1.0,
           "false_negatives": 0,
           "false_positives": 0,
           "precision": 1.0,
           "recall": 1.0,
-          "resolvable": 19,
+          "resolvable": 33,
           "status": "measured",
-          "true_positives": 19,
+          "true_positives": 33,
           "unresolved": 0
         }
       },
       "change_detection": {
         "applicable": 0,
         "contradicted": 0,
-        "correct": 5,
+        "correct": 6,
         "coverage": null,
-        "f1": 1.0,
-        "false_negatives": 0,
+        "f1": 0.9231,
+        "false_negatives": 1,
         "false_positives": 0,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.8571,
         "resolvable": 0,
         "status": "measured",
-        "true_positives": 5,
+        "true_positives": 6,
         "unresolved": 0
       },
       "entities": {
@@ -20763,18 +20750,18 @@
           "unresolved": 0
         },
         "capabilities": {
-          "applicable": 134,
+          "applicable": 144,
           "contradicted": 0,
-          "correct": 134,
+          "correct": 144,
           "coverage": 1.0,
           "f1": 1.0,
           "false_negatives": 0,
           "false_positives": 0,
           "precision": 1.0,
           "recall": 1.0,
-          "resolvable": 65,
+          "resolvable": 79,
           "status": "measured",
-          "true_positives": 134,
+          "true_positives": 144,
           "unresolved": 0
         },
         "grants": {
@@ -20808,18 +20795,18 @@
           "unresolved": 0
         },
         "relationships": {
-          "applicable": 91,
+          "applicable": 105,
           "contradicted": 0,
-          "correct": 86,
-          "coverage": 0.9451,
+          "correct": 100,
+          "coverage": 0.9524,
           "f1": 1.0,
           "false_negatives": 0,
           "false_positives": 0,
           "precision": 1.0,
           "recall": 1.0,
-          "resolvable": 86,
+          "resolvable": 100,
           "status": "measured",
-          "true_positives": 86,
+          "true_positives": 100,
           "unresolved": 5
         },
         "statements": {
@@ -20838,18 +20825,18 @@
           "unresolved": 0
         },
         "tools": {
-          "applicable": 19,
+          "applicable": 33,
           "contradicted": 0,
-          "correct": 19,
+          "correct": 33,
           "coverage": 1.0,
           "f1": 1.0,
           "false_negatives": 0,
           "false_positives": 0,
           "precision": 1.0,
           "recall": 1.0,
-          "resolvable": 19,
+          "resolvable": 33,
           "status": "measured",
-          "true_positives": 19,
+          "true_positives": 33,
           "unresolved": 0
         }
       },
@@ -20858,11 +20845,11 @@
         "contradicted": 0,
         "correct": 4,
         "coverage": null,
-        "f1": 1.0,
-        "false_negatives": 0,
+        "f1": 0.8889,
+        "false_negatives": 1,
         "false_positives": 0,
         "precision": 1.0,
-        "recall": 1.0,
+        "recall": 0.8,
         "resolvable": 0,
         "status": "measured",
         "true_positives": 4,
@@ -20874,14 +20861,14 @@
       },
       "missed_material_rate": {
         "status": "measured",
-        "value": 0.0
+        "value": 0.1429
       },
-      "surface_blind": 3,
-      "surface_blind_escalations": 1,
+      "surface_blind": 1,
+      "surface_blind_escalations": 0,
       "unknown_preservation": {
         "applicable": 0,
         "contradicted": 0,
-        "correct": 44,
+        "correct": 41,
         "coverage": null,
         "f1": 1.0,
         "false_negatives": 0,
@@ -20890,7 +20877,7 @@
         "recall": 1.0,
         "resolvable": 0,
         "status": "measured",
-        "true_positives": 44,
+        "true_positives": 41,
         "unresolved": 0
       }
     },
@@ -20912,7 +20899,7 @@
       "false_positives": 0,
       "precision": 1.0,
       "recall": 1.0,
-      "true_positives": 61
+      "true_positives": 60
     },
     "evidence_completeness": {
       "completeness": 1.0,
@@ -20945,23 +20932,23 @@
         },
         {
           "class": "authority_attribution",
-          "coverage": 0.4851,
+          "coverage": 0.5486,
           "coverage_floor": 0.9,
-          "extra": "legacy end-to-end rate over all exercised capabilities incl. unattributed bucket (65/134) resolution coverage 0.4851 below PROPOSED floor 0.9",
-          "precision": 0.4851,
+          "extra": "legacy end-to-end rate over all exercised capabilities incl. unattributed bucket (79/144) resolution coverage 0.5486 below PROPOSED floor 0.9",
+          "precision": 0.5486,
           "precision_target": 0.95,
-          "recall": 0.4851,
+          "recall": 0.5486,
           "recall_target": 0.9,
           "status": "LANE-B"
         },
         {
           "class": "change_detection",
-          "coverage": 0.625,
+          "coverage": 0.75,
           "coverage_floor": 0.9,
-          "extra": "ChangeGuard model coverage 0.625 (5/8 material changes inside the surface model; 3 blind, detection via findings/summary) resolution coverage 0.625 below PROPOSED floor 0.9",
+          "extra": "ChangeGuard model coverage 0.75 (6/8 material changes inside the surface model; 1 blind, detection via findings/summary) resolution coverage 0.75 below PROPOSED floor 0.9",
           "precision": 1.0,
           "precision_target": 0.95,
-          "recall": 1.0,
+          "recall": 0.8571,
           "recall_target": 0.9,
           "status": "LANE-B"
         },
@@ -20969,10 +20956,10 @@
           "class": "escalation_detection",
           "coverage": 0.8,
           "coverage_floor": 0.9,
-          "extra": "observed false-escalation rate on benchmark corpus 0.0 (max 0.05); escalation model coverage 0.8 (4/5 inside the surface model) resolution coverage 0.8 below PROPOSED floor 0.9",
+          "extra": "observed false-escalation rate on benchmark corpus 0.0 (max 0.05) resolution coverage 0.8 below PROPOSED floor 0.9",
           "precision": 1.0,
           "precision_target": 0.95,
-          "recall": 1.0,
+          "recall": 0.8,
           "recall_target": 0.9,
           "status": "LANE-B"
         }
@@ -20982,25 +20969,25 @@
       "unknown_veto": true,
       "unknown_veto_count": 17
     },
-    "passed": 58,
+    "passed": 57,
     "provenance": {
       "cases": {
-        "independent_annotation": 21,
-        "migrated_from_legacy": 37
+        "independent_annotation": 31,
+        "migrated_from_legacy": 27
       },
       "total": 58
     },
     "tool_recall": 1.0,
     "uncertainty_expression": {
-      "expected": 44,
-      "matched": 44,
+      "expected": 41,
+      "matched": 41,
       "recall": 1.0
     },
     "unknown_unresolved_count": 17
   },
   "summary": {
-    "failed": 0,
-    "passed": 58,
+    "failed": 1,
+    "passed": 57,
     "total": 58
   }
 }

@@ -102,8 +102,9 @@ LANE-A CANDIDATE; authority attribution, change detection,
 escalation detection LANE-B. Major strengths: rule-level detection
 P/R/F1 1.0, resolvable attribution exact, determinism 1.0, evidence
 1.0, zero contradicted expectations corpus-wide. Major limitations:
-end-to-end exercised authority attribution coverage 0.4851 (65/134),
-3 surface-blind material changes, agent→tool edges beyond the model.
+end-to-end exercised authority attribution coverage 0.5486 (79/144),
+1 surface-blind material change, one missed escalation (a new shell
+tool rated MATERIAL_CHANGE), agent→tool edges beyond the model.
 
 ## Methodology (what the numbers prove)
 
@@ -138,54 +139,61 @@ end-to-end exercised authority attribution coverage 0.4851 (65/134),
 
 ## Results (measured on corpus, not universal guarantees)
 
-58/58 cases hold; determinism 58/58; aggregate digest in
-`evaluation.json` byte-compares across runs.
+57/58 cases hold; determinism 58/58; aggregate digest in
+`evaluation.json` byte-compares across runs. The one mismatch,
+`baseline_changes/new_tool`, is a measured scanner miss: a new
+code-defined tool with shell authority is classified MATERIAL_CHANGE
+(rule ESC_WRITE_TOOL_ADDED, severity high), while its reviewed truth is
+AUTHORITY_ESCALATION.
 
 Digest (committed records, `--no-determinism`):
-`de9cb45150bd39da1ba793cc0b44420f32451e2ffbb474408f792fddb515c64b`
+`6b30d59bf2effc93eb8bea5b6437dae84a1b3e37b270df731097ed65d7befb97`
 
 Digest (default path with determinism checks, as run in CI):
-`ee76875d778dc3bc9ba86374ee950eacb2552a3d0724c6168c93c759313776bd`
+`5d48523e0cf9ebe3baf87ff86539fae2cbb609679809d23e13c7b8e497273bb4`
 
 The two differ only because each case's `determinism.checked` flag is
 part of the digested evaluation; the measurements are identical. Both
-were reproduced at v2.7.0 on Linux (Python 3.11, 3.12, 3.13) and on
-Windows (Python 3.14).
+were produced after the tool-body attribution change (see the change
+history below) on Windows (Python 3.14); the CI job reruns the second on
+Linux (Python 3.11, 3.12, 3.13).
 
 Discovery (harness-calibration rows; they move only when scanner or
-truth changes): agents 32/32, tools 19/19, capabilities 134/134,
-identities 25/25, grants 18/18, relationships 86/86 resolvable
+truth changes): agents 32/32, tools 33/33, capabilities 144/144,
+identities 25/25, grants 18/18, relationships 100/100 resolvable
 (5 explicitly unresolvable agent→tool edges counted separately,
-coverage 0.9451), statements 16/16 (all P/R/F1 1.0, contradicted 0).
+coverage 0.9524), statements 16/16 (all P/R/F1 1.0, contradicted 0).
 Rule-level detection (rule firing only, not authority discovery):
-P/R/F1 1.0 (61 TP, 0 FP, 0 FN).
+P/R/F1 1.0 (60 TP, 0 FP, 0 FN).
 
 Attribution levels (resolvable P/R/F1 1.0 everywhere gold permits):
-tool 19, capability 65 (applicable 134, resolvable 65, unresolved 69,
-resolution coverage 0.4851), agent 32, identity 25, grant 18,
+tool 33, capability 79 (applicable 144, resolvable 79, unresolved 65,
+resolution coverage 0.5486), agent 32, identity 25, grant 18,
 agent→identity 5, capability→grant 16, complete-chain end-to-end 5/5,
 contradicted 0 everywhere. End-to-end exercised authority
-attribution coverage: **0.4851 (65/134)**; attributable-only
-accuracy 1.0 (65/65). 69 capabilities sit in `unknown:unattributed`
+attribution coverage: **0.5486 (79/144)**; attributable-only
+accuracy 1.0 (79/79). 65 capabilities sit in `unknown:unattributed`
 (code-defined tools). The rate moved 0.4222 → 0.464 → 0.4851 purely
 from corpus mix (targeted cases added attributable MCP capabilities
-and unresolved code capabilities); the scanner did not improve and
-no benchmark change raised any score. Per §10: resolvable
-attribution 100%, resolution coverage 48.5%, unresolved 51.5%,
-contradicted 0%.
+and unresolved code capabilities). The move to 0.5486 is the first
+from a scanner change (tool-body attribution) and came with thirteen
+human-reviewed truth revisions; see the change history. Per §10:
+resolvable attribution 100%, resolution coverage 54.9%, unresolved
+45.1%, contradicted 0%.
 
 ChangeGuard (9 baseline pairs, 7 tool-surface entries + identity/grant
-domains): material-change P/R/F1 1.0 (5 TP), escalation P/R/F1 1.0
-(4 TP), observed false-escalation rate on benchmark corpus 0.0
-(4 HIGH_RISK observed, genuinely measured — not 0/0),
-missed-material rate 0.0, surface-blind entries 3 (explicit).
+domains): material change P 1.0, R 0.8571, F1 0.9231 (6 TP, 1 FN),
+escalation P 1.0, R 0.8, F1 0.8889 (4 TP, 1 FN: `new_tool`), observed
+false-escalation rate on benchmark corpus 0.0 (4 HIGH_RISK observed,
+genuinely measured — not 0/0), missed-material rate 0.1429,
+surface-blind entries 1 (explicit).
 
 Evidence: completeness 1.0 (76/76 refs), unknown preservation recall
-1.0 (44/44: UNKNOWN, UNVERIFIED_LINK, PARTIAL, INFERRED, UNRESOLVED
+1.0 (41/41: UNKNOWN, UNVERIFIED_LINK, PARTIAL, INFERRED, UNRESOLVED
 all stay expressed; PARTIAL matches only partially-resolved
 evidence, never a downgrade), determinism 1.0.
 
-Gold provenance: 58 cases — 21 independent_annotation, 37
+Gold provenance: 58 cases — 31 independent_annotation, 27
 migrated_from_legacy, 0 other. Migrated status never passes or
 fails a case; canonical-vs-legacy contradictions fail loudly.
 
@@ -193,21 +201,23 @@ fails a case; canonical-vs-legacy contradictions fail loudly.
 
 Capability detection and identity attribution read LANE-A CANDIDATE
 (coverage 1.0) on corpus evidence. Authority attribution reads
-LANE-B (0.4851 < 0.95), change detection LANE-B (model coverage
-0.625 = 5/8), escalation detection LANE-B (model coverage 0.8 =
-4/5), and 17 observed unknown/unresolved items veto overall
+LANE-B (0.5486 < 0.95), change detection LANE-B (model coverage
+0.75 = 6/8, recall 0.8571), escalation detection LANE-B (model
+coverage 0.8 = 4/5, recall 0.8), and 17 observed unknown/unresolved items veto overall
 readiness regardless. Lane A stays closed with quantified reasons:
 accuracy without coverage does not graduate.
 
 ## Blind spots documented (not hidden)
 
-1. Code-defined tools land in `unknown:unattributed` (69/134 caps).
-   Findings still fire; the surface cannot name the tool.
+1. Code-defined tools are named when the call is in the body of a
+   registered tool function. Helpers a tool calls, and calls outside
+   tools, still land in `unknown:unattributed` (65/144 caps).
+   Findings still fire.
 2. `agent_uses_tool` edges are beyond the current model (5 gold edges
    `resolvable: false`, relationship coverage 0.9451; excluded from
    P/R denominators — never scored as correct).
-3. Surface-blind material entries: 3 (legacy code-tool baseline
-   pairs); detection via findings/summary enforced instead.
+3. Surface-blind material entries: 1 (a legacy code-tool baseline
+   pair); detection via findings/summary enforced instead.
 4. Repo-scoped (not tool-scoped) identity links yield UNKNOWN
    verdicts even with resolved grants (multiple_identities,
    attachment_chain pattern).
@@ -276,3 +286,15 @@ accuracy without coverage does not graduate.
   delegation and three IaC collectors leave both digests unchanged;
   eleven new pending cases (forty-four pending in all), none reviewed
   yet.
+- Unreleased (tool-body attribution, #334): shell, file and HTTP calls
+  in registered Python tool functions are attributed to that tool.
+  Thirteen cases whose truth recorded the old gap were revised by the
+  project owner on review of their inputs
+  (`REVIEW_TOOL_BODIES.md`; each now `independent_annotation`). The
+  owner kept `baseline_changes/new_tool` as AUTHORITY_ESCALATION, so the
+  scanner's MATERIAL_CHANGE there is reported as a miss (57/58). The
+  harness now also reads escalation evidence when matching a change to a
+  tool, so a read-to-write widening, which adds no capability, can be
+  matched. Both digests changed (above). The pending corpus still holds
+  44/44; its digest moved from `cc49a1a4…` to `bb58e818…` because of the
+  harness change alone.
