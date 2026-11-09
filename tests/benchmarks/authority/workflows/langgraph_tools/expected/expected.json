@@ -37,17 +37,12 @@
   "evidence_refs": [
     "graph.py"
   ],
-  "uncertainty": [
-    {
-      "kind": "inferred",
-      "match": "shell_execution"
-    }
-  ],
+  "uncertainty": [],
   "truth_schema_version": "2.0",
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): ToolNode([shell_run]): the shell execution is attributed to tool:shell_run. The unattributed filesystem_access is the LangGraph parser matching 'open' in ChatOpenAI (known false positive, kept until that parser is fixed).",
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): ToolNode([shell_run]): the shell execution is attributed to tool:shell_run. The unattributed filesystem_access is the LangGraph parser matching 'open' in ChatOpenAI (known false positive, kept until that parser is fixed). Shell access mode is explicit (subprocess.run executes), not inferred: the INFERRED expectation on shell_execution was removed by the project owner on 2026-11-09.",
     "derivation": "independent_annotation"
   },
   "canonical": {
@@ -86,13 +81,7 @@
         "attribution": "attributed"
       }
     ],
-    "unknown_expectations": [
-      {
-        "area": "inferred",
-        "expected": "INFERRED",
-        "match": "shell_execution"
-      }
-    ],
+    "unknown_expectations": [],
     "relationships": [
       {
         "type": "tool_has_capability",

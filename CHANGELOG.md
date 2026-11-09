@@ -33,13 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`docs/benchmarks/authority/REVIEW_TOOL_BODIES.md`); all 13 are now
   independent annotations.
   - The owner kept `baseline_changes/new_tool` as an authority
-    escalation, so the benchmark now reports 57/58. A new code-defined
-    shell tool is rated MATERIAL_CHANGE, a measured scanner miss.
+    escalation. Shell calls in tool bodies now carry an explicit
+    `execute` access mode, not an inferred one, so a new shell tool is
+    a critical escalation. On the owner's decision,
+    `workflows/langgraph_tools` no longer expects that mode to be
+    inferred. All 58 cases hold, and escalation detection reads LANE-A
+    CANDIDATE on this corpus (5/5).
   - End-to-end capability attribution: 0.4851 (65/134) → 0.5486
     (79/144). Surface-blind changes: 3 → 1.
   - The harness now reads escalation evidence when matching a change
     to a tool.
-  - Digests: `6b30d59b…` (committed records) and `5d48523e…` (CI path).
+  - Digests: `341c36a1…` (committed records) and `d8e3c02f…` (CI path).
     The pending corpus still holds 44/44 (digest `bb58e818…`).
 
 ### Fixed

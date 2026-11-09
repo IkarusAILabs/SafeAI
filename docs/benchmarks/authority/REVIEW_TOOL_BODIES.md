@@ -3,8 +3,8 @@
 Status: **decided by the project owner on 2026-11-09.** All 13
 revisions are applied in `tests/benchmarks/authority/`, and each case's
 `annotation` now reads `independent_annotation`. One decision amends the
-proposal (`baseline_changes/new_tool`, below), and that case remains a
-measured scanner miss.
+proposal (`baseline_changes/new_tool`, below). A follow-up decision
+removed the INFERRED expectation on shell in `workflows/langgraph_tools`.
 
 ## Why these cases change
 
@@ -50,7 +50,7 @@ reviewer and `derivation: independent_annotation`.
 | `attribution/delegation_chain` | the worker's `run` tool (`Tool(name="run", func=run)`) runs a shell command; two supervising agents delegate to it | shell unattributed; `UNVERIFIED_LINK` expected | `tool:run` shell_execution / execute | attribute to `tool:run`; reviewer to decide whether the link is still unverified | accepted; UNVERIFIED_LINK dropped (owner) |
 | `delegation/subagent_chain` | same pattern as above | same as above | `tool:run` shell_execution / execute | same as above | accepted; UNVERIFIED_LINK dropped (owner) |
 | `workflows/langgraph_tools` | `ToolNode([shell_run])`; `shell_run` runs `subprocess.run(shell=True)` | shell unattributed | `tool:shell-run` shell_execution / execute | attribute shell to `tool:shell-run`. The unattributed `filesystem_access` here comes from `ChatOpenAI` matching "open" (separate LangGraph parser fix, not in this change) | accepted (owner) |
-| `baseline_changes/new_tool` | current version adds a `diagnose` tool that runs a shell command | change seen through findings only | `tool:diagnose` shell_execution / execute; MATERIAL_CHANGE on that tool | expect MATERIAL_CHANGE on `tool:diagnose` through the surface channel | **amended**: keep AUTHORITY_ESCALATION (a new shell tool is an escalation), now detected through the surface. The scanner's MATERIAL_CHANGE is a measured miss (owner) |
+| `baseline_changes/new_tool` | current version adds a `diagnose` tool that runs a shell command | change seen through findings only | `tool:diagnose` shell_execution / execute; MATERIAL_CHANGE on that tool | expect MATERIAL_CHANGE on `tool:diagnose` through the surface channel | **amended**: keep AUTHORITY_ESCALATION (a new shell tool is an escalation), now detected through the surface (owner). Holds after the shell access-mode fix below |
 | `baseline_changes/read_to_write` | `read_note` gains an `open(path, "w")` branch | change seen through findings only ("surface carries no filesystem capability") | `tool:read-note` read → write; MATERIAL_CHANGE | expect MATERIAL_CHANGE on `tool:read-note` through the surface channel | accepted (owner) |
 | `unknown/unresolved_egress` | `notify` POSTs to a URL read from `NOTIFY_URL` | `DEP_UNDECLARED_CAPABILITY` must fire | `tool:notify` external_apis / write; the rule is silent, because the URL now has a consumer | **reviewer decision.** If "undeclared" means "no tool consumes it", remove the rule from `must_fire`. If the case is meant to test unknown destinations, keep the rule and change the rule instead | **rule silent**: the URL has a consumer; DEP_UNDECLARED_CAPABILITY removed from must_fire (owner) |
 
@@ -58,19 +58,22 @@ reviewer and `derivation: independent_annotation`.
 
 These numbers come from `--no-determinism` (committed records):
 
-- 57 of 58 cases hold. The mismatch is `baseline_changes/new_tool`
-  (escalation miss).
+- All 58 cases hold.
 - Capability attribution: 79 of 144 applicable statements resolved
   (0.5486), up from 65 of 134 (0.4851).
-- Material change: recall 0.8571 (6 TP, 1 FN). Escalation: recall 0.8
-  (4 TP, 1 FN). Surface-blind entries: 1, down from 3.
-- Digests: `6b30d59b…` (committed records) and `5d48523e…` (CI path).
+- Material change: P/R 1.0 (7 TP). Escalation: P/R 1.0 (5 TP).
+  Surface-blind entries: 1, down from 3.
+- Digests: `341c36a1…` (committed records) and `d8e3c02f…` (CI path).
   See `VALIDATION_REPORT.md`.
 
-One harness change was needed. When matching an expected change to a
-tool, the harness now also reads escalation evidence, so a read-to-write
-widening (which adds no capability) can be matched.
+Two fixes were needed beyond the labels:
 
-The `new_tool` miss is closed only by a scanner change: rating a new
-code-defined tool with shell authority as a critical escalation, as
-adding shell to an existing tool already is.
+1. **Shell access mode.** Shell calls in tool bodies first carried an
+   inferred access mode, which caps any escalation below critical. That
+   made the new shell tool in `new_tool` a MATERIAL_CHANGE. They now
+   carry an explicit `execute`. The owner then removed the INFERRED
+   expectation on shell in `workflows/langgraph_tools`: execute there is
+   read from `subprocess.run`, not guessed.
+2. **Harness.** When matching an expected change to a tool, the harness
+   now also reads escalation evidence, so a read-to-write widening
+   (which adds no capability) can be matched.

@@ -97,14 +97,13 @@ in the briefs. Metric calculation and comparison are unchanged.
 
 v2.6 Authority Evidence Validation. Overall status: RESEARCH /
 NOT LANE-A READY (vetoed by 17 observed unknown/unresolved items).
-Lane-A status per class: capability detection, identity attribution
-LANE-A CANDIDATE; authority attribution, change detection,
-escalation detection LANE-B. Major strengths: rule-level detection
+Lane-A status per class: capability detection, identity attribution,
+escalation detection LANE-A CANDIDATE; authority attribution, change
+detection LANE-B. Major strengths: rule-level detection
 P/R/F1 1.0, resolvable attribution exact, determinism 1.0, evidence
 1.0, zero contradicted expectations corpus-wide. Major limitations:
 end-to-end exercised authority attribution coverage 0.5486 (79/144),
-1 surface-blind material change, one missed escalation (a new shell
-tool rated MATERIAL_CHANGE), agent→tool edges beyond the model.
+1 surface-blind material change, agent→tool edges beyond the model.
 
 ## Methodology (what the numbers prove)
 
@@ -139,18 +138,14 @@ tool rated MATERIAL_CHANGE), agent→tool edges beyond the model.
 
 ## Results (measured on corpus, not universal guarantees)
 
-57/58 cases hold; determinism 58/58; aggregate digest in
-`evaluation.json` byte-compares across runs. The one mismatch,
-`baseline_changes/new_tool`, is a measured scanner miss: a new
-code-defined tool with shell authority is classified MATERIAL_CHANGE
-(rule ESC_WRITE_TOOL_ADDED, severity high), while its reviewed truth is
-AUTHORITY_ESCALATION.
+58/58 cases hold; determinism 58/58; aggregate digest in
+`evaluation.json` byte-compares across runs.
 
 Digest (committed records, `--no-determinism`):
-`6b30d59bf2effc93eb8bea5b6437dae84a1b3e37b270df731097ed65d7befb97`
+`341c36a105a48b6815f34f2a2af9b3100e820bcc71334212cd57f4d8a71df134`
 
 Digest (default path with determinism checks, as run in CI):
-`5d48523e0cf9ebe3baf87ff86539fae2cbb609679809d23e13c7b8e497273bb4`
+`d8e3c02f4cfbac3e442fc27f9a8163d52d3f174c92f07c10be5bbf558f115580`
 
 The two differ only because each case's `determinism.checked` flag is
 part of the digested evaluation; the measurements are identical. Both
@@ -182,14 +177,13 @@ resolvable attribution 100%, resolution coverage 54.9%, unresolved
 45.1%, contradicted 0%.
 
 ChangeGuard (9 baseline pairs, 7 tool-surface entries + identity/grant
-domains): material change P 1.0, R 0.8571, F1 0.9231 (6 TP, 1 FN),
-escalation P 1.0, R 0.8, F1 0.8889 (4 TP, 1 FN: `new_tool`), observed
-false-escalation rate on benchmark corpus 0.0 (4 HIGH_RISK observed,
-genuinely measured — not 0/0), missed-material rate 0.1429,
-surface-blind entries 1 (explicit).
+domains): material-change P/R/F1 1.0 (7 TP), escalation P/R/F1 1.0
+(5 TP), observed false-escalation rate on benchmark corpus 0.0
+(5 HIGH_RISK observed, genuinely measured — not 0/0),
+missed-material rate 0.0, surface-blind entries 1 (explicit).
 
 Evidence: completeness 1.0 (76/76 refs), unknown preservation recall
-1.0 (41/41: UNKNOWN, UNVERIFIED_LINK, PARTIAL, INFERRED, UNRESOLVED
+1.0 (40/40: UNKNOWN, UNVERIFIED_LINK, PARTIAL, INFERRED, UNRESOLVED
 all stay expressed; PARTIAL matches only partially-resolved
 evidence, never a downgrade), determinism 1.0.
 
@@ -199,11 +193,11 @@ fails a case; canonical-vs-legacy contradictions fail loudly.
 
 ## Lane-A verdict: RESEARCH / NOT LANE-A READY
 
-Capability detection and identity attribution read LANE-A CANDIDATE
-(coverage 1.0) on corpus evidence. Authority attribution reads
-LANE-B (0.5486 < 0.95), change detection LANE-B (model coverage
-0.75 = 6/8, recall 0.8571), escalation detection LANE-B (model
-coverage 0.8 = 4/5, recall 0.8), and 17 observed unknown/unresolved items veto overall
+Capability detection, identity attribution and escalation detection
+read LANE-A CANDIDATE (coverage 1.0) on corpus evidence; escalation
+detection rests on 5 escalations in SafeAI's own fixtures. Authority
+attribution reads LANE-B (0.5486 < 0.95), change detection LANE-B
+(model coverage 0.875 = 7/8), and 17 observed unknown/unresolved items veto overall
 readiness regardless. Lane A stays closed with quantified reasons:
 accuracy without coverage does not graduate.
 
@@ -291,9 +285,14 @@ accuracy without coverage does not graduate.
   Thirteen cases whose truth recorded the old gap were revised by the
   project owner on review of their inputs
   (`REVIEW_TOOL_BODIES.md`; each now `independent_annotation`). The
-  owner kept `baseline_changes/new_tool` as AUTHORITY_ESCALATION, so the
-  scanner's MATERIAL_CHANGE there is reported as a miss (57/58). The
-  harness now also reads escalation evidence when matching a change to a
+  owner kept `baseline_changes/new_tool` as AUTHORITY_ESCALATION. The
+  scanner first rated it MATERIAL_CHANGE because tool-body shell calls
+  carried an inferred access mode, which caps an escalation below
+  critical; shell calls in tool bodies now carry an explicit `execute`
+  (the call executes by definition), and the case holds. For the same
+  reason the owner removed the INFERRED expectation on shell in
+  `workflows/langgraph_tools`. Escalation detection now reads LANE-A
+  CANDIDATE on this corpus (5/5). The harness now also reads escalation evidence when matching a change to a
   tool, so a read-to-write widening, which adds no capability, can be
   matched. Both digests changed (above). The pending corpus still holds
   44/44; its digest moved from `cc49a1a4…` to `bb58e818…` because of the

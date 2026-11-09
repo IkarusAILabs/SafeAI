@@ -193,7 +193,8 @@ def tool_body_capabilities(doc, units, framework, path):
         common = {"tool_identity": identity, "line": call.get("line")}
         if any(s in name for s in _SHELL):
             caps.append(make_capability("shell_execution", "Shell", framework, call["name"],
-                                        confidence=0.9, risk_weight=1.6, **common))
+                                        confidence=0.9, risk_weight=1.6,
+                                        access_mode="execute", **common))
             pm = package_managers.call_capability(call, framework, tool_identity=identity)
             if pm:
                 caps.append(pm)

@@ -192,3 +192,32 @@ def test_units():
         agent = Agent(tools=[c, t1, undefined])
     """)) == {"a": "first", "b": "b", "c": "c"}
     assert tool_units("def (:") == {}
+
+
+def test_new_shell_tool_is_a_critical_escalation(tmp_path):
+    """A subprocess call executes: the mode is explicit, so nothing caps the escalation."""
+    from safeai.analysis.capability_diff import compute_capability_diff
+
+    base, cur = tmp_path / "base", tmp_path / "cur"
+    head = ("from langchain.agents import initialize_agent\n"
+            "from langchain.tools import Tool\n\n"
+            "def lookup(key):\n    return key\n\n")
+    base.mkdir()
+    (base / "agent.py").write_text(
+        head + 'tools = [Tool(name="lookup", func=lookup)]\n'
+        "agent = initialize_agent(tools=tools, llm=None)\n", encoding="utf-8")
+    cur.mkdir()
+    (cur / "agent.py").write_text(
+        "import subprocess\n" + head
+        + "def diagnose(cmd):\n    return subprocess.run(cmd, shell=True, check=False)\n\n"
+        + 'tools = [Tool(name="lookup", func=lookup), Tool(name="diagnose", func=diagnose)]\n'
+        + "agent = initialize_agent(tools=tools, llm=None)\n", encoding="utf-8")
+    current = run_scan(str(cur))
+    shell = next(c for e in current["tool_surface"] if e["tool_key"] == "tool:diagnose"
+                 for c in e["capabilities"])
+    assert (shell["access_mode"], shell["inferred"]) == ("execute", False)
+    diff = compute_capability_diff(current, run_scan(str(base)))
+    entry = next(t for t in diff["tools"] if t["tool_key"] == "tool:diagnose")
+    assert (entry["status"], entry["change_class"]) == ("new", "HIGH_RISK_CHANGE")
+    assert any(e["id"] == "ESC_SHELL_ADDED" and e["severity"] == "critical"
+               for e in entry["escalations"])

@@ -7087,9 +7087,7 @@
         "checked": false,
         "violations": []
       },
-      "failures": [
-        "change misclassified: 'tool:diagnose (agent.py)' expected AUTHORITY_ESCALATION, observed MATERIAL_CHANGE"
-      ],
+      "failures": [],
       "id": "baseline_changes/new_tool",
       "parts": {
         "agents": {
@@ -7232,31 +7230,30 @@
           },
           "change": {
             "escalation": {
-              "f1": null,
-              "false_negatives": 1,
+              "f1": 1.0,
+              "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": 0.0,
+              "precision": 1.0,
+              "recall": 1.0,
               "status": "measured",
-              "true_positives": 0
+              "true_positives": 1
             },
             "false_escalation_rate": {
-              "reason": "no HIGH_RISK diffs observed on this case",
-              "status": "insufficient_evidence",
-              "value": null
+              "status": "measured",
+              "value": 0.0
             },
             "material_change": {
-              "f1": null,
-              "false_negatives": 1,
+              "f1": 1.0,
+              "false_negatives": 0,
               "false_positives": 0,
-              "precision": null,
-              "recall": 0.0,
+              "precision": 1.0,
+              "recall": 1.0,
               "status": "measured",
-              "true_positives": 0
+              "true_positives": 1
             },
             "missed_material_rate": {
               "status": "measured",
-              "value": 1.0
+              "value": 0.0
             },
             "no_change_correct": 0,
             "no_change_total": 0,
@@ -7396,7 +7393,7 @@
         "escalations": {
           "expected": 1,
           "false": 0,
-          "observed": 0
+          "observed": 1
         },
         "evidence": {
           "expected": 1,
@@ -7432,7 +7429,7 @@
           "unresolved": 0
         }
       },
-      "passed": false,
+      "passed": true,
       "provenance": "independent_annotation"
     },
     {
@@ -20126,10 +20123,10 @@
           "gold_notes": [],
           "unknown": {
             "preserved": {
-              "expected": 1,
-              "matched": 1
+              "expected": 0,
+              "matched": 0
             },
-            "status": "measured"
+            "status": "insufficient_evidence"
           }
         },
         "capabilities": {
@@ -20172,8 +20169,8 @@
           "matched": 2
         },
         "uncertainty": {
-          "expected": 1,
-          "matched": 1
+          "expected": 0,
+          "matched": 0
         },
         "uncertainty_observed": {
           "unknown": 0,
@@ -20540,7 +20537,7 @@
       "provenance": "migrated_from_legacy"
     }
   ],
-  "digest": "6b30d59bf2effc93eb8bea5b6437dae84a1b3e37b270df731097ed65d7befb97",
+  "digest": "341c36a105a48b6815f34f2a2af9b3100e820bcc71334212cd57f4d8a71df134",
   "lane_a": {
     "eligible": false,
     "gates": [
@@ -20721,16 +20718,16 @@
       "change_detection": {
         "applicable": 0,
         "contradicted": 0,
-        "correct": 6,
+        "correct": 7,
         "coverage": null,
-        "f1": 0.9231,
-        "false_negatives": 1,
+        "f1": 1.0,
+        "false_negatives": 0,
         "false_positives": 0,
         "precision": 1.0,
-        "recall": 0.8571,
+        "recall": 1.0,
         "resolvable": 0,
         "status": "measured",
-        "true_positives": 6,
+        "true_positives": 7,
         "unresolved": 0
       },
       "entities": {
@@ -20843,32 +20840,7 @@
       "escalation_detection": {
         "applicable": 0,
         "contradicted": 0,
-        "correct": 4,
-        "coverage": null,
-        "f1": 0.8889,
-        "false_negatives": 1,
-        "false_positives": 0,
-        "precision": 1.0,
-        "recall": 0.8,
-        "resolvable": 0,
-        "status": "measured",
-        "true_positives": 4,
-        "unresolved": 0
-      },
-      "false_escalation_rate": {
-        "status": "measured",
-        "value": 0.0
-      },
-      "missed_material_rate": {
-        "status": "measured",
-        "value": 0.1429
-      },
-      "surface_blind": 1,
-      "surface_blind_escalations": 0,
-      "unknown_preservation": {
-        "applicable": 0,
-        "contradicted": 0,
-        "correct": 41,
+        "correct": 5,
         "coverage": null,
         "f1": 1.0,
         "false_negatives": 0,
@@ -20877,7 +20849,32 @@
         "recall": 1.0,
         "resolvable": 0,
         "status": "measured",
-        "true_positives": 41,
+        "true_positives": 5,
+        "unresolved": 0
+      },
+      "false_escalation_rate": {
+        "status": "measured",
+        "value": 0.0
+      },
+      "missed_material_rate": {
+        "status": "measured",
+        "value": 0.0
+      },
+      "surface_blind": 1,
+      "surface_blind_escalations": 0,
+      "unknown_preservation": {
+        "applicable": 0,
+        "contradicted": 0,
+        "correct": 40,
+        "coverage": null,
+        "f1": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "resolvable": 0,
+        "status": "measured",
+        "true_positives": 40,
         "unresolved": 0
       }
     },
@@ -20886,7 +20883,7 @@
     "change": {
       "false_escalation_rate": 0.0,
       "false_escalations": 0,
-      "observed_escalations": 2
+      "observed_escalations": 3
     },
     "determinism": {
       "checked": 0,
@@ -20943,25 +20940,25 @@
         },
         {
           "class": "change_detection",
-          "coverage": 0.75,
+          "coverage": 0.875,
           "coverage_floor": 0.9,
-          "extra": "ChangeGuard model coverage 0.75 (6/8 material changes inside the surface model; 1 blind, detection via findings/summary) resolution coverage 0.75 below PROPOSED floor 0.9",
+          "extra": "ChangeGuard model coverage 0.875 (7/8 material changes inside the surface model; 1 blind, detection via findings/summary) resolution coverage 0.875 below PROPOSED floor 0.9",
           "precision": 1.0,
           "precision_target": 0.95,
-          "recall": 0.8571,
+          "recall": 1.0,
           "recall_target": 0.9,
           "status": "LANE-B"
         },
         {
           "class": "escalation_detection",
-          "coverage": 0.8,
+          "coverage": 1.0,
           "coverage_floor": 0.9,
-          "extra": "observed false-escalation rate on benchmark corpus 0.0 (max 0.05) resolution coverage 0.8 below PROPOSED floor 0.9",
+          "extra": "observed false-escalation rate on benchmark corpus 0.0 (max 0.05)",
           "precision": 1.0,
           "precision_target": 0.95,
-          "recall": 0.8,
+          "recall": 1.0,
           "recall_target": 0.9,
-          "status": "LANE-B"
+          "status": "LANE-A CANDIDATE"
         }
       ],
       "note": "Per-class thresholds are PROPOSED (reused global bars; ADR-0008 ratification required; no gate consumes this).",
@@ -20969,7 +20966,7 @@
       "unknown_veto": true,
       "unknown_veto_count": 17
     },
-    "passed": 57,
+    "passed": 58,
     "provenance": {
       "cases": {
         "independent_annotation": 31,
@@ -20979,15 +20976,15 @@
     },
     "tool_recall": 1.0,
     "uncertainty_expression": {
-      "expected": 41,
-      "matched": 41,
+      "expected": 40,
+      "matched": 40,
       "recall": 1.0
     },
     "unknown_unresolved_count": 17
   },
   "summary": {
-    "failed": 1,
-    "passed": 57,
+    "failed": 0,
+    "passed": 58,
     "total": 58
   }
 }

@@ -8,7 +8,7 @@ Lane-A status: RESEARCH / NOT LANE-A READY — vetoed by 17 observed unknown/unr
 Major strengths: rule-level detection P/R/F1 1.0; resolvable attribution exact wherever the model reaches; determinism 0.0; evidence completeness 1.0.
 Major limitations: end-to-end exercised authority attribution coverage 0.5486 (79/144); 1 surface-blind material changes; 17 observed unknown/unresolved items veto graduation.
 
-This report measures SafeAI on a fixed offline corpus (58 cases: 57 passed, 1 mismatched); it is not a claim about arbitrary customer scans, and benchmark numbers never belong in customer reports. 'Rule-level detection' counts fired rules only. 'Observed false-escalation rate on benchmark corpus' is exactly that — corpus-observed, not universal. Accuracy (resolvable P/R) and coverage (share of applicable expectations resolved) are distinct properties; both are shown everywhere.
+This report measures SafeAI on a fixed offline corpus (58 cases: 58 passed, 0 mismatched); it is not a claim about arbitrary customer scans, and benchmark numbers never belong in customer reports. 'Rule-level detection' counts fired rules only. 'Observed false-escalation rate on benchmark corpus' is exactly that — corpus-observed, not universal. Accuracy (resolvable P/R) and coverage (share of applicable expectations resolved) are distinct properties; both are shown everywhere.
 
 ## Discovery
 
@@ -40,10 +40,10 @@ Resolvable accuracy is exactness within the model's reach; resolution coverage i
 
 ## ChangeGuard (baseline pairs only)
 
-- Material change: precision 1.0, recall 0.8571, F1 0.9231 (TP 6, FP 0, FN 1)
-- Escalation: precision 1.0, recall 0.8, F1 0.8889 (TP 4, FP 0, FN 1)
+- Material change: precision 1.0, recall 1.0, F1 1.0 (TP 7, FP 0, FN 0)
+- Escalation: precision 1.0, recall 1.0, F1 1.0 (TP 5, FP 0, FN 0)
 - False escalation (observed rate on benchmark corpus): 0.0
-- Missed material change: 0.1429
+- Missed material change: 0.0
 - Surface-blind cases: 1 (0 of them escalations)
 
 Important:
@@ -52,9 +52,9 @@ Surface-blind cases are changes represented in the benchmark truth that the curr
 ## Evidence
 
 - Evidence completeness: 1.0 (76/76)
-- UNKNOWN recall: 1.0 (41/41; UNKNOWN/UNVERIFIED_LINK/PARTIAL/INFERRED/UNRESOLVED all stay expressed, never downgraded to safe)
+- UNKNOWN recall: 1.0 (40/40; UNKNOWN/UNVERIFIED_LINK/PARTIAL/INFERRED/UNRESOLVED all stay expressed, never downgraded to safe)
 - UNVERIFIED handling: UNVERIFIED_LINK verdicts and unlinked pools preserved (see UNKNOWN recall); repo-level links without tool-scoped need stay UNKNOWN, never MATCH.
-- Determinism: 0.0 (0/0 cases clean; repeat + order-shuffle; aggregate digest 6b30d59bf2effc93eb8bea5b6437dae84a1b3e37b270df731097ed65d7befb97)
+- Determinism: 0.0 (0/0 cases clean; repeat + order-shuffle; aggregate digest 341c36a105a48b6815f34f2a2af9b3100e820bcc71334212cd57f4d8a71df134)
 - Unknown/unresolved observed: 17
 
 ## Gold provenance
@@ -70,17 +70,17 @@ Surface-blind cases are changes represented in the benchmark truth that the curr
 - capability_detection: LANE-A CANDIDATE (precision 1.0, recall 1.0, coverage 1.0; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED)
 - identity_attribution: LANE-A CANDIDATE (precision 1.0, recall 1.0, coverage 1.0; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED)
 - authority_attribution: LANE-B (precision 0.5486, recall 0.5486, coverage 0.5486; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED) — legacy end-to-end rate over all exercised capabilities incl. unattributed bucket (79/144) resolution coverage 0.5486 below PROPOSED floor 0.9
-- change_detection: LANE-B (precision 1.0, recall 0.8571, coverage 0.75; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED) — ChangeGuard model coverage 0.75 (6/8 material changes inside the surface model; 1 blind, detection via findings/summary) resolution coverage 0.75 below PROPOSED floor 0.9
-- escalation_detection: LANE-B (precision 1.0, recall 0.8, coverage 0.8; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED) — observed false-escalation rate on benchmark corpus 0.0 (max 0.05) resolution coverage 0.8 below PROPOSED floor 0.9
+- change_detection: LANE-B (precision 1.0, recall 1.0, coverage 0.875; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED) — ChangeGuard model coverage 0.875 (7/8 material changes inside the surface model; 1 blind, detection via findings/summary) resolution coverage 0.875 below PROPOSED floor 0.9
+- escalation_detection: LANE-A CANDIDATE (precision 1.0, recall 1.0, coverage 1.0; targets P 0.95 R 0.9 coverage-floor 0.9 PROPOSED) — observed false-escalation rate on benchmark corpus 0.0 (max 0.05)
 - Overall: RESEARCH / NOT LANE-A READY — vetoed by 17 observed unknown/unresolved items
 - Note: Per-class thresholds are PROPOSED (reused global bars; ADR-0008 ratification required; no gate consumes this).
 - Legacy global eligible (reference): None
 
 ## Known limitations (weakest measured categories first)
 
-- Watch: escalation_detection
-- Watch: change_detection
 - Watch: attribution_levels/capability
+- Watch: entities/relationships
+- Watch: entities/agents
 - Primary limitation: agent-to-tool attribution (agent_uses_tool edges beyond the current model; counted, not hidden)
 - Secondary limitation: infrastructure identity correlation without tool-scoped need (repo-level links yield UNKNOWN verdicts)
 - End-to-end exercised authority attribution coverage 0.5486: 65 capabilities sit in unknown:unattributed (code-defined tools).
@@ -127,8 +127,7 @@ Surface-blind cases are changes represented in the benchmark truth that the curr
 
 ### [PASS] baseline_changes/mcp_tool_widened
 
-### [FAIL] baseline_changes/new_tool
-- change misclassified: 'tool:diagnose (agent.py)' expected AUTHORITY_ESCALATION, observed MATERIAL_CHANGE
+### [PASS] baseline_changes/new_tool
 
 ### [PASS] baseline_changes/read_to_write
 
