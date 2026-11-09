@@ -374,35 +374,49 @@ class ScanOrchestrator:
         for path in self.files:
             content = self.file_cache.get(path, "")
             for parser in self.parsers:
-                if parser.detect(path, content, scan_ctx=self.scan_ctx):
-                    parsed = parser.parse(path, content, scan_ctx=self.scan_ctx)
-                    if parsed is None:
-                        continue
-                    framework = parsed.get("framework")
-                    if not framework:
-                        continue
-                    self.agent_models.append({
+                # One parser failing on one file must not abort the scan; it
+                # is reported as a diagnostic, like a component extractor.
+                try:
+                    parsed = (parser.parse(path, content, scan_ctx=self.scan_ctx)
+                              if parser.detect(path, content, scan_ctx=self.scan_ctx)
+                              else None)
+                except Exception as exc:
+                    self.diagnostics.append({
                         "file": path,
-                        "framework": framework,
-                        "data": parsed,
+                        "stage": "framework_parsing",
+                        "kind": "parse_error",
+                        "parser": getattr(parser, "name", type(parser).__name__),
+                        "error": f"{type(exc).__name__}: {exc}",
                     })
-                    self.parser_results_by_file.setdefault(path, []).append(parsed)
-                    self.parse_provenance.append({
-                        "file": path,
-                        "framework": framework,
-                        "confidence": parsed.get("parser_confidence", 0.65),
-                        "source": parsed.get("discovery_method", "regex"),
-                        "evidence": parsed.get("detection_evidence", []),
-                    })
-                    if framework and framework not in self.detected_frameworks:
-                        self.detected_frameworks.append(framework)
-                    self.framework_methods.setdefault(framework, set()).add(
-                        parsed.get("discovery_method", "regex")
-                    )
+                    continue
+                if parsed is None:
+                    continue
+                framework = parsed.get("framework")
+                if not framework:
+                    continue
+                self.agent_models.append({
+                    "file": path,
+                    "framework": framework,
+                    "data": parsed,
+                })
+                self.parser_results_by_file.setdefault(path, []).append(parsed)
+                self.parse_provenance.append({
+                    "file": path,
+                    "framework": framework,
+                    "confidence": parsed.get("parser_confidence", 0.65),
+                    "source": parsed.get("discovery_method", "regex"),
+                    "evidence": parsed.get("detection_evidence", []),
+                })
+                if framework and framework not in self.detected_frameworks:
+                    self.detected_frameworks.append(framework)
+                self.framework_methods.setdefault(framework, set()).add(
+                    parsed.get("discovery_method", "regex")
+                )
 
     def extract_components(self):
         """Stage 4: component-level extraction, aggregation, normalization."""
-        self.diagnostics = []
+        self.diagnostics = [d for d in self.diagnostics
+                            if d.get("stage") == "framework_parsing"]
         self.components = extract_components(
             self.files, self.file_cache, self.semantic_docs, diagnostics=self.diagnostics
         )
