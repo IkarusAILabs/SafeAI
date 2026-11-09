@@ -21,6 +21,9 @@ from safeai.frameworks import register_parser
 @register_parser
 class OpenAIAgentsParser:
     name = "openai_agents"
+    # Shell, file and HTTP calls in registered tool functions are reported
+    # as that tool's authority (safeai.analysis.tool_bodies).
+    attributes_tool_bodies = True
 
     def detect(self, path, content, scan_ctx=None):
         if not path.endswith(".py"):

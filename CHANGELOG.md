@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Tool functions in Python frameworks now hold their own authority.**
+  For CrewAI, LangChain, LangGraph, OpenAI Agents, Google ADK, LlamaIndex,
+  Haystack, Semantic Kernel and Microsoft Agent Framework files, the
+  shell, file and HTTP calls in the body of a function registered as a
+  tool are reported as that tool's capabilities, with their line and an
+  explicit access mode:
+  - `open(..., "w")` is write, and `os.remove` is mutate;
+  - an HTTP POST is write and a GET is read.
+
+  Before, most of these calls were unattributed or not reported at all.
+  Registration forms recognised: `@tool`, `@function_tool`,
+  `@kernel_function`, `@ai_function`, `Tool(func=f)`,
+  `StructuredTool.from_function(f)`, `FunctionTool(fn=f)`,
+  `FunctionTool.from_defaults(fn=f)`, `ToolNode([f])`, functions in
+  `tools=[...]`, and `BaseTool` subclasses. A literal `name=` names the
+  tool. Helpers a tool calls are not followed
+  (`safeai/analysis/tool_bodies.py`).
+
+  **13 authority-benchmark expected answers revised by the project
+  owner.** They recorded the old gap, and two said so in their notes
+  ("known blind spot"). The owner reviewed each case's input
+  (`docs/benchmarks/authority/REVIEW_TOOL_BODIES.md`); all 13 are now
+  independent annotations.
+  - The owner kept `baseline_changes/new_tool` as an authority
+    escalation. Shell calls in tool bodies now carry an explicit
+    `execute` access mode, not an inferred one, so a new shell tool is
+    a critical escalation. On the owner's decision,
+    `workflows/langgraph_tools` no longer expects that mode to be
+    inferred. All 58 cases hold, and escalation detection reads LANE-A
+    CANDIDATE on this corpus (5/5).
+  - End-to-end capability attribution: 0.4851 (65/134) → 0.5486
+    (79/144). Surface-blind changes: 3 → 1.
+  - The harness now reads escalation evidence when matching a change
+    to a tool.
+  - Digests: `341c36a1…` (committed records) and `d8e3c02f…` (CI path).
+    The pending corpus still holds 44/44 (digest `bb58e818…`).
+
 ### Fixed
 
 - **AutoGen tools held no authority of their own.** Every AutoGen

@@ -1,8 +1,17 @@
 {
   "case": "workflows/langgraph_tools",
-  "notes": "ToolNode shell capability observed at workflow level with filesystem and model context.",
+  "notes": "ToolNode([shell_run]): the shell execution is attributed to tool:shell_run. The unattributed filesystem_access is the LangGraph parser matching 'open' in ChatOpenAI (known false positive, kept until that parser is fixed).",
   "agents": [],
   "tools": [
+    {
+      "tool_key": "tool:shell-run",
+      "capabilities": [
+        {
+          "name": "shell_execution",
+          "access_mode": "execute"
+        }
+      ]
+    },
     {
       "tool_key": "unknown:unattributed",
       "capabilities": [
@@ -17,10 +26,6 @@
         {
           "name": "planner_chain",
           "access_mode": "read"
-        },
-        {
-          "name": "shell_execution",
-          "access_mode": "execute"
         }
       ]
     }
@@ -32,22 +37,24 @@
   "evidence_refs": [
     "graph.py"
   ],
-  "uncertainty": [
-    {
-      "kind": "inferred",
-      "match": "shell_execution"
-    }
-  ],
+  "uncertainty": [],
   "truth_schema_version": "2.0",
   "annotation": {
     "basis": "human_reviewed_source",
     "confidence": "high",
-    "rationale": "Migrated mechanically from probe-verified legacy truth; full corpus holds. canonical block absent: gold derived from legacy reviewed sections",
-    "derivation": "migrated_from_legacy"
+    "rationale": "Revised 2026-11-09 by the project owner on review of the case input (docs/benchmarks/authority/REVIEW_TOOL_BODIES.md): ToolNode([shell_run]): the shell execution is attributed to tool:shell_run. The unattributed filesystem_access is the LangGraph parser matching 'open' in ChatOpenAI (known false positive, kept until that parser is fixed). Shell access mode is explicit (subprocess.run executes), not inferred: the INFERRED expectation on shell_execution was removed by the project owner on 2026-11-09.",
+    "derivation": "independent_annotation"
   },
   "canonical": {
     "agents": [],
-    "tools": [],
+    "tools": [
+      {
+        "id": "shell_run",
+        "name": "shell_run",
+        "kind": "tool",
+        "attributable": true
+      }
+    ],
     "capabilities": [
       {
         "tool": null,
@@ -68,17 +75,20 @@
         "attribution": "unresolved"
       },
       {
-        "tool": null,
+        "tool": "shell_run",
         "capability": "shell_execution",
         "access_mode": "execute",
-        "attribution": "unresolved"
+        "attribution": "attributed"
       }
     ],
-    "unknown_expectations": [
+    "unknown_expectations": [],
+    "relationships": [
       {
-        "area": "inferred",
-        "expected": "INFERRED",
-        "match": "shell_execution"
+        "type": "tool_has_capability",
+        "tool": "shell_run",
+        "capability": "shell_execution",
+        "access_mode": "execute",
+        "resolvable": true
       }
     ]
   }

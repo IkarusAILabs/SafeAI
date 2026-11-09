@@ -1106,9 +1106,11 @@ def _diff_evidence(current):
         if not isinstance(tool, dict):
             return
         files = set()
+        # Escalations carry the evidence of an access-mode widening, which
+        # adds no capability (read -> write on the same tool).
         for cap in (tool.get("capabilities_added") or []) + (
             tool.get("capabilities_removed") or []
-        ):
+        ) + (tool.get("escalations") or []):
             if not isinstance(cap, dict):
                 continue
             for ev in cap.get("evidence") or []:
