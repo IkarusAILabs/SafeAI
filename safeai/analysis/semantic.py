@@ -139,6 +139,7 @@ def build_semantic_document(path, content, module_name=""):
                 "bases": [_name_of(b) for b in node.bases if _name_of(b)],
             }
 
+    owners = _call_owners(tree)
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             call_name = _name_of(node.func)
@@ -148,13 +149,43 @@ def build_semantic_document(path, content, module_name=""):
             for kw in node.keywords:
                 if kw.arg:
                     kwargs[kw.arg] = _literal_value(kw.value)
-            doc.calls.append({
+            call = {
                 "name": call_name,
                 "line": node.lineno,
                 "kwargs": kwargs,
                 "args": [_literal_value(a) for a in node.args],
-            })
+            }
+            if id(node) in owners:
+                call["function"] = owners[id(node)]
+            doc.calls.append(call)
     return doc
+
+
+_FUNCTION_NODES = (ast.FunctionDef, ast.AsyncFunctionDef)
+
+
+def _call_owners(tree):
+    """Map each call node to the module-level function or method containing it.
+
+    A call inside ``def f`` is owned by ``"f"``; inside a method, by
+    ``"Class.method"``. A call in a function nested inside another is owned
+    by the outer one, the unit a framework registers as a tool. Calls at
+    module level have no owner.
+    """
+    owners = {}
+    for node in tree.body:
+        if isinstance(node, _FUNCTION_NODES):
+            units = [(node.name, node)]
+        elif isinstance(node, ast.ClassDef):
+            units = [(f"{node.name}.{n.name}", n) for n in node.body
+                     if isinstance(n, _FUNCTION_NODES)]
+        else:
+            continue
+        for name, unit in units:
+            for inner in ast.walk(unit):
+                if isinstance(inner, ast.Call):
+                    owners[id(inner)] = name
+    return owners
 
 
 def resolve_symbol(doc, symbol):

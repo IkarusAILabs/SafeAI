@@ -7,13 +7,21 @@ Extracts agents, tools, models, and capabilities from AutoGen configurations.
 import re
 
 from safeai.analysis import package_managers
-from safeai.analysis.capabilities import dedupe_capabilities, make_capability
+from safeai.analysis.capabilities import (
+    dedupe_capabilities,
+    is_file_call,
+    make_capability,
+)
 from safeai.analysis.semantic import (
     build_semantic_document,
     resolve_symbol,
     resolve_symbol_origin,
 )
+from safeai.analysis.tool_identity import make_tool_identity
 from safeai.frameworks import register_parser
+
+# Decorators that register the decorated function as a tool (AutoGen 0.2).
+_REGISTERING_DECORATORS = ("register_for_llm", "register_for_execution")
 
 
 def _agent_name(call):
@@ -31,6 +39,38 @@ def _agent_name(call):
     if not isinstance(name, str):
         return None
     return name.strip() or None
+
+
+def _refs(value):
+    """Names referenced by a ``tools=[...]`` value or a single reference."""
+    items = value if isinstance(value, list) else [value]
+    return [item[1] for item in items
+            if isinstance(item, tuple) and len(item) == 2 and item[0] == "ref"]
+
+
+def _tool_functions(doc):
+    """Functions this file hands to AutoGen as tools, in order of appearance.
+
+    - ``AssistantAgent(..., tools=[f, g])`` (AgentChat),
+    - ``FunctionTool(f, ...)`` (autogen_core),
+    - ``register_function(f, ...)`` and functions decorated with
+      ``register_for_llm`` / ``register_for_execution`` (AutoGen 0.2).
+
+    Only names are collected; a capability is attributed to one of them
+    when the call that confers it is inside that function's body.
+    """
+    names = []
+    for call in doc.calls:
+        short = call["name"].rsplit(".", 1)[-1]
+        if short in ("AssistantAgent", "ConversableAgent"):
+            names += _refs((call.get("kwargs") or {}).get("tools"))
+        elif short in ("FunctionTool", "register_function") and call.get("args"):
+            names += _refs(call["args"][0])
+    for fn, info in doc.functions.items():
+        if any(d.rsplit(".", 1)[-1] in _REGISTERING_DECORATORS
+               for d in info.get("decorators") or []):
+            names.append(fn)
+    return list(dict.fromkeys(names))
 
 
 @register_parser
@@ -68,8 +108,17 @@ class AutoGenParser:
         models = []
         capabilities = []
         relationships = []
+        tool_functions = set(_tool_functions(doc))
 
         for call in doc.calls:
+            # The tool that holds this call's authority, when the call is in
+            # the body of a function registered as a tool; otherwise None
+            # and the capability stays unattributed.
+            owner = call.get("function")
+            owned = ({"tool_identity": make_tool_identity("tool", owner, self.name,
+                                                          source_path=path),
+                      "line": call.get("line")}
+                     if owner in tool_functions else {})
             resolved = resolve_symbol(doc, call["name"])
             origin = resolve_symbol_origin(doc, call["name"], import_graph=import_graph)
             lname = (resolved or call["name"]).lower()
@@ -103,6 +152,7 @@ class AutoGenParser:
                     "external_model_api", "External APIs", self.name, call["name"],
                     confidence=0.8,
                     resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
+                    **owned,
                 ))
 
             if any(s in lname for s in ["subprocess", "os.system", "popen"]):
@@ -110,20 +160,29 @@ class AutoGenParser:
                     "shell_execution", "Shell", self.name, call["name"],
                     confidence=0.9, risk_weight=1.6,
                     resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
+                    **owned,
                 ))
                 package_manager = package_managers.call_capability(
                     call, self.name,
                     resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
+                    tool_identity=owned.get("tool_identity"),
                 )
                 if package_manager:
                     capabilities.append(package_manager)
 
-            if any(s in lname for s in ["open", "pathlib", "os.remove", "os.write"]):
+            if is_file_call(lname):
                 capabilities.append(make_capability(
                     "filesystem_access", "Filesystem", self.name, call["name"],
                     confidence=0.85, risk_weight=1.2,
                     resolved_definition=f"{origin.get('qualified_name')}@{origin.get('file') or 'unknown'}",
+                    **owned,
                 ))
+
+        declared = {t["name"] for t in tools}
+        for fn in _tool_functions(doc):
+            if fn not in declared:
+                tools.append({"name": fn, "line": (doc.functions.get(fn) or {}).get("line"),
+                              "evidence": "tool_function"})
 
         if not agents:
             agent_patterns = re.findall(r"AssistantAgent\(([^)]*)\)|UserProxyAgent\(([^)]*)\)", content)
