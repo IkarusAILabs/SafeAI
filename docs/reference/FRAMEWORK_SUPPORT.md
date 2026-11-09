@@ -164,14 +164,20 @@ Detection evidence recorded on a successful parse: `imports:autogen`, `ast:calls
 | Artifact | Detection | Confidence | Description |
 |----------|-----------|-----------|-------------|
 | Agents | AST `AssistantAgent()`, `UserProxyAgent()` | 0.85 | AutoGen agent definitions |
-| Tools | AST `register_for_llm()`, `register_function()` | 0.80 | Tool registrations |
+| Tools | AST `register_for_llm()`, `register_function()`; functions passed as `AssistantAgent(tools=[...])`, `FunctionTool(f)`, `register_function(f, ...)` or decorated with `register_for_llm` / `register_for_execution` | 0.80 | Tool registrations |
 | Models | AST calls whose names include `openai`, `azure`, `bedrock`, or `anthropic` | 0.80 | LLM provider references |
 
 ### Capabilities Discovered
 
 - **External APIs** — model constructor calls matching OpenAI, Azure, Bedrock, or Anthropic (`confidence=0.8`)
 - **Shell** — resolved call names containing `subprocess`, `os.system`, or `popen` (`confidence=0.9`)
-- **Filesystem** — resolved call names containing `open`, `pathlib`, `os.remove`, or `os.write` (`confidence=0.85`)
+- **Filesystem** — calls to `open` itself (`open`, `io.open`) or names containing `pathlib`, `os.remove`, or `os.write` (`confidence=0.85`). `OpenAI…` and `urlopen` are not file access.
+
+**Tool attribution.** A capability is attributed to a tool when the call
+that confers it is in the body of a function the same file registers as
+a tool (any of the forms under *Tools*). Calls at module level, and
+calls in a helper that a tool calls, stay unattributed: SafeAI does not
+follow calls between functions.
 
 The adapter does not emit first-class Multi-Agent or Delegation capabilities. `GroupChat` / `GroupChatManager`, `code_execution_config`, and AutoGen 0.4+ `autogen-agentchat` APIs are not extracted as dedicated artifacts.
 

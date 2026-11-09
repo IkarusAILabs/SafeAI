@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **AutoGen tools held no authority of their own.** Every AutoGen
+  capability went to `unknown:unattributed`, including a
+  `subprocess.run` in the body of a function passed to an agent as a
+  tool. A capability is now attributed to the tool when the call that
+  confers it is in the body of a function the file registers with
+  AutoGen: `AssistantAgent(tools=[...])`, `FunctionTool(f)`,
+  `register_function(f, ...)`, or the `register_for_llm` /
+  `register_for_execution` decorators. Such functions are also listed
+  as tools. Helpers a tool calls are not followed, and their authority
+  stays unattributed. Calls now record the function that contains them
+  (`function` on semantic-document calls), which other code-framework
+  parsers can use the same way; none does yet. Digests unchanged.
+- **An OpenAI model client was file access (AutoGen).** The filesystem
+  match was the substring `open`, so `OpenAIChatCompletionClient` was
+  reported as reading files. AutoGen now matches `open` only as the
+  called name. The LangGraph parser has the same match, and two
+  authority-benchmark cases encode its result (`ChatOpenAI` in
+  `workflows/langgraph_tools`, `urlopen` in `attribution/workflow_chain`
+  as file access). It is left unchanged here because correcting it
+  changes the benchmark's expected answers and digests.
+
 - **Any JSON file that mentioned "bedrock" was a Bedrock Agent.** The
   C-5 census found a plugin manifest that lists Bedrock as a provider
   reported as a Bedrock Agent configuration; package manifests that
@@ -25,7 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   content. The test now reads each parser's registered name, and
   AutoGen has a representative fixture. On that fixture SafeAI detects
   AutoGen and the read and execute capabilities, but ties neither to a
-  tool: the unattributed-authority gap the census measured.
+  tool: the unattributed-authority gap the census measured (fixed for
+  AutoGen above).
 
 - **One parser failure aborted the whole scan.** A JSON file whose top
   level was a list and that mentioned "bedrock" crashed the Bedrock

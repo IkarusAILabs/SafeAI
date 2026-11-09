@@ -232,7 +232,7 @@ def tool_name_targets(name):
     return sorted(targets)
 
 
-def call_capability(call, framework, resolved_definition=None):
+def call_capability(call, framework, resolved_definition=None, tool_identity=None):
     """A ``package_manager`` capability for a subprocess-style call, or ``None``.
 
     Used by the AST framework parsers next to their shell capability. The
@@ -249,4 +249,5 @@ def call_capability(call, framework, resolved_definition=None):
         access_mode=access_mode_for(targets),
         line=call.get("line"),
         targets=targets,
+        tool_identity=tool_identity,
     )

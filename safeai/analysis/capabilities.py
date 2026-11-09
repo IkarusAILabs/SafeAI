@@ -221,6 +221,19 @@ def resolve_access_mode(capability):
     return mode
 
 
+def is_file_call(name):
+    """Whether a (lower-cased, dotted) call name touches the filesystem.
+
+    ``open`` must be the called name itself (``open``, ``io.open``): as a
+    substring it also matched ``OpenAIChatCompletionClient`` and every
+    other ``openai`` call, reporting file access a model client does not
+    have.
+    """
+    name = str(name or "").lower()
+    return (name.rsplit(".", 1)[-1] == "open"
+            or any(s in name for s in ("pathlib", "os.remove", "os.write")))
+
+
 def dedupe_capabilities(caps):
     """Remove duplicate capabilities within a single parser result.
 
