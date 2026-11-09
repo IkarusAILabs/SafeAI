@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Tool functions in Python frameworks now hold their own authority.**
+  For CrewAI, LangChain, LangGraph, OpenAI Agents, Google ADK, LlamaIndex,
+  Haystack, Semantic Kernel and Microsoft Agent Framework files, the
+  shell, file and HTTP calls in the body of a function registered as a
+  tool are reported as that tool's capabilities, with their line and an
+  explicit access mode:
+  - `open(..., "w")` is write, and `os.remove` is mutate;
+  - an HTTP POST is write and a GET is read.
+
+  Before, most of these calls were unattributed or not reported at all.
+  Registration forms recognised: `@tool`, `@function_tool`,
+  `@kernel_function`, `@ai_function`, `Tool(func=f)`,
+  `StructuredTool.from_function(f)`, `FunctionTool(fn=f)`,
+  `FunctionTool.from_defaults(fn=f)`, `ToolNode([f])`, functions in
+  `tools=[...]`, and `BaseTool` subclasses. A literal `name=` names the
+  tool. Helpers a tool calls are not followed
+  (`safeai/analysis/tool_bodies.py`).
+
+  **13 authority-benchmark cases no longer match their expected
+  answers.** Those answers record the old gap, and two say so in their
+  notes ("known blind spot"). They are listed for human review in
+  `docs/benchmarks/authority/REVIEW_TOOL_BODIES.md`. The expected answers
+  and published digests are unchanged until a reviewer decides each
+  case.
+
 ### Fixed
 
 - **AutoGen tools held no authority of their own.** Every AutoGen

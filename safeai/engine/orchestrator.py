@@ -31,6 +31,7 @@ from safeai.analysis.components import extract_components
 from safeai.analysis.import_graph import build_import_graph, module_name_from_path
 from safeai.analysis.project_graph import build_project_graph
 from safeai.analysis.semantic import build_semantic_document
+from safeai.analysis.tool_bodies import attach_tool_bodies
 from safeai.analysis.tool_surface import build_tool_surface
 from safeai.frameworks import discover_parsers
 from safeai.kya.assurance import build_assurance_boundary
@@ -380,6 +381,10 @@ class ScanOrchestrator:
                     parsed = (parser.parse(path, content, scan_ctx=self.scan_ctx)
                               if parser.detect(path, content, scan_ctx=self.scan_ctx)
                               else None)
+                    if (parsed and parsed.get("framework") and path.endswith(".py")
+                            and getattr(parser, "attributes_tool_bodies", False)):
+                        attach_tool_bodies(parsed, path, content, parsed["framework"],
+                                           as_names=getattr(parser, "tool_entries_are_names", False))
                 except Exception as exc:
                     self.diagnostics.append({
                         "file": path,
