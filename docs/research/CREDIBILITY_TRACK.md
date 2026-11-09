@@ -406,6 +406,17 @@ denominator, the result is *insufficient*.
 - The rate of repositories where SafeAI finds nothing (`surface` = no)
   is published with the same prominence as the other shares.
 
+**Run of 2026-11-09** (SafeAI at `main` e02b6dd):
+- 199 of the 200 sampled repositories were scanned; 1 failed.
+- The failure was a SafeAI defect: a JSON file whose top level was a
+  list crashed the Bedrock Agent parser, and with it the whole scan.
+  It is fixed, and a parser failure is now a diagnostic, not a crash.
+  As the protocol requires, the failed repository is counted and
+  reported, not replaced or re-run with the fixed version.
+- The shares are held back until the human check is adjudicated, so
+  each one is published next to its agreement. The blind sheets for the
+  30 seeded repositories are generated; two checkers are needed.
+
 **Not claimed.**
 - Nothing about deployed servers, or about servers without a public
   repository.

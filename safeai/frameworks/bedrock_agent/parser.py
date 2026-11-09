@@ -21,6 +21,8 @@ class BedrockAgentParser:
             data = json.loads(content)
         except Exception:
             return {}
+        if not isinstance(data, dict):  # a list or scalar is not an agent configuration
+            return {}
         return {
             "framework": "bedrock_agent",
             "keys": list(data.keys()),

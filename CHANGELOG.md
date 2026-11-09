@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **One parser failure aborted the whole scan.** A JSON file whose top
+  level was a list and that mentioned "bedrock" crashed the Bedrock
+  Agent parser with `AttributeError`, so the scan wrote no report. Found
+  by the C-5 census on a public MCP server repository. The parser now
+  skips JSON that is not an object. Any parser error is now recorded as
+  a `framework_parsing` diagnostic (`kind: parse_error`), the scan
+  continues, and the assurance boundary lists the file as not fully
+  analysed. A new test feeds every parser lists, scalars and nulls in
+  each file type. Digests unchanged.
+
 - **`safeai scan` on a mistyped path passed as a clean scan.** A path
   that does not exist was created (to hold `.safeai/config.yml`) and
   scanned as an empty project, exit 0: a CI step with a wrong path
