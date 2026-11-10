@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A requested authority gate no longer passes when the baseline
+  cannot answer it (fail-closed).** With `--fail-on-authority-change`,
+  `--fail-on-escalation`, `--unknown-authority block`, or a policy file
+  or profile setting `authority.unknown: deny`, a baseline carrying
+  neither `tool_surface` nor `normalized_capabilities` produces no
+  `capability_diff`, so those gates had nothing to read and the run
+  exited 0. `0` said "checked and clean" about a check that never ran.
+  The scan now exits **2** — the code `--strict-registry` and a mistyped
+  scan root already use for "a requested control cannot be satisfied",
+  distinct from `1`, which means findings at or above the threshold —
+  names the gate that could not be evaluated, and says how to fix it.
+  This exit takes precedence over `1`: a run with findings at or above
+  the threshold and a gate that could not be evaluated exits 2.
+  `--allow-diff-blind-baseline` keeps the old behaviour (a warning, exit
+  unchanged) for the migration window.
+
+  This is a behaviour change for anyone running those gates against a
+  pre-KYA JSON baseline: re-baseline with a scan that writes
+  `tool_surface`, or pass the opt-out.
+- **`--unknown-authority block` now requires `--baseline`.** Without
+  one there is no diff to classify UNKNOWN authority against, so the
+  gate could never fire and the run passed silently. It is now a usage
+  error (exit 2), matching `--fail-on-authority-change` and
+  `--fail-on-escalation`. A policy file or profile that sets
+  `authority.unknown: deny` with no baseline **warns** and keeps the
+  exit code: a committed policy is a standing rule, and the scan that
+  seeds the first baseline must still run with it in place (`#333`).
 - **Tool functions in Python frameworks now hold their own authority.**
   For CrewAI, LangChain, LangGraph, OpenAI Agents, Google ADK, LlamaIndex,
   Haystack, Semantic Kernel and Microsoft Agent Framework files, the

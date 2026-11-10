@@ -110,7 +110,12 @@ converts it into a pass.
 triggered — never "the agent is safe." `unknown` means unattributable
 evidence — never "no risk detected." Organizations can govern unknown
 authority explicitly (`authority.unknown` policy, `--unknown-authority`),
-but the default leaves it visible and unfailed.
+but the default leaves it visible and unfailed. A gate that was asked for
+and could not be evaluated never counts as a pass: asking for
+`--fail-on-authority-change`, `--fail-on-escalation`,
+`--unknown-authority block` or a policy `authority.unknown: deny` against
+a baseline that has no diff to read exits `2` rather than `0`
+(`--allow-diff-blind-baseline` opts back into the warning).
 
 ---
 
@@ -416,6 +421,8 @@ python -m safeai registry <subcommand> [options]
 | `--pr-comment` | — | Write a reviewer-facing Markdown summary of capability escalations to this path (never posted anywhere) |
 | `--pr-comment-stdout` | off | Print the PR comment Markdown to stdout |
 | `--fail-on-escalation` | — | Fail if a capability escalation at or above `critical`, `high`, or `medium` is detected (requires `--baseline`) |
+| `--unknown-authority` | `pass` | Govern unattributable (UNKNOWN) tool authority when the policy sets no `authority.unknown`: `pass`, `review`, or `block` (`block` requires `--baseline`) |
+| `--allow-diff-blind-baseline` | off | Warn, not exit 2, when a requested authority gate cannot read the baseline (no `tool_surface` or `normalized_capabilities`) |
 | `--scorecard` / `--scorecard-md` | — | Write the SafeAI Security Scorecard as Markdown to this path |
 | `--scorecard-json` | — | Write the SafeAI Security Scorecard as JSON (conforms to `safeai/scorecard-schema.json`) |
 | `--scorecard-summary` | — | Append the Security Scorecard to the GitHub Actions step summary (`$GITHUB_STEP_SUMMARY`) |
@@ -430,7 +437,7 @@ python -m safeai registry <subcommand> [options]
 |------|-----------|
 | 0 | No findings at or above threshold; policy outcome not `deny` |
 | 1 | Finding at or above threshold, or policy outcome `deny` |
-| 2 | Operational error (e.g. `--strict-registry` persistence failure) |
+| 2 | Operational error (e.g. `--strict-registry` persistence failure), or a requested authority gate that could not be evaluated against the baseline. Takes precedence over 1 |
 
 Suppressed findings never trigger exit code 1. With `--fail-on-new`, only
 findings classified `new` or `regressed` against the baseline are gated.

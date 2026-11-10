@@ -557,17 +557,31 @@ class TestDiffDependentGatesAreNeverSilent:
         legacy.write_text(json.dumps({"findings": []}), encoding="utf-8")
         return legacy
 
-    def test_gate_warns_when_baseline_cannot_produce_a_diff(self, tmp_path, capsys):
+    def test_gate_refuses_when_baseline_cannot_produce_a_diff(self, tmp_path, capsys):
         project = self._project(tmp_path)
         legacy = self._legacy_baseline(tmp_path)
         rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
                    "--sarif", str(tmp_path / "o.sarif"),
                    "--fail-on-authority-change", "material"])
-        # Exit semantics are unchanged: the gate simply cannot fire.
-        assert rc == 0
+        # #333: a gate with nothing to read no longer counts as a pass. Exit
+        # 2 (the control cannot be satisfied), not 1 (findings at threshold).
+        assert rc == 2
         err = capsys.readouterr().err
         assert "neither 'tool_surface' nor 'normalized_capabilities'" in err
         assert "--fail-on-authority-change cannot fail this run" in err
+
+    def test_allow_diff_blind_baseline_downgrades_to_a_warning(self, tmp_path, capsys):
+        project = self._project(tmp_path)
+        legacy = self._legacy_baseline(tmp_path)
+        rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
+                   "--sarif", str(tmp_path / "o.sarif"),
+                   "--fail-on-authority-change", "material",
+                   "--allow-diff-blind-baseline"])
+        assert rc == 0
+        err = capsys.readouterr().err
+        assert "warning:" in err
+        assert "cannot fail this run" in err
+        assert "error:" not in err
 
     def test_no_warning_for_a_diff_capable_baseline(self, tmp_path, capsys):
         project = self._project(tmp_path)
@@ -586,7 +600,7 @@ class TestDiffDependentGatesAreNeverSilent:
         rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
                    "--sarif", str(tmp_path / "o.sarif"),
                    "--unknown-authority", "block"])
-        assert rc == 0
+        assert rc == 2
         assert "--unknown-authority block cannot fail this run" in capsys.readouterr().err
 
     def test_unknown_authority_review_is_not_named(self, tmp_path, capsys):
@@ -629,14 +643,13 @@ class TestDiffDependentGatesAreNeverSilent:
 
     def test_policy_file_deny_is_named(self, tmp_path, capsys):
         # #258 follow-up: a policy file setting the same gate directly is
-        # covered, not only the CLI flag.
+        # covered, not only the CLI flag. #333: and it refuses like the flag.
         project = self._project(tmp_path)
         legacy = self._legacy_baseline(tmp_path)
         policy = self._policy_file(tmp_path, "deny")
         rc = main(["scan", str(project), "--baseline", str(legacy), "--no-registry",
                    "--sarif", str(tmp_path / "o.sarif"), "--policy", str(policy)])
-        # Exit semantics are unchanged: the gate simply cannot fire.
-        assert rc == 0
+        assert rc == 2
         assert "authority.unknown: deny cannot fail this run" in capsys.readouterr().err
 
     def test_policy_file_deny_fires_for_a_diff_capable_baseline(self, tmp_path, capsys):
