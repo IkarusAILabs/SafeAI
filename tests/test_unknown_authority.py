@@ -182,6 +182,40 @@ class TestUnknownCliFlag:
                    "--no-registry", "--unknown-authority", "review"])
         assert rc in (0, 1)
 
+    def test_block_without_a_baseline_is_a_usage_error(self, kya_project, tmp_path, capsys):
+        # #333: with no baseline there is no diff to classify UNKNOWN
+        # authority against, so the gate can never fire. That is the same
+        # refusal --fail-on-authority-change already makes.
+        with pytest.raises(SystemExit):
+            main(["scan", kya_project["root"],
+                  "--sarif", os.path.join(str(tmp_path), "r.sarif"),
+                  "--no-registry", "--unknown-authority", "block"])
+        assert "--unknown-authority block requires --baseline" in capsys.readouterr().err
+
+    def test_pass_and_review_need_no_baseline(self, kya_project, tmp_path):
+        # Only the deny outcome can fail a run; the other two keep their
+        # previous behaviour and stay usable without a baseline.
+        for mode in ("pass", "review"):
+            rc = main(["scan", kya_project["root"],
+                       "--sarif", os.path.join(str(tmp_path), f"{mode}.sarif"),
+                       "--no-registry", "--unknown-authority", mode])
+            assert rc in (0, 1)
+
+    def test_policy_file_deny_without_a_baseline_is_a_usage_error(
+            self, kya_project, tmp_path, capsys):
+        # The gate is the same one whether the flag or the policy file
+        # puts it in force, so the refusal is too.
+        policy = tmp_path / "policy.yml"
+        policy.write_text(
+            "version: \"1\"\ndefault_action: warn\npolicies: []\n"
+            "authority:\n  unknown: deny\n",
+            encoding="utf-8")
+        with pytest.raises(SystemExit):
+            main(["scan", kya_project["root"],
+                  "--sarif", os.path.join(str(tmp_path), "r.sarif"),
+                  "--no-registry", "--policy", str(policy)])
+        assert "authority.unknown: deny requires --baseline" in capsys.readouterr().err
+
     def test_flag_invalid_choice_rejected(self, kya_project, tmp_path):
         with pytest.raises(SystemExit):
             main(["scan", kya_project["root"],

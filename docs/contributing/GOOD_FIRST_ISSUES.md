@@ -203,7 +203,7 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 - **Labels:** good first issue, security
 - **Suggested files:** `safeai/analysis/capability_diff.py`, `safeai/cmd/postprocess.py`, `tests/test_authority_change.py`, `tests/test_unknown_authority.py`
 - **Description:** Lock non-zero exit for: confirmed authority change with `--fail-on-authority-change`, UNKNOWN authority under `block`, and mixed inferred/confirmed additions (`inferred_only` must not mask confirmed tools).
-- **Status:** In progress — per-side access-mode provenance and the diff-gate blind warning landed (@tyza66, PRs #257, #258, #260); `--unknown-authority block` without `--baseline` and removed-tool UNKNOWN handling remain open on #197
+- **Status:** In progress — per-side access-mode provenance and the diff-gate blind warning landed (@tyza66, PRs #257, #258, #260); #333 makes the diff-blind cases fail-closed and requires `--baseline` for the deny gate (@tyza66); removed-tool UNKNOWN handling remains open
 
 ### 56. Security test: HTML report injection fixtures (#198)
 - **Status:** ✅ Complete — test_html_escapes_user_data covers injection payloads (SafeAI)

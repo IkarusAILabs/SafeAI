@@ -117,7 +117,14 @@ def _build_parser():
                       help="How to govern unattributable (UNKNOWN) tool authority when the "
                            "policy file sets no authority.unknown: pass (default, unchanged), "
                            "review (require human review), or block. Explicit policy file "
-                           "setting always wins.")
+                           "setting always wins. block requires --baseline.")
+    scan.add_argument("--allow-diff-blind-baseline", action="store_true",
+                      help="Warn, but do not fail, when a requested diff-dependent "
+                           "gate (--fail-on-authority-change, --fail-on-escalation, "
+                           "--unknown-authority block, or a policy authority.unknown: "
+                           "deny) cannot read the baseline because it carries neither "
+                           "'tool_surface' nor 'normalized_capabilities'. Without this "
+                           "flag that combination exits 2.")
     scan.add_argument("--suppressions",
                       help="Suppressions YAML file (default: <scan-root>/.safeai/suppressions.yml if present)")
     scan.add_argument("--strict-suppressions", action="store_true",

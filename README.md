@@ -110,7 +110,12 @@ converts it into a pass.
 triggered — never "the agent is safe." `unknown` means unattributable
 evidence — never "no risk detected." Organizations can govern unknown
 authority explicitly (`authority.unknown` policy, `--unknown-authority`),
-but the default leaves it visible and unfailed.
+but the default leaves it visible and unfailed. A gate that was asked for
+and could not be evaluated never counts as a pass: asking for
+`--fail-on-authority-change`, `--fail-on-escalation`,
+`--unknown-authority block` or a policy `authority.unknown: deny` against
+a baseline that has no diff to read exits `2` rather than `0`
+(`--allow-diff-blind-baseline` opts back into the warning).
 
 ---
 

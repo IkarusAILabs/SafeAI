@@ -80,6 +80,9 @@ class ScanPostProcessor:
         self.baseline_fps = None
         self.baseline_report = None
         self.baseline_diff_blind = False
+        #: Set by ``_evaluate_policy`` when a requested gate could not be
+        #: evaluated against the baseline; the exit step prefers it.
+        self.diff_gate_blind_code = None
         self.report = {}
         self.policy_decision = {}
         self.project_id = None
@@ -169,26 +172,8 @@ class ScanPostProcessor:
             # merged policy says which one is in force (#258 follow-up).
             self.baseline_diff_blind = True
 
-    def _warn_diff_gates_blind(self, policy_doc, unknown_from_cli):
-        """Warn when a diff-dependent gate was asked for but cannot fire.
-
-        Without ``tool_surface`` or ``normalized_capabilities`` in the
-        baseline no ``capability_diff`` is computed, so the gates below
-        pass vacuously. ``--unknown-authority block`` belongs here for the
-        same reason: the ``authority:unknown`` policy match is built from
-        ``capability_diff["tools"]`` filtered on ``change_class ==
-        "UNKNOWN"``, so with no diff there are no UNKNOWN tools for it to
-        act on. ``allow`` and ``require_review`` cannot fail a run, so
-        only a ``deny`` outcome is named. Exit codes are unchanged; the
-        point is that a requested gate which silently passes is itself a
-        fail-open, and a gate-affecting condition is never silent.
-
-        The gate is decided from the *effective* policy — a policy file or
-        profile setting ``authority.unknown: deny`` is the same gate as
-        ``--unknown-authority block`` — so this runs from
-        ``_evaluate_policy`` after profile merge and the CLI fallback, and
-        names whichever source put ``deny`` in force.
-        """
+    def _diff_blind_gates(self, policy_doc, unknown_from_cli):
+        """Name the requested gates that need a capability diff to act on."""
         gates = []
         if getattr(self.args, "fail_on_authority_change", None):
             gates.append("--fail-on-authority-change")
@@ -199,15 +184,57 @@ class ScanPostProcessor:
                 "--unknown-authority block" if unknown_from_cli
                 else "authority.unknown: deny"
             )
+        return gates
+
+    def _check_diff_gates_blind(self, policy_doc, unknown_from_cli):
+        """Refuse to pass a requested gate that cannot evaluate the baseline.
+
+        Without ``tool_surface`` or ``normalized_capabilities`` in the
+        baseline no ``capability_diff`` is computed, so the gates below
+        pass vacuously. ``--unknown-authority block`` belongs here for the
+        same reason: the ``authority:unknown`` policy match is built from
+        ``capability_diff["tools"]`` filtered on ``change_class ==
+        "UNKNOWN"``, so with no diff there are no UNKNOWN tools for it to
+        act on. ``allow`` and ``require_review`` cannot fail a run, so
+        only a ``deny`` outcome is named.
+
+        Fail-closed (#333): a gate the operator asked for, which has
+        nothing to read, is not evidence of safety, so the run exits 2
+        rather than reporting a pass the gate never earned. ``2`` is the
+        code the other "requested control cannot be satisfied" cases use
+        (``--strict-registry``, a mistyped scan root), not ``1``, which
+        means findings at or above the threshold. A crash-free migration
+        for older baselines is kept behind ``--allow-diff-blind-baseline``,
+        which downgrades this to the warning it used to be and says so.
+
+        The gate is decided from the *effective* policy — a policy file or
+        profile setting ``authority.unknown: deny`` is the same gate as
+        ``--unknown-authority block`` — so this runs from
+        ``_evaluate_policy`` after profile merge and the CLI fallback, and
+        names whichever source put ``deny`` in force.
+
+        @return: ``None`` when nothing to report or the operator opted out,
+            otherwise the exit code to stop on.
+        """
+        gates = self._diff_blind_gates(policy_doc, unknown_from_cli)
         if not gates:
-            return
+            return None
+        cannot = f"and {' and '.join(gates)} cannot fail this run"
+        reason = (
+            f"baseline {self.args.baseline} carries neither 'tool_surface' nor "
+            f"'normalized_capabilities', so no capability diff was computed {cannot}"
+        )
+        if getattr(self.args, "allow_diff_blind_baseline", False):
+            print(f"warning: {reason}.", file=sys.stderr)
+            return None
         print(
-            "warning: baseline "
-            f"{self.args.baseline} carries neither 'tool_surface' nor "
-            "'normalized_capabilities', so no capability diff was computed "
-            f"and {' and '.join(gates)} cannot fail this run.",
+            f"error: {reason}; the gate was requested, so passing it would "
+            "report safety that was never checked. Re-baseline with a scan "
+            "that writes 'tool_surface', or pass --allow-diff-blind-baseline "
+            "to accept that this baseline cannot satisfy these gates.",
             file=sys.stderr,
         )
+        return 2
 
     def _run_scan(self):
         from safeai.kya.util import utc_now_iso
@@ -308,15 +335,30 @@ class ScanPostProcessor:
             unknown_from_cli = True
         else:
             unknown_from_cli = False
+        # A deny gate with no baseline has nothing to compare against at
+        # all, which is a usage error rather than a vacuous pass: the flags
+        # that read the diff already refuse this way. Decided from the
+        # effective policy so a policy file or profile setting the same
+        # gate is treated identically (#333).
+        if ((policy_doc.get("authority") or {}).get("unknown") == "deny"
+                and not self.args.baseline):
+            gate = "--unknown-authority block" if unknown_from_cli \
+                else "authority.unknown: deny"
+            self.parser.error(f"{gate} requires --baseline")
         self.policy_decision = kya_policy.evaluate_policy(policy_doc, self.report)
         self.report["policy_decision"] = self.policy_decision
         self.report["policy_profile"] = profile_name
         self.policy_profile_name = profile_name
-        # Diff-dependent gates are warned about here rather than in
+        # Diff-dependent gates are resolved here rather than in
         # ``_load_baseline``: the unknown-authority gate is decided by the
-        # effective policy resolved above, not by the CLI flag alone.
+        # effective policy resolved above, not by the CLI flag alone. The
+        # code is carried to the exit step rather than returned, so the
+        # SARIF and JSON the scan already produced are still written for
+        # the CI job that has to read them.
         if self.baseline_diff_blind:
-            self._warn_diff_gates_blind(policy_doc, unknown_from_cli)
+            self.diff_gate_blind_code = self._check_diff_gates_blind(
+                policy_doc, unknown_from_cli
+            )
 
     def _evaluate_exceptions(self):
         from safeai.kya import exceptions as kya_exceptions
@@ -717,6 +759,14 @@ class ScanPostProcessor:
         from safeai.severity import SEVERITIES
 
         LEVELS = list(SEVERITIES)
+
+        # A gate that could not read the baseline is not a pass. Checked
+        # before the finding thresholds so the refusal is not reported as
+        # "no findings at or above the threshold"; ``2`` says "the control
+        # you asked for cannot be satisfied", which is a different failure
+        # from findings (#333).
+        if self.diff_gate_blind_code is not None:
+            return self.diff_gate_blind_code
 
         # Suppressed findings never trigger failure. --fail-on-new restricts
         # the failing set to new/regressed findings (requires --baseline). A
