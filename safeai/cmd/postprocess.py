@@ -336,15 +336,22 @@ class ScanPostProcessor:
         else:
             unknown_from_cli = False
         # A deny gate with no baseline has nothing to compare against at
-        # all, which is a usage error rather than a vacuous pass: the flags
-        # that read the diff already refuse this way. Decided from the
-        # effective policy so a policy file or profile setting the same
-        # gate is treated identically (#333).
+        # all (#333). Asked for on the command line, that is a usage error,
+        # as it is for the other flags that read the diff. Set by a policy
+        # file or profile it is a standing rule, not a request about this
+        # run: the scan that seeds the first baseline, and any local scan,
+        # must still work with the policy committed. So it warns that the
+        # gate cannot act yet and leaves the exit code alone.
         if ((policy_doc.get("authority") or {}).get("unknown") == "deny"
                 and not self.args.baseline):
-            gate = "--unknown-authority block" if unknown_from_cli \
-                else "authority.unknown: deny"
-            self.parser.error(f"{gate} requires --baseline")
+            if unknown_cli == "block":
+                self.parser.error("--unknown-authority block requires --baseline")
+            print(
+                "warning: authority.unknown: deny is in force but no --baseline "
+                "was given, so there is no capability diff and the gate cannot "
+                "fail this run. Pass --baseline to enforce it.",
+                file=sys.stderr,
+            )
         self.policy_decision = kya_policy.evaluate_policy(policy_doc, self.report)
         self.report["policy_decision"] = self.policy_decision
         self.report["policy_profile"] = profile_name

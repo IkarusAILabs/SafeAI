@@ -20,19 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scan root already use for "a requested control cannot be satisfied",
   distinct from `1`, which means findings at or above the threshold —
   names the gate that could not be evaluated, and says how to fix it.
+  This exit takes precedence over `1`: a run with findings at or above
+  the threshold and a gate that could not be evaluated exits 2.
   `--allow-diff-blind-baseline` keeps the old behaviour (a warning, exit
   unchanged) for the migration window.
 
   This is a behaviour change for anyone running those gates against a
   pre-KYA JSON baseline: re-baseline with a scan that writes
   `tool_surface`, or pass the opt-out.
-- **`--unknown-authority block` and a policy `authority.unknown: deny`
-  now require `--baseline`.** Without one there is no diff to classify
-  UNKNOWN authority against, so the gate could never fire and the run
-  passed silently. It is now a usage error naming the gate, matching
-  `--fail-on-authority-change` and `--fail-on-escalation`, and it is
-  decided from the effective policy so the flag and the policy file are
-  treated identically (`#333`).
+- **`--unknown-authority block` now requires `--baseline`.** Without
+  one there is no diff to classify UNKNOWN authority against, so the
+  gate could never fire and the run passed silently. It is now a usage
+  error (exit 2), matching `--fail-on-authority-change` and
+  `--fail-on-escalation`. A policy file or profile that sets
+  `authority.unknown: deny` with no baseline **warns** and keeps the
+  exit code: a committed policy is a standing rule, and the scan that
+  seeds the first baseline must still run with it in place (`#333`).
 - **Tool functions in Python frameworks now hold their own authority.**
   For CrewAI, LangChain, LangGraph, OpenAI Agents, Google ADK, LlamaIndex,
   Haystack, Semantic Kernel and Microsoft Agent Framework files, the

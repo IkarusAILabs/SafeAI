@@ -62,7 +62,8 @@ inputs:
     description: >-
       How to govern unattributable (UNKNOWN) tool authority when the policy
       file sets no authority.unknown (--unknown-authority): pass, review, or
-      block. Optional; explicit policy file setting always wins.
+      block. Optional; explicit policy file setting always wins. block
+      requires baseline.
     required: false
     default: ''
   no-registry:
