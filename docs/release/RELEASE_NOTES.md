@@ -603,7 +603,7 @@ Thank you to the following community members for their contributions:
 - **[@asarakhatun17-lgtm](https://github.com/asarakhatun17-lgtm)** —
   fixed supported frameworks consistency (PR
   [#91](https://github.com/ikaruscareer/SafeAI/pull/91)).
-- **[@mah](https://github.com/mahirhir)** — documented Claude Code deep
+- **[@mahirhir](https://github.com/mahirhir)** — documented Claude Code deep
   analysis fixtures and detection approach (PR
   [#92](https://github.com/ikaruscareer/SafeAI/pull/92)).
 

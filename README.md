@@ -567,7 +567,7 @@ contributors who have helped make AI safer:
 | Contributor | Key Contributions |
 |-------------|-------------------|
 | [@i-safonoff](https://github.com/i-safonoff) | `.cursorrules` framework adapter, `rule_coverage_summary()`, RULES_REFERENCE.md, dataflow casing fix |
-| [@ARAVIND281](https://github.com/ARAVIND281) | Claude Code permission evaluation order, interprocedural data-flow tracking, exception scope-escape boundary tests (PR #220) |
+| [@ARAVIND281](https://github.com/ARAVIND281) | Claude Code permission evaluation order, interprocedural data-flow tracking, `evidence_type` on every finding, exception scope-escape boundary tests (PRs #110, #111, #114, #220) |
 | [@Solarthis](https://github.com/Solarthis) | MCP tool description injection detection |
 | [@Aming9303](https://github.com/Aming9303) | `safeai registry components` CLI, `safeai init` command, GitHub Actions example |
 | [@adnqcr7-code](https://github.com/adnqcr7-code) | Framework detection tests (LangGraph, CrewAI, LlamaIndex, n8n, Claude Code), CI/SARIF docs |
@@ -576,7 +576,7 @@ contributors who have helped make AI safer:
 | [@mikemikimike](https://github.com/mikemikimike) | Adapter negative detection tests |
 | [@burakeyler](https://github.com/burakeyler) | `--digest-file` manifest digest sidecar (PR #148) |
 | [@YaoSong808](https://github.com/YaoSong808) | OpenClaw and GitHub Copilot config-file adapters (PR #159) |
-| [@mah](https://github.com/mahirhir) | Claude Code deep analysis documentation |
+| [@mahirhir](https://github.com/mahirhir) | Claude Code deep analysis documentation |
 | [@asarakhatun17-lgtm](https://github.com/asarakhatun17-lgtm) | Supported frameworks consistency fix |
 | [@yugaaank](https://github.com/yugaaank) | Capability detectors (Docker, Kubernetes, Redis, S3, GCP, Slack, Jira, browser) |
 | [@Teachmeplaycode](https://github.com/Teachmeplaycode) | Benchmark corpus expansion, static subprocess precision gap documentation (PR #174) |
@@ -588,8 +588,14 @@ contributors who have helped make AI safer:
 | [@thadidaniel-ctrl](https://github.com/thadidaniel-ctrl) | Release workflow supply-chain posture tests (PR #206) |
 | [@Golden007-prog](https://github.com/Golden007-prog) | Authority Evidence Benchmark HTML presentation, history limit (PRs #239, #240) |
 | [@therealestbenji](https://github.com/therealestbenji) | Microsoft Teams integration capability detector `CAP_ms_teams` (PR #219) |
-| [@tyza66](https://github.com/tyza66) | Authority-gate fail-closed audit: per-side access-mode provenance, diff-gate blind warning covering flag and policy-file gates (PRs #257, #258, #260) |
+| [@tyza66](https://github.com/tyza66) | Authority-gate fail-closed audit: per-side access-mode provenance, diff-gate blind warning covering flag and policy-file gates, diff-dependent gates that fail closed (PRs #257, #258, #260, #335) |
 | [@HectorGuerilla](https://github.com/HectorGuerilla) | GitHub Actions trust-boundary and permissions guidance (PR #259) |
+| [@bfs2021](https://github.com/bfs2021) | UTF-8 file reads and writes regardless of locale (PR #269) |
+| [@yoreva-01](https://github.com/yoreva-01) | Working install and scan commands in the GitHub Actions example (PR #270) |
+| [@MarioZhang420](https://github.com/MarioZhang420) | Wheel-build test skip without a setuptools backend, per-test telemetry isolation (PRs #272, #287) |
+| [@LetMeSleep8h](https://github.com/LetMeSleep8h) | v2.7 evidence metrics in the HTML Security Brief (PR #274) |
+| [@chiragjangiir](https://github.com/chiragjangiir) | Good-first-issues index refresh, single-source provenance and gateability enums with schema parity tests (PRs #276, #277) |
+| [@WintersCoder](https://github.com/WintersCoder) | Package-manager and SPIFFE benchmark assertions: install-to-publish regression check, per-workload identity-state expectations (PR #307) |
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get involved.
 
