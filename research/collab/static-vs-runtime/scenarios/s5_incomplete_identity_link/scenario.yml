@@ -1,0 +1,32 @@
+id: s5_incomplete_identity_link
+title: Incomplete identity link
+question: >-
+  What should each system report when the agent-to-principal relationship
+  cannot be established?
+annotation:
+  # Drafted with AI assistance from the fixture. Not ground truth until a
+  # person from each project has reviewed it and is named below.
+  basis: ai_assisted_draft
+  status: pending_human_review
+  reviewers: []
+
+intent:
+  agents: [reporter]
+  authority:
+    - {agent: reporter, tool: upload_report, action: write, via: []}
+  delegations: []
+  identity:
+    - {agent: reporter, principal: null,
+       note: main.tf declares reporting-role, and nothing links the agent to it.}
+
+# Proposal for the runtime side. Nothing below has been run.
+runtime:
+  policy:
+    - {agent: reporter, tool: upload_report, decision: PERMIT,
+       note: The harness issues the request without a resolvable principal.}
+  requests:
+    - {agent: reporter, tool: upload_report, expect_decision: PERMIT}
+
+expected_outcomes:
+  - {agent: reporter, tool: upload_report, outcome: insufficient_evidence,
+     reason: principal_unresolved}

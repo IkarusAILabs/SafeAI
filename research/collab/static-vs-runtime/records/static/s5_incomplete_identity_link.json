@@ -1,0 +1,64 @@
+{
+  "agents": [
+    {
+      "framework": "openai_agents",
+      "id": "reporter",
+      "source": {
+        "file": "agents.py",
+        "line": 13
+      }
+    }
+  ],
+  "claims": [
+    {
+      "agent": "reporter",
+      "id": "identity_link:reporter",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "identity_present_not_linked",
+      "status": "unresolved"
+    },
+    {
+      "agent": "reporter",
+      "capabilities": [
+        {
+          "access_mode": "write",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 9
+            }
+          ],
+          "inferred": false,
+          "name": "external_apis"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:reporter:upload_report",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "upload_report",
+      "via": []
+    }
+  ],
+  "identities": [
+    {
+      "kind": "aws_iam_role",
+      "name": "reporting-role",
+      "source": "main.tf:1"
+    }
+  ],
+  "limits": [
+    "Potential authority only: a claim says the source gives the agent a path to the tool, not that any runtime will grant or has granted it.",
+    "Delegation scope compares tool-name sets at each end of the edge. It does not show that a runtime narrows, checks or enforces the delegated scope.",
+    "Capabilities come from calls in the tool function's own body; helpers the tool calls are not followed.",
+    "An identity link is established only by configuration in the repository."
+  ],
+  "producer": {
+    "kind": "static",
+    "tool": "safeai",
+    "version": "2.16.0"
+  },
+  "scenario": "s5_incomplete_identity_link",
+  "spec_version": "0.1-draft"
+}

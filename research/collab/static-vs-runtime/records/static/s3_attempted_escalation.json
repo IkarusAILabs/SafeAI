@@ -1,0 +1,139 @@
+{
+  "agents": [
+    {
+      "framework": "openai_agents",
+      "id": "admin",
+      "source": {
+        "file": "agents.py",
+        "line": 19
+      }
+    },
+    {
+      "framework": "openai_agents",
+      "id": "intern",
+      "source": {
+        "file": "agents.py",
+        "line": 20
+      }
+    }
+  ],
+  "claims": [
+    {
+      "delegate_exceeds_delegator": [
+        "delete_account"
+      ],
+      "evidence": [
+        {
+          "file": "agents.py",
+          "line": 20
+        }
+      ],
+      "from": "intern",
+      "id": "delegation:intern>admin",
+      "kind": "delegation",
+      "mechanism": "handoff",
+      "scope": "broader_or_different",
+      "scope_basis": "tool-name sets",
+      "status": "established",
+      "to": "admin"
+    },
+    {
+      "agent": "admin",
+      "id": "identity_link:admin",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "intern",
+      "id": "identity_link:intern",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "admin",
+      "capabilities": [
+        {
+          "access_mode": "mutate",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 16
+            }
+          ],
+          "inferred": false,
+          "name": "external_apis"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:admin:delete_account",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "delete_account",
+      "via": []
+    },
+    {
+      "agent": "intern",
+      "capabilities": [
+        {
+          "access_mode": "read",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 9
+            }
+          ],
+          "inferred": false,
+          "name": "filesystem_access"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:intern:read_ticket",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "read_ticket",
+      "via": []
+    },
+    {
+      "agent": "intern",
+      "capabilities": [
+        {
+          "access_mode": "mutate",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 16
+            }
+          ],
+          "inferred": false,
+          "name": "external_apis"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:intern>admin:delete_account",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "delete_account",
+      "via": [
+        "admin"
+      ]
+    }
+  ],
+  "identities": [],
+  "limits": [
+    "Potential authority only: a claim says the source gives the agent a path to the tool, not that any runtime will grant or has granted it.",
+    "Delegation scope compares tool-name sets at each end of the edge. It does not show that a runtime narrows, checks or enforces the delegated scope.",
+    "Capabilities come from calls in the tool function's own body; helpers the tool calls are not followed.",
+    "An identity link is established only by configuration in the repository."
+  ],
+  "producer": {
+    "kind": "static",
+    "tool": "safeai",
+    "version": "2.16.0"
+  },
+  "scenario": "s3_attempted_escalation",
+  "spec_version": "0.1-draft"
+}

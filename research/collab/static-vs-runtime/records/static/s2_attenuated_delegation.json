@@ -1,0 +1,159 @@
+{
+  "agents": [
+    {
+      "framework": "openai_agents",
+      "id": "auditor",
+      "source": {
+        "file": "agents.py",
+        "line": 20
+      }
+    },
+    {
+      "framework": "openai_agents",
+      "id": "manager",
+      "source": {
+        "file": "agents.py",
+        "line": 21
+      }
+    }
+  ],
+  "claims": [
+    {
+      "delegate_exceeds_delegator": [],
+      "evidence": [
+        {
+          "file": "agents.py",
+          "line": 21
+        }
+      ],
+      "from": "manager",
+      "id": "delegation:manager>auditor",
+      "kind": "delegation",
+      "mechanism": "handoff",
+      "scope": "narrower",
+      "scope_basis": "tool-name sets",
+      "status": "established",
+      "to": "auditor"
+    },
+    {
+      "agent": "auditor",
+      "id": "identity_link:auditor",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "manager",
+      "id": "identity_link:manager",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "auditor",
+      "capabilities": [
+        {
+          "access_mode": "read",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 8
+            }
+          ],
+          "inferred": false,
+          "name": "filesystem_access"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:auditor:read_ledger",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "read_ledger",
+      "via": []
+    },
+    {
+      "agent": "manager",
+      "capabilities": [
+        {
+          "access_mode": "read",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 8
+            }
+          ],
+          "inferred": false,
+          "name": "filesystem_access"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:manager:read_ledger",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "read_ledger",
+      "via": []
+    },
+    {
+      "agent": "manager",
+      "capabilities": [
+        {
+          "access_mode": "write",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 15
+            }
+          ],
+          "inferred": false,
+          "name": "filesystem_access"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:manager:write_ledger",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "write_ledger",
+      "via": []
+    },
+    {
+      "agent": "manager",
+      "capabilities": [
+        {
+          "access_mode": "read",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 8
+            }
+          ],
+          "inferred": false,
+          "name": "filesystem_access"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:manager>auditor:read_ledger",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "read_ledger",
+      "via": [
+        "auditor"
+      ]
+    }
+  ],
+  "identities": [],
+  "limits": [
+    "Potential authority only: a claim says the source gives the agent a path to the tool, not that any runtime will grant or has granted it.",
+    "Delegation scope compares tool-name sets at each end of the edge. It does not show that a runtime narrows, checks or enforces the delegated scope.",
+    "Capabilities come from calls in the tool function's own body; helpers the tool calls are not followed.",
+    "An identity link is established only by configuration in the repository."
+  ],
+  "producer": {
+    "kind": "static",
+    "tool": "safeai",
+    "version": "2.16.0"
+  },
+  "scenario": "s2_attenuated_delegation",
+  "spec_version": "0.1-draft"
+}

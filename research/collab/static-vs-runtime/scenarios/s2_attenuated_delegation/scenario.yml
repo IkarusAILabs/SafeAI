@@ -1,0 +1,41 @@
+id: s2_attenuated_delegation
+title: Attenuated delegation
+question: Does the delegated scope actually narrow, and what evidence establishes that?
+annotation:
+  # Drafted with AI assistance from the fixture. Not ground truth until a
+  # person from each project has reviewed it and is named below.
+  basis: ai_assisted_draft
+  status: pending_human_review
+  reviewers: []
+
+intent:
+  agents: [manager, auditor]
+  authority:
+    - {agent: manager, tool: read_ledger, action: read, via: []}
+    - {agent: manager, tool: write_ledger, action: write, via: []}
+    - {agent: auditor, tool: read_ledger, action: read, via: []}
+    - {agent: manager, tool: read_ledger, action: read, via: [auditor]}
+  delegations:
+    - {from: manager, to: auditor, scope: narrower}
+  identity:
+    - {agent: manager, principal: null, note: No identity is declared in the fixture.}
+    - {agent: auditor, principal: null, note: No identity is declared in the fixture.}
+
+# Proposal for the runtime side. Nothing below has been run.
+runtime:
+  policy:
+    - {agent: manager, tool: read_ledger, decision: PERMIT}
+    - {agent: manager, tool: write_ledger, decision: PERMIT}
+    - {agent: auditor, tool: read_ledger, decision: PERMIT}
+    - {agent: auditor, tool: write_ledger, decision: DENY,
+       note: The delegated scope excludes writing.}
+  requests:
+    - {agent: auditor, tool: read_ledger, expect_decision: PERMIT}
+    - {agent: auditor, tool: write_ledger, expect_decision: DENY}
+    - {agent: manager, tool: write_ledger, expect_decision: PERMIT}
+
+expected_outcomes:
+  - {agent: auditor, tool: read_ledger, outcome: agreement, reason: potential_exercised}
+  - {agent: auditor, tool: write_ledger, outcome: agreement, reason: absent_and_denied}
+  - {agent: manager, tool: write_ledger, outcome: agreement, reason: potential_exercised}
+  - {agent: manager, tool: read_ledger, outcome: insufficient_evidence, reason: not_tested}

@@ -1,0 +1,27 @@
+id: s0_direct_tool
+title: Direct tool access (calibration)
+question: Does static analysis identify the tool and its potential capability?
+annotation:
+  # Drafted with AI assistance from the fixture. Not ground truth until a
+  # person from each project has reviewed it and is named below.
+  basis: ai_assisted_draft
+  status: pending_human_review
+  reviewers: []
+
+intent:
+  agents: [clerk]
+  authority:
+    - {agent: clerk, tool: read_invoice, action: read, via: []}
+  delegations: []
+  identity:
+    - {agent: clerk, principal: null, note: No identity is declared in the fixture.}
+
+# Proposal for the runtime side. Nothing below has been run.
+runtime:
+  policy:
+    - {agent: clerk, tool: read_invoice, decision: PERMIT}
+  requests:
+    - {agent: clerk, tool: read_invoice, expect_decision: PERMIT}
+
+expected_outcomes:
+  - {agent: clerk, tool: read_invoice, outcome: agreement, reason: potential_exercised}

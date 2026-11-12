@@ -1,0 +1,28 @@
+id: s4_runtime_denial
+title: Runtime denial
+question: Can we distinguish potential capability from an action that was actually denied?
+annotation:
+  # Drafted with AI assistance from the fixture. Not ground truth until a
+  # person from each project has reviewed it and is named below.
+  basis: ai_assisted_draft
+  status: pending_human_review
+  reviewers: []
+
+intent:
+  agents: [operator]
+  authority:
+    - {agent: operator, tool: restart_service, action: execute, via: []}
+  delegations: []
+  identity:
+    - {agent: operator, principal: null, note: No identity is declared in the fixture.}
+
+# Proposal for the runtime side. Nothing below has been run.
+runtime:
+  policy:
+    - {agent: operator, tool: restart_service, decision: DENY,
+       note: The source wires the tool; the policy withholds it.}
+  requests:
+    - {agent: operator, tool: restart_service, expect_decision: DENY}
+
+expected_outcomes:
+  - {agent: operator, tool: restart_service, outcome: agreement, reason: potential_restricted}

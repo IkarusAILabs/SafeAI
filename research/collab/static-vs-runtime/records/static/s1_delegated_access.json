@@ -1,0 +1,117 @@
+{
+  "agents": [
+    {
+      "framework": "openai_agents",
+      "id": "billing",
+      "source": {
+        "file": "agents.py",
+        "line": 13
+      }
+    },
+    {
+      "framework": "openai_agents",
+      "id": "triage",
+      "source": {
+        "file": "agents.py",
+        "line": 14
+      }
+    }
+  ],
+  "claims": [
+    {
+      "delegate_exceeds_delegator": [
+        "issue_refund"
+      ],
+      "evidence": [
+        {
+          "file": "agents.py",
+          "line": 14
+        }
+      ],
+      "from": "triage",
+      "id": "delegation:triage>billing",
+      "kind": "delegation",
+      "mechanism": "handoff",
+      "scope": "broader_or_different",
+      "scope_basis": "tool-name sets",
+      "status": "established",
+      "to": "billing"
+    },
+    {
+      "agent": "billing",
+      "id": "identity_link:billing",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "triage",
+      "id": "identity_link:triage",
+      "kind": "identity_link",
+      "principal": null,
+      "reason": "no_identity_in_repository",
+      "status": "unresolved"
+    },
+    {
+      "agent": "billing",
+      "capabilities": [
+        {
+          "access_mode": "write",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 9
+            }
+          ],
+          "inferred": false,
+          "name": "external_apis"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:billing:issue_refund",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "issue_refund",
+      "via": []
+    },
+    {
+      "agent": "triage",
+      "capabilities": [
+        {
+          "access_mode": "write",
+          "evidence": [
+            {
+              "file": "agents.py",
+              "line": 9
+            }
+          ],
+          "inferred": false,
+          "name": "external_apis"
+        }
+      ],
+      "capabilities_status": "detected",
+      "id": "tool_access:triage>billing:issue_refund",
+      "kind": "tool_access",
+      "status": "established",
+      "tool": "issue_refund",
+      "via": [
+        "billing"
+      ]
+    }
+  ],
+  "identities": [],
+  "limits": [
+    "Potential authority only: a claim says the source gives the agent a path to the tool, not that any runtime will grant or has granted it.",
+    "Delegation scope compares tool-name sets at each end of the edge. It does not show that a runtime narrows, checks or enforces the delegated scope.",
+    "Capabilities come from calls in the tool function's own body; helpers the tool calls are not followed.",
+    "An identity link is established only by configuration in the repository."
+  ],
+  "producer": {
+    "kind": "static",
+    "tool": "safeai",
+    "version": "2.16.0"
+  },
+  "scenario": "s1_delegated_access",
+  "spec_version": "0.1-draft"
+}

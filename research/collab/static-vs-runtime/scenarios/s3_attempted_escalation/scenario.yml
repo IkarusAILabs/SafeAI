@@ -1,0 +1,42 @@
+id: s3_attempted_escalation
+title: Attempted escalation
+question: >-
+  Does static analysis identify a potentially broader authority path, and
+  does runtime authorization allow or deny it?
+annotation:
+  # Drafted with AI assistance from the fixture. Not ground truth until a
+  # person from each project has reviewed it and is named below.
+  basis: ai_assisted_draft
+  status: pending_human_review
+  reviewers: []
+
+intent:
+  agents: [intern, admin]
+  authority:
+    - {agent: intern, tool: read_ticket, action: read, via: []}
+    - {agent: admin, tool: delete_account, action: mutate, via: []}
+    # The source permits this path. Whether it is *meant* to be usable is
+    # the point of the scenario, and is the runtime policy's decision.
+    - {agent: intern, tool: delete_account, action: mutate, via: [admin]}
+  delegations:
+    - {from: intern, to: admin, scope: broader_or_different}
+  identity:
+    - {agent: intern, principal: null, note: No identity is declared in the fixture.}
+    - {agent: admin, principal: null, note: No identity is declared in the fixture.}
+
+# Proposal for the runtime side. Nothing below has been run.
+runtime:
+  policy:
+    - {agent: intern, tool: read_ticket, decision: PERMIT}
+    - {agent: admin, tool: delete_account, decision: PERMIT}
+    - {agent: intern, tool: delete_account, decision: DENY,
+       note: A request that originates with intern must not delete accounts.}
+  requests:
+    - {agent: intern, tool: read_ticket, expect_decision: PERMIT}
+    - {agent: admin, tool: delete_account, expect_decision: PERMIT}
+    - {agent: intern, tool: delete_account, expect_decision: DENY}
+
+expected_outcomes:
+  - {agent: intern, tool: read_ticket, outcome: agreement, reason: potential_exercised}
+  - {agent: admin, tool: delete_account, outcome: agreement, reason: potential_exercised}
+  - {agent: intern, tool: delete_account, outcome: agreement, reason: potential_restricted}
