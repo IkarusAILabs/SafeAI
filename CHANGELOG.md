@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `authority.unknown: deny` with no baseline **warns** and keeps the
   exit code: a committed policy is a standing rule, and the scan that
   seeds the first baseline must still run with it in place (`#333`).
+  Both changes: thanks to [@tyza66](https://github.com/tyza66) (PR #335).
 - **Tool functions in Python frameworks now hold their own authority.**
   For CrewAI, LangChain, LangGraph, OpenAI Agents, Google ADK, LlamaIndex,
   Haystack, Semantic Kernel and Microsoft Agent Framework files, the
@@ -613,7 +614,10 @@ Lane B: reported for review, never failing a gate.
   `add_dependency`, `publish_package`) add an *inferred* `package_manager`
   capability to the server, with no finding. Three more pending
   benchmark cases cover them (nine in all, review in #296); the 58
-  reviewed cases keep their outcomes and digests.
+  reviewed cases keep their outcomes and digests. The review follow-ups
+  (an install-to-publish regression assertion and exact per-workload
+  SPIFFE identity-state expectations) are from
+  [@WintersCoder](https://github.com/WintersCoder) (PR #307).
 
 ### Changed
 

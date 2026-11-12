@@ -203,7 +203,7 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 - **Labels:** good first issue, security
 - **Suggested files:** `safeai/analysis/capability_diff.py`, `safeai/cmd/postprocess.py`, `tests/test_authority_change.py`, `tests/test_unknown_authority.py`
 - **Description:** Lock non-zero exit for: confirmed authority change with `--fail-on-authority-change`, UNKNOWN authority under `block`, and mixed inferred/confirmed additions (`inferred_only` must not mask confirmed tools).
-- **Status:** In progress — per-side access-mode provenance and the diff-gate blind warning landed (@tyza66, PRs #257, #258, #260); #333 makes the diff-blind cases fail-closed and requires `--baseline` for the deny gate (@tyza66); removed-tool UNKNOWN handling remains open
+- **Status:** ✅ Complete — per-side access-mode provenance and the diff-gate blind warning (@tyza66, PRs #257, #258, #260); the follow-up #333 made the diff-blind cases fail closed and `--unknown-authority block` require `--baseline` (@tyza66, PR #335). Removed-tool UNKNOWN handling was not part of this work
 
 ### 56. Security test: HTML report injection fixtures (#198)
 - **Status:** ✅ Complete — test_html_escapes_user_data covers injection payloads (SafeAI)
@@ -240,6 +240,7 @@ Newest batch — issue-driven security review and test-hardening tasks for the v
 October 2026 batch, drawn from the ROADMAP (Layers 2, 4 and 8) and from problems contributors hit while validating PRs. Each issue lists exact files and acceptance criteria.
 
 ### 60. Fix the install and scan commands in the GitHub Actions example (#262)
+- **Status:** ✅ Complete — install and scan commands run verbatim (@yoreva-01, PR #270)
 - **Difficulty:** Easy | **Effort:** 30–60 minutes
 - **Labels:** good first issue, documentation
 - **Suggested files:** `docs/github-actions-example.md`
@@ -260,18 +261,21 @@ October 2026 batch, drawn from the ROADMAP (Layers 2, 4 and 8) and from problems
 - **Description:** `test_wheel_contains_package_data` errors instead of skipping when `build` is installed without `setuptools`.
 
 ### 63. Single source for manifest provenance and gateability enums (#265)
+- **Status:** ✅ Complete — single-source enums with schema parity tests (@chiragjangiir, PR #277)
 - **Difficulty:** Easy | **Effort:** 1 hour
 - **Labels:** good first issue, test-coverage
 - **Suggested files:** `safeai/kya/enrich.py`, `safeai/kya/contract.py`, `tests/test_manifest_contract.py`
 - **Description:** The enums are defined in both `contract.py` and `enrich.py`; import them from one place and test parity with the JSON Schema.
 
 ### 64. Show v2.7 evidence metrics in the HTML report (#266)
+- **Status:** ✅ Complete — evidence metrics shown in the Security Brief (@LetMeSleep8h, PR #274)
 - **Difficulty:** Easy–Medium | **Effort:** 2–3 hours
 - **Labels:** good first issue, enhancement
 - **Suggested files:** `safeai/report/html.py`, `tests/test_html_report.py`
 - **Description:** Evidence metrics are in the JSON report, manifest and brief but not in `--html`; render them as an informational block.
 
 ### 65. Refresh this index against the tracker (#267)
+- **Status:** ✅ Complete — index refreshed against tracker counts and links (@chiragjangiir, PR #276)
 - **Difficulty:** Easy | **Effort:** 1 hour
 - **Labels:** good first issue, documentation
 - **Suggested files:** `docs/contributing/GOOD_FIRST_ISSUES.md`
@@ -362,6 +366,12 @@ These issues have been implemented by community contributors and are now part of
 |---|-------|-------------|
 | #263 | Read and write text files as UTF-8 | @bfs2021 (PR #269) |
 | #264 | Skip wheel build when setuptools backend is unavailable | @MarioZhang420 (PR #272) |
+| #262 | Working install and scan commands in the GitHub Actions example | @yoreva-01 (PR #270) |
+| #265 | Single source for manifest provenance and gateability enums | @chiragjangiir (PR #277) |
+| #266 | v2.7 evidence metrics in the HTML report | @LetMeSleep8h (PR #274) |
+| #267 | Good-first-issues index refreshed against the tracker | @chiragjangiir (PR #276) |
+| #286 | Telemetry state isolated for every test | @MarioZhang420 (PR #287) |
+| #197, #333 | Authority gates fail closed | @tyza66 (PRs #257, #258, #260, #335) |
 
 ---
 
