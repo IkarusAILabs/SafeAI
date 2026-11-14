@@ -413,7 +413,7 @@ python -m safeai registry <subcommand> [options]
 | `--baseline` | — | Prior manifest/report for new/existing comparison |
 | `--fail-on-new` | off | With `--baseline`: fail only on new/regressed findings |
 | `--baseline-approval` | `<baseline>.approval.json` | Approval record for the baseline manifest, written by `safeai manifest approve M --by X`; reported as `baseline_approval.state`, and `--require-approval` fails unless it is `approved` |
-| `--policy` | `.safeai/policy.yml` | Policy-as-code YAML file |
+| `--policy` | `.safeai/policy.yml` | Policy-as-code YAML file. A path given here that does not exist is an error (exit 2) |
 | `--suppressions` | `.safeai/suppressions.yml` | Suppressions YAML file |
 | `--registry` | shared (`SAFEAI_REGISTRY`/`~/.safeai/registry.db`) | Registry database path |
 | `--no-registry` | off | Skip registry persistence |

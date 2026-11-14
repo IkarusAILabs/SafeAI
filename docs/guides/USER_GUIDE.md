@@ -169,7 +169,7 @@ usage: safeai scan [-h] [--sarif SARIF] [--json JSON_PATH]
 | `--pr-comment` | string | — | Write a reviewer-facing Markdown summary of capability escalations to this path. SafeAI never posts it anywhere. |
 | `--pr-comment-stdout` | flag | off | Print the PR comment Markdown to stdout, in addition to or instead of writing it to a file |
 | `--fail-on-escalation` | choice | — | Fail the scan when a capability escalation at or above `critical`, `high`, or `medium` is detected. Requires `--baseline`; this is a separate axis from `--fail-on`/`--fail-on-new`, which gate on findings rather than capability escalations. |
-| `--policy` | string | `.safeai/policy.yml` | Policy-as-code file path |
+| `--policy` | string | `.safeai/policy.yml` | Policy-as-code file path. A path given here that does not exist is an error (exit 2) |
 | `--suppressions` | string | `.safeai/suppressions.yml` | Suppression file path |
 | `--verbose` | flag | off | Enable verbose scanner output |
 
