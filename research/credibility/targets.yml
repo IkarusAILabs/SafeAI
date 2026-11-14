@@ -16,50 +16,81 @@
 # excluded).
 
 version: 1
+# Confirmed by the owner on 2026-11-14, before any history run: the six
+# targets that met every criterion in the eligibility check of
+# 2026-11-08, each with the range that check suggested.
 targets:
   - id: mcp-reference-servers
     url: https://github.com/modelcontextprotocol/servers
-    status: proposed
+    status: excluded
+    reason: >-
+      GitHub reports the licence as "Other" (not an SPDX identifier),
+      so the open-source-licence criterion is not met as recorded. The
+      owner chose not to confirm it by hand (2026-11-14).
     why: Reference MCP servers; tools are added and widened over time.
 
   - id: crewai-examples
     url: https://github.com/crewAIInc/crewAI-examples
-    status: proposed
+    status: excluded
+    reason: >-
+      Archived, and no recognised licence (eligibility check of
+      2026-11-08).
     why: Example CrewAI crews that define agents and tools.
 
   # Added 2026-11-08, before any history run; eligibility facts for every
   # target are in target_check.json (scripts/target_check.py).
   - id: awslabs-mcp
     url: https://github.com/awslabs/mcp
-    status: proposed
+    status: confirmed
+    from: 048c844151121f180ae7251151cf32dc552319da
+    to: d33705e0890e8cf39aa42eeee7b45d6a6e088112
+    # 300 first-parent commits; range suggested by the check of 2026-11-08
     why: Many Python MCP servers in one repository; tools added and changed often.
 
   - id: github-mcp-server
     url: https://github.com/github/github-mcp-server
-    status: proposed
+    status: confirmed
+    from: b5397f6e3305531a1c534b90b2d347a70fa84da9
+    to: 99d6d6503a7b2a133e2f8a595d6d0ba24b4086d3
+    # 300 first-parent commits; range suggested by the check of 2026-11-08
     why: Widely used MCP server whose tool set grows (Go; the check shows whether SafeAI parses it).
 
   - id: stripe-ai
     url: https://github.com/stripe/ai
-    status: proposed
+    status: confirmed
+    from: 46f59122878b51e07946b1f0cbe3017ef0de6fd0
+    to: 6b8065ed604e24092247ac690500613a9cef48bf
+    # 300 first-parent commits; range suggested by the check of 2026-11-08
     why: Agent toolkit wiring the same tools into OpenAI Agents, LangChain, CrewAI and MCP.
 
   - id: openai-cs-agents-demo
     url: https://github.com/openai/openai-cs-agents-demo
-    status: proposed
+    status: excluded
+    reason: >-
+      10 first-parent commits; the criterion is at least 50
+      (eligibility check of 2026-11-08).
     why: OpenAI Agents SDK application with agents, handoffs and tools.
 
   - id: cloudflare-mcp-servers
     url: https://github.com/cloudflare/mcp-server-cloudflare
-    status: proposed
+    status: confirmed
+    from: b57df5bf2f2659c4486e6f82464f3f7cc5800d83
+    to: a21972e219289337731a066befb5c66886b9ce7b
+    # 300 first-parent commits; range suggested by the check of 2026-11-08
     why: Several remote MCP servers (TypeScript) with tool definitions.
 
   - id: playwright-mcp
     url: https://github.com/microsoft/playwright-mcp
-    status: proposed
+    status: confirmed
+    from: dbd44110f18f566676634cc217fc438098aab687
+    to: 404be8eb89abecff77a55152b6d843d140c78372
+    # 300 first-parent commits; range suggested by the check of 2026-11-08
     why: Browser-automation MCP server; tools that act on pages and files.
 
   - id: executeautomation-playwright-mcp
     url: https://github.com/executeautomation/mcp-playwright
-    status: proposed
+    status: confirmed
+    from: 855ceeb5784a4a3ddbc68d4651be6d42f752f1c7
+    to: 2349c2891e7c499c8c07b7d78c7f3fb4c797a1da
+    # 99 first-parent commits; range suggested by the check of 2026-11-08
     why: Community browser-automation MCP server, written independently of the one above.

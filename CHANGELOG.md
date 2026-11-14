@@ -196,6 +196,13 @@ Plan and pre-registered protocols in
 `docs/research/CREDIBILITY_TRACK.md`. Study tooling only, in `scripts/`;
 the scanner is unchanged and gains no network path.
 
+- **C-2 targets confirmed (2026-11-14), before any history run.** The
+  owner confirmed the six repositories that passed the eligibility
+  check, with the suggested ranges (1,599 first-parent commits), and
+  excluded three with reasons. The scanner version, a single run and a
+  no-peeking rule are fixed with the confirmation. An `excluded` target
+  must now carry a `reason`. The track document gains a ten-step work
+  series that names who each step needs.
 - `scripts/label_kit.py`: review packets and sheets for the pending
   corpus (C-1); blind labelling packets for a history study, with
   SafeAI's change class withheld (C-2); Cohen's kappa between two
