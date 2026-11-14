@@ -36,7 +36,7 @@ import argparse
 import os
 import sys
 
-from safeai.cmd.postprocess import ScanPostProcessor
+from safeai.cmd.postprocess import FAIL_ON_CATEGORY_PREFIXES, ScanPostProcessor
 
 _POLICY_PROFILES = ("developer", "strict-ci", "mcp", "rag", "production-agent")
 
@@ -162,11 +162,14 @@ def _build_parser():
                            "not change --fail-on/--fail-on-new/--fail-on-escalation.")
     scan.add_argument("--fail-on-rule", dest="fail_on_rule", nargs="+", metavar="PATTERN",
                       help="Fail when any finding matches a rule ID pattern "
-                           "(glob-style: GOV_*, MCP_*, ESC_*, etc.). Multiple "
-                           "patterns are OR'd. Example: --fail-on-rule GOV_* MCP_*")
+                           "(glob-style: GOV_*, MCP_*, CAP_*, etc.). Multiple "
+                           "patterns are OR'd. Example: --fail-on-rule GOV_* MCP_*. "
+                           "Escalation rules (ESC_*) are not findings: use "
+                           "--fail-on-escalation. A pattern that matches only "
+                           "escalation rules is a usage error (exit 2); one that "
+                           "matches no known rule prints a warning.")
     scan.add_argument("--fail-on-category", dest="fail_on_category", nargs="+", metavar="NAME",
-                      choices=["security", "governance", "capability", "dataflow",
-                               "prompt", "data_leakage", "mcp", "dependency"],
+                      choices=sorted(FAIL_ON_CATEGORY_PREFIXES),
                       help="Fail when any finding belongs to this category. "
                            "Multiple categories are OR'd. "
                            "Example: --fail-on-category security governance")

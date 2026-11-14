@@ -76,6 +76,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Three more gates that could pass without running now refuse
+  (G-1, follow-up to #333).**
+  - `--policy PATH` with a path that does not exist was ignored and the
+    default policy used. It is now a usage error (exit 2). With no
+    `--policy`, an absent `.safeai/policy.yml` is still fine.
+  - `--fail-on-rule` with a pattern that matches only escalation rules
+    (`ESC_*`) could never fire, because escalations are not findings;
+    the help text gave `ESC_*` as an example. It is now a usage error
+    (exit 2) that points to `--fail-on-escalation`. A pattern that
+    matches no known rule and no finding prints a warning; it is not
+    refused, because plugins and some analysers emit rule IDs that no
+    rule file declares.
+  - `--fail-on-category data_leakage` was accepted and matched nothing.
+    It now fails on a `DATA_LEAKAGE` finding.
+
+  This is a behaviour change for a CI job that passes a mistyped
+  `--policy` path or `--fail-on-rule ESC_*`: the job now exits 2.
+  `tests/test_gate_inputs_fail_closed.py` lists each gate against each
+  unusable input.
+
 - **AutoGen tools held no authority of their own.** Every AutoGen
   capability went to `unknown:unattributed`, including a
   `subprocess.run` in the body of a function passed to an agent as a
