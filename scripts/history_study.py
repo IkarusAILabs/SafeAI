@@ -75,6 +75,8 @@ def load_targets(path: str) -> list[dict[str, Any]]:
             raise StudyError(f"{path}: target {t['id']!r} url must be https")
         if t["status"] == "confirmed" and not (t.get("from") and t.get("to")):
             raise StudyError(f"{path}: confirmed target {t['id']!r} needs pinned 'from' and 'to'")
+        if t["status"] == "excluded" and not t.get("reason"):
+            raise StudyError(f"{path}: excluded target {t['id']!r} needs a 'reason'")
     return targets
 
 

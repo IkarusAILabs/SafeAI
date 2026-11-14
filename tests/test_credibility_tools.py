@@ -208,8 +208,6 @@ def test_history_study_labels_and_score(tmp_path):
 
 
 def test_targets_file_rules(tmp_path):
-    assert {t["status"] for t in history.load_targets(
-        os.path.join(ROOT, "research", "credibility", "targets.yml"))} <= {"proposed", "confirmed"}
     bad = tmp_path / "t.yml"
     bad.write_text("targets:\n  - {id: a, url: 'https://x', status: confirmed}\n",
                    encoding="utf-8")
@@ -218,9 +216,33 @@ def test_targets_file_rules(tmp_path):
     bad.write_text("targets:\n  - {id: a, url: 'http://x', status: proposed}\n", encoding="utf-8")
     with pytest.raises(common.StudyError, match="https"):
         history.load_targets(str(bad))
-    assert history.main(["--targets", str(os.path.join(ROOT, "research", "credibility",
-                                                       "targets.yml")),
-                         "--out", str(tmp_path / "o")]) == 2  # nothing confirmed yet
+    bad.write_text("targets:\n  - {id: a, url: 'https://x', status: excluded}\n",
+                   encoding="utf-8")
+    with pytest.raises(common.StudyError, match="reason"):
+        history.load_targets(str(bad))
+    bad.write_text("targets:\n  - {id: a, url: 'https://x', status: proposed}\n",
+                   encoding="utf-8")
+    # Only confirmed targets run; a proposed one is not a study target.
+    assert history.main(["--targets", str(bad), "--out", str(tmp_path / "o")]) == 2
+
+
+def test_confirmed_targets_are_the_ones_the_eligibility_check_passed():
+    """The pre-registration of 2026-11-14: eligible targets, with the suggested ranges."""
+    base = os.path.join(ROOT, "research", "credibility")
+    targets = {t["id"]: t for t in history.load_targets(os.path.join(base, "targets.yml"))}
+    with open(os.path.join(base, "target_check.json"), encoding="utf-8") as fh:
+        check = {t["id"]: t for t in json.load(fh)["targets"]}
+    assert set(targets) == set(check)
+    confirmed = {i for i, t in targets.items() if t["status"] == "confirmed"}
+    assert confirmed == {i for i, c in check.items() if c["eligible"]}
+    assert len(confirmed) == 6
+    for target_id in confirmed:
+        suggested = check[target_id]["suggested_range"]
+        assert (targets[target_id]["from"], targets[target_id]["to"]) == (
+            suggested["from"], suggested["to"])
+        assert suggested["first_parent_commits"] >= 50
+    assert all(t["status"] == "excluded" and t["reason"]
+               for i, t in targets.items() if i not in confirmed)
 
 
 # --- C-3 incident replay -------------------------------------------------------------------
