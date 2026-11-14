@@ -125,6 +125,37 @@ lock files, a `package.json` dependency), fixed after the check; the
 recorded `target_check.json` predates the fix, and eligibility does not
 change (each of those targets still has tools and MCP assets).
 
+**Confirmed 2026-11-14, before any history run.** The owner confirmed
+the six targets that met every criterion, each with the range the check
+suggested: 1,599 first-parent commits in all.
+
+| Target | Commits in range |
+|---|---|
+| `awslabs-mcp` | 300 |
+| `github-mcp-server` | 300 |
+| `stripe-ai` | 300 |
+| `cloudflare-mcp-servers` | 300 |
+| `playwright-mcp` | 300 |
+| `executeautomation-playwright-mcp` | 99 |
+
+The other three are `excluded`, with reasons, in `targets.yml`:
+`mcp-reference-servers` (licence not classified; the owner chose not to
+confirm it by hand), `crewai-examples` (archived, no recognised
+licence), `openai-cs-agents-demo` (10 commits).
+
+Fixed with the confirmation:
+
+- **Scanner version.** The run uses SafeAI at the commit that merges
+  this confirmation into `main`. That is after tool-body attribution
+  (#334), so code-defined tools can be named. The version is recorded in
+  the study output.
+- **One run.** The run is not repeated with a later scanner to improve
+  the numbers. A later scanner gets a new, separately reported run.
+- **No peeking.** Between the run and the end of labelling, nobody
+  changes the scanner, the targets or the ranges in response to what the
+  run shows. Tooling faults (a commit that fails to export) may be
+  fixed; each is listed under *Protocol changes*.
+
 **Procedure.**
 1. `python scripts/history_study.py --targets research/credibility/targets.yml --out study/`
    clones each confirmed target, exports each first-parent commit in the
@@ -451,14 +482,36 @@ person, by Rule 2.
 
 | Step | Who | How |
 |---|---|---|
-| Confirm C-2 targets | Owner | Read `research/credibility/target_check.json`; in `targets.yml` set eligible targets to `confirmed` with `from` / `to` (the suggested range or another), and ineligible or unwanted ones to `excluded` with a `reason`. Commit before any run. |
+| ~~Confirm C-2 targets~~ | Owner | **Done 2026-11-14:** six confirmed with the suggested ranges, three excluded with reasons. |
 | Verify incidents | Two verifiers (+ an adjudicator) | `incident_verify.py packets --count 20` in the pre-registered order, fill the sheets, `apply`. Continue in batches until at least 10 verified `visible` incidents, or the candidates run out. |
 | Recruit C-1 reviewers | Owner | At least one from outside SafeAI's authors, who consents to be named. `label_kit.py review-packets` produces their packets. |
+
+## Work series (planned 2026-11-14)
+
+What can move now, in order. Each step says who it needs. "Machine"
+steps need nobody; every labelling step needs two people, by Rule 2.
+
+| # | Step | Needs | Produces |
+|---|---|---|---|
+| 1 | Confirm C-2 targets | Owner | Done 2026-11-14 |
+| 2 | C-2 history run on the six targets | Machine | `commits.jsonl`, `changes.jsonl`; counts of reported changes per type, published before labelling as counts only |
+| 3 | C-2 labelling packets | Machine | Blind packets and a sheet per labeller |
+| 4 | C-2 labelling, agreement, adjudication, scoring | Two labellers + adjudicator | Precision per change type, materiality table, miss-rate estimate |
+| 5 | C-5 human check of 30 repositories | Two checkers + adjudicator | Agreement; then the census aggregate is published next to it |
+| 6 | C-3 incident verification, then replay | Two verifiers + adjudicator | Recall on verified incidents |
+| 7 | C-1 review of the 44 pending cases | Two reviewers, one from outside | Kappa; adjudicated cases promoted |
+| 8 | C-4 protocol: tools, pinned versions, rubric | Machine to draft, owner to approve | Pre-registration; the run reuses the C-2 targets |
+| 9 | Technical report with every number, miss and correction | Machine to draft, owner to review | Phase 3 exit |
+| 10 | C-8: README and site wording follow the numbers | Owner for the site | Phase 4 exit |
+
+The same two people can do steps 4 to 7. The owner can be one of them,
+except as the outside reviewer in step 7.
 
 ## Protocol changes
 
 | Date | Change | Reason |
 |---|---|---|
+| 2026-11-14 | C-2 targets confirmed by the owner before any history run: six eligible targets with the suggested ranges (1,599 commits), three excluded with reasons. Scanner version, single run and no-peeking rules fixed with it. An `excluded` target must carry a `reason` (enforced by `history_study.py`) | The run could not start without the owner's confirmation; fixing the scanner version and forbidding a re-run stop the result from being improved after it is seen |
 | 2026-11-07 | Initial protocol | — |
 | 2026-11-08 | C-5 protocol fixed and frame and sample drawn before any census scan: official MCP registry, seed `20261108`, 200 eligible repositories, the five attributes above, a 30-repository human check | A census whose sample, attributes or denominators were chosen after seeing results could be tuned to a story; the draw uses repository facts only |
 | 2026-11-08 | C-8: web claims are re-quoted from the live pages with `claims_check.py --web`; earlier wording is kept under `replaced`; the release version is a counted fact | After the owner revised the website, every overclaim and stale fact was gone, and one hub quote had changed without the ledger noticing; the version shown on the site was the stale fact found first |
