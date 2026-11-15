@@ -591,4 +591,9 @@ def test_export_skips_a_symbolic_link_that_loops(tmp_path):
     dest = tmp_path / "tree"
     common.export_tree(str(repo), commit, str(dest))
     assert (dest / "agent.py").read_text(encoding="utf-8") == "x = 1\n"
-    assert not os.path.lexists(dest / "loop")
+    # Windows cannot extract the link (tarfile recurses), so it is skipped.
+    # Linux and macOS create it as a link that resolves nowhere. Either
+    # way the export finishes and nothing is written through the link.
+    loop_path = dest / "loop"
+    assert not os.path.lexists(loop_path) or os.path.islink(loop_path)
+    assert not os.path.exists(loop_path)
