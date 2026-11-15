@@ -568,3 +568,24 @@ def test_export_survives_names_windows_cannot_hold(tmp_path):
     files = [os.path.relpath(os.path.join(r, f), dest).replace("\\", "/")
              for r, _, fs in os.walk(dest) for f in fs]
     assert files in (["config/agents.yaml"], ["config /agents.yaml"])
+
+
+def test_export_skips_a_symbolic_link_that_loops(tmp_path):
+    """Found on a C-2 target: a link pointing at itself sent tarfile into unbounded recursion."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+
+    def plumbing(*args, stdin):
+        return subprocess.run(["git", *args], cwd=repo, input=stdin.encode(),
+                              capture_output=True, check=True).stdout.decode().strip()
+
+    source = plumbing("hash-object", "-w", "--stdin", stdin="x = 1\n")
+    loop = plumbing("hash-object", "-w", "--stdin", stdin="loop")
+    tree = plumbing("mktree", stdin=f"100644 blob {source}\tagent.py\n"
+                                    f"120000 blob {loop}\tloop\n")
+    commit = plumbing("commit-tree", tree, "-m", "loop", stdin="")
+    dest = tmp_path / "tree"
+    common.export_tree(str(repo), commit, str(dest))
+    assert (dest / "agent.py").read_text(encoding="utf-8") == "x = 1\n"
+    assert not os.path.lexists(dest / "loop")
