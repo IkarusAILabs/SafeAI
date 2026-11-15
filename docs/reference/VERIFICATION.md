@@ -1,154 +1,175 @@
 # SafeAI — Release Verification
 
-Verify the integrity and authenticity of your SafeAI installation.
-Current release: **v2.3.0**. Since v2.1.2, artifacts are signed
-keyless with Sigstore/Cosign (`.sig` + `.pem` sidecars) — there are no
-GPG `.asc` files. Check the asset names below against
-https://github.com/ikaruscareer/SafeAI/releases/tag/v2.3.0 before trusting
-any download.
+How to check that a SafeAI release is the one this repository built.
 
-## Quick Verify (any platform)
+Current release: **v2.16.0**. Releases are at
+https://github.com/IkarusAILabs/SafeAI/releases.
+
+Every step below is run against the latest release by the
+`verify-release` workflow (weekly, and on any change to this page or
+the script), using [`scripts/verify_release.sh`](../../scripts/verify_release.sh).
+If a step stops working, that workflow fails.
+
+## What a release contains
+
+| Asset | What it is | How it is protected |
+|---|---|---|
+| `safeai_static_analyzer-X.Y.Z-py3-none-any.whl` | Python wheel | Checksum, Cosign signature, Sigstore build-provenance attestation |
+| `safeai_static_analyzer-X.Y.Z.tar.gz` | Source distribution | Checksum, Cosign signature, Sigstore build-provenance attestation |
+| `*.sig`, `*.pem` | Cosign keyless signature and certificate for the wheel and the sdist | — |
+| `safeai-X.Y.Z-sbom.spdx.json` | SPDX SBOM | Checksum only |
+| `safeai-X.Y.Z-slsa-provenance.json` | A descriptive statement written by the release workflow | Checksum only; **not signed, see below** |
+| `SHA256SUMS` | SHA-256 of the wheel, the sdist, the SBOM and the statement | Not signed itself |
+
+## What is not verifiable today
+
+Read this before relying on a check that does not exist.
+
+- **`safeai-X.Y.Z-slsa-provenance.json` is not a verifiable SLSA
+  provenance.** The release workflow writes it by hand. It is unsigned,
+  its subject is the git commit and not an artifact digest, and it
+  still names the repository's earlier address. `slsa-verifier` cannot
+  verify it. The verifiable provenance is the Sigstore attestation in
+  step 4.
+- **`SHA256SUMS` and the SBOM are not signed.** A checksum shows that a
+  download is intact. It does not show who produced it. The wheel and
+  the sdist are the signed artifacts; trust for the SBOM rests on the
+  release page.
+- **Release tags are not signed.** They are lightweight tags, so
+  `git verify-tag` has nothing to check.
+- **Builds are not reproducible.** Rebuilding from the tag is not
+  expected to give a byte-identical wheel.
+
+## Verify everything
+
+Needs [`gh`](https://cli.github.com) (signed in),
+[`cosign`](https://docs.sigstore.dev/cosign/system_config/installation/),
+`sha256sum` and Python with `pip`.
+
+```bash
+git clone https://github.com/IkarusAILabs/SafeAI.git
+bash SafeAI/scripts/verify_release.sh 2.16.0
+# Expected last line: All checks passed for v2.16.0.
+```
+
+With no version, the script verifies the latest release.
+
+## The steps by hand
+
+Set the version once:
+
+```bash
+VERSION=2.16.0
+REPO=IkarusAILabs/SafeAI
+```
+
+### 1. Download
+
+```bash
+mkdir safeai-release && cd safeai-release
+gh release download "v${VERSION}" --repo "$REPO"
+```
+
+Without `gh`, download each asset from
+`https://github.com/IkarusAILabs/SafeAI/releases/download/v${VERSION}/<asset>`.
+
+### 2. Checksums
+
+```bash
+sha256sum -c SHA256SUMS
+# Expected: four lines ending in ": OK"
+```
+
+On macOS use `shasum -a 256 -c SHA256SUMS`. On Windows (PowerShell):
+
+```powershell
+$VERSION = "2.16.0"
+$wheel = "safeai_static_analyzer-$VERSION-py3-none-any.whl"
+$hash = (Get-FileHash -Algorithm SHA256 $wheel).Hash.ToLower()
+$expected = (Get-Content SHA256SUMS | Select-String $wheel).Line.Split()[0]
+if ($hash -eq $expected) { "Checksum OK" } else { "MISMATCH" }
+```
+
+### 3. Cosign signatures
+
+The wheel and the sdist are signed keyless by the release workflow. The
+certificate identity names the workflow and the tag.
+
+```bash
+for artifact in \
+  "safeai_static_analyzer-${VERSION}-py3-none-any.whl" \
+  "safeai_static_analyzer-${VERSION}.tar.gz"; do
+  cosign verify-blob \
+    --certificate "${artifact}.pem" \
+    --signature "${artifact}.sig" \
+    --certificate-identity "https://github.com/${REPO}/.github/workflows/release.yml@refs/tags/v${VERSION}" \
+    --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+    "$artifact"
+done
+# Expected, twice: Verified OK
+```
+
+### 4. Build provenance
+
+The release workflow records a Sigstore build-provenance attestation
+for the wheel and the sdist. This check ties each file to the workflow
+and the tag that built it.
+
+```bash
+for artifact in \
+  "safeai_static_analyzer-${VERSION}-py3-none-any.whl" \
+  "safeai_static_analyzer-${VERSION}.tar.gz"; do
+  gh attestation verify "$artifact" \
+    --repo "$REPO" \
+    --signer-workflow "${REPO}/.github/workflows/release.yml" \
+    --source-ref "refs/tags/v${VERSION}"
+done
+# Expected: exit code 0 for both
+```
+
+### 5. PyPI
+
+The wheel on PyPI should be the wheel in the release.
+
+```bash
+python -m pip download --no-deps --only-binary :all: --dest pypi "SafeAI-Static-Analyzer==${VERSION}"
+sha256sum "pypi/safeai_static_analyzer-${VERSION}-py3-none-any.whl" "safeai_static_analyzer-${VERSION}-py3-none-any.whl"
+# Expected: the same hash on both lines
+```
+
+To install with the hash pinned:
+
+```bash
+pip install --require-hashes --hash=sha256:<HASH> "SafeAI-Static-Analyzer==${VERSION}"
+```
+
+### 6. Installed version
 
 ```bash
 safeai --version
-# Expected: 2.3.0
 ```
 
-## Linux
+## Releases before the repository moved
 
-### Verify checksum (SHA-256)
+The repository was `ikaruscareer/SafeAI` before it became
+`IkarusAILabs/SafeAI`. A release signed under the earlier address
+carries that address in its certificate identity. To find the identity
+a release was signed with, read it from the certificate:
 
 ```bash
-# Download the release assets
-wget https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai_static_analyzer-2.3.0-py3-none-any.whl
-wget https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/SHA256SUMS
-
-sha256sum -c SHA256SUMS --ignore-missing
-# Expected: safeai_static_analyzer-2.3.0-py3-none-any.whl: OK
+base64 -d "safeai_static_analyzer-${VERSION}-py3-none-any.whl.pem" | openssl x509 -noout -ext subjectAltName
 ```
 
-### Verify Cosign keyless signature
-
-```bash
-# Install cosign if not present: https://docs.sigstore.dev/cosign/installation/
-wget https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai_static_analyzer-2.3.0-py3-none-any.whl.pem
-wget https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai_static_analyzer-2.3.0-py3-none-any.whl.sig
-
-cosign verify-blob \
-  --certificate safeai_static_analyzer-2.3.0-py3-none-any.whl.pem \
-  --signature safeai_static_analyzer-2.3.0-py3-none-any.whl.sig \
-  --certificate-identity "https://github.com/ikaruscareer/SafeAI/.github/workflows/release.yml@refs/tags/v2.3.0" \
-  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  safeai_static_analyzer-2.3.0-py3-none-any.whl
-# Expected: Verified OK
-```
-
-### Verify provenance (SLSA)
-
-```bash
-# Requires slsa-verifier (https://github.com/slsa-framework/slsa-verifier)
-wget https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai-2.3.0-slsa-provenance.json
-
-slsa-verifier verify-artifact safeai_static_analyzer-2.3.0-py3-none-any.whl \
-  --provenance-path safeai-2.3.0-slsa-provenance.json \
-  --source-uri github.com/ikaruscareer/SafeAI
-# Expected: Verified SLSA provenance
-```
-
-## macOS
-
-### Verify checksum (SHA-256)
-
-```bash
-curl -LO https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/SHA256SUMS
-curl -LO https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai_static_analyzer-2.3.0-py3-none-any.whl
-
-shasum -a 256 -c SHA256SUMS --ignore-missing
-# Expected: safeai_static_analyzer-2.3.0-py3-none-any.whl: OK
-```
-
-### Verify Cosign keyless signature
-
-Same `cosign verify-blob` invocation as Linux (install via
-`brew install cosign`).
-
-## Windows (PowerShell)
-
-### Verify checksum (SHA-256)
-
-```powershell
-Invoke-WebRequest -Uri "https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/safeai_static_analyzer-2.3.0-py3-none-any.whl" -OutFile "safeai.whl"
-Invoke-WebRequest -Uri "https://github.com/ikaruscareer/SafeAI/releases/download/v2.3.0/SHA256SUMS" -OutFile "SHA256SUMS"
-
-# Compute hash
-$hash = (Get-FileHash -Algorithm SHA256 safeai.whl).Hash.ToLower()
-$expected = (Get-Content SHA256SUMS | Select-String "safeai_static_analyzer-2.3.0-py3-none-any.whl").Line.Split()[0]
-if ($hash -eq $expected) { Write-Host "Checksum OK" } else { Write-Host "MISMATCH" }
-```
-
-### Verify with pip hash checking
-
-```powershell
-# Get the expected digest from the SHA256SUMS file above, then:
-pip install --require-hashes --hash=sha256:<HASH> SafeAI-Static-Analyzer==2.3.0
-```
-
-## Verify Git Tag
-
-```bash
-# Fetch tags
-git fetch --tags
-
-# Inspect the tag object (a "Good signature" line appears only if the tag was signed)
-git verify-tag v2.3.0
-
-# Or clone and verify
-git clone https://github.com/ikaruscareer/SafeAI.git
-cd SafeAI
-git checkout v2.3.0
-```
-
-## Verify PyPI Package
-
-```bash
-# Download from PyPI
-pip download SafeAI-Static-Analyzer==2.3.0
-
-# Verify hash matches release
-sha256sum safeai_static_analyzer-2.3.0-py3-none-any.whl
-# Compare with SHA256SUMS from GitHub release
-```
-
-## What to Expect (v2.3.0 assets)
-
-| Artifact | Description |
-|----------|-------------|
-| `.whl` | Python wheel package |
-| `.tar.gz` | Source distribution |
-| `.whl.sig` / `.tar.gz.sig` | Cosign keyless signature |
-| `.whl.pem` / `.tar.gz.pem` | Cosign signing certificate |
-| `SHA256SUMS` | SHA-256 checksums for all artifacts |
-| `safeai-2.3.0-slsa-provenance.json` | SLSA build provenance attestation |
-| `safeai-2.3.0-sbom.spdx.json` | SPDX SBOM |
+Only v2.16.0 has been checked against this page.
 
 ## Troubleshooting
 
-### "No signature found" / 404 on an asset
-
-Check the release assets listing — asset names change between
-releases:
-https://github.com/ikaruscareer/SafeAI/releases/tag/v2.3.0
-
-### Cosign identity mismatch
-
-The `--certificate-identity` must match the tag you verify
-(`.../release.yml@refs/tags/vX.Y.Z`). Copy the exact tag, including
-the leading `v`.
-
-### Checksum mismatch
-
-Re-download the artifact. If it persists, open an issue at
-https://github.com/ikaruscareer/SafeAI/issues with the `security` label.
+- **404 on an asset.** Asset names can change between releases; check
+  the release page.
+- **Cosign identity mismatch.** The identity must name the tag you are
+  verifying, including the leading `v`.
+- **Checksum mismatch.** Download again. If it persists, report it
+  under [SECURITY.md](../../SECURITY.md).
 
 ## Release signing (maintainers)
 
@@ -161,8 +182,8 @@ the installer action itself.
 
 **What is signed.** Every `dist/*.whl` and `dist/*.tar.gz` gets a
 detached `.sig` signature and `.pem` certificate (keyless OIDC via
-GitHub Actions). SBOM, provenance, and `SHA256SUMS` ship alongside as
-attestations, not signed blobs.
+GitHub Actions) and a Sigstore build-provenance attestation. The SBOM,
+the provenance statement and `SHA256SUMS` ship alongside unsigned.
 
 **How maintainers detect signing failures.** The pipeline signs, then
 *verifies* (`cosign verify-blob` against the artifact with the expected

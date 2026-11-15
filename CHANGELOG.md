@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Release verification is tested against the latest release (G-3).**
+  `scripts/verify_release.sh` checks a release's checksums, Cosign
+  signatures, Sigstore build-provenance attestation and the PyPI wheel
+  hash. The `verify-release` workflow runs it weekly and on any change
+  to the script or to `docs/reference/VERIFICATION.md`.
+
 - **A scan now says whether it analysed everything it collected (G-2).**
   The JSON report, the manifest's `assurance_boundary` and the SARIF run
   (`runs[0].properties.analysisCompleteness`) carry
@@ -95,6 +101,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     The pending corpus still holds 44/44 (digest `bb58e818…`).
 
 ### Fixed
+
+- **`docs/reference/VERIFICATION.md` described v2.3.0 under the
+  repository's earlier address, and two checks that cannot work.** It is
+  rewritten for the current release. The `slsa-verifier` step is
+  replaced by `gh attestation verify`: the shipped
+  `safeai-X.Y.Z-slsa-provenance.json` is an unsigned statement written
+  by the release workflow, and the page now says so. The `git
+  verify-tag` step is removed: release tags are not signed. The page
+  lists what is not verifiable today.
 
 - **Three more gates that could pass without running now refuse
   (G-1, follow-up to #333).**
