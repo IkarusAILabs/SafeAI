@@ -13,6 +13,22 @@ import sys
 
 from safeai.engine.scan import run_scan
 
+# Rule-ID prefixes behind each ``--fail-on-category`` name. The parser's
+# choices are these keys (``cli.py``), so a category cannot be accepted
+# and then match nothing.
+FAIL_ON_CATEGORY_PREFIXES = {
+    "security": {"DATA_LEAKAGE", "DATAFLOW", "PROMPT", "PROMPT_FILE"},
+    "governance": {"GOV_"},
+    "capability": {"CAP_", "ESC_"},
+    "dataflow": {"DATAFLOW", "TOXIC_FLOW"},
+    "prompt": {"PROMPT", "PROMPT_FILE"},
+    # Was accepted by the parser but had no entry here, so the
+    # gate could never fire.
+    "data_leakage": {"DATA_LEAKAGE"},
+    "mcp": {"MCP_"},
+    "dependency": {"DEP_"},
+}
+
 
 def _safeai_version():
     # The PyPI distribution is named ``SafeAI-Static-Analyzer`` while the
@@ -310,6 +326,15 @@ class ScanPostProcessor:
     def _evaluate_policy(self):
         from safeai.kya import policy as kya_policy
 
+        # A policy file the operator named must exist. ``load_policy``
+        # returns ``None`` for an absent path, which is right for the
+        # default location (most projects have no policy file) and wrong
+        # for ``--policy``: a mistyped path silently fell back to the
+        # default policy, so the rules in the file never ran and the scan
+        # still reported a policy outcome. Same refusal as an unreadable
+        # baseline: exit 2, the requested control cannot be satisfied.
+        if self.args.policy and not os.path.isfile(self.args.policy):
+            self.parser.error(f"Policy file not found: {self.args.policy}")
         policy_path = self.args.policy or kya_policy.default_policy_path(self.directory)
         try:
             policy_doc = kya_policy.load_policy(policy_path)
@@ -760,6 +785,45 @@ class ScanPostProcessor:
         from safeai.report.terminal import print_summary
         print_summary(self.report)
 
+    def _check_rule_patterns(self, patterns):
+        """Refuse or flag ``--fail-on-rule`` patterns that cannot fire.
+
+        ``--fail-on-rule`` reads finding rule IDs. Two kinds of pattern
+        match nothing, and a gate that matches nothing passes every run:
+
+        * A pattern that matches only escalation rule IDs (``ESC_*``).
+          Escalations live in the capability diff, never in the findings,
+          so the pattern can never fire. That is certain, so it is a usage
+          error (exit 2) that names ``--fail-on-escalation``.
+        * A pattern that matches no rule SafeAI knows and no finding in
+          this run. It may be a typo, or a rule ID that a plugin or an
+          analyser emits without declaring it in a rule file; the rule
+          catalogue cannot tell the two apart, so this is a warning on
+          stderr, not a refusal.
+        """
+        import fnmatch
+
+        from safeai.analysis.escalation import ESCALATION_RULES
+
+        known = {str(rule.get("id") or "") for rule in (self.rules or [])}
+        known.update(str(f.get("rule_id") or "") for f in self.report["findings"])
+        escalation_ids = {rule["id"] for rule in ESCALATION_RULES}
+        for pattern in patterns:
+            if any(fnmatch.fnmatch(rule_id, pattern) for rule_id in known):
+                continue
+            if any(fnmatch.fnmatch(rule_id, pattern) for rule_id in escalation_ids):
+                self.parser.error(
+                    f"--fail-on-rule {pattern}: matches only escalation rules, "
+                    "which are not findings, so this gate can never fire. "
+                    "Use --fail-on-escalation with --baseline."
+                )
+            print(
+                f"safeai: warning: --fail-on-rule {pattern} matches no rule "
+                "SafeAI knows and no finding in this scan. If the pattern is "
+                "mistyped, this gate can never fire.",
+                file=sys.stderr,
+            )
+
     def _compute_exit_code(self):
         import fnmatch
 
@@ -774,6 +838,27 @@ class ScanPostProcessor:
         # from findings (#333).
         if self.diff_gate_blind_code is not None:
             return self.diff_gate_blind_code
+
+        # --strict-analysis (G-2): a pass over files that were not analysed
+        # is not a pass. Same code and same precedence as the refusal above.
+        if getattr(self.args, "strict_analysis", False):
+            completeness = self.report.get("analysis_completeness") or {}
+            status = completeness.get("status")
+            if status != "complete":
+                failures = completeness.get("failures") or []
+                detail = "; ".join(
+                    f"{f['file'] or f['component']} ({f['stage']})" for f in failures[:5]
+                )
+                more = f"; and {len(failures) - 5} more" if len(failures) > 5 else ""
+                print(
+                    f"safeai: error: --strict-analysis: analysis is {status} "
+                    f"({completeness.get('files_read', 0)} of "
+                    f"{completeness.get('files_collected', 0)} collected files read"
+                    + (f"; {detail}{more}" if detail else "")
+                    + "). See analysis_completeness and diagnostics in the JSON report.",
+                    file=sys.stderr,
+                )
+                return 2
 
         # Suppressed findings never trigger failure. --fail-on-new restricts
         # the failing set to new/regressed findings (requires --baseline). A
@@ -837,10 +922,11 @@ class ScanPostProcessor:
                 fail = True
 
         # --fail-on-rule: fail when any finding matches a rule ID pattern.
-        # Patterns are glob-style (fnmatch): GOV_*, MCP_*, ESC_COMBO_*, etc.
+        # Patterns are glob-style (fnmatch): GOV_*, MCP_*, CAP_SHELL_*, etc.
         # Multiple patterns are OR'd (any match triggers failure).
         fail_on_rule = getattr(self.args, "fail_on_rule", None) or []
         if fail_on_rule:
+            self._check_rule_patterns(fail_on_rule)
             for finding in candidates:
                 rule_id = finding.get("rule_id", "")
                 for pattern in fail_on_rule:
@@ -855,19 +941,10 @@ class ScanPostProcessor:
         # are OR'd (any match triggers failure).
         fail_on_category = getattr(self.args, "fail_on_category", None) or []
         if fail_on_category:
-            _CATEGORY_MAP = {
-                "security": {"DATA_LEAKAGE", "DATAFLOW", "PROMPT", "PROMPT_FILE"},
-                "governance": {"GOV_"},
-                "capability": {"CAP_", "ESC_"},
-                "dataflow": {"DATAFLOW", "TOXIC_FLOW"},
-                "prompt": {"PROMPT", "PROMPT_FILE"},
-                "mcp": {"MCP_"},
-                "dependency": {"DEP_"},
-            }
             for finding in candidates:
                 rule_id = finding.get("rule_id", "")
                 for cat in fail_on_category:
-                    prefixes = _CATEGORY_MAP.get(cat, set())
+                    prefixes = FAIL_ON_CATEGORY_PREFIXES.get(cat, set())
                     for prefix in prefixes:
                         if rule_id.startswith(prefix):
                             fail = True

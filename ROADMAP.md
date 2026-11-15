@@ -708,6 +708,11 @@ lower its bar.
 | C-7 | **Open-source design partners.** Run the SafeAI action in the CI of 3–5 agent projects for a month; record which review requests maintainers found useful. | Usefulness of review-only output | Whether Lane B helps anyone | PLANNED |
 | C-8 | **Claims ledger.** Every claim in the README and the website linked to the measurement that backs it, or reworded until one exists. | Honesty of the public claims | Claims ahead of evidence | **STARTED (2026-11-08):** `research/credibility/claims.yml` (29 claims) and `scripts/claims_check.py` in CI (`--web` re-checks the website); README numbers corrected; website revised by the owner, leaving no overclaim or stale fact |
 
+Guarantee checks that need no labeller (G-1 to G-6, opened 2026-11-14:
+gate inputs fail closed, incomplete analysis, release verification,
+benchmark reproduction, a wider claims ledger, owner decisions) are in
+`docs/research/CREDIBILITY_TRACK.md`. G-1 and G-2 are done; the rest are PLANNED.
+
 Process items that also bear on credibility stay where they are: P-1
 (DCO as a required check), P-2 (OpenSSF Best Practices), P-3 (required
 review on `main`) in `docs/releases/IMPLEMENTATION_PLAN_V2_8_TO_V2_13.md`.

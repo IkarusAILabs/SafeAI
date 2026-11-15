@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A scan now says whether it analysed everything it collected (G-2).**
+  The JSON report, the manifest's `assurance_boundary` and the SARIF run
+  (`runs[0].properties.analysisCompleteness`) carry
+  `analysis_completeness`: a `status` of `complete`, `incomplete` or
+  `nothing_analysed`, the number of files collected and read, and each
+  failure by file and stage. The record holds no error text, so it is
+  the same on any machine; the text stays in `diagnostics`.
+  - A file that could not be read (for example, not valid UTF-8) was
+    dropped with a debug log and appeared nowhere in the report. It is
+    now a `source_read` failure and a coverage note.
+  - A failing analyser plugin was a warning log only. It is now an
+    `analysis` failure and a coverage note.
+  - A component extractor failure now has a coverage note.
+  - A scan that read no file reports `nothing_analysed`.
+- **`--strict-analysis`** exits 2 when the status is not `complete`,
+  after the reports are written, and takes precedence over exit 1.
+  Without the flag the exit code is unchanged.
+
 ### Changed
 
 - **A requested authority gate no longer passes when the baseline
@@ -75,6 +95,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     The pending corpus still holds 44/44 (digest `bb58e818…`).
 
 ### Fixed
+
+- **Three more gates that could pass without running now refuse
+  (G-1, follow-up to #333).**
+  - `--policy PATH` with a path that does not exist was ignored and the
+    default policy used. It is now a usage error (exit 2). With no
+    `--policy`, an absent `.safeai/policy.yml` is still fine.
+  - `--fail-on-rule` with a pattern that matches only escalation rules
+    (`ESC_*`) could never fire, because escalations are not findings;
+    the help text gave `ESC_*` as an example. It is now a usage error
+    (exit 2) that points to `--fail-on-escalation`. A pattern that
+    matches no known rule and no finding prints a warning; it is not
+    refused, because plugins and some analysers emit rule IDs that no
+    rule file declares.
+  - `--fail-on-category data_leakage` was accepted and matched nothing.
+    It now fails on a `DATA_LEAKAGE` finding.
+
+  This is a behaviour change for a CI job that passes a mistyped
+  `--policy` path or `--fail-on-rule ESC_*`: the job now exits 2.
+  `tests/test_gate_inputs_fail_closed.py` lists each gate against each
+  unusable input.
 
 - **AutoGen tools held no authority of their own.** Every AutoGen
   capability went to `unknown:unattributed`, including a

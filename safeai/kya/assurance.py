@@ -97,6 +97,8 @@ def _parse_failure_notes(report):
         if not isinstance(diagnostic, dict):
             continue
         kind = str(diagnostic.get("kind") or diagnostic.get("type") or "")
+        if kind in _NON_PARSE_KINDS:
+            continue
         if "parse" in kind.lower() or "error" in kind.lower():
             path = diagnostic.get("file") or "(unknown file)"
             failures[path] = failures.get(path, 0) + 1
@@ -108,6 +110,100 @@ def _parse_failure_notes(report):
         notes.append(
             f"{count} configuration {_plural(count, 'file')} could not be parsed "
             f"and {verb} not analysed: {listed}{suffix}"
+        )
+    return notes
+
+
+#: Diagnostic kinds that are not a configuration parse failure; each has
+#: its own coverage note.
+_NON_PARSE_KINDS = ("read_error", "extractor_error", "analyzer_error")
+
+COMPLETE = "complete"
+INCOMPLETE = "incomplete"
+NOTHING_ANALYSED = "nothing_analysed"
+
+
+def build_analysis_completeness(report):
+    """Say whether every collected file was read and analysed.
+
+    ``complete`` means no stage failed on any file. It does not mean the
+    analysis found everything: files of unsupported types are skipped by
+    design (``skipped_files``), and static analysis has the limits the
+    assurance boundary lists. ``incomplete`` means a file could not be
+    read, a parser, component extractor or analyser plugin raised, or a
+    configuration file could not be parsed. ``nothing_analysed`` means no
+    file was read at all, so an absence of findings says nothing.
+
+    Deterministic: failures are sorted and carry no error text, which can
+    hold host paths. The full text stays in ``report["diagnostics"]``.
+    """
+    report = report or {}
+    failures = set()
+    unread = set()
+    for diagnostic in report.get("diagnostics") or []:
+        if not isinstance(diagnostic, dict):
+            continue
+        stage = str(diagnostic.get("stage") or "unknown")
+        path = diagnostic.get("file") or ""
+        component = str(
+            diagnostic.get("parser") or diagnostic.get("extractor")
+            or diagnostic.get("analyzer") or ""
+        )
+        failures.add((path, stage, component))
+        if stage == "source_read":
+            unread.add(path)
+    for finding in report.get("findings") or []:
+        if isinstance(finding, dict) and finding.get("rule_id") in _PARSE_FAILURE_RULES:
+            failures.add((finding.get("file") or "", "configuration_parsing",
+                          finding["rule_id"]))
+
+    collected = int(report.get("files_scanned") or 0)
+    files_read = max(collected - len(unread), 0)
+    if files_read == 0:
+        status = NOTHING_ANALYSED
+    elif failures:
+        status = INCOMPLETE
+    else:
+        status = COMPLETE
+    return {
+        "status": status,
+        "files_collected": collected,
+        "files_read": files_read,
+        "failures": [
+            {"file": path, "stage": stage, "component": component}
+            for path, stage, component in sorted(failures)
+        ],
+    }
+
+
+def _completeness_notes(report):
+    completeness = report.get("analysis_completeness") or build_analysis_completeness(report)
+    notes = []
+    if completeness["status"] == NOTHING_ANALYSED:
+        notes.append(
+            "no file was read, so nothing was analysed; an absence of findings "
+            "says nothing about this project"
+        )
+    by_stage = {}
+    for failure in completeness["failures"]:
+        by_stage.setdefault(failure["stage"], []).append(failure)
+    wording = {
+        "source_read": "could not be read and {verb} not analysed",
+        "component_extraction": "{verb} only partly analysed: a component extractor failed",
+    }
+    for stage, template in wording.items():
+        files = sorted({f["file"] for f in by_stage.get(stage, [])})
+        if not files:
+            continue
+        count = len(files)
+        listed = ", ".join(files[:3]) + (", \u2026" if count > 3 else "")
+        verb = "was" if count == 1 else "were"
+        notes.append(f"{count} {_plural(count, 'file')} {template.format(verb=verb)}: {listed}")
+    plugins = sorted({f["component"] for f in by_stage.get("analysis", [])})
+    if plugins:
+        notes.append(
+            f"{len(plugins)} analyser {_plural(len(plugins), 'plugin')} failed and "
+            f"reported nothing: {', '.join(plugins)}"
         )
     return notes
 
@@ -245,6 +341,7 @@ def build_assurance_boundary(report):
     coverage_notes = []
     coverage_notes.extend(_skipped_notes(report))
     coverage_notes.extend(_parse_failure_notes(report))
+    coverage_notes.extend(_completeness_notes(report))
     coverage_notes.extend(_inference_notes(report, inferred_count, inferred_tools))
     coverage_notes.extend(_attribution_notes(report))
     coverage_notes.extend(_mcp_assurance_notes(report))
@@ -267,6 +364,9 @@ def build_assurance_boundary(report):
         "verified_statically": list(VERIFIED_STATICALLY),
         "not_verifiable_statically": list(NOT_VERIFIABLE_STATICALLY),
         "coverage_notes": coverage_notes,
+        "analysis_completeness": (
+            report.get("analysis_completeness") or build_analysis_completeness(report)
+        ),
         "inferred_value_count": inferred_count,
         "summary": BOUNDARY_SENTENCE,
         "telemetry_active": telemetry_active,

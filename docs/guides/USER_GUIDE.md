@@ -166,10 +166,11 @@ usage: safeai scan [-h] [--sarif SARIF] [--json JSON_PATH]
 | `--registry` | string | shared | Override registry database path (default: `SAFEAI_REGISTRY` env var or `~/.safeai/registry.db`) |
 | `--no-registry` | flag | off | Do not persist scan state to local registry |
 | `--strict-registry` | flag | off | Fail scan on registry persistence errors |
+| `--strict-analysis` | flag | off | Exit 2 when the analysis is incomplete (unreadable file, failed parser, extractor or analyser plugin, or no file read). See `analysis_completeness` in the JSON report |
 | `--pr-comment` | string | — | Write a reviewer-facing Markdown summary of capability escalations to this path. SafeAI never posts it anywhere. |
 | `--pr-comment-stdout` | flag | off | Print the PR comment Markdown to stdout, in addition to or instead of writing it to a file |
 | `--fail-on-escalation` | choice | — | Fail the scan when a capability escalation at or above `critical`, `high`, or `medium` is detected. Requires `--baseline`; this is a separate axis from `--fail-on`/`--fail-on-new`, which gate on findings rather than capability escalations. |
-| `--policy` | string | `.safeai/policy.yml` | Policy-as-code file path |
+| `--policy` | string | `.safeai/policy.yml` | Policy-as-code file path. A path given here that does not exist is an error (exit 2) |
 | `--suppressions` | string | `.safeai/suppressions.yml` | Suppression file path |
 | `--verbose` | flag | off | Enable verbose scanner output |
 

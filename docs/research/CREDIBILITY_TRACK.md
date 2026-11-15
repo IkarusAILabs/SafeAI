@@ -466,6 +466,72 @@ Planned; each gets its protocol here before it starts.
 - **C-7 Design partners** records, per review request, whether the
   maintainer acted on it, dismissed it as noise, or ignored it.
 
+## Guarantee checks that need no labeller (G-1 to G-6, opened 2026-11-14)
+
+C-1 to C-5 wait on people (Rule 2). These items do not: each one makes
+a statement SafeAI already makes checkable by an outsider, or fixes a
+case where the statement was false. One pull request each. They add no
+signal and change no measured number.
+
+| # | Item | Why it bears on credibility | Done when | Status |
+|---|---|---|---|---|
+| G-1 | **Gate inputs fail closed.** A requested gate whose input is missing, malformed or can never match must not exit 0. Follow-up to #333. | Exit 0 means "checked and clean"; a gate that silently did not run makes every pass doubtful | `tests/test_gate_inputs_fail_closed.py` lists every gate against every unusable input and runs in CI | **DONE (2026-11-14)** for the cases below; one case warns instead of refusing, see *Left open* |
+| G-2 | **Incomplete analysis is visible and gateable.** A scan records whether every collected file was read and analysed, and an opt-in flag refuses a partial scan. | A pass over files that were not analysed is not a pass | `tests/test_analysis_completeness.py`: an unreadable file, a failing parser and an empty scan root each exit 2 under `--strict-analysis` | **DONE (2026-11-15)**; opt-in, see *Left open by G-2* |
+| G-3 | **Release verification that works for the current release.** `docs/reference/VERIFICATION.md` still walks through v2.3.0 under the repository's earlier address. Rewrite it for the current release and run the documented commands in CI against the latest release. | Signatures, SBOM and provenance count only if a reader can verify them by following the document | The CI job passes, and the version in the document is a counted claim in the ledger | PLANNED |
+| G-4 | **Benchmark reproducible from a clean clone.** One documented command recomputes the published digest; CI fails if the report and the recomputed value differ. | The published numbers can be re-derived, not only read | The command and the check exist; how much the `authority-benchmark` job already covers is not yet checked | PLANNED |
+| G-5 | **Wider claims ledger.** Extend `claims.yml` (C-8) to `SECURITY.md`, `docs/reference/LIMITATIONS.md`, the action's Marketplace text and the package metadata; point the README badges at the current repository address. | Claims outside the README and the website are unchecked today | Each added claim is `counted`, `tested`, `limitation`, or listed as `unmeasured` with its study | PLANNED |
+| G-6 | **Owner decisions.** Close or refresh the "scan and share" issues (#129–#141) that C-6 replaces; decide P-1 (DCO as a required check) and P-3 (required review). At 2026-11-14 `main` requires `Lint` and `Tests (Python 3.11)` only. | The stated process and the enforced process should be the same | Decisions recorded here | PLANNED (owner) |
+
+**G-1, what was found (2026-11-14).** Each was reproduced on `main` at
+`2ee0cd3` before the fix.
+
+| Input | Before | Now |
+|---|---|---|
+| `--policy PATH` where `PATH` does not exist | The file was ignored and the default policy used; exit unchanged | Exit 2, `Policy file not found` |
+| `--fail-on-rule ESC_*` (any pattern matching only escalation rules) | Never fired: escalations are in the capability diff, not the findings. The help text gave `ESC_*` as an example | Exit 2, pointing to `--fail-on-escalation` |
+| `--fail-on-category data_leakage` | Accepted by the parser, mapped to no rule prefix, never fired | Fails on a `DATA_LEAKAGE` finding; the parser's choices are now the keys of the prefix map |
+| `--fail-on-rule PATTERN` matching no known rule and no finding | Silent | Warning on stderr |
+
+**Left open by G-1.**
+
+- An unknown `--fail-on-rule` pattern warns and does not refuse. The
+  rule files do not list every rule ID: eight IDs emitted by built-in
+  analysers (for example `PROMPT_XML_INJECTION`,
+  `COMPONENT_ORPHANED_REF`) and any plugin's IDs are not declared, so a
+  refusal would reject valid patterns. Declaring every emitted ID would
+  let this become exit 2.
+- `--fail-on-category mcp` exits 1 on every scan, including a project
+  with no MCP configuration, because the info-level inventory finding
+  `MCP_ASSETS_DISCOVERED` carries the `MCP_` prefix. This fails closed,
+  so it is not a G-1 case, but the gate is unusable as it stands.
+- A missing `--exceptions` file is still ignored, with
+  `--strict-exceptions` as well. With no exceptions
+  the run is stricter, not looser, so this does not fail open.
+
+**G-2, what was found (2026-11-15).**
+
+| Case | Before | Now |
+|---|---|---|
+| A source file that cannot be read (not valid UTF-8, or an OS error) | Dropped with a debug log; nowhere in the report | `source_read` failure in `analysis_completeness`, and a coverage note |
+| A parser raises on a file | In `diagnostics` and a coverage note; exit unchanged | Also in `analysis_completeness`; exit 2 with `--strict-analysis` |
+| An analyser plugin raises | Warning log only | `analysis` failure, and a coverage note |
+| A component extractor raises | In `diagnostics` only | Also a coverage note |
+| No file read (empty scan root, or every file unreadable) | Exit 0, no findings | `nothing_analysed`; exit 2 with `--strict-analysis` |
+
+**Left open by G-2.**
+
+- The gate is opt-in. Without `--strict-analysis` a partial scan still
+  exits 0; the record and the coverage notes say it was partial. Making
+  it the default would change the exit code of existing CI jobs and is
+  the owner's decision.
+- A failure inside a built-in analyser is not caught: it aborts the
+  scan with a traceback (not exit 0, so it does not fail open).
+- `complete` covers the files SafeAI collected. Files of unsupported
+  types are skipped by design and counted in `skipped_files`; they do
+  not make a scan incomplete.
+- A file with no framework that SafeAI recognises is read and counted,
+  and yields no authority. `complete` does not mean an agent was found.
+
 ## Order of work
 
 | Phase | Work | Exit |

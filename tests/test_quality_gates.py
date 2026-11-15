@@ -27,6 +27,14 @@ def test_fail_on_rule_multiple_no_match(kya_project, tmp_path):
     assert rc == 1
 
 
+def test_fail_on_rule_no_match_warns(kya_project, tmp_path, capsys):
+    """A pattern that matches no known rule is flagged on stderr."""
+    main(["scan", kya_project["root"], "--registry", kya_project["registry"],
+          "--sarif", os.path.join(tmp_path, "r.sarif"), "--no-registry",
+          "--fail-on-rule", "NONEXISTENT_*"])
+    assert "--fail-on-rule NONEXISTENT_* matches no rule" in capsys.readouterr().err
+
+
 def test_fail_on_category_no_match(kya_project, tmp_path):
     """--fail-on-category with non-matching category doesn't change exit code."""
     rc = main(["scan", kya_project["root"], "--registry", kya_project["registry"],

@@ -6,6 +6,7 @@ Usage::
                             [--manifest <path>] [--baseline <path>]
                             [--policy <path>] [--suppressions <path>]
                             [--registry <path> | --no-registry] [--strict-registry]
+                            [--strict-analysis]
                             [--pr-comment <path>] [--pr-comment-stdout]
                             [--fail-on <level>] [--fail-on-new]
                             [--fail-on-escalation <level>]
@@ -36,7 +37,7 @@ import argparse
 import os
 import sys
 
-from safeai.cmd.postprocess import ScanPostProcessor
+from safeai.cmd.postprocess import FAIL_ON_CATEGORY_PREFIXES, ScanPostProcessor
 
 _POLICY_PROFILES = ("developer", "strict-ci", "mcp", "rag", "production-agent")
 
@@ -91,6 +92,13 @@ def _build_parser():
                       help="Do not create or update the local KYA registry")
     scan.add_argument("--strict-registry", action="store_true",
                       help="Fail the scan if registry persistence fails")
+    scan.add_argument("--strict-analysis", action="store_true",
+                      help="Exit 2 when the analysis is incomplete: a file could "
+                           "not be read, a parser, component extractor or analyser "
+                           "plugin failed, a configuration file could not be parsed, "
+                           "or no file was read at all. Without this flag the same "
+                           "facts are reported (analysis_completeness) and the exit "
+                           "code is unchanged.")
     scan.add_argument("--pr-comment", dest="pr_comment_path",
                       help="Write a reviewer-facing Markdown summary of capability "
                            "escalations to PATH (never posted anywhere)")
@@ -162,11 +170,14 @@ def _build_parser():
                            "not change --fail-on/--fail-on-new/--fail-on-escalation.")
     scan.add_argument("--fail-on-rule", dest="fail_on_rule", nargs="+", metavar="PATTERN",
                       help="Fail when any finding matches a rule ID pattern "
-                           "(glob-style: GOV_*, MCP_*, ESC_*, etc.). Multiple "
-                           "patterns are OR'd. Example: --fail-on-rule GOV_* MCP_*")
+                           "(glob-style: GOV_*, MCP_*, CAP_*, etc.). Multiple "
+                           "patterns are OR'd. Example: --fail-on-rule GOV_* MCP_*. "
+                           "Escalation rules (ESC_*) are not findings: use "
+                           "--fail-on-escalation. A pattern that matches only "
+                           "escalation rules is a usage error (exit 2); one that "
+                           "matches no known rule prints a warning.")
     scan.add_argument("--fail-on-category", dest="fail_on_category", nargs="+", metavar="NAME",
-                      choices=["security", "governance", "capability", "dataflow",
-                               "prompt", "data_leakage", "mcp", "dependency"],
+                      choices=sorted(FAIL_ON_CATEGORY_PREFIXES),
                       help="Fail when any finding belongs to this category. "
                            "Multiple categories are OR'd. "
                            "Example: --fail-on-category security governance")
