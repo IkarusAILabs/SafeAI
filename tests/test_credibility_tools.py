@@ -575,6 +575,9 @@ def test_export_skips_a_symbolic_link_that_loops(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    # commit-tree needs an identity; a CI runner has none configured.
+    _git(repo, "config", "user.email", "study@example.org")
+    _git(repo, "config", "user.name", "study")
 
     def plumbing(*args, stdin):
         return subprocess.run(["git", *args], cwd=repo, input=stdin.encode(),
