@@ -34,7 +34,7 @@ from safeai.analysis.semantic import build_semantic_document
 from safeai.analysis.tool_bodies import attach_tool_bodies
 from safeai.analysis.tool_surface import build_tool_surface
 from safeai.frameworks import discover_parsers
-from safeai.kya.assurance import build_assurance_boundary
+from safeai.kya.assurance import build_analysis_completeness, build_assurance_boundary
 from safeai.rules.loader import load_rules
 from safeai.scoring.engine import score_report
 from safeai.severity import SEVERITIES
@@ -316,7 +316,17 @@ class ScanOrchestrator:
                 with open(path, "r", encoding="utf-8") as f:
                     content = f.read()
             except Exception as exc:
+                # A file that cannot be read is not analysed. Recorded, not
+                # only logged, so the report can say the scan was partial
+                # (G-2). The exception type is kept and its message dropped:
+                # an OS error message carries the absolute path.
                 logger.debug("Failed to read %s: %s", path, exc)
+                self.diagnostics.append({
+                    "file": path,
+                    "stage": "source_read",
+                    "kind": "read_error",
+                    "error": type(exc).__name__,
+                })
                 continue
 
             self.file_cache[path] = content
@@ -421,7 +431,7 @@ class ScanOrchestrator:
     def extract_components(self):
         """Stage 4: component-level extraction, aggregation, normalization."""
         self.diagnostics = [d for d in self.diagnostics
-                            if d.get("stage") == "framework_parsing"]
+                            if d.get("stage") in ("source_read", "framework_parsing")]
         self.components = extract_components(
             self.files, self.file_cache, self.semantic_docs, diagnostics=self.diagnostics
         )
@@ -488,6 +498,13 @@ class ScanOrchestrator:
                     getattr(analyzer, "name", type(analyzer).__name__),
                     exc,
                 )
+                self.diagnostics.append({
+                    "file": None,
+                    "stage": "analysis",
+                    "kind": "analyzer_error",
+                    "analyzer": getattr(analyzer, "name", type(analyzer).__name__),
+                    "error": f"{type(exc).__name__}: {exc}",
+                })
         self.findings.sort(key=lambda f: (
             str(f.get("file") or ""),
             int(f.get("line") or 0),
@@ -732,6 +749,7 @@ class ScanOrchestrator:
         self._relativize_report()
         # Assurance boundary (v1.4): what this scan did and did not verify.
         # Derived from the run itself, never a fixed disclaimer string.
+        self.report["analysis_completeness"] = build_analysis_completeness(self.report)
         self.report["assurance_boundary"] = build_assurance_boundary(self.report)
         if self.baseline_report is not None:
             from safeai.analysis.capability_diff import compute_capability_diff

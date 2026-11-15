@@ -89,5 +89,11 @@ def write_sarif(report, path):
         if controls:
             props["controls"] = controls
 
+    # G-2: whether every collected file was read and analysed. A consumer
+    # that sees no results can tell "clean" from "not analysed".
+    completeness = report.get("analysis_completeness")
+    if completeness:
+        sarif["runs"][0]["properties"] = {"analysisCompleteness": completeness}
+
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(sarif, fh, indent=2)
