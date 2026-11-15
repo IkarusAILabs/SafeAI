@@ -706,12 +706,12 @@ lower its bar.
 | C-5 | **Authority surface census.** A descriptive measurement of pre-registered public MCP servers and agent configurations: share with shell / write / execute authority, without a declared approval control, with static credentials, and the unknown rate. Aggregates only; no per-project ranking. | What agent authority looks like in practice | Positioning claims without data | **IMPLEMENTED (tooling, v2.17 dev):** `scripts/census.py`; protocol fixed 2026-11-08; frame (official MCP registry) and a seeded sample of 200 eligible repositories committed before any scan; run of 2026-11-09: 199 of 200 scanned, 1 failed (a parser crash, since fixed); shares held back until the blind human check (two checkers needed) is adjudicated |
 | C-6 | **Coordinated disclosure as a by-product.** A finding from C-2, C-3 or C-5 that a human has confirmed as exploitable is reported privately under `community-scans/disclosure-policy.md`, published only after a fix. The published number is the **maintainer acceptance rate** (accepted / filed), not a finding count. Replaces the "scan and share" issues (#129–#141). | External precision | Credibility of findings | PLANNED; no automated filing, ever |
 | C-7 | **Open-source design partners.** Run the SafeAI action in the CI of 3–5 agent projects for a month; record which review requests maintainers found useful. | Usefulness of review-only output | Whether Lane B helps anyone | PLANNED |
-| C-8 | **Claims ledger.** Every claim in the README and the website linked to the measurement that backs it, or reworded until one exists. | Honesty of the public claims | Claims ahead of evidence | **STARTED (2026-11-08):** `research/credibility/claims.yml` (29 claims) and `scripts/claims_check.py` in CI (`--web` re-checks the website); README numbers corrected; website revised by the owner, leaving no overclaim or stale fact |
+| C-8 | **Claims ledger.** Every claim in the README and the website linked to the measurement that backs it, or reworded until one exists. | Honesty of the public claims | Claims ahead of evidence | **STARTED (2026-11-08):** `research/credibility/claims.yml` (30 claims at 2026-11-15) and `scripts/claims_check.py` in CI (`--web` re-checks the website); README numbers corrected; website revised by the owner, leaving no overclaim or stale fact |
 
 Guarantee checks that need no labeller (G-1 to G-6, opened 2026-11-14:
 gate inputs fail closed, incomplete analysis, release verification,
 benchmark reproduction, a wider claims ledger, owner decisions) are in
-`docs/research/CREDIBILITY_TRACK.md`. G-1 and G-2 are done; the rest are PLANNED.
+`docs/research/CREDIBILITY_TRACK.md`. G-1 to G-3 are done; the rest are PLANNED.
 
 Process items that also bear on credibility stay where they are: P-1
 (DCO as a required check), P-2 (OpenSSF Best Practices), P-3 (required

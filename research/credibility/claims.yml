@@ -222,6 +222,20 @@ claims:
     until: '2026-11-08'
     why: stale (also "15+")
 
+- id: verification-release
+  source: docs/reference/VERIFICATION.md
+  quote: 'Current release: v2.16.0'
+  kind: count
+  status: counted
+  count: release
+  claimed: 2.16.0
+  note: Fails the check at the next release until the page is updated. The
+    verify-release workflow runs the page's steps against the latest release (G-3).
+  replaced:
+  - quote: 'Current release: v2.3.0'
+    until: '2026-11-15'
+    why: stale; thirteen releases behind, under the repository's earlier address
+
 - id: site-release
   source: https://safeai-analyzer.ikaruslabs.net
   retrieved: '2026-11-08'

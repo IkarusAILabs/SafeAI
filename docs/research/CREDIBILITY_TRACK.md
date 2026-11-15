@@ -477,7 +477,7 @@ signal and change no measured number.
 |---|---|---|---|---|
 | G-1 | **Gate inputs fail closed.** A requested gate whose input is missing, malformed or can never match must not exit 0. Follow-up to #333. | Exit 0 means "checked and clean"; a gate that silently did not run makes every pass doubtful | `tests/test_gate_inputs_fail_closed.py` lists every gate against every unusable input and runs in CI | **DONE (2026-11-14)** for the cases below; one case warns instead of refusing, see *Left open* |
 | G-2 | **Incomplete analysis is visible and gateable.** A scan records whether every collected file was read and analysed, and an opt-in flag refuses a partial scan. | A pass over files that were not analysed is not a pass | `tests/test_analysis_completeness.py`: an unreadable file, a failing parser and an empty scan root each exit 2 under `--strict-analysis` | **DONE (2026-11-15)**; opt-in, see *Left open by G-2* |
-| G-3 | **Release verification that works for the current release.** `docs/reference/VERIFICATION.md` still walks through v2.3.0 under the repository's earlier address. Rewrite it for the current release and run the documented commands in CI against the latest release. | Signatures, SBOM and provenance count only if a reader can verify them by following the document | The CI job passes, and the version in the document is a counted claim in the ledger | PLANNED |
+| G-3 | **Release verification that works for the current release.** `docs/reference/VERIFICATION.md` rewritten for the current release and address; `scripts/verify_release.sh` runs its steps and the `verify-release` workflow runs the script against the latest release. | Signatures, SBOM and provenance count only if a reader can verify them by following the document | The workflow passes, and the version on the page is a counted claim in the ledger (`verification-release`) | **DONE (2026-11-15)**; see *Left open by G-3* |
 | G-4 | **Benchmark reproducible from a clean clone.** One documented command recomputes the published digest; CI fails if the report and the recomputed value differ. | The published numbers can be re-derived, not only read | The command and the check exist; how much the `authority-benchmark` job already covers is not yet checked | PLANNED |
 | G-5 | **Wider claims ledger.** Extend `claims.yml` (C-8) to `SECURITY.md`, `docs/reference/LIMITATIONS.md`, the action's Marketplace text and the package metadata; point the README badges at the current repository address. | Claims outside the README and the website are unchecked today | Each added claim is `counted`, `tested`, `limitation`, or listed as `unmeasured` with its study | PLANNED |
 | G-6 | **Owner decisions.** Close or refresh the "scan and share" issues (#129–#141) that C-6 replaces; decide P-1 (DCO as a required check) and P-3 (required review). At 2026-11-14 `main` requires `Lint` and `Tests (Python 3.11)` only. | The stated process and the enforced process should be the same | Decisions recorded here | PLANNED (owner) |
@@ -531,6 +531,34 @@ signal and change no measured number.
   not make a scan incomplete.
 - A file with no framework that SafeAI recognises is read and counted,
   and yields no authority. `complete` does not mean an agent was found.
+
+**G-3, what was found (2026-11-15).** Checked against the v2.16.0
+release assets.
+
+| On the page before | Fact | Now |
+|---|---|---|
+| "Current release: v2.3.0", every command under `ikaruscareer/SafeAI` | The latest release is v2.16.0, signed with the identity `https://github.com/IkarusAILabs/SafeAI/.github/workflows/release.yml@refs/tags/v2.16.0` (read from the certificate) | Current release and address; the version is a counted claim |
+| `slsa-verifier verify-artifact` on `safeai-X.Y.Z-slsa-provenance.json` | The file is written by hand in `release.yml`: unsigned, its subject is the git commit with a `sha1` digest, and it names the earlier address. No verifier can check it | The page says so and uses `gh attestation verify`, which checks the Sigstore attestation the release workflow records for the wheel and the sdist |
+| `git verify-tag` | Release tags are lightweight; there is no signature | Stated as not verifiable |
+| "SBOM, provenance, and `SHA256SUMS` ship alongside as attestations" | They are unsigned files; `SHA256SUMS` covers the SBOM | Stated as checksum only |
+
+Checked by hand on 2026-11-15 for v2.16.0: the four checksums, the
+Sigstore attestation of the wheel and the sdist (with a wrong tag
+refused), and the PyPI wheel hash equal to the release wheel. The
+Cosign step was not run by hand; the workflow runs it.
+
+**Left open by G-3.**
+
+- The release still ships `safeai-X.Y.Z-slsa-provenance.json`. A file
+  with "slsa-provenance" in its name that cannot be verified invites the
+  wrong conclusion. Removing it, or replacing it with the attestation
+  bundle, changes `release.yml` and the asset list and is the owner's
+  decision.
+- `SHA256SUMS` and the SBOM are unsigned.
+- Release tags are unsigned.
+- Only v2.16.0 was checked. Releases signed before the repository moved
+  carry the earlier address in their certificate.
+- The earlier address remains in other files (G-5).
 
 ## Order of work
 
