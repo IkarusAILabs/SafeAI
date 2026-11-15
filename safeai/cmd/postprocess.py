@@ -839,6 +839,27 @@ class ScanPostProcessor:
         if self.diff_gate_blind_code is not None:
             return self.diff_gate_blind_code
 
+        # --strict-analysis (G-2): a pass over files that were not analysed
+        # is not a pass. Same code and same precedence as the refusal above.
+        if getattr(self.args, "strict_analysis", False):
+            completeness = self.report.get("analysis_completeness") or {}
+            status = completeness.get("status")
+            if status != "complete":
+                failures = completeness.get("failures") or []
+                detail = "; ".join(
+                    f"{f['file'] or f['component']} ({f['stage']})" for f in failures[:5]
+                )
+                more = f"; and {len(failures) - 5} more" if len(failures) > 5 else ""
+                print(
+                    f"safeai: error: --strict-analysis: analysis is {status} "
+                    f"({completeness.get('files_read', 0)} of "
+                    f"{completeness.get('files_collected', 0)} collected files read"
+                    + (f"; {detail}{more}" if detail else "")
+                    + "). See analysis_completeness and diagnostics in the JSON report.",
+                    file=sys.stderr,
+                )
+                return 2
+
         # Suppressed findings never trigger failure. --fail-on-new restricts
         # the failing set to new/regressed findings (requires --baseline). A
         # policy 'block' outcome always fails the scan; documented behavior.

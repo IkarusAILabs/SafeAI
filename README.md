@@ -418,6 +418,7 @@ python -m safeai registry <subcommand> [options]
 | `--registry` | shared (`SAFEAI_REGISTRY`/`~/.safeai/registry.db`) | Registry database path |
 | `--no-registry` | off | Skip registry persistence |
 | `--strict-registry` | off | Fail the scan if registry persistence fails |
+| `--strict-analysis` | off | Exit 2 when the analysis is incomplete: a file could not be read, a parser, extractor or analyser plugin failed, or no file was read. The same facts are always in `analysis_completeness` in the JSON report, manifest and SARIF |
 | `--pr-comment` | — | Write a reviewer-facing Markdown summary of capability escalations to this path (never posted anywhere) |
 | `--pr-comment-stdout` | off | Print the PR comment Markdown to stdout |
 | `--fail-on-escalation` | — | Fail if a capability escalation at or above `critical`, `high`, or `medium` is detected (requires `--baseline`) |
@@ -437,7 +438,7 @@ python -m safeai registry <subcommand> [options]
 |------|-----------|
 | 0 | No findings at or above threshold; policy outcome not `deny` |
 | 1 | Finding at or above threshold, or policy outcome `deny` |
-| 2 | Operational error (e.g. `--strict-registry` persistence failure), or a requested authority gate that could not be evaluated against the baseline. Takes precedence over 1 |
+| 2 | Operational error (e.g. `--strict-registry` persistence failure), a requested authority gate that could not be evaluated against the baseline, or an incomplete analysis under `--strict-analysis`. Takes precedence over 1 |
 
 Suppressed findings never trigger exit code 1. With `--fail-on-new`, only
 findings classified `new` or `regressed` against the baseline are gated.

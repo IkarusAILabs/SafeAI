@@ -711,7 +711,7 @@ lower its bar.
 Guarantee checks that need no labeller (G-1 to G-6, opened 2026-11-14:
 gate inputs fail closed, incomplete analysis, release verification,
 benchmark reproduction, a wider claims ledger, owner decisions) are in
-`docs/research/CREDIBILITY_TRACK.md`. G-1 is done; the rest are PLANNED.
+`docs/research/CREDIBILITY_TRACK.md`. G-1 and G-2 are done; the rest are PLANNED.
 
 Process items that also bear on credibility stay where they are: P-1
 (DCO as a required check), P-2 (OpenSSF Best Practices), P-3 (required

@@ -6,6 +6,7 @@ Usage::
                             [--manifest <path>] [--baseline <path>]
                             [--policy <path>] [--suppressions <path>]
                             [--registry <path> | --no-registry] [--strict-registry]
+                            [--strict-analysis]
                             [--pr-comment <path>] [--pr-comment-stdout]
                             [--fail-on <level>] [--fail-on-new]
                             [--fail-on-escalation <level>]
@@ -91,6 +92,13 @@ def _build_parser():
                       help="Do not create or update the local KYA registry")
     scan.add_argument("--strict-registry", action="store_true",
                       help="Fail the scan if registry persistence fails")
+    scan.add_argument("--strict-analysis", action="store_true",
+                      help="Exit 2 when the analysis is incomplete: a file could "
+                           "not be read, a parser, component extractor or analyser "
+                           "plugin failed, a configuration file could not be parsed, "
+                           "or no file was read at all. Without this flag the same "
+                           "facts are reported (analysis_completeness) and the exit "
+                           "code is unchanged.")
     scan.add_argument("--pr-comment", dest="pr_comment_path",
                       help="Write a reviewer-facing Markdown summary of capability "
                            "escalations to PATH (never posted anywhere)")

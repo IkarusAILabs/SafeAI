@@ -370,6 +370,7 @@ def extract_components(files, file_cache, semantic_docs=None, diagnostics=None):
                     diagnostics.append({
                         "file": path,
                         "stage": "component_extraction",
+                        "kind": "extractor_error",
                         "extractor": extractor.__name__,
                         "error": str(exc),
                     })

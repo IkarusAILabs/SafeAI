@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A scan now says whether it analysed everything it collected (G-2).**
+  The JSON report, the manifest's `assurance_boundary` and the SARIF run
+  (`runs[0].properties.analysisCompleteness`) carry
+  `analysis_completeness`: a `status` of `complete`, `incomplete` or
+  `nothing_analysed`, the number of files collected and read, and each
+  failure by file and stage. The record holds no error text, so it is
+  the same on any machine; the text stays in `diagnostics`.
+  - A file that could not be read (for example, not valid UTF-8) was
+    dropped with a debug log and appeared nowhere in the report. It is
+    now a `source_read` failure and a coverage note.
+  - A failing analyser plugin was a warning log only. It is now an
+    `analysis` failure and a coverage note.
+  - A component extractor failure now has a coverage note.
+  - A scan that read no file reports `nothing_analysed`.
+- **`--strict-analysis`** exits 2 when the status is not `complete`,
+  after the reports are written, and takes precedence over exit 1.
+  Without the flag the exit code is unchanged.
+
 ### Changed
 
 - **A requested authority gate no longer passes when the baseline
