@@ -142,6 +142,11 @@ def export_tree(repo: str, sha: str, dest: str) -> str:
     checkouts on Windows, and nothing is checked out here. Extraction goes
     through the tarfile ``data`` filter (no absolute paths, no traversal,
     no links outside ``dest``) after :func:`portable_name`.
+
+    A link that cannot be extracted is skipped: a symbolic link that
+    loops back on itself sends ``tarfile`` into unbounded recursion, and
+    a link is not source the scanner reads. Any other member that fails
+    is an error for the commit.
     """
     try:
         data = subprocess.run(
@@ -157,7 +162,14 @@ def export_tree(repo: str, sha: str, dest: str) -> str:
         raise StudyError("this Python has no tarfile data filter; use 3.11.4 or later")
     os.makedirs(dest, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(data.stdout)) as archive:
-        archive.extractall(dest, filter=_extract_filter)
+        for member in archive:
+            try:
+                archive.extract(member, dest, filter=_extract_filter)
+            except (RecursionError, OSError, tarfile.TarError) as exc:
+                if member.issym() or member.islnk():
+                    continue
+                raise StudyError(f"cannot extract {member.name!r}: "
+                                 f"{type(exc).__name__}: {exc}"[:300]) from exc
     return dest
 
 
